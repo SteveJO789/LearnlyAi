@@ -8,17 +8,17 @@ __pycache__/
 .venv/
 venv/
 
-# Environment
+# ตัวแปรสภาพแวดล้อม
 .env
 .env.*
 !.env.example
 
-# IDE / OS
+# IDE / ระบบปฏิบัติการ
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
-# Runtime
+# ไฟล์ที่เกิดระหว่าง Runtime
 logs/
 uploads/
