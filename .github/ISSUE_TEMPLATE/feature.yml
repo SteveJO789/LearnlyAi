@@ -1,27 +1,27 @@
-name: Feature
-description: Implement a product or system capability
+name: ฟีเจอร์ใหม่
+description: เพิ่มความสามารถใหม่ให้กับผลิตภัณฑ์หรือระบบ
 title: "[MODULE] "
 labels: ["enhancement"]
 body:
   - type: textarea
     id: goal
     attributes:
-      label: Goal
-      description: What should this feature achieve?
+      label: เป้าหมาย
+      description: ฟีเจอร์นี้ต้องการแก้ปัญหาหรือทำให้ระบบทำอะไรได้?
     validations:
       required: true
   - type: textarea
     id: scope
     attributes:
-      label: Scope
-      description: Describe the implementation boundaries.
+      label: ขอบเขตงาน
+      description: ระบุขอบเขตของ Implementation และสิ่งที่ไม่รวมในงานนี้
     validations:
       required: true
   - type: textarea
     id: acceptance
     attributes:
       label: Acceptance Criteria
-      description: List measurable completion criteria.
+      description: ระบุเกณฑ์ที่ตรวจสอบได้ว่างานนี้เสร็จสมบูรณ์
       placeholder: |
         - [ ] ...
         - [ ] ...
@@ -31,4 +31,4 @@ body:
     id: dependencies
     attributes:
       label: Dependencies
-      description: Related issues, APIs, schemas, or modules.
+      description: ระบุ Issue, API, Schema หรือ Module ที่เกี่ยวข้อง
