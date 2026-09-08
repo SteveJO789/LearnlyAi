@@ -1,9 +1,9 @@
-# System Architecture
+# สถาปัตยกรรมระบบ
 
-## High-level architecture
+## ภาพรวมสถาปัตยกรรม
 
 ```text
-Student
+ผู้เรียน
   |
   v
 Next.js Frontend
@@ -34,7 +34,7 @@ FastAPI Backend
   +--> File Storage
 ```
 
-## Learning workflow
+## ลำดับการเรียนรู้
 
 ```text
 INPUT
@@ -52,9 +52,9 @@ POST_TEST
 COMPLETED
 ```
 
-The backend controls workflow state deterministically. The LLM adapts or generates learning content inside controlled boundaries.
+Backend เป็นผู้ควบคุมสถานะของ Learning Workflow แบบ deterministic ส่วน LLM มีหน้าที่ปรับหรือสร้างเนื้อหาการเรียนภายใต้ขอบเขตที่ระบบกำหนด
 
-## Backend modules
+## โมดูล Backend
 
 - Authentication
 - User Management
@@ -68,7 +68,7 @@ The backend controls workflow state deterministically. The LLM adapts or generat
 - Learning Profile
 - History
 
-## Minimum data entities
+## Entity ขั้นต่ำของระบบข้อมูล
 
 - users
 - learning_sessions
@@ -80,14 +80,14 @@ The backend controls workflow state deterministically. The LLM adapts or generat
 - document_chunks
 - ai_requests
 
-## Reliability requirements
+## ข้อกำหนดด้าน Reliability
 
-- Request validation
-- File validation
-- AI timeout
-- Limited retry policy
-- Controlled fallback/error response
-- Structured JSON schema validation
-- Centralized exception handling
-- Health check
-- Application and AI request logs
+- ตรวจสอบความถูกต้องของ Request
+- ตรวจสอบประเภทและขนาดไฟล์
+- กำหนด Timeout สำหรับ AI
+- กำหนด Retry Policy แบบจำกัดจำนวนครั้ง
+- มี Fallback หรือ Error Response ที่ควบคุมได้
+- ตรวจสอบ Structured JSON ด้วย Schema
+- จัดการ Exception จากส่วนกลาง
+- มี Health Check
+- มี Application Log และ AI Request Log
