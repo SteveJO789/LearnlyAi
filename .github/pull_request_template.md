@@ -1,25 +1,25 @@
-## Summary
+## สรุปการเปลี่ยนแปลง
 
-Describe what this PR changes.
+อธิบายว่า PR นี้แก้ไขหรือเพิ่มอะไร
 
-## Related Issue
+## Issue ที่เกี่ยวข้อง
 
 Closes #
 
-## Changes
+## รายการเปลี่ยนแปลง
 
 - 
 - 
 
-## Testing
+## การทดสอบ
 
-- [ ] Unit/basic tests pass
-- [ ] Integration behavior verified where applicable
-- [ ] Error cases checked
+- [ ] Unit/Basic Test ผ่าน
+- [ ] ตรวจสอบ Integration ที่เกี่ยวข้องแล้ว
+- [ ] ตรวจสอบกรณี Error แล้ว
 
 ## Checklist
 
-- [ ] No secrets committed
-- [ ] Acceptance criteria satisfied
-- [ ] Documentation updated if needed
-- [ ] API/schema changes documented
+- [ ] ไม่มี Secret หรือ API Key ถูก Commit
+- [ ] Acceptance Criteria ครบถ้วน
+- [ ] อัปเดตเอกสารเมื่อจำเป็น
+- [ ] หากมีการเปลี่ยน API/Schema ได้บันทึกไว้แล้ว
