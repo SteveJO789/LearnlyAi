@@ -12,7 +12,7 @@ OAuth 2.0 ทำหน้าที่ authorization ส่วน OIDC เพิ�
 sequenceDiagram
     actor U as User
     participant W as Next.js
-    participant A as FastAPI
+    participant A as Express.js
     participant G as Google OIDC
     participant D as PostgreSQL
 
@@ -96,4 +96,3 @@ FRONTEND_URL=http://localhost:3000
 - Logout ต้อง invalidate session ฝั่ง server
 - Error response ห้ามส่ง authorization code, token หรือ provider error detail ที่อ่อนไหวกลับ client
 - Protected endpoint ทุกตัวต้อง derive user จาก application session เท่านั้น
-

@@ -109,7 +109,6 @@ OAuth token ไม่ควรเก็บหากระบบไม่ต้�
 
 ## Migration Rule
 
-- ใช้ Alembic migration ทุกครั้งที่ schema เปลี่ยน
+- ใช้ Prisma Migrate ทุกครั้งที่ schema เปลี่ยน
 - Migration ต้อง rollback ได้เมื่อสมเหตุสมผล
 - Test database ต้องสร้างจาก migration เดียวกับ production ไม่ใช้ schema ที่เขียนแยก
-

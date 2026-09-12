@@ -20,7 +20,7 @@
 ```mermaid
 flowchart TB
     Learner["ผู้เรียน"] --> Web["Next.js Web App"]
-    Web -->|"HTTPS + HttpOnly cookie"| API["FastAPI Modular Monolith"]
+    Web -->|"HTTPS + HttpOnly cookie"| API["Express.js Modular Monolith"]
     API -->|"OAuth 2.0 / OIDC"| Google["Google Identity"]
     API --> DB["PostgreSQL + pgvector"]
     API --> Files["File/Object Storage"]
@@ -105,7 +105,7 @@ Frontend ไม่รับ Google client secret, ไม่สร้าง user 
 
 ## 8. Reliability and Security
 
-- Validate request ด้วย Pydantic และ validate AI output ด้วย JSON Schema
+- Validate request ด้วย Zod และ validate AI output ด้วย JSON Schema
 - จำกัดชนิด/ขนาดไฟล์ และตรวจชื่อไฟล์ที่ไม่ปลอดภัย
 - กำหนด connect/read timeout และ retry เฉพาะ transient error
 - ใช้ idempotency สำหรับ operation ที่เสี่ยงถูก submit ซ้ำ
@@ -120,13 +120,15 @@ Frontend ไม่รับ Google client secret, ไม่สร้าง user 
 ```mermaid
 flowchart TB
     Browser["Browser"] --> Web["Next.js container"]
-    Browser --> API["FastAPI container"]
+    Browser --> API["Express.js container"]
     API --> DB["PostgreSQL + pgvector"]
     API --> Volume["Development file volume"]
     API --> External["Google + AI provider"]
 ```
 
 Docker Compose ใช้สำหรับ local development และ demo deployment ส่วน production ต้องเปิด HTTPS และตั้ง cookie `Secure=true`
+
+Backend ใช้ Node.js + Express.js + TypeScript และ Prisma ตามเนื้อหาที่ทีมเรียนในรายวิชา ส่วน AI/RAG อยู่หลัง TypeScript interfaces และ provider adapters หากอนาคตจำเป็นต้องมี runtime อื่นจึงค่อยพิจารณาแยก worker ผ่าน Architecture Decision ใหม่ ซึ่งไม่รวมอยู่ใน MVP นี้
 
 ## 10. Out of Scope for MVP
 
@@ -136,4 +138,3 @@ Docker Compose ใช้สำหรับ local development และ demo depl
 - Fine-tuning model
 - Real-time collaborative classroom
 - Billing และ subscription
-

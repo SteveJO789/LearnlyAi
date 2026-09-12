@@ -19,7 +19,7 @@ Learnly AI ใช้รูปแบบ **Modular Monolith** เพื่อใ�
 ```mermaid
 flowchart LR
     U["ผู้เรียน"] --> W["Next.js Web"]
-    W --> A["FastAPI Modular Monolith"]
+    W --> A["Express.js Modular Monolith"]
     A --> G["Google OIDC"]
     A --> D["PostgreSQL + pgvector"]
     A --> S["Object/File Storage"]
@@ -31,12 +31,14 @@ flowchart LR
 | Layer | Technology |
 |---|---|
 | Frontend | Next.js, React, TypeScript, KaTeX, SVG/Canvas |
-| Backend | Python, FastAPI, Pydantic, SQLAlchemy/Alembic |
+| Backend | Node.js, Express.js, TypeScript, Zod, Prisma |
 | Authentication | Google OpenID Connect บน OAuth 2.0 Authorization Code Flow |
 | Session | Server-side session + Secure HttpOnly cookie |
 | Database | PostgreSQL + pgvector |
 | AI | Provider Adapter รองรับการสลับ Kimi, DeepSeek หรือ OpenRouter |
 | Deployment | Docker Compose สำหรับ MVP |
+
+เลือก Express.js เพราะทีมเรียน framework นี้ในรายวิชาอยู่แล้ว และสามารถใช้ TypeScript ร่วมกันทั้ง Frontend/Backend ช่วยลด learning curve และ friction ระหว่างสมาชิก ส่วน AI/RAG เรียกผ่าน provider API และ adapter ได้โดยไม่เพิ่ม runtime อีกภาษาใน MVP
 
 Frontend จะไม่เรียก AI provider และไม่ถือ API key โดยตรง ทุกผลลัพธ์จาก AI ต้องผ่าน backend, grounded context และ JSON Schema validation ก่อนส่งให้ UI
 
@@ -79,4 +81,3 @@ feature/* → Pull Request → develop → Integration Test → main
 4. Mock Learning Engine ส่ง structured response ที่ผ่าน schema
 5. Frontend render guided lesson
 6. บันทึก session และแสดงใน History
-

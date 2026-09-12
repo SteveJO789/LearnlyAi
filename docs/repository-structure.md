@@ -1,25 +1,27 @@
 # Repository Structure
 
-โครงสร้างเป้าหมายเป็น monorepo สำหรับ Next.js frontend, FastAPI modular monolith และ infrastructure
+โครงสร้างเป้าหมายเป็น monorepo สำหรับ Next.js frontend, Express.js modular monolith และ infrastructure โดยใช้ TypeScript ทั้งสองฝั่ง
 
 ```text
 LearnlyAi/
 ├── apps/
 │   └── web/                       # Next.js frontend
 ├── services/
-│   └── api/                       # FastAPI modular monolith
-│       ├── app/
+│   └── api/                       # Express.js modular monolith
+│       ├── src/
 │       │   ├── modules/
 │       │   │   ├── auth/
 │       │   │   ├── users/
-│       │   │   ├── learning_sessions/
-│       │   │   ├── input_processing/
+│       │   │   ├── learning-sessions/
+│       │   │   ├── input-processing/
 │       │   │   ├── assessments/
-│       │   │   ├── learning_profiles/
-│       │   │   ├── ai_orchestrator/
+│       │   │   ├── learning-profiles/
+│       │   │   ├── ai-orchestrator/
 │       │   │   └── rag/
 │       │   └── shared/
-│       ├── migrations/
+│       ├── prisma/
+│       │   ├── schema.prisma
+│       │   └── migrations/
 │       └── tests/
 ├── contracts/                     # JSON Schema และตัวอย่างที่ใช้ร่วมกัน
 ├── docs/                          # Architecture/API/Data decisions
@@ -44,11 +46,12 @@ LearnlyAi/
 
 ```text
 module/
-├── router.py          # HTTP mapping เท่านั้น
-├── schemas.py         # Pydantic request/response
-├── service.py         # use case / business rules
-├── repository.py      # persistence boundary
-├── models.py          # database model
+├── router.ts          # Express Router และ HTTP mapping เท่านั้น
+├── schemas.ts         # Zod request/response schemas
+├── service.ts         # use case / business rules
+├── repository.ts      # persistence boundary ผ่าน Prisma
+├── types.ts           # domain types เมื่อจำเป็น
+├── index.ts           # public exports ของ module
 └── tests/
 ```
 
@@ -64,4 +67,3 @@ module/
 | AI + Learning Engine | Steve | `feature/12-ai-orchestrator` |
 
 ชื่อ branch อิง issue number เพื่อให้ trace กลับไปหา Acceptance Criteria ได้ง่าย
-
