@@ -1,54 +1,72 @@
 # กระบวนการพัฒนา
 
-## รูปแบบ Branch
+## Branch Strategy
 
 ```text
 main
-  ↑
+  ↑ release/integration PR
 develop
-  ↑
-feature/*
+  ↑ reviewed feature PR
+feature/* | fix/* | docs/*
 ```
 
-ห้าม Push เข้า `main` โดยตรง
+- `main` เป็น demo/release ที่ผ่าน integration test
+- `develop` เป็นฐานรวมงานของ sprint
+- ห้าม push เข้า `main` หรือ `develop` โดยตรง
+- สร้าง branch จาก `develop` และควร sync ก่อนเปิด PR
 
-ตัวอย่างชื่อ Branch:
+ตัวอย่าง:
 
-- `feature/12-login-ui`
-- `feature/18-learning-session-api`
-- `feature/27-rag-retrieval`
+- `feature/6-google-oidc`
+- `feature/8-session-api`
+- `feature/9-learning-session-ui`
+- `feature/12-ai-orchestrator`
 
-## ข้อกำหนดของ Pull Request
+## Vertical Slice First
 
-PR จะพร้อม Merge เมื่อ:
+เป้าหมาย integration แรก:
 
-- Build ผ่าน
-- Test ที่เกี่ยวข้องผ่าน
-- ไม่มี Secret หรือ API Key ถูก Commit เข้า Repository
-- Acceptance Criteria ครบถ้วน
-- หากมีการเปลี่ยน API Contract ต้องอัปเดตเอกสาร
-- มี Reviewer อย่างน้อย 1 คนอนุมัติ
+```text
+Google Login → Create Session → Mock Input → Mock Structured Tutor Output
+→ Render Lesson → Save Session → History
+```
+
+ทีมสามารถพัฒนาขนานกันผ่าน shared contracts โดย AI จริง, OCR จริง และ RAG จริงยังเป็น adapter/mock ได้ใน slice แรก
+
+## Pull Request Requirements
+
+PR พร้อม merge เมื่อ:
+
+- เชื่อม Issue ด้วย `Closes #...` หรือ `Refs #...`
+- Build/lint/test ที่เกี่ยวข้องผ่าน
+- Acceptance Criteria ครบ
+- ไม่มี secret, API key, OAuth credential หรือ `.env` จริง
+- มี reviewer อย่างน้อย 1 คนและไม่ใช่ผู้เขียนเอง
+- API/DB/Schema change มี contract หรือ migration ใน PR เดียวกัน
+- มี screenshot/video สำหรับ UI change และตัวอย่าง request/response สำหรับ API change
+- error/loading/unauthorized state ถูกพิจารณาตามขอบเขตงาน
 
 ## Definition of Done
 
-Task จะถือว่าเสร็จเมื่อ:
+- Implementation ทำงานตาม Acceptance Criteria
+- มี unit/contract/integration test ตาม boundary ที่เปลี่ยน
+- ผ่าน review และแก้ comment แล้ว
+- ทำงานร่วมกับ `develop` ล่าสุด
+- documentation และ environment example เป็นปัจจุบัน
+- feature ถูกตรวจบน vertical slice หรือมี mock ที่ consumer ใช้ได้
 
-- Implementation เสร็จสมบูรณ์
-- มี Basic Test ตามความเหมาะสม
-- จัดการ Error State แล้ว
-- อัปเดตเอกสารเมื่อจำเป็น
-- PR ผ่านการ Review
-- Feature ทำงานได้บน `develop`
+## Review Pairing
 
-## การกำหนดเจ้าของงาน
+| Author area | Reviewer ที่แนะนำ |
+|---|---|
+| Frontend/UX | Backend owner เพื่อตรวจ contract |
+| Auth/User | Steve หรือ Seiya เพื่อตรวจ security/data |
+| Session/Data | Best หรือ Steve เพื่อตรวจ ownership/state |
+| AI/RAG | Frontend owner เพื่อตรวจ renderer contract |
 
-แต่ละงานควรมี:
+## Project Status
 
-- Primary Owner
-- Reviewer
+`Backlog → Ready → In Progress → In Review → Testing → Done`
 
-สมาชิกสามารถเลือก Workstream ที่ตนเองสนใจได้ แต่ควรช่วย Review งานในส่วนอื่นเพื่อหลีกเลี่ยงการเกิด Knowledge Silo
+จำกัดงาน `In Progress` คนละ 1 งานหลัก เพื่อให้ PR มีขนาดเล็กและลดงานค้าง
 
-## ลำดับสถานะที่แนะนำ
-
-Backlog → Ready → In Progress → In Review → Testing → Done
