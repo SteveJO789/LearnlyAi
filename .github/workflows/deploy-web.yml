@@ -58,6 +58,7 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D4A27732396B43C69CA7535AFB67A93D }}
 
       - name: Deploy Web to Azure
+        id: deploy-web
         uses: azure/webapps-deploy@v3
         with:
           app-name: learnlyai-web-steve
@@ -72,4 +73,4 @@ jobs:
           --retry 5
           --retry-delay 10
           --retry-all-errors
-          https://learnlyai-web-steve.azurewebsites.net/
+          "${{ steps.deploy-web.outputs.webapp-url }}/"
