@@ -1,0 +1,73 @@
+name: Deploy API
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "services/api/**"
+      - ".github/workflows/deploy-api.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-api-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy API
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        working-directory: services/api
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: services/api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build API
+        run: npm run build
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_295B2A6820A64062A65DE6930AFEFBE8 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_9C082A7BC42A48DFB95576BBE0261A02 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F567159C95E04441BBE55AF013A13813 }}
+
+      - name: Deploy API to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: learnlyai-api-steve
+          slot-name: Production
+          package: services/api
+
+      - name: Smoke test
+        run: >
+          curl
+          --fail
+          --location
+          --retry 5
+          --retry-delay 10
+          --retry-all-errors
+          https://learnlyai-api-steve.azurewebsites.net/health/live
