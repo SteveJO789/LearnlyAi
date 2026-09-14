@@ -22,7 +22,7 @@ jobs:
   deploy:
     name: Deploy Web
     runs-on: ubuntu-latest
-    environment: production
+    timeout-minutes: 20
 
     defaults:
       run:
@@ -40,7 +40,7 @@ jobs:
           cache-dependency-path: apps/web/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --no-audit --no-fund
 
       - name: Run tests
         run: npm test --if-present
@@ -60,6 +60,16 @@ jobs:
       - name: Deploy Web to Azure
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'learnlyai-web-steve'
+          app-name: learnlyai-web-steve
+          slot-name: Production
           package: apps/web
-          
+
+      - name: Smoke test
+        run: >
+          curl
+          --fail
+          --location
+          --retry 5
+          --retry-delay 10
+          --retry-all-errors
+          https://learnlyai-web-steve.azurewebsites.net/
