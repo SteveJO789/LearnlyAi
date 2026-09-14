@@ -1,0 +1,65 @@
+name: Deploy Web
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/web/**"
+      - ".github/workflows/deploy-web.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-web-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy Web
+    runs-on: ubuntu-latest
+    environment: production
+
+    defaults:
+      run:
+        working-directory: apps/web
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test --if-present
+
+      - name: Build Web
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_860F7E948972404EB71809AEB974F48C }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_90B61E01504043BBA98961025AAA787E }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D4A27732396B43C69CA7535AFB67A93D }}
+
+      - name: Deploy Web to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'learnlyai-web-steve'
+          package: apps/web
+          
