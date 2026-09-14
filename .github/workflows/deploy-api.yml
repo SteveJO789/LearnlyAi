@@ -67,4 +67,4 @@ jobs:
           --fail
           --retry 5
           --retry-delay 10
-          https://learnlyai-api-steve-e6ggdjfbebhahkd5.southeastasia-01.azurewebsites.net/health/live
+          ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
