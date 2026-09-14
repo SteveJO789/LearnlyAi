@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learnly-ai.local/schemas/learning-output.schema.json",
+  "title": "Learnly AI Structured Tutor Output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "responseId", "sessionId", "stage", "blocks", "progress", "citations"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "responseId": { "type": "string", "minLength": 1 },
+    "sessionId": { "type": "string", "minLength": 1 },
+    "stage": {
+      "enum": ["CONTENT_ANALYSIS", "PRE_TEST", "LEARNING", "TRANSFER", "POST_TEST", "COMPLETED"]
+    },
+    "blocks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/block" }
+    },
+    "progress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["percent", "canAdvance"],
+      "properties": {
+        "percent": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "canAdvance": { "type": "boolean" },
+        "nextAction": {
+          "type": ["string", "null"],
+          "enum": ["ANSWER", "REQUEST_HINT", "SUBMIT_ASSESSMENT", "CONTINUE", null]
+        }
+      }
+    },
+    "citations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/citation" }
+    }
+  },
+  "$defs": {
+    "block": {
+      "oneOf": [
+        { "$ref": "#/$defs/explanationBlock" },
+        { "$ref": "#/$defs/guidedQuestionBlock" },
+        { "$ref": "#/$defs/hintBlock" },
+        { "$ref": "#/$defs/quizBlock" },
+        { "$ref": "#/$defs/feedbackBlock" },
+        { "$ref": "#/$defs/interactiveBlock" }
+      ]
+    },
+    "baseTextBlock": {
+      "type": "object",
+      "required": ["id", "type", "content"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": { "type": "string" },
+        "title": { "type": ["string", "null"] },
+        "content": { "type": "string", "minLength": 1 },
+        "citationIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "explanationBlock": {
+      "allOf": [
+        { "$ref": "#/$defs/baseTextBlock" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": true,
+            "type": { "const": "explanation" },
+            "title": true,
+            "content": true,
+            "citationIds": true
+          }
+        }
+      ]
+    },
+    "guidedQuestionBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "content", "expectedInput"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "const": "guided_question" },
+        "content": { "type": "string", "minLength": 1 },
+        "expectedInput": { "enum": ["TEXT", "CHOICE", "NUMBER"] },
+        "choices": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "citationIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "hintBlock": {
+      "allOf": [
+        { "$ref": "#/$defs/baseTextBlock" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": true,
+            "type": { "const": "hint" },
+            "title": true,
+            "content": true,
+            "citationIds": true,
+            "level": { "type": "integer", "minimum": 1, "maximum": 3 }
+          },
+          "required": ["level"]
+        }
+      ]
+    },
+    "quizBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "questionId", "prompt", "format"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "const": "quiz" },
+        "questionId": { "type": "string" },
+        "prompt": { "type": "string", "minLength": 1 },
+        "format": { "enum": ["MULTIPLE_CHOICE", "SHORT_TEXT", "NUMBER"] },
+        "choices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "label"],
+            "properties": {
+              "id": { "type": "string" },
+              "label": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "feedbackBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "content", "result"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "const": "feedback" },
+        "content": { "type": "string", "minLength": 1 },
+        "result": { "enum": ["CORRECT", "PARTIALLY_CORRECT", "TRY_AGAIN"] },
+        "citationIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "interactiveBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "component", "props"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "const": "interactive" },
+        "component": { "enum": ["OHMS_LAW", "LINEAR_EQUATION", "LOGIC_GATE"] },
+        "props": { "type": "object" }
+      }
+    },
+    "citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "sourceType"],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "sourceType": { "enum": ["USER_MATERIAL", "TRUSTED_KNOWLEDGE_BASE"] },
+        "url": { "type": ["string", "null"], "format": "uri" },
+        "page": { "type": ["integer", "null"], "minimum": 1 }
+      }
+    }
+  }
+}
+

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0",
+  "responseId": "rsp_01JHINT",
+  "sessionId": "lsn_01JEXAMPLE",
+  "stage": "LEARNING",
+  "blocks": [
+    {
+      "id": "blk_hint_1",
+      "type": "hint",
+      "title": "คำใบ้ระดับ 1",
+      "content": "ลองเริ่มจากเขียนความสัมพันธ์ V = IR แล้วดูว่าค่าใดเป็นค่าที่โจทย์กำหนดให้",
+      "citationIds": ["src_1"],
+      "level": 1
+    }
+  ],
+  "progress": {
+    "percent": 50,
+    "canAdvance": false,
+    "nextAction": "ANSWER"
+  },
+  "citations": [
+    {
+      "id": "src_1",
+      "title": "เอกสารวงจรไฟฟ้าของผู้เรียน",
+      "sourceType": "USER_MATERIAL",
+      "url": null,
+      "page": 2
+    }
+  ]
+}
+

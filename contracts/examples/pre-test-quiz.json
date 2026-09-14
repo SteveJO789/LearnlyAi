@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0",
+  "responseId": "rsp_01JQUIZ",
+  "sessionId": "lsn_01JEXAMPLE",
+  "stage": "PRE_TEST",
+  "blocks": [
+    {
+      "id": "blk_quiz_1",
+      "type": "quiz",
+      "questionId": "q_ohm_1",
+      "prompt": "วงจรมีแรงดัน 6 V และความต้านทาน 10 Ω จะมีกระแสเท่าใด?",
+      "format": "MULTIPLE_CHOICE",
+      "choices": [
+        { "id": "a", "label": "0.6 A" },
+        { "id": "b", "label": "1.6 A" },
+        { "id": "c", "label": "60 A" }
+      ]
+    }
+  ],
+  "progress": {
+    "percent": 20,
+    "canAdvance": false,
+    "nextAction": "SUBMIT_ASSESSMENT"
+  },
+  "citations": []
+}
+

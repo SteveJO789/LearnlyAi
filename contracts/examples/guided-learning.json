@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "1.0",
+  "responseId": "rsp_01JEXAMPLE",
+  "sessionId": "lsn_01JEXAMPLE",
+  "stage": "LEARNING",
+  "blocks": [
+    {
+      "id": "blk_1",
+      "type": "explanation",
+      "title": "กฎของโอห์ม",
+      "content": "แรงดันไฟฟ้าเท่ากับกระแสไฟฟ้าคูณความต้านทาน: V = IR",
+      "citationIds": ["src_1"]
+    },
+    {
+      "id": "blk_2",
+      "type": "guided_question",
+      "content": "ถ้าแรงดันคงที่ แต่ความต้านทานเพิ่มขึ้น กระแสควรเปลี่ยนอย่างไร?",
+      "expectedInput": "TEXT",
+      "citationIds": ["src_1"]
+    }
+  ],
+  "progress": {
+    "percent": 45,
+    "canAdvance": false,
+    "nextAction": "ANSWER"
+  },
+  "citations": [
+    {
+      "id": "src_1",
+      "title": "เอกสารวงจรไฟฟ้าของผู้เรียน",
+      "sourceType": "USER_MATERIAL",
+      "url": null,
+      "page": 2
+    }
+  ]
+}
+
