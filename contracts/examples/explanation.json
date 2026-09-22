@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0",
+  "responseId": "rsp_linear_001",
+  "sessionId": "lsn_algebra_001",
+  "stage": "LEARNING",
+  "blocks": [
+    {
+      "id": "blk_explanation_001",
+      "type": "explanation",
+      "title": "สมการเชิงเส้นหนึ่งตัวแปร",
+      "content": "การแก้สมการ 2x + 3 = 11 ทำได้โดยลบ 3 จากทั้งสองข้าง แล้วหารทั้งสองข้างด้วย 2 จึงได้ x = 4",
+      "citationIds": ["src_algebra_notes"]
+    }
+  ],
+  "progress": {
+    "percent": 40,
+    "canAdvance": true,
+    "nextAction": "CONTINUE"
+  },
+  "citations": [
+    {
+      "id": "src_algebra_notes",
+      "title": "เอกสารสมการเชิงเส้นของผู้เรียน",
+      "sourceType": "USER_MATERIAL",
+      "url": null,
+      "page": 3
+    }
+  ]
+}

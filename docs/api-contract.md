@@ -123,7 +123,7 @@ Request:
 }
 ```
 
-Response payload ใน `data.tutorOutput` ต้องผ่าน [learning-output.schema.json](../contracts/learning-output.schema.json)
+Response payload ใน `data.tutorOutput` ต้องผ่าน [learning-output.schema.json](../contracts/learning-output.schema.json) และกฎอ้างอิง citation ของ server-side validator ก่อนส่งออกจาก backend ดู field, block, renderer และ versioning guidance ที่ [Tutor Output Contract](tutor-output-contract.md)
 
 ## Profile
 

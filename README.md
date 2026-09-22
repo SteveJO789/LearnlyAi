@@ -47,6 +47,7 @@ Frontend จะไม่เรียก AI provider และไม่ถือ 
 - [สถาปัตยกรรมระบบ](docs/architecture.md)
 - [OAuth/OIDC และ Application Session](docs/authentication.md)
 - [API Contract](docs/api-contract.md)
+- [Tutor Output Contract](docs/tutor-output-contract.md)
 - [Data Model](docs/data-model.md)
 - [โครงสร้าง Repository](docs/repository-structure.md)
 - [กระบวนการพัฒนา](docs/development-workflow.md)

@@ -4,17 +4,34 @@
   "title": "Learnly AI Structured Tutor Output",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "responseId", "sessionId", "stage", "blocks", "progress", "citations"],
+  "required": [
+    "schemaVersion",
+    "responseId",
+    "sessionId",
+    "stage",
+    "blocks",
+    "progress",
+    "citations"
+  ],
   "properties": {
     "schemaVersion": { "const": "1.0" },
-    "responseId": { "type": "string", "minLength": 1 },
-    "sessionId": { "type": "string", "minLength": 1 },
+    "responseId": { "$ref": "#/$defs/nonBlankString" },
+    "sessionId": { "$ref": "#/$defs/nonBlankString" },
     "stage": {
-      "enum": ["CONTENT_ANALYSIS", "PRE_TEST", "LEARNING", "TRANSFER", "POST_TEST", "COMPLETED"]
+      "enum": [
+        "CONTENT_ANALYSIS",
+        "PRE_TEST",
+        "LEARNING",
+        "TRANSFER",
+        "POST_TEST",
+        "COMPLETED"
+      ]
     },
     "blocks": {
       "type": "array",
       "minItems": 1,
+      "uniqueItems": true,
+      "$comment": "The API validator also requires each block id to be unique within the response.",
       "items": { "$ref": "#/$defs/block" }
     },
     "progress": {
@@ -25,17 +42,34 @@
         "percent": { "type": "integer", "minimum": 0, "maximum": 100 },
         "canAdvance": { "type": "boolean" },
         "nextAction": {
-          "type": ["string", "null"],
           "enum": ["ANSWER", "REQUEST_HINT", "SUBMIT_ASSESSMENT", "CONTINUE", null]
         }
       }
     },
     "citations": {
       "type": "array",
+      "uniqueItems": true,
+      "$comment": "The API validator also requires each citation id to be unique within the response.",
       "items": { "$ref": "#/$defs/citation" }
     }
   },
   "$defs": {
+    "nonBlankString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "nullableTitle": {
+      "anyOf": [
+        { "$ref": "#/$defs/nonBlankString" },
+        { "type": "null" }
+      ]
+    },
+    "citationIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/nonBlankString" }
+    },
     "block": {
       "oneOf": [
         { "$ref": "#/$defs/explanationBlock" },
@@ -46,113 +80,113 @@
         { "$ref": "#/$defs/interactiveBlock" }
       ]
     },
-    "baseTextBlock": {
+    "explanationBlock": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["id", "type", "content"],
       "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "type": { "type": "string" },
-        "title": { "type": ["string", "null"] },
-        "content": { "type": "string", "minLength": 1 },
-        "citationIds": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": { "type": "string" }
-        }
+        "id": { "$ref": "#/$defs/nonBlankString" },
+        "type": { "const": "explanation" },
+        "title": { "$ref": "#/$defs/nullableTitle" },
+        "content": { "$ref": "#/$defs/nonBlankString" },
+        "citationIds": { "$ref": "#/$defs/citationIds" }
       }
-    },
-    "explanationBlock": {
-      "allOf": [
-        { "$ref": "#/$defs/baseTextBlock" },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "id": true,
-            "type": { "const": "explanation" },
-            "title": true,
-            "content": true,
-            "citationIds": true
-          }
-        }
-      ]
     },
     "guidedQuestionBlock": {
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "type", "content", "expectedInput"],
       "properties": {
-        "id": { "type": "string" },
+        "id": { "$ref": "#/$defs/nonBlankString" },
         "type": { "const": "guided_question" },
-        "content": { "type": "string", "minLength": 1 },
+        "content": { "$ref": "#/$defs/nonBlankString" },
         "expectedInput": { "enum": ["TEXT", "CHOICE", "NUMBER"] },
         "choices": {
           "type": "array",
-          "items": { "type": "string" }
-        },
-        "citationIds": {
-          "type": "array",
+          "minItems": 2,
           "uniqueItems": true,
-          "items": { "type": "string" }
-        }
-      }
-    },
-    "hintBlock": {
+          "items": { "$ref": "#/$defs/nonBlankString" }
+        },
+        "citationIds": { "$ref": "#/$defs/citationIds" }
+      },
       "allOf": [
-        { "$ref": "#/$defs/baseTextBlock" },
         {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "id": true,
-            "type": { "const": "hint" },
-            "title": true,
-            "content": true,
-            "citationIds": true,
-            "level": { "type": "integer", "minimum": 1, "maximum": 3 }
+          "if": {
+            "properties": { "expectedInput": { "const": "CHOICE" } },
+            "required": ["expectedInput"]
           },
-          "required": ["level"]
+          "then": {
+            "properties": { "choices": true },
+            "required": ["choices"]
+          },
+          "else": { "not": { "required": ["choices"] } }
         }
       ]
+    },
+    "hintBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "content", "level"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nonBlankString" },
+        "type": { "const": "hint" },
+        "title": { "$ref": "#/$defs/nullableTitle" },
+        "content": { "$ref": "#/$defs/nonBlankString" },
+        "citationIds": { "$ref": "#/$defs/citationIds" },
+        "level": { "type": "integer", "minimum": 1, "maximum": 3 }
+      }
     },
     "quizBlock": {
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "type", "questionId", "prompt", "format"],
       "properties": {
-        "id": { "type": "string" },
+        "id": { "$ref": "#/$defs/nonBlankString" },
         "type": { "const": "quiz" },
-        "questionId": { "type": "string" },
-        "prompt": { "type": "string", "minLength": 1 },
+        "questionId": { "$ref": "#/$defs/nonBlankString" },
+        "prompt": { "$ref": "#/$defs/nonBlankString" },
         "format": { "enum": ["MULTIPLE_CHOICE", "SHORT_TEXT", "NUMBER"] },
         "choices": {
           "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "$comment": "The API validator also requires choice ids to be unique within this quiz.",
           "items": {
             "type": "object",
             "additionalProperties": false,
             "required": ["id", "label"],
             "properties": {
-              "id": { "type": "string" },
-              "label": { "type": "string" }
+              "id": { "$ref": "#/$defs/nonBlankString" },
+              "label": { "$ref": "#/$defs/nonBlankString" }
             }
           }
+        },
+        "citationIds": { "$ref": "#/$defs/citationIds" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "format": { "const": "MULTIPLE_CHOICE" } },
+            "required": ["format"]
+          },
+          "then": {
+            "properties": { "choices": true },
+            "required": ["choices"]
+          },
+          "else": { "not": { "required": ["choices"] } }
         }
-      }
+      ]
     },
     "feedbackBlock": {
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "type", "content", "result"],
       "properties": {
-        "id": { "type": "string" },
+        "id": { "$ref": "#/$defs/nonBlankString" },
         "type": { "const": "feedback" },
-        "content": { "type": "string", "minLength": 1 },
+        "content": { "$ref": "#/$defs/nonBlankString" },
         "result": { "enum": ["CORRECT", "PARTIALLY_CORRECT", "TRY_AGAIN"] },
-        "citationIds": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": { "type": "string" }
-        }
+        "citationIds": { "$ref": "#/$defs/citationIds" }
       }
     },
     "interactiveBlock": {
@@ -160,10 +194,11 @@
       "additionalProperties": false,
       "required": ["id", "type", "component", "props"],
       "properties": {
-        "id": { "type": "string" },
+        "id": { "$ref": "#/$defs/nonBlankString" },
         "type": { "const": "interactive" },
         "component": { "enum": ["OHMS_LAW", "LINEAR_EQUATION", "LOGIC_GATE"] },
-        "props": { "type": "object" }
+        "props": { "type": "object" },
+        "citationIds": { "$ref": "#/$defs/citationIds" }
       }
     },
     "citation": {
@@ -171,13 +206,22 @@
       "additionalProperties": false,
       "required": ["id", "title", "sourceType"],
       "properties": {
-        "id": { "type": "string" },
-        "title": { "type": "string" },
+        "id": { "$ref": "#/$defs/nonBlankString" },
+        "title": { "$ref": "#/$defs/nonBlankString" },
         "sourceType": { "enum": ["USER_MATERIAL", "TRUSTED_KNOWLEDGE_BASE"] },
-        "url": { "type": ["string", "null"], "format": "uri" },
-        "page": { "type": ["integer", "null"], "minimum": 1 }
+        "url": {
+          "anyOf": [
+            { "type": "string", "format": "uri" },
+            { "type": "null" }
+          ]
+        },
+        "page": {
+          "anyOf": [
+            { "type": "integer", "minimum": 1 },
+            { "type": "null" }
+          ]
+        }
       }
     }
   }
 }
-
