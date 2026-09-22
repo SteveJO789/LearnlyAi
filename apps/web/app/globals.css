@@ -1,3 +1,22 @@
+@import "tailwindcss";
+
+@keyframes gradient-drift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-drift {
+  background-size: 200% 200%;
+  animation: gradient-drift 12s ease-in-out infinite;
+}
+
 :root {
   color-scheme: dark;
   --background: #07130d;
