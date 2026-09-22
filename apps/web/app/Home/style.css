@@ -1,0 +1,17 @@
+.hello-gradient {
+    animation: helloGradientMove 5s ease-in-out infinite alternate;
+}
+
+@keyframes helloGradientMove {
+    0% {
+        background-position: 0% 20%;
+    }
+
+    50% {
+        background-position: 100% 80%;
+    }
+
+    100% {
+        background-position: 20% 100%;
+    }
+}

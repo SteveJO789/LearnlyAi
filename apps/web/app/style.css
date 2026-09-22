@@ -1,0 +1,168 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+.nav {
+  padding: 2rem clamp(1.25rem, 5vw, 5rem) 0;
+}
+
+.logo {
+  font-weight: 500;
+  font-size: 1.125rem;
+  color: #1a1a1a;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem 6rem;
+}
+
+.title {
+  margin: 0 0 2rem;
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: #828282;
+  text-align: center;
+}
+
+.form {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Approximates the animated gradient-blob shader from the Figma source
+   (a WebGPU shader effect) with a layered, gently animated CSS gradient —
+   no WebGPU/shader runtime dependency needed for this. */
+.gradientCard {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 2.25rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background:
+    radial-gradient(120% 140% at 15% 20%, #ffe89e 0%, transparent 45%),
+    radial-gradient(120% 140% at 80% 30%, #8178ff 0%, transparent 55%),
+    radial-gradient(140% 160% at 60% 90%, #ff0d9b 0%, transparent 60%),
+    linear-gradient(135deg, #ff2fb0, #8178ff);
+  background-size: 200% 200%;
+  animation: driftGradient 12s ease-in-out infinite;
+}
+
+@keyframes driftGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.input {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 1.05rem 1.5rem;
+  font-size: 1rem;
+  font-family: inherit;
+  background: #f7f7f7;
+  color: #1a1a1a;
+}
+
+.input::placeholder {
+  color: #828282;
+}
+
+.input:focus {
+  outline: 2px solid #1a1a1a;
+  outline-offset: 2px;
+}
+
+.primaryButton {
+  border: none;
+  border-radius: 8px;
+  padding: 0.9rem 1.5rem;
+  background: #000000;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.primaryButton:hover {
+  background: #1a1a1a;
+}
+
+.googleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: none;
+  border-radius: 8px;
+  padding: 0.9rem 1.5rem;
+  background: #f5f5f5;
+  color: #828282;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.googleButton:hover {
+  background: #ececec;
+}
+
+.googleIcon {
+  flex-shrink: 0;
+}
+
+.signupPrompt {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-size: 1rem;
+  color: #828282;
+}
+
+.signupLink {
+  color: #0018ef;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.signupLink:hover {
+  text-decoration: underline;
+}
+
+.backLink {
+  align-self: flex-start;
+  margin: 0 0 2rem clamp(1.25rem, 5vw, 5rem);
+  color: #828282;
+  font-size: 1.1rem;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
