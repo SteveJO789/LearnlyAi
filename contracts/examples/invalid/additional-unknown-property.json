@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0",
+  "responseId": "rsp_invalid_property",
+  "sessionId": "lsn_invalid",
+  "stage": "LEARNING",
+  "blocks": [
+    {
+      "id": "blk_1",
+      "type": "explanation",
+      "content": "Unknown top-level properties must be rejected."
+    }
+  ],
+  "progress": {
+    "percent": 10,
+    "canAdvance": false,
+    "nextAction": "CONTINUE"
+  },
+  "citations": [],
+  "debug": true
+}

@@ -47,6 +47,7 @@ Frontend จะไม่เรียก AI provider และไม่ถือ 
 - [สถาปัตยกรรมระบบ](docs/architecture.md)
 - [OAuth/OIDC และ Application Session](docs/authentication.md)
 - [API Contract](docs/api-contract.md)
+- [Tutor Output Contract](docs/tutor-output-contract.md)
 - [Data Model](docs/data-model.md)
 - [โครงสร้าง Repository](docs/repository-structure.md)
 - [กระบวนการพัฒนา](docs/development-workflow.md)
@@ -58,7 +59,7 @@ Frontend จะไม่เรียก AI provider และไม่ถือ 
 |---|---|
 | Cake | UX/UI, Design System และ Frontend |
 | Best | Google OIDC, Application Session และ User module |
-| Seiya | Learning Session API, Persistence และ History |
+| Zeya | Learning Session API, Persistence และ History |
 | Steve | Architecture, AI Orchestrator, RAG และ Learning Engine |
 
 ทุกงานต้องมี reviewer อย่างน้อย 1 คน เพื่อป้องกัน knowledge silo

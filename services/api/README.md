@@ -13,3 +13,5 @@ Module baseline:
 เริ่ม implementation ด้วย `/health/live`, `/health/ready`, Google OIDC และ mock learning vertical slice ก่อนเชื่อม AI provider จริง
 
 Frontend และ Backend ใช้ TypeScript ร่วมกัน แต่ต้องสื่อสารผ่าน HTTP/shared contracts ไม่ import business implementation ข้าม service
+
+การตั้งค่าและขอบเขตของ Model Provider Adapter อยู่ที่ [`docs/model-provider-adapter.md`](../../docs/model-provider-adapter.md)

@@ -8,12 +8,14 @@
   },
   "scripts": {
     "dev": "node --watch src/server.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node scripts/copy-contract.mjs",
     "start": "node dist/server.js",
     "lint": "tsc --noEmit",
-    "test": "npm run build && node --test test/health.test.mjs"
+    "test": "npm run build && node --test test/*.test.mjs"
   },
   "dependencies": {
+    "ajv": "8.17.1",
+    "ajv-formats": "3.0.1",
     "express": "5.2.1"
   },
   "devDependencies": {
