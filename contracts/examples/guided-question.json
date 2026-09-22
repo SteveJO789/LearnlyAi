@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0",
+  "responseId": "rsp_forces_001",
+  "sessionId": "lsn_physics_001",
+  "stage": "LEARNING",
+  "blocks": [
+    {
+      "id": "blk_guided_question_001",
+      "type": "guided_question",
+      "content": "เมื่อผลักกล่องไปทางขวาบนพื้นหยาบ แรงเสียดทานบนกล่องมีทิศทางใด?",
+      "expectedInput": "CHOICE",
+      "choices": ["ไปทางซ้าย", "ไปทางขวา", "ขึ้นด้านบน"],
+      "citationIds": ["src_physics_textbook"]
+    }
+  ],
+  "progress": {
+    "percent": 55,
+    "canAdvance": false,
+    "nextAction": "ANSWER"
+  },
+  "citations": [
+    {
+      "id": "src_physics_textbook",
+      "title": "Physics: Friction",
+      "sourceType": "TRUSTED_KNOWLEDGE_BASE",
+      "url": "https://openstax.org/books/physics/pages/5-1-friction",
+      "page": null
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1.0",
+  "responseId": "rsp_quiz_001",
+  "sessionId": "lsn_chemistry_001",
+  "stage": "PRE_TEST",
+  "blocks": [
+    {
+      "id": "blk_quiz_001",
+      "type": "quiz",
+      "questionId": "q_atom_001",
+      "prompt": "อนุภาคใดเป็นตัวกำหนดเลขอะตอมของธาตุ?",
+      "format": "MULTIPLE_CHOICE",
+      "choices": [
+        { "id": "choice_proton", "label": "โปรตอน" },
+        { "id": "choice_neutron", "label": "นิวตรอน" },
+        { "id": "choice_electron", "label": "อิเล็กตรอน" }
+      ],
+      "citationIds": ["src_atomic_structure"]
+    }
+  ],
+  "progress": {
+    "percent": 15,
+    "canAdvance": false,
+    "nextAction": "SUBMIT_ASSESSMENT"
+  },
+  "citations": [
+    {
+      "id": "src_atomic_structure",
+      "title": "เอกสารโครงสร้างอะตอมของผู้เรียน",
+      "sourceType": "USER_MATERIAL",
+      "url": null,
+      "page": 1
+    }
+  ]
+}
