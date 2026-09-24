@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1.0",
+  "responseId": "rsp_invalid_missing",
+  "stage": "LEARNING",
+  "blocks": [
+    {
+      "id": "blk_1",
+      "type": "explanation",
+      "content": "This payload is missing sessionId."
+    }
+  ],
+  "progress": {
+    "percent": 10,
+    "canAdvance": false,
+    "nextAction": "CONTINUE"
+  },
+  "citations": []
+}
