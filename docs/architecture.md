@@ -61,6 +61,8 @@ flowchart TD
 INPUT → CONTENT_ANALYSIS → PRE_TEST → LEARNING → TRANSFER → POST_TEST → COMPLETED
 ```
 
+The sequence above is the original workflow/API baseline. The standalone [Learning Engine Core](learning-engine-core.md) now separates session lifecycle (`ACTIVE`, `COMPLETED`, `FAILED`) from teaching stage (`DIAGNOSE` → `EXPLAIN` → `PRACTICE` → `ASSESS` → `REVIEW`). It maps teaching stages to the existing Tutor Output stage enum, starts its MVP slice at `EXPLAIN`, and advances only through explicit engine-controlled actions. The Prisma adapter must reconcile the stored baseline fields with these separate concepts; this sprint does not change the database schema.
+
 การเปลี่ยน state ทุกครั้งต้อง:
 
 1. ตรวจสิทธิ์ว่า session เป็นของ current user
