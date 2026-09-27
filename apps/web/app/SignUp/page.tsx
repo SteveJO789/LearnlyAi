@@ -24,13 +24,6 @@ export default function SignUpPage() {
 
         <SignupForm />
       </main>
-
-      <Link
-        href="/"
-        className="mb-8 ml-5 self-start text-lg text-neutral-500 hover:underline sm:ml-12 lg:ml-20"
-      >
-        Back
-      </Link>
     </div>
   );
 }
