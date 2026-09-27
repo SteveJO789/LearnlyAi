@@ -11,12 +11,16 @@
     "build": "tsc -p tsconfig.json && node scripts/copy-contract.mjs",
     "start": "node dist/server.js",
     "lint": "tsc --noEmit",
-    "test": "npm run build && node --test test/*.test.mjs"
+    "test": "npm run build && node --test test/*.test.mjs",
+    "postinstall": "prisma skills sync || exit 0",
+    "contract:emit": "prisma contract emit"
   },
   "dependencies": {
+    "@prisma/orm-postgres": "^8.0.0-rc.12",
     "ajv": "8.17.1",
     "ajv-formats": "3.0.1",
-    "express": "5.2.1"
+    "express": "5.2.1",
+    "prisma": "^8.0.0-rc.17"
   },
   "devDependencies": {
     "@types/express": "5.0.6",
