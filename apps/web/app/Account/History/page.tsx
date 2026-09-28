@@ -8,11 +8,36 @@ type TabType = "Chat" | "Lessons" | "Uploaded Files" | "Test Results";
 interface FileItem {
   id: number;
   name: string;
-  date: string; // ISO หรือรูปแบบ YYYY-MM-DD
+  date: string; // YYYY-MM-DD
+}
+
+interface ChatItem {
+  id: number;
+  title: string;
+  lastMessage: string;
+  date: string;
+}
+
+interface LessonItem {
+  id: number;
+  title: string;
+  imageUrl: string;
+  progressPercent: number;
+  date: string;
+}
+
+interface TestResultItem {
+  id: number;
+  title: string;
+  imageUrl: string;
+  pretestScore: number;
+  posttestScore: number;
+  date: string;
 }
 
 export default function HistoryPage() {
-  const [activeTab, setActiveTab] = useState<TabType | null>("Uploaded Files");
+  // เริ่มต้นตั้งค่า activeTab เป็น null เพื่อให้แสดงหน้าเปล่า HISTORY ก่อน
+  const [activeTab, setActiveTab] = useState<TabType | null>(null);
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
 
   // State สำหรับควบคุม Popover ปฏิทิน และการเก็บค่าวันที่
@@ -20,24 +45,78 @@ export default function HistoryPage() {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
-  // สมมุติตัวอย่างข้อมูลไฟล์
+  // ----------------- ข้อมูลจำลอง (Mock Data) -----------------
   const [filesHistory] = useState<FileItem[]>([
     { id: 1, name: "equation-worksheet.pdf", date: "2026-09-10" },
     { id: 2, name: "equation-worksheet(1).pdf", date: "2026-09-10" },
     { id: 3, name: "equation-worksheet(2).pdf", date: "2026-09-10" },
   ]);
 
-  // ฟังก์ชัน Filter ข้อมูลตามวันที่ผู้ใช้เลือก
-  const filteredFiles = filesHistory.filter((file) => {
+  const [chatHistory] = useState<ChatItem[]>([
+    {
+      id: 1,
+      title: "Linear Equations",
+      lastMessage: "ลองเริ่มย้าย +4 ไปอีกฝั่ง...",
+      date: "2026-09-10",
+    },
+    {
+      id: 2,
+      title: "Quadratic Functions",
+      lastMessage: "สูตร x = (-b ± √(b² - 4ac)) / 2a",
+      date: "2026-09-11",
+    },
+  ]);
+
+  const [lessonsHistory] = useState<LessonItem[]>([
+    {
+      id: 1,
+      title: "Linear Equations",
+      imageUrl: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=600",
+      progressPercent: 100,
+      date: "2026-09-10",
+    },
+  ]);
+
+  const [testResultsHistory] = useState<TestResultItem[]>([
+    {
+      id: 1,
+      title: "Linear Equations",
+      imageUrl: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=600",
+      pretestScore: 40,
+      posttestScore: 90,
+      date: "2026-09-10",
+    },
+  ]);
+
+  // Helper ในการกรองวันที่
+  const filterByDate = (dateStr: string) => {
     if (!startDate && !endDate) return true;
-    if (startDate && file.date < startDate) return false;
-    if (endDate && file.date > endDate) return false;
+    if (startDate && dateStr < startDate) return false;
+    if (endDate && dateStr > endDate) return false;
     return true;
-  });
+  };
+
+  const filteredFiles = filesHistory.filter((item) => filterByDate(item.date));
+  const filteredChats = chatHistory.filter((item) => filterByDate(item.date));
+  const filteredLessons = lessonsHistory.filter((item) => filterByDate(item.date));
+  const filteredTestResults = testResultsHistory.filter((item) => filterByDate(item.date));
+
+  const formatDateDisplay = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch {
+      return dateString;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white text-neutral-900 relative">
-      {/* ----------------- Modal เปิดดูไฟล์ (หน้า B) ----------------- */}
+      {/* ----------------- Modal เปิดดูไฟล์ ----------------- */}
       {selectedFile && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6">
           <div className="relative flex h-[85vh] w-[90vw] max-w-4xl flex-col items-center justify-center rounded-3xl bg-white p-8 shadow-2xl">
@@ -68,53 +147,57 @@ export default function HistoryPage() {
       )}
 
       {/* ----------------- Header ----------------- */}
-      <header className="flex items-center justify-between px-8 py-6">
-        <Link href="/" className="text-xl font-bold">
+      <header className="flex items-center justify-between px-10 py-6">
+        <Link href="/" className="text-xl font-bold tracking-tight">
           LOGO
         </Link>
         <div className="flex gap-4">
-          <Link href="/Create" className="rounded-xl bg-black px-6 py-2.5 text-white">
+          <Link href="/Create" className="rounded-xl bg-black px-6 py-2.5 text-sm font-medium text-white">
             Create
           </Link>
-          <Link href="/Lessons" className="rounded-xl bg-black px-6 py-2.5 text-white">
+          <Link href="/Lessons" className="rounded-xl bg-black px-6 py-2.5 text-sm font-medium text-white">
             Lessons
           </Link>
-          <Link href="/Account" className="rounded-xl bg-black px-6 py-2.5 text-white">
+          <Link href="/Home" className="rounded-xl bg-black px-6 py-2.5 text-sm font-medium text-white">
             HOME
-          </Link>
-          <Link href="/" className="rounded-xl bg-neutral-200 px-6 py-2.5 text-black">
-            Back
           </Link>
         </div>
       </header>
 
       {/* ----------------- Main Content ----------------- */}
-      <main className="px-8 py-4">
-        <h1 className="mb-6 text-sm font-semibold tracking-tight text-neutral-800 whitespace-nowrap">
+      <main className="px-10 py-4 max-w-[1400px] mx-auto">
+        <h1 className="mb-8 text-3xl font-bold tracking-tight text-black">
           Your Account Setting
         </h1>
-        <div className="flex gap-8">
+
+        <div className="flex gap-8 items-start">
           {/* Left Sidebar Menu */}
-          <aside className="w-64 rounded-3xl border border-neutral-200 p-6 flex flex-col gap-6 text-sm">
+          <aside className="w-64 rounded-2xl border border-neutral-200 p-5 flex flex-col gap-6 text-sm bg-white shrink-0">
             <div>
-              <p className="font-semibold text-neutral-400 mb-2">Profile</p>
-              <ul className="space-y-2 text-neutral-600 pl-2">
-                <li>Personal Info</li>
-                <li>Change Password</li>
-                <li>Learning Preferences</li>
+              <p className="font-semibold text-neutral-500 mb-3 text-center bg-neutral-50 py-1.5 rounded-lg">Profile</p>
+              <ul className="space-y-3 text-neutral-600 px-2 text-center">
+                <li className="cursor-pointer hover:text-black">Personal Info</li>
+                <li className="cursor-pointer hover:text-black">Change Password</li>
+                <li className="cursor-pointer hover:text-black">Learning Preferences</li>
               </ul>
             </div>
 
             <div>
-              <p className="font-bold text-black mb-2">History</p>
-              <ul className="space-y-1.5 pl-2">
+              {/* ปุ่ม History แถบดำ กดแล้วจะรีเซ็ต activeTab กลับมาเป็น null (หน้าแรก) */}
+              <button
+                onClick={() => setActiveTab(null)}
+                className="w-full font-bold text-black mb-3 text-center bg-black text-white py-1.5 rounded-lg cursor-pointer hover:bg-neutral-800 transition-colors"
+              >
+                History
+              </button>
+              <ul className="space-y-2 px-2 text-center">
                 {(["Chat", "Lessons", "Uploaded Files", "Test Results"] as TabType[]).map((tab) => (
                   <li key={tab}>
                     <button
                       onClick={() => setActiveTab(tab)}
-                      className={`w-full text-left py-1.5 px-3 rounded-lg transition-all ${
+                      className={`w-full text-center py-1.5 px-3 rounded-lg transition-all ${
                         activeTab === tab
-                          ? "font-semibold bg-neutral-100 text-black"
+                          ? "font-semibold text-black underline decoration-neutral-400 underline-offset-4"
                           : "text-neutral-500 hover:text-black"
                       }`}
                     >
@@ -126,50 +209,44 @@ export default function HistoryPage() {
             </div>
 
             <div>
-              <p className="font-semibold text-neutral-400 mb-2">Setting</p>
-              <ul className="space-y-2 text-neutral-600 pl-2">
-                <li>Notifications</li>
-                <li>Language</li>
-                <li>Theme</li>
-                <li>Privacy</li>
-                <li className="text-red-500">Delete Account</li>
+              <p className="font-semibold text-neutral-500 mb-3 text-center bg-neutral-50 py-1.5 rounded-lg">Setting</p>
+              <ul className="space-y-3 text-neutral-600 px-2 text-center">
+                <li className="cursor-pointer hover:text-black">Notifications</li>
+                <li className="cursor-pointer hover:text-black">Language</li>
+                <li className="cursor-pointer hover:text-black">Theme</li>
+                <li className="cursor-pointer hover:text-black">Privacy</li>
+                <li className="cursor-pointer text-neutral-600 hover:text-red-500">Delete Account</li>
               </ul>
             </div>
           </aside>
 
           {/* Right Main Display Panel */}
-          <section className="flex-1 rounded-3xl border border-neutral-200 p-6 min-h-[500px] flex flex-col">
-            {activeTab && (
-              <div className="flex justify-end relative mb-6">
-                {/* ปุ่มแสดงช่วงวันที่ */}
+          <section className="flex-1 flex flex-col gap-4">
+            {/* 1. Date Filter Box ด้านนอกกรอบใหญ่ (แสดงเฉพาะตอนเลือก Sub-tab) */}
+            {activeTab !== null ? (
+              <div className="relative self-start">
                 <button
                   type="button"
                   onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
-                  className="flex items-center gap-1.5 text-xs font-normal transition-colors shrink-0"
+                  className="flex items-center gap-4 bg-neutral-50/80 border border-neutral-200 rounded-xl px-5 py-2.5 text-sm transition-all hover:bg-neutral-100"
                 >
-                  <span className="text-neutral-600 font-normal shrink-0">date</span>
-                  <span
-                    className={`border-b border-neutral-300 px-1 py-0.5 text-center transition-colors font-normal whitespace-nowrap ${
-                      startDate || endDate ? "text-neutral-800" : "text-neutral-300"
-                    }`}
-                  >
+                  <span className="text-neutral-500 font-medium">date</span>
+                  <span className="text-neutral-300 font-normal">
                     {startDate || endDate
-                      ? `${startDate ? startDate.slice(2) : "yy-mm-dd"} ~ ${endDate ? endDate.slice(2) : "yy-mm-dd"}`
+                      ? `${startDate || "dd/mm/yy"} - ${endDate || "dd/mm/yy"}`
                       : "dd/mm/yy-dd/mm/yy"}
                   </span>
                 </button>
 
-                {/* ----------------- Popover ปฏิทินเลือกช่วงวันที่ ----------------- */}
+                {/* Popover เลือกวันที่ */}
                 {isDatePickerOpen && (
-                  <div className="absolute right-0 top-8 z-20 w-72 rounded-2xl border border-neutral-200 bg-white p-4 shadow-xl flex flex-col gap-3 text-xs">
+                  <div className="absolute left-0 top-12 z-20 w-72 rounded-2xl border border-neutral-200 bg-white p-4 shadow-xl flex flex-col gap-3 text-xs">
                     <p className="font-medium text-neutral-700">Select Date Range</p>
 
                     <div className="flex flex-col gap-1">
                       <label className="text-neutral-500">From:</label>
                       <input
                         type="date"
-                        min="2000-01-01"
-                        max="2099-12-31"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
                         className="rounded-lg border border-neutral-200 p-2 outline-none focus:border-black text-xs"
@@ -180,8 +257,6 @@ export default function HistoryPage() {
                       <label className="text-neutral-500">To:</label>
                       <input
                         type="date"
-                        min="2000-01-01"
-                        max="2099-12-31"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
                         className="rounded-lg border border-neutral-200 p-2 outline-none focus:border-black text-xs"
@@ -210,27 +285,103 @@ export default function HistoryPage() {
                   </div>
                 )}
               </div>
+            ) : (
+              // ดันระยะเว้นบรรทัดเพื่อให้กรอบใหญ่สูงเท่ากันตอนไม่มี Filter Date
+              <div className="h-[42px]" />
             )}
 
-            {/* ----------------- แสดงผลข้อมูลตาม Tab ที่เลือก ----------------- */}
-            <div className="flex-1 flex flex-col justify-start">
-              {/* Tab: Uploaded Files */}
-              {activeTab === "Uploaded Files" &&
-                (filteredFiles.length > 0 ? (
-                  <div className="grid grid-cols-3 gap-6 w-full">
-                    {filteredFiles.map((file) => (
+            {/* 2. กรอบใหญ่แสดงรายการ */}
+            <div className="rounded-2xl border border-neutral-200 p-6 min-h-[550px] bg-white flex flex-col justify-start">
+              
+              {/* ---------------- กรณีไม่ได้เลือก Sub-tab (แสดง HISTORY ใหญ่กลางหน้า) ---------------- */}
+              {activeTab === null && (
+                <div className="flex-1 min-h-[500px] flex items-center justify-center">
+                  <h2 className="text-4xl font-bold tracking-widest text-neutral-300 uppercase">
+                    HISTORY
+                  </h2>
+                </div>
+              )}
+
+              {/* ---------------- Tab: Chat ---------------- */}
+              {activeTab === "Chat" && (
+                <div className="flex flex-col gap-3 w-full">
+                  {filteredChats.length === 0 ? (
+                    <p className="text-neutral-400 text-sm text-center py-12">No chat history found.</p>
+                  ) : (
+                    filteredChats.map((chat) => (
+                      <div
+                        key={chat.id}
+                        className="rounded-xl border border-neutral-200 p-4 bg-white hover:border-neutral-400 transition-all cursor-pointer flex flex-col gap-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
+                          <h3 className="font-semibold text-sm text-neutral-900">{chat.title}</h3>
+                        </div>
+                        <p className="text-xs text-neutral-500 pl-6">: {chat.lastMessage}</p>
+                        <p className="text-[10px] text-neutral-300 pl-6">{chat.date}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {/* ---------------- Tab: Lessons ---------------- */}
+              {activeTab === "Lessons" && (
+                <div className="grid grid-cols-3 gap-6 w-full items-start">
+                  {filteredLessons.length === 0 ? (
+                    <p className="text-neutral-400 text-sm col-span-3 text-center py-12">No lessons found.</p>
+                  ) : (
+                    filteredLessons.map((lesson) => (
+                      <div
+                        key={lesson.id}
+                        className="rounded-2xl border border-neutral-200 p-4 bg-white flex flex-col gap-3 hover:border-neutral-400 transition-all cursor-pointer"
+                      >
+                        <h3 className="font-semibold text-sm text-neutral-900">{lesson.title}</h3>
+                        <div className="w-full h-40 rounded-xl overflow-hidden bg-neutral-100">
+                          <img
+                            src={lesson.imageUrl}
+                            alt={lesson.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="mt-1 flex flex-col gap-1.5">
+                          <p className="text-[11px] text-neutral-500 font-medium">
+                            {lesson.progressPercent}% Completed
+                          </p>
+                          <div className="w-full h-2.5 bg-neutral-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-black rounded-full"
+                              style={{ width: `${lesson.progressPercent}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {/* ---------------- Tab: Uploaded Files ---------------- */}
+              {activeTab === "Uploaded Files" && (
+                <div className="grid grid-cols-3 gap-4 w-full items-start">
+                  {filteredFiles.length === 0 ? (
+                    <p className="text-neutral-400 text-sm col-span-3 text-center py-12">No files found.</p>
+                  ) : (
+                    filteredFiles.map((file) => (
                       <button
                         key={file.id}
                         onClick={() => setSelectedFile(file)}
-                        className="flex flex-col items-center justify-between rounded-2xl border border-neutral-200 p-6 hover:shadow-md transition-all text-center group cursor-pointer bg-white"
+                        className="flex flex-col items-center justify-center rounded-xl border border-neutral-200 p-4 hover:border-neutral-400 transition-all text-center group cursor-pointer bg-white"
                       >
-                        <div className="my-2">
+                        <div className="mb-3">
                           <svg
-                            className="h-12 w-12 text-neutral-400 group-hover:text-black transition-colors"
+                            className="h-10 w-10 text-neutral-400 group-hover:text-black transition-colors"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
-                            strokeWidth={1.5}
+                            strokeWidth={1.2}
                           >
                             <path
                               strokeLinecap="round"
@@ -239,41 +390,71 @@ export default function HistoryPage() {
                             />
                           </svg>
                         </div>
-                        <div>
-                          <p className="font-medium text-sm text-neutral-800 underline decoration-neutral-300 underline-offset-4">
+                        <div className="w-full overflow-hidden">
+                          <p className="font-semibold text-xs text-neutral-900 truncate">
                             {file.name}
                           </p>
-                          <p className="text-xs text-neutral-400 mt-2">{file.date}</p>
+                          <p className="text-[10px] text-neutral-400 mt-1">
+                            {formatDateDisplay(file.date)}
+                          </p>
                         </div>
                       </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex-1 flex items-center justify-center">
-                    <p className="text-neutral-400 text-sm">No files found in this date range.</p>
-                  </div>
-                ))}
-
-              {/* Tab: Chat */}
-              {activeTab === "Chat" && (
-                <div className="flex-1 flex items-center justify-center">
-                  <p className="text-neutral-400 text-sm">No chat history found in this date range.</p>
+                    ))
+                  )}
                 </div>
               )}
 
-              {/* Tab: Lessons */}
-              {activeTab === "Lessons" && (
-                <div className="flex-1 flex items-center justify-center">
-                  <p className="text-neutral-400 text-sm">No lesson history found in this date range.</p>
-                </div>
-              )}
-
-              {/* Tab: Test Results */}
+              {/* ---------------- Tab: Test Results ---------------- */}
               {activeTab === "Test Results" && (
-                <div className="flex-1 flex items-center justify-center">
-                  <p className="text-neutral-400 text-sm">No test results found in this date range.</p>
+                <div className="grid grid-cols-3 gap-6 w-full items-start">
+                  {filteredTestResults.length === 0 ? (
+                    <p className="text-neutral-400 text-sm col-span-3 text-center py-12">No test results found.</p>
+                  ) : (
+                    filteredTestResults.map((test) => (
+                      <div
+                        key={test.id}
+                        className="rounded-2xl border border-neutral-200 p-4 bg-white flex flex-col gap-3 hover:border-neutral-400 transition-all cursor-pointer"
+                      >
+                        <h3 className="font-semibold text-sm text-neutral-900">{test.title}</h3>
+                        <div className="w-full h-36 rounded-xl overflow-hidden bg-neutral-100">
+                          <img
+                            src={test.imageUrl}
+                            alt={test.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+
+                        {/* Pretest Progress */}
+                        <div className="flex flex-col gap-1">
+                          <p className="text-[11px] text-neutral-500 font-medium">
+                            Pretest: {test.pretestScore}%
+                          </p>
+                          <div className="w-full h-2.5 bg-neutral-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-black rounded-full"
+                              style={{ width: `${test.pretestScore}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Posttest Progress */}
+                        <div className="flex flex-col gap-1">
+                          <p className="text-[11px] text-neutral-500 font-medium">
+                            Posttest: {test.posttestScore}%
+                          </p>
+                          <div className="w-full h-2.5 bg-neutral-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-black rounded-full"
+                              style={{ width: `${test.posttestScore}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
+
             </div>
           </section>
         </div>

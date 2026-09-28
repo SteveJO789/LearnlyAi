@@ -41,25 +41,24 @@ export default function HomePage() {
 
           {/* เมนู Account Dropdown */}
           <div className="relative">
-            
             <button
               onClick={() => setIsOpen(!isOpen)}
               className={HeadButton}
-              
               type="button"
             >
               Account
             </button>
 
             {isOpen && (
-            
-              <div className="absolute right-0 mt-2 w-40 rounded-2xl bg-white/80 p-2 shadow-xl backdrop-blur-md border border-neutral-100 flex flex-col space-y-1 z-50"
-              style={{
-              backgroundImage:
-                "radial-gradient(120% 140% at 15% 20%, #ffe89e 0%, transparent 45%), radial-gradient(120% 140% at 80% 30%, #8178ff 0%, transparent 55%), radial-gradient(140% 160% at 60% 90%, #ff0d9b 0%, transparent 60%), linear-gradient(135deg, #ff2fb0, #8178ff)",
-            }}>
+              <div
+                className="absolute right-0 mt-2 w-40 rounded-2xl bg-white/80 p-2 shadow-xl backdrop-blur-md border border-neutral-100 flex flex-col space-y-1 z-50"
+                style={{
+                  backgroundImage:
+                    "radial-gradient(120% 140% at 15% 20%, #ffe89e 0%, transparent 45%), radial-gradient(120% 140% at 80% 30%, #8178ff 0%, transparent 55%), radial-gradient(140% 160% at 60% 90%, #ff0d9b 0%, transparent 60%), linear-gradient(135deg, #ff2fb0, #8178ff)",
+                }}
+              >
                 <Link
-                  href="/Profile"
+                  href="/Account/Profile"
                   className="w-full py-2 text-center text-sm font-medium text-purple-600 bg-white/70 hover:bg-purple-50 rounded-xl transition-all shadow-sm"
                   onClick={() => setIsOpen(false)}
                 >
@@ -67,7 +66,7 @@ export default function HomePage() {
                 </Link>
 
                 <Link
-                  href="/History"
+                  href="/Account/History"
                   className="w-full py-2 text-center text-sm font-medium text-purple-600 bg-white/70 hover:bg-purple-50 rounded-xl transition-all shadow-sm"
                   onClick={() => setIsOpen(false)}
                 >
@@ -75,7 +74,7 @@ export default function HomePage() {
                 </Link>
 
                 <Link
-                  href="/Settings"
+                  href="/Account/Settings"
                   className="w-full py-2 text-center text-sm font-medium text-purple-600 bg-white/70 hover:bg-purple-50 rounded-xl transition-all shadow-sm"
                   onClick={() => setIsOpen(false)}
                 >
