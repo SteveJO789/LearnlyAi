@@ -125,6 +125,32 @@ Request:
 
 Response payload ใน `data.tutorOutput` ต้องผ่าน [learning-output.schema.json](../contracts/learning-output.schema.json) และกฎอ้างอิง citation ของ server-side validator ก่อนส่งออกจาก backend ดู field, block, renderer และ versioning guidance ที่ [Tutor Output Contract](tutor-output-contract.md)
 
+## Learning Engine Development Slice
+
+`POST /learning/respond` is implemented at `/api/v1/learning/respond`, with an alias at `/api/learning/respond`. This standalone development slice uses in-memory persistence and currently does not require authentication. It does not replace the planned authenticated learning-session interaction endpoints.
+
+Request:
+
+```json
+{
+  "sessionId": "test-session",
+  "input": "แก้สมการ 2x + 4 = 10",
+  "learningGoal": "เข้าใจวิธีแก้สมการเชิงเส้น",
+  "subject": "math",
+  "action": "RESPOND"
+}
+```
+
+`sessionId` and `input` are required nonblank strings with limits of 128 and 8000 characters. Optional `learningGoal` and `subject` are nonblank strings up to 1000 and 128 characters. `action` is optional (`RESPOND` by default, or `ADVANCE`). Unknown fields and null values are rejected. The JSON body limit is 1 MiB; requests must use `application/json`.
+
+`subject` is free text, not a fixed category enum. Invalid type, blank text, and values over its length limit return `400 VALIDATION_ERROR` with `details[].path = "/subject"`. These input failures occur before model generation and do not fail or modify an existing session.
+
+An unknown session starts at internal stage `EXPLAIN`. `RESPOND` retains its stage; `ADVANCE` moves one allowed step. Output `stage` continues to use the canonical Tutor Output enum, so both internal `EXPLAIN` and `PRACTICE` return `LEARNING`.
+
+Response `200` places the entire validated Tutor Output directly in `data`, including `schemaVersion`, `responseId`, `sessionId`, `stage`, `blocks`, `progress`, and `citations`. There is no extra Tutor Output format. Errors use the standard error envelope and an `x-request-id` header. Invalid model output returns `502 AI_INVALID_OUTPUT`; provider failures are normalized to safe 429/502/503/504 errors.
+
+See [Learning Engine Core](learning-engine-core.md) for the complete sample response, stage mapping, error codes, terminal-session behavior, and Prisma/auth integration ports.
+
 ## Profile
 
 | Method | Endpoint | Purpose |

@@ -8,7 +8,7 @@ type TabType = "Chat" | "Lessons" | "Uploaded Files" | "Test Results";
 interface FileItem {
   id: number;
   name: string;
-  date: string; // YYYY-MM-DD
+  date: string;
 }
 
 interface ChatItem {
@@ -36,16 +36,13 @@ interface TestResultItem {
 }
 
 export default function HistoryPage() {
-  // เริ่มต้นตั้งค่า activeTab เป็น null เพื่อให้แสดงหน้าเปล่า HISTORY ก่อน
   const [activeTab, setActiveTab] = useState<TabType | null>(null);
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
 
-  // State สำหรับควบคุม Popover ปฏิทิน และการเก็บค่าวันที่
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
-  // ----------------- ข้อมูลจำลอง (Mock Data) -----------------
   const [filesHistory] = useState<FileItem[]>([
     { id: 1, name: "equation-worksheet.pdf", date: "2026-09-10" },
     { id: 2, name: "equation-worksheet(1).pdf", date: "2026-09-10" },
@@ -88,7 +85,6 @@ export default function HistoryPage() {
     },
   ]);
 
-  // Helper ในการกรองวันที่
   const filterByDate = (dateStr: string) => {
     if (!startDate && !endDate) return true;
     if (startDate && dateStr < startDate) return false;
@@ -116,7 +112,7 @@ export default function HistoryPage() {
 
   return (
     <div className="min-h-screen bg-white text-neutral-900 relative">
-      {/* ----------------- Modal เปิดดูไฟล์ ----------------- */}
+      {/* Modal เปิดดูไฟล์ */}
       {selectedFile && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6">
           <div className="relative flex h-[85vh] w-[90vw] max-w-4xl flex-col items-center justify-center rounded-3xl bg-white p-8 shadow-2xl">
@@ -146,7 +142,7 @@ export default function HistoryPage() {
         </div>
       )}
 
-      {/* ----------------- Header ----------------- */}
+      {/* Header */}
       <header className="flex items-center justify-between px-10 py-6">
         <Link href="/" className="text-xl font-bold tracking-tight">
           LOGO
@@ -164,29 +160,30 @@ export default function HistoryPage() {
         </div>
       </header>
 
-      {/* ----------------- Main Content ----------------- */}
+      {/* Main Content */}
       <main className="px-10 py-4 max-w-[1400px] mx-auto">
-        <h1 className="mb-8 text-3xl font-bold tracking-tight text-black">
+        <h1 className="mb-6 font-bold tracking-tight text-black whitespace-nowrap" style={{ fontSize: '48px' }}>
           Your Account Setting
         </h1>
+        <br></br>
 
         <div className="flex gap-8 items-start">
           {/* Left Sidebar Menu */}
           <aside className="w-64 rounded-2xl border border-neutral-200 p-5 flex flex-col gap-6 text-sm bg-white shrink-0">
+            {/* 1. Profile Section */}
             <div>
               <p className="font-semibold text-neutral-500 mb-3 text-center bg-neutral-50 py-1.5 rounded-lg">Profile</p>
               <ul className="space-y-3 text-neutral-600 px-2 text-center">
                 <li className="cursor-pointer hover:text-black">Personal Info</li>
                 <li className="cursor-pointer hover:text-black">Change Password</li>
-                <li className="cursor-pointer hover:text-black">Learning Preferences</li>
               </ul>
             </div>
 
+            {/* 2. History Section */}
             <div>
-              {/* ปุ่ม History แถบดำ กดแล้วจะรีเซ็ต activeTab กลับมาเป็น null (หน้าแรก) */}
               <button
                 onClick={() => setActiveTab(null)}
-                className="w-full font-bold text-black mb-3 text-center bg-black text-white py-1.5 rounded-lg cursor-pointer hover:bg-neutral-800 transition-colors"
+                className="w-full font-bold mb-3 text-center bg-black text-white py-1.5 rounded-lg cursor-pointer hover:bg-neutral-800 transition-colors"
               >
                 History
               </button>
@@ -208,9 +205,12 @@ export default function HistoryPage() {
               </ul>
             </div>
 
+            {/* 3. Setting Section (ย้าย Learning Preferences เข้ามา + เพิ่ม Subscription) */}
             <div>
               <p className="font-semibold text-neutral-500 mb-3 text-center bg-neutral-50 py-1.5 rounded-lg">Setting</p>
               <ul className="space-y-3 text-neutral-600 px-2 text-center">
+                <li className="cursor-pointer hover:text-black">Subscription / Membership</li>
+                <li className="cursor-pointer hover:text-black">Learning Preferences</li>
                 <li className="cursor-pointer hover:text-black">Notifications</li>
                 <li className="cursor-pointer hover:text-black">Language</li>
                 <li className="cursor-pointer hover:text-black">Theme</li>
@@ -218,11 +218,20 @@ export default function HistoryPage() {
                 <li className="cursor-pointer text-neutral-600 hover:text-red-500">Delete Account</li>
               </ul>
             </div>
+
+            {/* 4. Help & Support Section (เพิ่มไว้ด้านล่างสุด) */}
+            <div>
+              <p className="font-semibold text-neutral-500 mb-3 text-center bg-neutral-50 py-1.5 rounded-lg">Help & Support</p>
+              <ul className="space-y-3 text-neutral-600 px-2 text-center">
+                <li className="cursor-pointer hover:text-black">Help Center / FAQ</li>
+                <li className="cursor-pointer hover:text-black">Report a Problem</li>
+                <li className="cursor-pointer hover:text-black">Contact Us</li>
+              </ul>
+            </div>
           </aside>
 
           {/* Right Main Display Panel */}
           <section className="flex-1 flex flex-col gap-4">
-            {/* 1. Date Filter Box ด้านนอกกรอบใหญ่ (แสดงเฉพาะตอนเลือก Sub-tab) */}
             {activeTab !== null ? (
               <div className="relative self-start">
                 <button
@@ -238,7 +247,6 @@ export default function HistoryPage() {
                   </span>
                 </button>
 
-                {/* Popover เลือกวันที่ */}
                 {isDatePickerOpen && (
                   <div className="absolute left-0 top-12 z-20 w-72 rounded-2xl border border-neutral-200 bg-white p-4 shadow-xl flex flex-col gap-3 text-xs">
                     <p className="font-medium text-neutral-700">Select Date Range</p>
@@ -286,23 +294,18 @@ export default function HistoryPage() {
                 )}
               </div>
             ) : (
-              // ดันระยะเว้นบรรทัดเพื่อให้กรอบใหญ่สูงเท่ากันตอนไม่มี Filter Date
               <div className="h-[42px]" />
             )}
 
-            {/* 2. กรอบใหญ่แสดงรายการ */}
-            <div className="rounded-2xl border border-neutral-200 p-6 min-h-[550px] bg-white flex flex-col justify-start">
-              
-              {/* ---------------- กรณีไม่ได้เลือก Sub-tab (แสดง HISTORY ใหญ่กลางหน้า) ---------------- */}
+            <div className="rounded-2xl border border-neutral-200 p-6 min-h-[650px] bg-white flex flex-col justify-start">
               {activeTab === null && (
-                <div className="flex-1 min-h-[500px] flex items-center justify-center">
+                <div className="flex-1 min-h-[550px] flex items-center justify-center">
                   <h2 className="text-4xl font-bold tracking-widest text-neutral-300 uppercase">
                     HISTORY
                   </h2>
                 </div>
               )}
 
-              {/* ---------------- Tab: Chat ---------------- */}
               {activeTab === "Chat" && (
                 <div className="flex flex-col gap-3 w-full">
                   {filteredChats.length === 0 ? (
@@ -327,7 +330,6 @@ export default function HistoryPage() {
                 </div>
               )}
 
-              {/* ---------------- Tab: Lessons ---------------- */}
               {activeTab === "Lessons" && (
                 <div className="grid grid-cols-3 gap-6 w-full items-start">
                   {filteredLessons.length === 0 ? (
@@ -363,7 +365,6 @@ export default function HistoryPage() {
                 </div>
               )}
 
-              {/* ---------------- Tab: Uploaded Files ---------------- */}
               {activeTab === "Uploaded Files" && (
                 <div className="grid grid-cols-3 gap-4 w-full items-start">
                   {filteredFiles.length === 0 ? (
@@ -404,7 +405,6 @@ export default function HistoryPage() {
                 </div>
               )}
 
-              {/* ---------------- Tab: Test Results ---------------- */}
               {activeTab === "Test Results" && (
                 <div className="grid grid-cols-3 gap-6 w-full items-start">
                   {filteredTestResults.length === 0 ? (
@@ -424,7 +424,6 @@ export default function HistoryPage() {
                           />
                         </div>
 
-                        {/* Pretest Progress */}
                         <div className="flex flex-col gap-1">
                           <p className="text-[11px] text-neutral-500 font-medium">
                             Pretest: {test.pretestScore}%
@@ -437,7 +436,6 @@ export default function HistoryPage() {
                           </div>
                         </div>
 
-                        {/* Posttest Progress */}
                         <div className="flex flex-col gap-1">
                           <p className="text-[11px] text-neutral-500 font-medium">
                             Posttest: {test.posttestScore}%
@@ -454,7 +452,6 @@ export default function HistoryPage() {
                   )}
                 </div>
               )}
-
             </div>
           </section>
         </div>
