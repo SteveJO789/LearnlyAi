@@ -29,7 +29,7 @@ All top-level fields are required. Unknown top-level fields are rejected.
 - `POST_TEST`: learning outcomes are being assessed.
 - `COMPLETED`: the learning flow is complete.
 
-`INPUT` remains a Learning Session state, but it is intentionally not a Tutor Output stage because no tutor response exists before input processing begins.
+`INPUT` belongs to the original Learning Session API baseline, but it is intentionally not a Tutor Output stage because no tutor response exists before input processing begins. The standalone [Learning Engine Core](learning-engine-core.md) separately tracks lifecycle (`ACTIVE`, `COMPLETED`, `FAILED`) and teaching stage (`DIAGNOSE`, `EXPLAIN`, `PRACTICE`, `ASSESS`, `REVIEW`), mapping teaching stages to this unchanged public output enum.
 
 ### Progress and next action
 

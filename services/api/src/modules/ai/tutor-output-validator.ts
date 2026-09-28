@@ -1,5 +1,5 @@
-import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { getTutorOutputSchema } from "./tutor-output-contract.js";
 
 import {
   Ajv2020,
@@ -32,11 +32,6 @@ interface ValidatedTutorOutput {
   citations: Array<{ id: string }>;
 }
 
-const SCHEMA_LOCATIONS = [
-  new URL("../../contracts/learning-output.schema.json", import.meta.url),
-  new URL("../../../../../contracts/learning-output.schema.json", import.meta.url),
-];
-
 let compiledValidator: ValidateFunction | undefined;
 
 function getSchemaValidator(): ValidateFunction | undefined {
@@ -45,13 +40,7 @@ function getSchemaValidator(): ValidateFunction | undefined {
   }
 
   try {
-    const schemaLocation = SCHEMA_LOCATIONS.find((candidate) => existsSync(candidate));
-
-    if (!schemaLocation) {
-      return undefined;
-    }
-
-    const schema = JSON.parse(readFileSync(schemaLocation, "utf8")) as AnySchema;
+    const schema = getTutorOutputSchema() as AnySchema;
     const ajv = new Ajv2020({ allErrors: true, strict: true });
     addFormats(ajv);
     compiledValidator = ajv.compile(schema);
