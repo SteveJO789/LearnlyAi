@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import "./globals.css";
+import { Providers } from "./providers"; // Import เพิ่มตรงนี้
 
 export const metadata: Metadata = {
   title: "Learnly AI",
@@ -14,8 +15,10 @@ type RootLayoutProps = Readonly<{
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="th">
-      <body>{children}</body>
+    <html lang="th" suppressHydrationWarning>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
