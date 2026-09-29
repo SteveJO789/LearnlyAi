@@ -1,8 +1,3 @@
-// Everything that talks to the Learning API lives in this file, so changing
-// the URL/path (or the response shape) later only touches one place.
-
-export const LEARNING_API_BASE_URL = "";
-
 const RESPOND_PATH = "/api/learning/respond";
 
 export type LearningAction = "RESPOND" | "ADVANCE";
@@ -89,14 +84,14 @@ export async function respondToLearning(request: LearningRequest): Promise<Tutor
   let response: Response;
 
   try {
-    response = await fetch(`${LEARNING_API_BASE_URL}${RESPOND_PATH}`, {
+    response = await fetch(RESPOND_PATH, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(request),
     });
   } catch {
     throw new LearningApiError(
-      `เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ (${LEARNING_API_BASE_URL}) — ตรวจสอบว่า backend เปิดอยู่ และอนุญาต CORS จากเว็บนี้`,
+      "เชื่อมต่อ Learning API ไม่ได้ — ตรวจสอบว่า backend ทำงานอยู่และตั้งค่า API URL ถูกต้อง",
     );
   }
 

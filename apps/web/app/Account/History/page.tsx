@@ -162,10 +162,9 @@ export default function HistoryPage() {
 
       {/* Main Content */}
       <main className="px-10 py-4 max-w-[1400px] mx-auto">
-        <h1 className="mb-6 font-bold tracking-tight text-black whitespace-nowrap" style={{ fontSize: '48px' }}>
+        <h1 className="mb-8 max-w-none text-4xl font-bold tracking-tight text-black sm:text-5xl">
           Your Account Setting
         </h1>
-        <br></br>
 
         <div className="flex gap-8 items-start">
           {/* Left Sidebar Menu */}
@@ -312,8 +311,9 @@ export default function HistoryPage() {
                     <p className="text-neutral-400 text-sm text-center py-12">No chat history found.</p>
                   ) : (
                     filteredChats.map((chat) => (
-                      <div
+                      <Link
                         key={chat.id}
+                        href={`/Chat/${chat.id}`}
                         className="rounded-xl border border-neutral-200 p-4 bg-white hover:border-neutral-400 transition-all cursor-pointer flex flex-col gap-2"
                       >
                         <div className="flex items-center gap-2">
@@ -324,7 +324,7 @@ export default function HistoryPage() {
                         </div>
                         <p className="text-xs text-neutral-500 pl-6">: {chat.lastMessage}</p>
                         <p className="text-[10px] text-neutral-300 pl-6">{chat.date}</p>
-                      </div>
+                      </Link>
                     ))
                   )}
                 </div>

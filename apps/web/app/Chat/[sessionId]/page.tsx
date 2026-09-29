@@ -15,7 +15,7 @@ function firstValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-// Optional: /learn/demo-session-001?goal=...&subject=math
+// Optional: /Chat/demo-session-001?goal=...&subject=math
 // (the Create page can pass these along later)
 export default async function LearnPage({ params, searchParams }: LearnPageProps) {
   const { sessionId } = await params;

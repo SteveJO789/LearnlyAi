@@ -98,7 +98,7 @@ export default function LearningSession({ sessionId, learningGoal, subject }: Pr
 
   function advance() {
     if (loading) return;
-    void run({ action: "ADVANCE", input: "" });
+    void run({ action: "ADVANCE", input: "Continue" });
   }
 
   function retry() {
@@ -257,16 +257,12 @@ export default function LearningSession({ sessionId, learningGoal, subject }: Pr
               </div>
             )}
 
-            {lastTurn?.role === "tutor" && !loading && (
+            {lastTurn?.role === "tutor" && progress?.canAdvance && !loading && (
               <div>
                 <button
                   type="button"
                   onClick={advance}
-                  className={
-                    progress?.canAdvance
-                      ? "rounded-lg bg-black px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-neutral-800"
-                      : "rounded-lg border border-neutral-300 bg-white px-6 py-3 text-base font-medium text-neutral-700 hover:border-neutral-900"
-                  }
+                  className="rounded-lg bg-black px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-neutral-800"
                 >
                   Continue →
                 </button>
