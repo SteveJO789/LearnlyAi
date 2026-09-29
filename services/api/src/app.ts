@@ -78,3 +78,7 @@ export function createApp(options: AppOptions = {}): Express {
   app.use(handleError);
   return app;
 }
+
+const app = createApp();
+
+export default app;
