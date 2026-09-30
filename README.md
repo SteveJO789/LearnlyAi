@@ -42,6 +42,12 @@ flowchart LR
 
 Frontend จะไม่เรียก AI provider และไม่ถือ API key โดยตรง ทุกผลลัพธ์จาก AI ต้องผ่าน backend, grounded context และ JSON Schema validation ก่อนส่งให้ UI
 
+## Local Environment
+
+Environment template แยกตาม service: ใช้ `apps/web/.env.example` สำหรับ Web และ `services/api/.env.example` สำหรับ API โดยไม่ใช้ `.env` ร่วมที่ root ของ repository
+
+รายละเอียดการตั้งค่าอยู่ใน `apps/web/README.md` และ `services/api/README.md` ห้าม commit `.env`, `.env.local` หรือ secret จริงเข้า repository
+
 ## เอกสารสำคัญ
 
 - [สถาปัตยกรรมระบบ](docs/architecture.md)

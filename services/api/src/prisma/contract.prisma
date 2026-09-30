@@ -1,0 +1,106 @@
+// use prisma-8
+
+model User {
+  id          String   @id @default(uuid())
+  email       String?
+  displayName String
+  avatarUrl   String?
+  createdAt   TimestamptzString @default(now())
+  updatedAt   temporal.updatedAtString()
+  oauthAccounts OAuthAccount[]
+  appSessions AppSession[]
+  learningSessions LearningSession[]
+}
+
+model OAuthAccount {
+  id              String   @id @default(uuid())
+  userId          String
+  provider        String
+  subject         String
+  emailAtProvider String?
+  createdAt       TimestamptzString @default(now())
+  lastLoginAt     TimestamptzString?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([provider, subject])
+}
+
+model AppSession {
+  id          String   @id @default(uuid())
+  userId      String
+  tokenDigest String   @unique
+  expiresAt   TimestamptzString
+  createdAt   TimestamptzString @default(now())
+  lastSeenAt  TimestamptzString?
+  revokedAt   TimestamptzString?
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model LearningSession {
+  id             String   @id @default(uuid())
+  userId         String
+  title          String
+  learningGoal   String?
+  state          String
+  progressPercent Int
+  version        Int      @default(1)
+  createdAt      TimestamptzString @default(now())
+  updatedAt      temporal.updatedAtString()
+  completedAt    TimestamptzString?
+
+  user User @relation(fields: [userId], references: [id])
+  sourceMaterials SourceMaterial[]
+  messages Message[]
+}
+
+enum SourceMaterialType {
+  TEXT
+  PDF
+  IMAGE
+}
+
+enum SourceMaterialStatus {
+  UPLOADED
+  PROCESSING
+  READY
+  FAILED
+}
+
+model SourceMaterial {
+  id                String                @id @default(uuid())
+  learningSessionId String
+  type              SourceMaterialType
+  status            SourceMaterialStatus
+  storageKey        String?
+  normalizedText    String?
+  contentHash       String
+  mimeType          String
+  sizeBytes         Int
+  metadata          Json?
+
+  learningSession LearningSession @relation(
+    fields: [learningSessionId],
+    references: [id]
+  )
+}
+
+enum MessageRole {
+  USER
+  TUTOR
+  SYSTEM
+}
+
+model Message {
+  id                String      @id @default(uuid())
+  learningSessionId String
+  role              MessageRole
+  content           Json
+  createdAt         TimestamptzString @default(now())
+
+  learningSession LearningSession @relation(
+    fields: [learningSessionId],
+    references: [id]
+  )
+}

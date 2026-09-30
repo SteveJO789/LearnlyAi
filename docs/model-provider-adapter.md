@@ -49,6 +49,8 @@ Never commit a real API key.
 
 ## Usage and Issue #12 integration
 
+The [Learning Engine Core](learning-engine-core.md) now implements this orchestration boundary in `DefaultTutorOrchestrator`, including JSON parsing, contract/citation validation, request binding, and safe application errors. Its composition boundary injects the existing provider interface and a learning-specific deterministic mock scenario.
+
 Construct the provider at the application composition boundary and inject the interface into the Tutor Orchestrator:
 
 ```ts

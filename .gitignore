@@ -14,6 +14,7 @@ venv/
 .env
 .env.*
 !.env.example
+!**/.env.example
 
 # IDE / ระบบปฏิบัติการ
 .vscode/
@@ -24,3 +25,9 @@ Thumbs.db
 # ไฟล์ที่เกิดระหว่าง Runtime
 logs/
 uploads/
+
+# Local AI-tool metadata
+.agents/
+.claude/
+.cursor/
+.devin/
