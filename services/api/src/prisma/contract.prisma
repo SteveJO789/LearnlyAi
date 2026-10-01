@@ -7,9 +7,11 @@ model User {
   avatarUrl   String?
   createdAt   TimestamptzString @default(now())
   updatedAt   temporal.updatedAtString()
-  oauthAccounts OAuthAccount[]
-  appSessions AppSession[]
+
+  oauthAccounts   OAuthAccount[]
+  appSessions     AppSession[]
   learningSessions LearningSession[]
+  learningProfile LearningProfile?
 }
 
 model OAuthAccount {
@@ -38,21 +40,41 @@ model AppSession {
   user User @relation(fields: [userId], references: [id])
 }
 
+enum LearningSessionState {
+  ACTIVE
+  COMPLETED
+  FAILED
+}
+
+enum LearningStage {
+  DIAGNOSE
+  EXPLAIN
+  PRACTICE
+  ASSESS
+  REVIEW
+}
+
 model LearningSession {
-  id             String   @id @default(uuid())
+  id             String                @id @default(uuid())
   userId         String
   title          String
   learningGoal   String?
-  state          String
+  subject        String?
+  state          LearningSessionState
+  stage          LearningStage @default(EXPLAIN)
   progressPercent Int
-  version        Int      @default(1)
-  createdAt      TimestamptzString @default(now())
+  version        Int                   @default(1)
+  createdAt      TimestamptzString     @default(now())
   updatedAt      temporal.updatedAtString()
   completedAt    TimestamptzString?
 
-  user User @relation(fields: [userId], references: [id])
-  sourceMaterials SourceMaterial[]
-  messages Message[]
+  user             User             @relation(fields: [userId], references: [id])
+  sourceMaterials  SourceMaterial[]
+  messages         Message[]
+  assessments      Assessment[]
+  aiRequests       AIRequest[]
+
+  @@index([userId, createdAt])
 }
 
 enum SourceMaterialType {
@@ -103,4 +125,86 @@ model Message {
     fields: [learningSessionId],
     references: [id]
   )
+}
+
+enum AssessmentPhase {
+  PRE
+  POST
+  TRANSFER
+}
+
+model Assessment {
+  id                String             @id @default(uuid())
+  learningSessionId String
+  phase             AssessmentPhase
+  score             Int?
+  maxScore          Int?
+  submittedAt       TimestamptzString?
+
+  learningSession LearningSession @relation(
+    fields: [learningSessionId],
+    references: [id]
+  )
+
+  answers AssessmentAnswer[]
+
+  @@unique([learningSessionId, phase])
+}
+
+model AssessmentAnswer {
+  id           String @id @default(uuid())
+  assessmentId String
+  questionId   String
+  response     Json
+  isCorrect    Boolean?
+  awardedScore Int?
+
+  assessment Assessment @relation(
+    fields: [assessmentId],
+    references: [id]
+  )
+}
+
+model LearningProfile {
+  userId     String @id
+  mastery    Json
+  strengths  Json
+  weakPoints Json
+  updatedAt  TimestamptzString
+
+  user User @relation(
+    fields: [userId],
+    references: [id]
+  )
+}
+
+enum AIRequestStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model AIRequest {
+  id              String          @id @default(uuid())
+  learningSessionId String
+  requestId       String
+  provider        String
+  model           String
+  operation       String
+  status          AIRequestStatus
+  latencyMs       Int?
+  inputTokens     Int?
+  outputTokens    Int?
+  errorCode       String?
+  promptSnapshot  Json?
+  outputSnapshot  Json?
+  createdAt       TimestamptzString @default(now())
+
+  learningSession LearningSession @relation(
+    fields: [learningSessionId],
+    references: [id]
+  )
+
+  @@unique([requestId])
+  @@index([learningSessionId, createdAt])
 }
