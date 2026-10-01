@@ -4,6 +4,7 @@
 
 @theme {
   --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-background: var(--background);
   --color-text: var(--text);
@@ -32,7 +33,19 @@
 }
 
 /* ===========================
-   โครงสร้างธีมสีทั้ง 6 ชุด (ครบถ้วนตามต้องการ)
+   โครงสร้างธีมสีทั้ง 6 ชุด
+
+   แต่ละธีมกำหนด 4 ตัวแปรหลักตาม Brand Color Theme:
+     --primary    สีหลักสำหรับปุ่มกด/ไฮไลต์สำคัญ      -> ใช้กับคลาส bg-primary
+     --secondary  สีรองสำหรับแท็บย่อย/ปุ่มสถานะรอง     -> ใช้กับคลาส bg-secondary
+     --surface    สีพื้นหลังของการ์ด/กล่องข้อความ       -> ใช้กับคลาส bg-surface
+     --background สีพื้นหลังหลักของหน้าเว็บ            -> ใช้กับคลาส bg-background
+   บวก --primary-foreground (สีตัวอักษรบนปุ่ม primary ให้คอนทราสต์พอดี)
+   และ --text (สีตัวอักษรหลักของเนื้อหาในหน้า)
+
+   คอมโพเนนต์ต้องใช้คลาสเหล่านี้ตรงๆ (bg-primary, bg-secondary, bg-surface,
+   bg-background, text-text, text-primary-foreground, border-surface-border)
+   แทนสี literal อย่าง bg-black/bg-white/bg-neutral-*, สีถึงจะเปลี่ยนตามธีมจริง
    =========================== */
 
 /* 1. ธีมเริ่มต้น / Modern Teal (#0AD1C1) */
@@ -40,6 +53,7 @@
   --color-primary-rgb: 10, 209, 193;
   --color-text-rgb: 55, 85, 114;
   --primary: rgb(var(--color-primary-rgb));
+  --primary-foreground: #ffffff;
   --secondary: #93FBFF;
   --surface: #E2FFFC;
   --background: #FFFFFF;
@@ -54,7 +68,8 @@
   --color-primary-rgb: 10, 209, 193;
   --color-text-rgb: 239, 246, 255;
   --primary: rgb(var(--color-primary-rgb));
-  --secondary: #93FBFF;
+  --primary-foreground: #0b1b1a;
+  --secondary: #164e4a;
   --surface: #1F2937;
   --background: #111827;
   --text: rgb(var(--color-text-rgb));
@@ -68,6 +83,7 @@
 .theme-ruby {
   --color-primary-rgb: 145, 16, 5;
   --primary: #911005;
+  --primary-foreground: #ffffff;
   --secondary: #F2F2F2;
   --surface: #EDDFDE;
   --background: #B0A09F;
@@ -79,6 +95,7 @@
 .theme-peach {
   --color-primary-rgb: 255, 170, 170;
   --primary: #FFAAAA;
+  --primary-foreground: #5c3a3a;
   --secondary: #FFD1D1;
   --surface: #FFE2E2;
   --background: #FFF9F9;
@@ -90,6 +107,7 @@
 .theme-sky {
   --color-primary-rgb: 188, 232, 255;
   --primary: #BCE8FF;
+  --primary-foreground: #0B3959;
   --secondary: #E2F5FF;
   --surface: #EFF3F4;
   --background: #F3FBFF;
@@ -101,6 +119,7 @@
 .theme-gold {
   --color-primary-rgb: 255, 192, 111;
   --primary: #FFC06F;
+  --primary-foreground: #593D0B;
   --secondary: #FFD896;
   --surface: #FFF5E3;
   --background: #FFEAC6;
@@ -112,6 +131,7 @@
 .theme-slate {
   --color-primary-rgb: 55, 85, 114;
   --primary: #375572;
+  --primary-foreground: #ffffff;
   --secondary: #456C91;
   --surface: #E5E6FF;
   --background: #707A7F;
@@ -218,94 +238,4 @@ li {
   margin-block: 0.75rem;
   padding-left: 0.35rem;
   line-height: 1.5;
-}
-
-/* ==========================================================
-   เชื่อมโยงคลาส Tailwind ให้วิ่งตามธีมสีที่เลือกอัตโนมัติ
-   ========================================================== */
-
-.theme-ruby button.bg-black, 
-.theme-ruby button.dark\:bg-white,
-.theme-ruby .bg-black {
-  background-color: var(--primary) !important;
-  color: #fff !important;
-}
-
-.theme-peach button.bg-black, 
-.theme-peach button.dark\:bg-white,
-.theme-peach .bg-black {
-  background-color: var(--primary) !important;
-  color: #5c3a3a !important;
-}
-
-.theme-gold button.bg-black, 
-.theme-gold button.dark\:bg-white,
-.theme-gold .bg-black {
-  background-color: var(--primary) !important;
-  color: #593D0B !important;
-}
-
-.theme-sky button.bg-black, 
-.theme-sky button.dark\:bg-white,
-.theme-sky .bg-black {
-  background-color: var(--primary) !important;
-  color: #0B3959 !important;
-}
-
-.theme-slate button.bg-black, 
-.theme-slate button.dark\:bg-white,
-.theme-slate .bg-black {
-  background-color: var(--primary) !important;
-  color: #fff !important;
-}
-@import "tailwindcss";
-
-/* ---------------------------------- */
-/* กำหนดค่าสีหลักของแต่ละ Brand Theme */
-/* ---------------------------------- */
-
-:root {
-  --brand-primary: #0ad1c1; /* Teal Modern */
-  --brand-primary-hover: #08b5a7;
-}
-
-.theme-peach {
-  --brand-primary: #ffaaaa;
-  --brand-primary-hover: #ff9191;
-  /* หากต้องการให้ธีมนี้เปลี่ยนโทนสีพื้นหลังภาพรวม (ตัวอย่าง: โทนพีชอ่อนๆ) */
-  background-color: #fffaf9 !important; 
-}
-
-.theme-gold {
-  --brand-primary: #ffc06f;
-  --brand-primary-hover: #f3b05b;
-}
-
-.theme-sky {
-  --brand-primary: #bce8ff;
-  --brand-primary-hover: #a2defc;
-}
-
-.theme-ruby {
-  --brand-primary: #911005;
-  --brand-primary-hover: #780d04;
-  /* ตัวอย่าง: หากเลือก Ruby แล้วอยากให้ภาพรวมหน้าเว็บมีกลิ่นอายเข้มขึ้น หรือปล่อยให้พื้นหลังเป็นปกติ */
-}
-
-.theme-slate {
-  --brand-primary: #375572;
-  --brand-primary-hover: #2c445b;
-}
-
-/* 
-  ตัวอย่างการใช้ตัวแปร --brand-primary กับปุ่มหลักหรือสถานะ Active 
-  เพื่อให้เวลาเปลี่ยนธีม ปุ่มต่างๆ จะเปลี่ยนสีตามธีมที่เลือกโดยอัตโนมัติ
-*/
-.brand-btn-primary {
-  background-color: var(--brand-primary);
-  color: #ffffff;
-}
-
-.brand-btn-primary:hover {
-  background-color: var(--brand-primary-hover);
 }
