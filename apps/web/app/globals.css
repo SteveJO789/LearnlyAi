@@ -35,20 +35,20 @@
 /* ===========================
    โครงสร้างธีมสีทั้ง 6 ชุด
 
-   แต่ละธีมกำหนด 4 ตัวแปรหลักตาม Brand Color Theme:
-     --primary    สีหลักสำหรับปุ่มกด/ไฮไลต์สำคัญ      -> ใช้กับคลาส bg-primary
-     --secondary  สีรองสำหรับแท็บย่อย/ปุ่มสถานะรอง     -> ใช้กับคลาส bg-secondary
-     --surface    สีพื้นหลังของการ์ด/กล่องข้อความ       -> ใช้กับคลาส bg-surface
-     --background สีพื้นหลังหลักของหน้าเว็บ            -> ใช้กับคลาส bg-background
-   บวก --primary-foreground (สีตัวอักษรบนปุ่ม primary ให้คอนทราสต์พอดี)
-   และ --text (สีตัวอักษรหลักของเนื้อหาในหน้า)
+   แต่ละธีมมี 2 เวอร์ชัน: .theme-X (Light) และ .dark.theme-X (Dark)
+   ทุกตัวแปรด้านล่าง (primary/secondary/surface/background + text/muted/
+   primary-foreground/surface-border) ถูกกำหนดแยกสำหรับ Light และ Dark
+   โดยเฉพาะ ไม่ใช่ค่าเดียวที่ใช้ร่วมกันทั้งสองโหมดอีกต่อไป — Dark mode ของ
+   แต่ละธีมจะมีพื้นหลังที่เข้มขึ้นจริง (ไม่ใช่แค่สลับสีตัวอักษรบนพื้นเดิม)
+   เพื่อให้มองเห็นความต่างชัดเจน และเลือกสีตัวอักษรจากค่า contrast จริง
+   ไม่ใช่ตามพื้นหลังเดิมที่อาจกลืนกัน
 
-   คอมโพเนนต์ต้องใช้คลาสเหล่านี้ตรงๆ (bg-primary, bg-secondary, bg-surface,
-   bg-background, text-text, text-primary-foreground, border-surface-border)
-   แทนสี literal อย่าง bg-black/bg-white/bg-neutral-*, สีถึงจะเปลี่ยนตามธีมจริง
+   คอมโพเนนต์ใช้คลาส bg-primary / bg-secondary / bg-surface / bg-background /
+   text-text / text-muted / text-primary-foreground / border-surface-border
+   แล้วค่าจะสลับให้เองตามธีม + โหมดที่เลือกอยู่
    =========================== */
 
-/* 1. ธีมเริ่มต้น / Modern Teal (#0AD1C1) */
+/* 1. ธีมเริ่มต้น / Modern Teal (#0AD1C1) — Light */
 :root {
   --color-primary-rgb: 10, 209, 193;
   --color-text-rgb: 55, 85, 114;
@@ -64,6 +64,7 @@
   --danger: #911005;
 }
 
+/* Modern Teal — Dark */
 .dark {
   --color-primary-rgb: 10, 209, 193;
   --color-text-rgb: 239, 246, 255;
@@ -79,7 +80,7 @@
   --danger: #EF4444;
 }
 
-/* 2. ธีม Ruby / แดงเข้ม (#911005) */
+/* 2. ธีม Ruby / แดงเข้ม (#911005) — Light */
 .theme-ruby {
   --color-primary-rgb: 145, 16, 5;
   --primary: #911005;
@@ -88,10 +89,24 @@
   --surface: #EDDFDE;
   --background: #B0A09F;
   --text: #375572;
+  --muted: #6A5D5D;
   --surface-border: #9D8C8B;
 }
 
-/* 3. ธีม Peach / ชมพูอ่อน (#FFAAAA) */
+/* Ruby — Dark */
+.dark.theme-ruby {
+  --color-primary-rgb: 200, 29, 12;
+  --primary: #C81D0C;
+  --primary-foreground: #ffffff;
+  --secondary: #5C4442;
+  --surface: #2E1F1D;
+  --background: #1F1413;
+  --text: #F3E9E8;
+  --muted: #C9B6B4;
+  --surface-border: #4A3836;
+}
+
+/* 3. ธีม Peach / ชมพูอ่อน (#FFAAAA) — Light */
 .theme-peach {
   --color-primary-rgb: 255, 170, 170;
   --primary: #FFAAAA;
@@ -100,10 +115,24 @@
   --surface: #FFE2E2;
   --background: #FFF9F9;
   --text: #5c3a3a;
+  --muted: #8a6666;
   --surface-border: #F2CCCC;
 }
 
-/* 4. ธีม Sky / ฟ้าอ่อน (#BCE8FF) */
+/* Peach — Dark */
+.dark.theme-peach {
+  --color-primary-rgb: 255, 155, 155;
+  --primary: #FF9B9B;
+  --primary-foreground: #3a1f1f;
+  --secondary: #5C3A3D;
+  --surface: #35201F;
+  --background: #241516;
+  --text: #FCEAEA;
+  --muted: #D9B8B8;
+  --surface-border: #4A2F2E;
+}
+
+/* 4. ธีม Sky / ฟ้าอ่อน (#BCE8FF) — Light */
 .theme-sky {
   --color-primary-rgb: 188, 232, 255;
   --primary: #BCE8FF;
@@ -112,10 +141,24 @@
   --surface: #EFF3F4;
   --background: #F3FBFF;
   --text: #0B3959;
+  --muted: #4A7183;
   --surface-border: #D1E3EC;
 }
 
-/* 5. ธีม Gold / ส้มทอง (#FFC06F) */
+/* Sky — Dark */
+.dark.theme-sky {
+  --color-primary-rgb: 143, 212, 255;
+  --primary: #8FD4FF;
+  --primary-foreground: #07263A;
+  --secondary: #2E4A57;
+  --surface: #16283A;
+  --background: #0E1C24;
+  --text: #EAF6FF;
+  --muted: #AFD6E6;
+  --surface-border: #2B4150;
+}
+
+/* 5. ธีม Gold / ส้มทอง (#FFC06F) — Light */
 .theme-gold {
   --color-primary-rgb: 255, 192, 111;
   --primary: #FFC06F;
@@ -124,10 +167,24 @@
   --surface: #FFF5E3;
   --background: #FFEAC6;
   --text: #593D0B;
+  --muted: #8a6a2e;
   --surface-border: #EED6A8;
 }
 
-/* 6. ธีม Slate / น้ำเงินกรมท่า (#375572) */
+/* Gold — Dark */
+.dark.theme-gold {
+  --color-primary-rgb: 255, 201, 126;
+  --primary: #FFC97E;
+  --primary-foreground: #3a2808;
+  --secondary: #5C4420;
+  --surface: #352512;
+  --background: #241A0C;
+  --text: #FDF0DD;
+  --muted: #D9C4A0;
+  --surface-border: #4A3720;
+}
+
+/* 6. ธีม Slate / น้ำเงินกรมท่า (#375572) — Light */
 .theme-slate {
   --color-primary-rgb: 55, 85, 114;
   --primary: #375572;
@@ -136,7 +193,21 @@
   --surface: #E5E6FF;
   --background: #707A7F;
   --text: #FFFFFF;
+  --muted: #6A5D5D;
   --surface-border: #5A666C;
+}
+
+/* Slate — Dark */
+.dark.theme-slate {
+  --color-primary-rgb: 74, 111, 147;
+  --primary: #4A6F93;
+  --primary-foreground: #ffffff;
+  --secondary: #30455C;
+  --surface: #333B6B;
+  --background: #2B3236;
+  --text: #FFFFFF;
+  --muted: #C9C6E0;
+  --surface-border: #454D6E;
 }
 
 /* ส่วนพื้นฐานและการแสดงผล */
