@@ -90,12 +90,12 @@ export default function SignupForm() {
         <button
           type="submit"
           disabled={isLoading} // ป้องกันการกดซ้ำระหว่างโหลด
-          className="rounded-lg bg-black px-6 py-3.5 text-lg font-medium text-white shadow-sm hover:bg-neutral-800 disabled:opacity-50"
+          className="rounded-lg bg-primary px-6 py-3.5 text-lg font-medium text-primary-foreground shadow-sm hover:opacity-90 disabled:opacity-50"
         >
           Sign up
         </button>
 
-        <p className="mt-1 text-center text-base text-neutral-500">
+        <p className="mt-1 text-center text-base text-muted">
           Already have an account?{" "}
           <Link href="/SignIn" className="font-medium text-blue-700 hover:underline">
             Log in

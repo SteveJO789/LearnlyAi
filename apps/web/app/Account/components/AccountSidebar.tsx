@@ -2,12 +2,20 @@
 
 import Link from "next/link";
 
-type TabType = "Chat" | "Lessons" | "Uploaded Files" | "Test Results";
+type HistoryTabType = "Chat" | "Lessons" | "Uploaded Files" | "Test Results";
+type SettingTabType =
+  | "Change Password"
+  | "Learning Preferences"
+  | "Notifications"
+  | "Language"
+  | "Privacy"
+  | "Delete Account";
+type HelpTabType = "Help Center / FAQ" | "Report a Problem" | "Contact Us";
 type SectionType = "Profile" | "History" | "Setting" | "Help";
 
 interface AccountSidebarProps {
   activeSection: SectionType;
-  activeTab?: TabType | null;
+  activeTab?: HistoryTabType | SettingTabType | HelpTabType | null;
 }
 
 export default function AccountSidebar({
@@ -57,7 +65,7 @@ export default function AccountSidebar({
               "Lessons",
               "Uploaded Files",
               "Test Results",
-            ] as TabType[]
+            ] as HistoryTabType[]
           ).map((tab) => {
             const isTabActive = activeSection === "History" && activeTab === tab;
             return (
