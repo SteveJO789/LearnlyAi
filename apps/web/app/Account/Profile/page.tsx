@@ -220,70 +220,28 @@ function ProfileContent() {
 
             {/* Setting Section */}
             <div>
-              <Link
-                href="/Account/Setting"
-                className="block font-semibold text-muted mb-3 text-center bg-secondary py-1.5 rounded-lg hover:text-text transition-colors"
-              >
+              <p className="font-semibold text-muted mb-3 text-center bg-secondary py-1.5 rounded-lg">
                 Setting
-              </Link>
+              </p>
               <ul className="space-y-3 text-muted px-2 text-center">
-                <li>
-                  <Link href="/Account/Setting?tab=Change%20Password" className="block py-1 hover:text-text transition-colors">
-                    Change Password
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/Account/Setting?tab=Learning%20Preferences" className="block py-1 hover:text-text transition-colors">
-                    Learning Preferences
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/Account/Setting?tab=Notifications" className="block py-1 hover:text-text transition-colors">
-                    Notifications
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/Account/Setting?tab=Language" className="block py-1 hover:text-text transition-colors">
-                    Language
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/Account/Setting?tab=Privacy" className="block py-1 hover:text-text transition-colors">
-                    Privacy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/Account/Setting?tab=Delete%20Account" className="block py-1 text-muted hover:text-danger transition-colors">
-                    Delete Account
-                  </Link>
-                </li>
+                <li className="cursor-pointer hover:text-text">Change Password</li>
+                <li className="cursor-pointer hover:text-text">Learning Preferences</li>
+                <li className="cursor-pointer hover:text-text">Notifications</li>
+                <li className="cursor-pointer hover:text-text">Language</li>
+                <li className="cursor-pointer hover:text-text">Privacy</li>
+                <li className="cursor-pointer text-muted hover:text-danger">Delete Account</li>
               </ul>
             </div>
 
             {/* Help & Support Section */}
             <div>
-              <Link
-                href="/Account/Help"
-                className="block font-semibold text-muted mb-3 text-center bg-secondary py-1.5 rounded-lg hover:text-text transition-colors"
-              >
+              <p className="font-semibold text-muted mb-3 text-center bg-secondary py-1.5 rounded-lg">
                 Help & Support
-              </Link>
+              </p>
               <ul className="space-y-3 text-muted px-2 text-center">
-                <li>
-                  <Link href="/Account/Help?tab=Help%20Center" className="block py-1 hover:text-text transition-colors">
-                    Help Center / FAQ
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/Account/Help?tab=Report%20a%20Problem" className="block py-1 hover:text-text transition-colors">
-                    Report a Problem
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/Account/Help?tab=Contact%20Us" className="block py-1 hover:text-text transition-colors">
-                    Contact Us
-                  </Link>
-                </li>
+                <li className="cursor-pointer hover:text-text">Help Center / FAQ</li>
+                <li className="cursor-pointer hover:text-text">Report a Problem</li>
+                <li className="cursor-pointer hover:text-text">Contact Us</li>
               </ul>
             </div>
           </aside>
