@@ -19,15 +19,15 @@ const cardImage3 =
   "https://www.figma.com/api/mcp/asset/8fd24a11-50b7-4cdf-aa32-f638d45dcf65/6ec63.png";
 
 const HeadButton =
-  "rounded-lg bg-black px-6 py-3.5 text-base font-medium text-white shadow-sm hover:bg-neutral-800 transition-colors";
+  "rounded-lg bg-primary px-6 py-3.5 text-base font-medium text-primary-foreground shadow-sm hover:opacity-90 transition-colors";
 
 export default function HomePage() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-white text-neutral-900">
+    <div className="min-h-screen bg-background text-text">
       <header className="flex w-full items-center justify-between px-5 py-6 sm:px-12 lg:px-20">
-        <span className="text-lg font-medium tracking-wide text-black">
+        <span className="text-lg font-medium tracking-wide">
           LOGO
         </span>
 
@@ -110,16 +110,16 @@ export default function HomePage() {
             Hello <span>(user...)</span>
           </div>
 
-          <h1 className="text-4xl font-bold tracking-tight text-black sm:text-5xl lg:text-6xl">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
             Welcome to LearnlyAI
           </h1>
-          <p className="mt-6 text-lg text-black/75 sm:text-xl lg:text-2xl">
+          <p className="mt-6 text-lg text-muted sm:text-xl lg:text-2xl">
             Your AI tutor that breaks every problem down, step by step — so you
             actually understand, not just get the answer.
           </p>
           <Link
             href="/SignIn"
-            className="mt-10 inline-flex items-center rounded-lg bg-black px-8 py-5 text-lg font-medium text-white shadow-sm hover:bg-neutral-800 sm:text-xl"
+            className="mt-10 inline-flex items-center rounded-lg bg-primary px-8 py-5 text-lg font-medium text-primary-foreground shadow-sm hover:opacity-90 sm:text-xl"
           >
             START
           </Link>
@@ -138,7 +138,7 @@ export default function HomePage() {
         </section>
 
         <section className="pb-24">
-          <h2 className="text-3xl font-semibold tracking-tight text-black sm:text-4xl">
+          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             What is LearnlyAI ?
           </h2>
 
@@ -154,8 +154,8 @@ export default function HomePage() {
                 />
               </div>
               <div className="mt-6 max-w-[381px]">
-                <h3 className="text-2xl font-medium text-black">Subheading</h3>
-                <p className="mt-1 text-2xl text-neutral-500">
+                <h3 className="text-2xl font-medium">Subheading</h3>
+                <p className="mt-1 text-2xl text-muted">
                   Body text for whatever you&rsquo;d like to add more to the
                   subheading.
                 </p>
@@ -173,8 +173,8 @@ export default function HomePage() {
                 />
               </div>
               <div className="max-w-[381px]">
-                <h3 className="text-2xl font-medium text-black">Subheading</h3>
-                <p className="mt-1 text-2xl text-neutral-500">
+                <h3 className="text-2xl font-medium">Subheading</h3>
+                <p className="mt-1 text-2xl text-muted">
                   Body text for whatever you&rsquo;d like to share more.
                 </p>
               </div>
@@ -182,8 +182,8 @@ export default function HomePage() {
 
             <article className="grid grid-cols-1 gap-8 md:grid-cols-2 md:items-start">
               <div className="max-w-[381px] md:order-1">
-                <h3 className="text-2xl font-medium text-black">Subheading</h3>
-                <p className="mt-1 text-2xl text-neutral-500">
+                <h3 className="text-2xl font-medium">Subheading</h3>
+                <p className="mt-1 text-2xl text-muted">
                   Body text for whatever you&rsquo;d like to expand on the main
                   point.
                 </p>

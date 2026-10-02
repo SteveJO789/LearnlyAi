@@ -2,12 +2,20 @@
 
 import Link from "next/link";
 
-type TabType = "Chat" | "Lessons" | "Uploaded Files" | "Test Results";
+type HistoryTabType = "Chat" | "Lessons" | "Uploaded Files" | "Test Results";
+type SettingTabType =
+  | "Change Password"
+  | "Learning Preferences"
+  | "Notifications"
+  | "Language"
+  | "Privacy"
+  | "Delete Account";
+type HelpTabType = "Help Center / FAQ" | "Report a Problem" | "Contact Us";
 type SectionType = "Profile" | "History" | "Setting" | "Help";
 
 interface AccountSidebarProps {
   activeSection: SectionType;
-  activeTab?: TabType | null;
+  activeTab?: HistoryTabType | SettingTabType | HelpTabType | null;
 }
 
 export default function AccountSidebar({
@@ -15,25 +23,25 @@ export default function AccountSidebar({
   activeTab = null,
 }: AccountSidebarProps) {
   return (
-    <aside className="w-64 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-5 flex flex-col gap-6 text-sm bg-white dark:bg-neutral-900 shrink-0">
+    <aside className="w-64 rounded-2xl border border-surface-border p-5 flex flex-col gap-6 text-sm bg-surface shrink-0">
       {/* 1. Profile Section */}
       <div>
         <Link
           href="/Account/Profile"
           className={`block font-semibold mb-3 text-center py-1.5 rounded-lg transition-colors ${
             activeSection === "Profile"
-              ? "bg-black text-white dark:bg-white dark:text-black font-bold"
-              : "text-neutral-500 hover:text-black dark:hover:text-white bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-300"
+              ? "bg-primary text-primary-foreground font-bold"
+              : "text-muted hover:text-text bg-secondary"
           }`}
         >
           Profile
         </Link>
-        <ul className="space-y-3 text-neutral-600 dark:text-neutral-400 px-2 text-center">
-          <li className="cursor-pointer hover:text-black dark:hover:text-white">
+        <ul className="space-y-3 text-muted px-2 text-center">
+          <li className="cursor-pointer hover:text-text">
             <Link href="/Account/Profile">Personal Info</Link>
           </li>
-          <li className="cursor-pointer hover:text-black dark:hover:text-white">
-            <Link href="/Account/Profile">Theme</Link>
+          <li className="cursor-pointer hover:text-text">
+            <Link href="/Account/Profile?tab=Theme">Theme</Link>
           </li>
         </ul>
       </div>
@@ -44,8 +52,8 @@ export default function AccountSidebar({
           href="/Account/History"
           className={`block w-full font-bold mb-3 text-center py-1.5 rounded-lg cursor-pointer transition-colors ${
             activeSection === "History"
-              ? "bg-black text-white dark:bg-white dark:text-black"
-              : "bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+              ? "bg-primary text-primary-foreground"
+              : "bg-secondary text-muted hover:opacity-80"
           }`}
         >
           History
@@ -57,7 +65,7 @@ export default function AccountSidebar({
               "Lessons",
               "Uploaded Files",
               "Test Results",
-            ] as TabType[]
+            ] as HistoryTabType[]
           ).map((tab) => {
             const isTabActive = activeSection === "History" && activeTab === tab;
             return (
@@ -66,8 +74,8 @@ export default function AccountSidebar({
                   href={`/Account/History?tab=${encodeURIComponent(tab)}`}
                   className={`block w-full text-center py-1.5 px-3 rounded-lg transition-all cursor-pointer ${
                     isTabActive
-                      ? "font-semibold text-black dark:text-white underline decoration-neutral-400 underline-offset-4 bg-neutral-100/70 dark:bg-neutral-800/70"
-                      : "text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+                      ? "font-semibold text-text underline decoration-muted underline-offset-4 bg-secondary/70"
+                      : "text-muted hover:text-text hover:bg-secondary/50"
                   }`}
                 >
                   {tab}
@@ -80,28 +88,93 @@ export default function AccountSidebar({
 
       {/* 3. Setting Section */}
       <div>
-        <p className="font-semibold text-neutral-500 mb-3 text-center bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-300 py-1.5 rounded-lg">
+        <Link
+          href="/Account/Setting"
+          className={`block font-semibold mb-3 text-center py-1.5 rounded-lg transition-colors ${
+            activeSection === "Setting"
+              ? "bg-primary text-primary-foreground font-bold"
+              : "text-muted hover:text-text bg-secondary"
+          }`}
+        >
           Setting
-        </p>
-        <ul className="space-y-3 text-neutral-600 dark:text-neutral-400 px-2 text-center">
-          <li className="cursor-pointer hover:text-black dark:hover:text-white">Change Password</li>
-          <li className="cursor-pointer hover:text-black dark:hover:text-white">Learning Preferences</li>
-          <li className="cursor-pointer hover:text-black dark:hover:text-white">Notifications</li>
-          <li className="cursor-pointer hover:text-black dark:hover:text-white">Language</li>
-          <li className="cursor-pointer hover:text-black dark:hover:text-white">Privacy</li>
-          <li className="cursor-pointer text-neutral-600 dark:text-neutral-400 hover:text-red-500">Delete Account</li>
+        </Link>
+        <ul className="space-y-2 px-2 text-center">
+          {(
+            [
+              "Change Password",
+              "Learning Preferences",
+              "Notifications",
+              "Language",
+              "Privacy",
+            ] as SettingTabType[]
+          ).map((tab) => {
+            const isTabActive = activeSection === "Setting" && activeTab === tab;
+            return (
+              <li key={tab}>
+                <Link
+                  href={`/Account/Setting?tab=${encodeURIComponent(tab)}`}
+                  className={`block w-full text-center py-1.5 px-3 rounded-lg transition-all cursor-pointer ${
+                    isTabActive
+                      ? "font-semibold text-text underline decoration-muted underline-offset-4 bg-secondary/70"
+                      : "text-muted hover:text-text hover:bg-secondary/50"
+                  }`}
+                >
+                  {tab}
+                </Link>
+              </li>
+            );
+          })}
+          <li>
+            <Link
+              href="/Account/Setting?tab=Delete Account"
+              className={`block w-full text-center py-1.5 px-3 rounded-lg transition-all cursor-pointer ${
+                activeSection === "Setting" && activeTab === "Delete Account"
+                  ? "font-semibold text-danger underline decoration-danger underline-offset-4 bg-secondary/70"
+                  : "text-muted hover:text-danger hover:bg-secondary/50"
+              }`}
+            >
+              Delete Account
+            </Link>
+          </li>
         </ul>
       </div>
 
       {/* 4. Help & Support Section */}
       <div>
-        <p className="font-semibold text-neutral-500 mb-3 text-center bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-300 py-1.5 rounded-lg">
+        <Link
+          href="/Account/Help"
+          className={`block font-semibold mb-3 text-center py-1.5 rounded-lg transition-colors ${
+            activeSection === "Help"
+              ? "bg-primary text-primary-foreground font-bold"
+              : "text-muted hover:text-text bg-secondary"
+          }`}
+        >
           Help & Support
-        </p>
-        <ul className="space-y-3 text-neutral-600 dark:text-neutral-400 px-2 text-center">
-          <li className="cursor-pointer hover:text-black dark:hover:text-white">Help Center / FAQ</li>
-          <li className="cursor-pointer hover:text-black dark:hover:text-white">Report a Problem</li>
-          <li className="cursor-pointer hover:text-black dark:hover:text-white">Contact Us</li>
+        </Link>
+        <ul className="space-y-2 px-2 text-center">
+          {(
+            [
+              "Help Center / FAQ",
+              "Report a Problem",
+              "Contact Us",
+            ] as HelpTabType[]
+          ).map((tab) => {
+            const isTabActive = activeSection === "Help" && activeTab === tab;
+            return (
+              <li key={tab}>
+                <Link
+                  href={`/Account/Help?tab=${encodeURIComponent(tab)}`}
+                  className={`block w-full text-center py-1.5 px-3 rounded-lg transition-all cursor-pointer ${
+                    isTabActive
+                      ? "font-semibold text-text underline decoration-muted underline-offset-4 bg-secondary/70"
+                      : "text-muted hover:text-text hover:bg-secondary/50"
+                  }`}
+                >
+                  {tab}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </aside>
