@@ -15,8 +15,9 @@ function firstValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-// Optional: /Chat/demo-session-001?goal=...&subject=math
-// (the Create page can pass these along later)
+// /Chat/demo-session-001?goal=...&subject=math&input=...
+// The Create page passes `input` (the learner's first question) so this
+// page can send it automatically instead of making them retype it.
 export default async function LearnPage({ params, searchParams }: LearnPageProps) {
   const { sessionId } = await params;
   const query = await searchParams;
@@ -27,6 +28,7 @@ export default async function LearnPage({ params, searchParams }: LearnPageProps
       sessionId={sessionId}
       learningGoal={firstValue(query.goal)}
       subject={firstValue(query.subject)}
+      initialInput={firstValue(query.input)}
     />
   );
 }
