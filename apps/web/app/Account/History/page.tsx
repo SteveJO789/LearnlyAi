@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import AccountSidebar from "../components/AccountSidebar"; // นำเข้า Sidebar กลาง
+import { LESSONS } from "../../lib/mock-lessons"; // ข้อมูลบทเรียนชุดเดียวกับหน้า Lessons และ Learning Page
 
 type TabType = "Chat" | "Lessons" | "Uploaded Files" | "Test Results";
 
@@ -17,14 +18,6 @@ interface ChatItem {
   id: number;
   title: string;
   lastMessage: string;
-  date: string;
-}
-
-interface LessonItem {
-  id: number;
-  title: string;
-  imageUrl: string;
-  progressPercent: number;
   date: string;
 }
 
@@ -74,16 +67,7 @@ function HistoryContent() {
     },
   ]);
 
-  const [lessonsHistory] = useState<LessonItem[]>([
-    {
-      id: 1,
-      title: "Linear Equations",
-      imageUrl:
-        "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=600",
-      progressPercent: 100,
-      date: "2026-09-10",
-    },
-  ]);
+  const lessonsHistory = LESSONS;
 
   const [testResultsHistory] = useState<TestResultItem[]>([
     {
@@ -310,8 +294,9 @@ function HistoryContent() {
                     <p className="text-muted text-sm col-span-3 text-center py-12">No lessons found.</p>
                   ) : (
                     filteredLessons.map((lesson) => (
-                      <div
+                      <Link
                         key={lesson.id}
+                        href={`/Lessons/${lesson.id}`}
                         className="rounded-2xl border border-surface-border p-4 bg-background flex flex-col gap-3 hover:border-primary/60 transition-all cursor-pointer"
                       >
                         <h3 className="font-semibold text-sm">{lesson.title}</h3>
@@ -333,7 +318,7 @@ function HistoryContent() {
                             />
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     ))
                   )}
                 </div>

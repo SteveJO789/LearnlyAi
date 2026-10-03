@@ -1,0 +1,129 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
+
+const NavButton =
+  "rounded-lg bg-primary px-6 py-3.5 text-base font-medium text-primary-foreground shadow-sm hover:opacity-90 transition-colors";
+
+export default function CreatePage() {
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [question, setQuestion] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [isStarting, setIsStarting] = useState(false);
+
+  const canStart = question.trim().length > 0 || file !== null;
+
+  function handleStart() {
+    if (!canStart || isStarting) return;
+    setIsStarting(true);
+
+    // TODO(Seiya): this should call POST /learning-sessions then
+    // POST /learning-sessions/{id}/materials for the file (see
+    // docs/api-contract.md). For now we just mint an id client-side and
+    // hand the question straight to the Chat page.
+    const sessionId = crypto.randomUUID();
+    const input = file ? `[แนบไฟล์: ${file.name}]\n${question}`.trim() : question.trim();
+
+    const params = new URLSearchParams();
+    if (input) params.set("input", input);
+
+    router.push(`/Chat/${sessionId}?${params.toString()}`);
+  }
+
+  return (
+    <div className="min-h-screen bg-background text-text">
+      <header className="flex items-center justify-between px-5 py-6 sm:px-12 lg:px-20">
+        <Link href="/Home" className="text-lg font-medium tracking-wide">
+          LOGO
+        </Link>
+        <div className="flex gap-3">
+          <Link href="/Account/Profile" className={NavButton}>
+            Account
+          </Link>
+          <Link href="/Home" className={NavButton}>
+            HOME
+          </Link>
+          <Link href="/Create" className={NavButton}>
+            Create
+          </Link>
+        </div>
+      </header>
+
+      <main className="px-5 sm:px-12 lg:px-20 pb-24">
+        <div
+          className="hello-gradient pointer-events-none bg-clip-text text-4xl font-medium tracking-tight text-transparent"
+          style={{
+            backgroundImage:
+              "radial-gradient(120% 140% at 15% 20%, #ffe89e 0%, transparent 45%), radial-gradient(120% 140% at 80% 30%, #8178ff 0%, transparent 55%), radial-gradient(140% 160% at 60% 90%, #ff0d9b 0%, transparent 60%), linear-gradient(135deg, #ff2fb0, #8178ff)",
+            backgroundSize: "180% 180%",
+            backgroundPosition: "0% 50%",
+          }}
+        >
+          Hello <span>(user...)</span>
+        </div>
+
+        <div className="mt-8 max-w-2xl mx-auto text-center">
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            Create Learning Session
+          </h1>
+          <p className="mt-3 text-muted">
+            What would you like to learn today? Type your question, or upload a file to get
+            started.
+          </p>
+        </div>
+
+        <div className="mt-10 max-w-xl mx-auto flex flex-col items-center gap-5">
+          <div className="w-full">
+            <p className="mb-1.5 text-xs font-semibold text-muted">text area</p>
+            <textarea
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              rows={6}
+              placeholder="Type your question here"
+              className="w-full resize-none rounded-2xl border border-surface-border bg-surface p-5 text-sm outline-none focus:border-primary placeholder:text-muted"
+            />
+          </div>
+
+          <span className="text-sm text-muted">or</span>
+
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full rounded-full border border-surface-border bg-surface py-4 text-sm text-muted hover:border-primary transition-colors cursor-pointer"
+          >
+            {file ? `📎 ${file.name}` : "Upload File or Image"}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,application/pdf"
+            className="hidden"
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          />
+          {file && (
+            <button
+              type="button"
+              onClick={() => setFile(null)}
+              className="-mt-3 text-xs text-muted hover:text-danger self-end"
+            >
+              Remove file
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={handleStart}
+            disabled={!canStart || isStarting}
+            className="w-full rounded-full bg-primary py-3.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40 transition-all cursor-pointer"
+          >
+            {isStarting ? "Starting..." : "Start Learning..."}
+          </button>
+        </div>
+      </main>
+    </div>
+  );
+}

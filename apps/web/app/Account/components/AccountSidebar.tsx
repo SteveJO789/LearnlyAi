@@ -88,28 +88,93 @@ export default function AccountSidebar({
 
       {/* 3. Setting Section */}
       <div>
-        <p className="font-semibold text-muted mb-3 text-center bg-secondary py-1.5 rounded-lg">
+        <Link
+          href="/Account/Setting"
+          className={`block font-semibold mb-3 text-center py-1.5 rounded-lg transition-colors ${
+            activeSection === "Setting"
+              ? "bg-primary text-primary-foreground font-bold"
+              : "text-muted hover:text-text bg-secondary"
+          }`}
+        >
           Setting
-        </p>
-        <ul className="space-y-3 text-muted px-2 text-center">
-          <li className="cursor-pointer hover:text-text">Change Password</li>
-          <li className="cursor-pointer hover:text-text">Learning Preferences</li>
-          <li className="cursor-pointer hover:text-text">Notifications</li>
-          <li className="cursor-pointer hover:text-text">Language</li>
-          <li className="cursor-pointer hover:text-text">Privacy</li>
-          <li className="cursor-pointer text-muted hover:text-danger">Delete Account</li>
+        </Link>
+        <ul className="space-y-2 px-2 text-center">
+          {(
+            [
+              "Change Password",
+              "Learning Preferences",
+              "Notifications",
+              "Language",
+              "Privacy",
+            ] as SettingTabType[]
+          ).map((tab) => {
+            const isTabActive = activeSection === "Setting" && activeTab === tab;
+            return (
+              <li key={tab}>
+                <Link
+                  href={`/Account/Setting?tab=${encodeURIComponent(tab)}`}
+                  className={`block w-full text-center py-1.5 px-3 rounded-lg transition-all cursor-pointer ${
+                    isTabActive
+                      ? "font-semibold text-text underline decoration-muted underline-offset-4 bg-secondary/70"
+                      : "text-muted hover:text-text hover:bg-secondary/50"
+                  }`}
+                >
+                  {tab}
+                </Link>
+              </li>
+            );
+          })}
+          <li>
+            <Link
+              href="/Account/Setting?tab=Delete Account"
+              className={`block w-full text-center py-1.5 px-3 rounded-lg transition-all cursor-pointer ${
+                activeSection === "Setting" && activeTab === "Delete Account"
+                  ? "font-semibold text-danger underline decoration-danger underline-offset-4 bg-secondary/70"
+                  : "text-muted hover:text-danger hover:bg-secondary/50"
+              }`}
+            >
+              Delete Account
+            </Link>
+          </li>
         </ul>
       </div>
 
       {/* 4. Help & Support Section */}
       <div>
-        <p className="font-semibold text-muted mb-3 text-center bg-secondary py-1.5 rounded-lg">
+        <Link
+          href="/Account/Help"
+          className={`block font-semibold mb-3 text-center py-1.5 rounded-lg transition-colors ${
+            activeSection === "Help"
+              ? "bg-primary text-primary-foreground font-bold"
+              : "text-muted hover:text-text bg-secondary"
+          }`}
+        >
           Help & Support
-        </p>
-        <ul className="space-y-3 text-muted px-2 text-center">
-          <li className="cursor-pointer hover:text-text">Help Center / FAQ</li>
-          <li className="cursor-pointer hover:text-text">Report a Problem</li>
-          <li className="cursor-pointer hover:text-text">Contact Us</li>
+        </Link>
+        <ul className="space-y-2 px-2 text-center">
+          {(
+            [
+              "Help Center / FAQ",
+              "Report a Problem",
+              "Contact Us",
+            ] as HelpTabType[]
+          ).map((tab) => {
+            const isTabActive = activeSection === "Help" && activeTab === tab;
+            return (
+              <li key={tab}>
+                <Link
+                  href={`/Account/Help?tab=${encodeURIComponent(tab)}`}
+                  className={`block w-full text-center py-1.5 px-3 rounded-lg transition-all cursor-pointer ${
+                    isTabActive
+                      ? "font-semibold text-text underline decoration-muted underline-offset-4 bg-secondary/70"
+                      : "text-muted hover:text-text hover:bg-secondary/50"
+                  }`}
+                >
+                  {tab}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </aside>
