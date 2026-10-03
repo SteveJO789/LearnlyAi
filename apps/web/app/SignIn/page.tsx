@@ -8,15 +8,15 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white text-neutral-900">
+    <div className="min-h-screen flex flex-col bg-background text-text">
       <header className="px-5 pt-8 sm:px-12 lg:px-20">
-        <Link href="/" className="text-lg font-medium tracking-wide text-neutral-900">
+        <Link href="/" className="text-lg font-medium tracking-wide">
           LOGO
         </Link>
       </header>
 
       <main className="flex flex-1 flex-col items-center justify-center px-5 pb-24 pt-8">
-        <h1 className="mb-8 text-center text-xl font-normal text-neutral-500">
+        <h1 className="mb-8 text-center text-xl font-normal text-muted">
           Log in
         </h1>
         <br></br>

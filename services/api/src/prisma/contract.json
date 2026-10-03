@@ -4,8 +4,24 @@
   "target": "postgres",
   "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
   "roots": {
+    "AIRequest": {
+      "model": "AIRequest",
+      "namespace": "public"
+    },
     "AppSession": {
       "model": "AppSession",
+      "namespace": "public"
+    },
+    "Assessment": {
+      "model": "Assessment",
+      "namespace": "public"
+    },
+    "AssessmentAnswer": {
+      "model": "AssessmentAnswer",
+      "namespace": "public"
+    },
+    "LearningProfile": {
+      "model": "LearningProfile",
       "namespace": "public"
     },
     "LearningSession": {
@@ -33,6 +49,82 @@
     "namespaces": {
       "public": {
         "enum": {
+          "AIRequestStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "PENDING",
+                "value": "PENDING"
+              },
+              {
+                "name": "SUCCESS",
+                "value": "SUCCESS"
+              },
+              {
+                "name": "FAILED",
+                "value": "FAILED"
+              }
+            ]
+          },
+          "AssessmentPhase": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "PRE",
+                "value": "PRE"
+              },
+              {
+                "name": "POST",
+                "value": "POST"
+              },
+              {
+                "name": "TRANSFER",
+                "value": "TRANSFER"
+              }
+            ]
+          },
+          "LearningSessionState": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "ACTIVE",
+                "value": "ACTIVE"
+              },
+              {
+                "name": "COMPLETED",
+                "value": "COMPLETED"
+              },
+              {
+                "name": "FAILED",
+                "value": "FAILED"
+              }
+            ]
+          },
+          "LearningStage": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "DIAGNOSE",
+                "value": "DIAGNOSE"
+              },
+              {
+                "name": "EXPLAIN",
+                "value": "EXPLAIN"
+              },
+              {
+                "name": "PRACTICE",
+                "value": "PRACTICE"
+              },
+              {
+                "name": "ASSESS",
+                "value": "ASSESS"
+              },
+              {
+                "name": "REVIEW",
+                "value": "REVIEW"
+              }
+            ]
+          },
           "MessageRole": {
             "codecId": "pg/text@1",
             "members": [
@@ -90,6 +182,180 @@
           }
         },
         "models": {
+          "AIRequest": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "errorCode": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "inputTokens": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "latencyMs": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "learningSessionId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "model": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "operation": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "outputSnapshot": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/json@1",
+                  "kind": "scalar"
+                }
+              },
+              "outputTokens": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "promptSnapshot": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/json@1",
+                  "kind": "scalar"
+                }
+              },
+              "provider": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "requestId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "AIRequestStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              }
+            },
+            "relations": {
+              "learningSession": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "learningSessionId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "LearningSession",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "errorCode": {
+                  "column": "errorCode"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "inputTokens": {
+                  "column": "inputTokens"
+                },
+                "latencyMs": {
+                  "column": "latencyMs"
+                },
+                "learningSessionId": {
+                  "column": "learningSessionId"
+                },
+                "model": {
+                  "column": "model"
+                },
+                "operation": {
+                  "column": "operation"
+                },
+                "outputSnapshot": {
+                  "column": "outputSnapshot"
+                },
+                "outputTokens": {
+                  "column": "outputTokens"
+                },
+                "promptSnapshot": {
+                  "column": "promptSnapshot"
+                },
+                "provider": {
+                  "column": "provider"
+                },
+                "requestId": {
+                  "column": "requestId"
+                },
+                "status": {
+                  "column": "status"
+                }
+              },
+              "namespaceId": "public",
+              "table": "AIRequest"
+            }
+          },
           "AppSession": {
             "fields": {
               "createdAt": {
@@ -188,6 +454,281 @@
               "table": "AppSession"
             }
           },
+          "Assessment": {
+            "fields": {
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "learningSessionId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "maxScore": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "phase": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "AssessmentPhase",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "score": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "submittedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "answers": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "assessmentId"
+                  ]
+                },
+                "to": {
+                  "model": "AssessmentAnswer",
+                  "namespace": "public"
+                }
+              },
+              "learningSession": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "learningSessionId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "LearningSession",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "id": {
+                  "column": "id"
+                },
+                "learningSessionId": {
+                  "column": "learningSessionId"
+                },
+                "maxScore": {
+                  "column": "maxScore"
+                },
+                "phase": {
+                  "column": "phase"
+                },
+                "score": {
+                  "column": "score"
+                },
+                "submittedAt": {
+                  "column": "submittedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Assessment"
+            }
+          },
+          "AssessmentAnswer": {
+            "fields": {
+              "assessmentId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "awardedScore": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "isCorrect": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "questionId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "response": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/json@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "assessment": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "assessmentId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Assessment",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "assessmentId": {
+                  "column": "assessmentId"
+                },
+                "awardedScore": {
+                  "column": "awardedScore"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "isCorrect": {
+                  "column": "isCorrect"
+                },
+                "questionId": {
+                  "column": "questionId"
+                },
+                "response": {
+                  "column": "response"
+                }
+              },
+              "namespaceId": "public",
+              "table": "AssessmentAnswer"
+            }
+          },
+          "LearningProfile": {
+            "fields": {
+              "mastery": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/json@1",
+                  "kind": "scalar"
+                }
+              },
+              "strengths": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/json@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "weakPoints": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/json@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "user": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "mastery": {
+                  "column": "mastery"
+                },
+                "strengths": {
+                  "column": "strengths"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "userId": {
+                  "column": "userId"
+                },
+                "weakPoints": {
+                  "column": "weakPoints"
+                }
+              },
+              "namespaceId": "public",
+              "table": "LearningProfile"
+            }
+          },
           "LearningSession": {
             "fields": {
               "completedAt": {
@@ -225,8 +766,34 @@
                   "kind": "scalar"
                 }
               },
+              "stage": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "LearningStage",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
               "state": {
                 "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "LearningSessionState",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "subject": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -262,6 +829,36 @@
               }
             },
             "relations": {
+              "aiRequests": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "learningSessionId"
+                  ]
+                },
+                "to": {
+                  "model": "AIRequest",
+                  "namespace": "public"
+                }
+              },
+              "assessments": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "learningSessionId"
+                  ]
+                },
+                "to": {
+                  "model": "Assessment",
+                  "namespace": "public"
+                }
+              },
               "messages": {
                 "cardinality": "1:N",
                 "on": {
@@ -326,8 +923,14 @@
                 "progressPercent": {
                   "column": "progressPercent"
                 },
+                "stage": {
+                  "column": "stage"
+                },
                 "state": {
                   "column": "state"
+                },
+                "subject": {
+                  "column": "subject"
                 },
                 "title": {
                   "column": "title"
@@ -729,6 +1332,22 @@
                   "namespace": "public"
                 }
               },
+              "learningProfile": {
+                "cardinality": "1:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "LearningProfile",
+                  "namespace": "public"
+                }
+              },
               "learningSessions": {
                 "cardinality": "1:N",
                 "on": {
@@ -794,6 +1413,146 @@
       "public": {
         "entries": {
           "table": {
+            "AIRequest": {
+              "checks": [
+                {
+                  "expression": "\"status\" IN ('PENDING', 'SUCCESS', 'FAILED')",
+                  "name": "AIRequest_status_check_f32a67f1",
+                  "prefix": "AIRequest_status_check"
+                }
+              ],
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "errorCode": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "inputTokens": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "latencyMs": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "learningSessionId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "model": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "operation": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "outputSnapshot": {
+                  "codecId": "pg/json@1",
+                  "nativeType": "json",
+                  "nullable": true
+                },
+                "outputTokens": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "promptSnapshot": {
+                  "codecId": "pg/json@1",
+                  "nativeType": "json",
+                  "nullable": true
+                },
+                "provider": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "requestId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "AIRequestStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "learningSessionId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "AIRequest"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "LearningSession"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "learningSessionId",
+                    "createdAt"
+                  ],
+                  "name": "AIRequest_learningSessionId_createdAt_idx_bdaff9b7",
+                  "prefix": "AIRequest_learningSessionId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "learningSessionId"
+                  ],
+                  "name": "AIRequest_learningSessionId_idx_3c4d5acd",
+                  "prefix": "AIRequest_learningSessionId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "requestId"
+                  ]
+                }
+              ]
+            },
             "AppSession": {
               "columns": {
                 "createdAt": {
@@ -877,7 +1636,229 @@
                 }
               ]
             },
+            "Assessment": {
+              "checks": [
+                {
+                  "expression": "\"phase\" IN ('PRE', 'POST', 'TRANSFER')",
+                  "name": "Assessment_phase_check_0c021859",
+                  "prefix": "Assessment_phase_check"
+                }
+              ],
+              "columns": {
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "learningSessionId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "maxScore": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "phase": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "AssessmentPhase",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "score": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "submittedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "learningSessionId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Assessment"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "LearningSession"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "learningSessionId"
+                  ],
+                  "name": "Assessment_learningSessionId_idx_3c4d5acd",
+                  "prefix": "Assessment_learningSessionId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "learningSessionId",
+                    "phase"
+                  ]
+                }
+              ]
+            },
+            "AssessmentAnswer": {
+              "columns": {
+                "assessmentId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "awardedScore": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "isCorrect": {
+                  "codecId": "pg/bool@1",
+                  "nativeType": "bool",
+                  "nullable": true
+                },
+                "questionId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "response": {
+                  "codecId": "pg/json@1",
+                  "nativeType": "json",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "assessmentId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "AssessmentAnswer"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Assessment"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "assessmentId"
+                  ],
+                  "name": "AssessmentAnswer_assessmentId_idx_1fe05216",
+                  "prefix": "AssessmentAnswer_assessmentId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "LearningProfile": {
+              "columns": {
+                "mastery": {
+                  "codecId": "pg/json@1",
+                  "nativeType": "json",
+                  "nullable": false
+                },
+                "strengths": {
+                  "codecId": "pg/json@1",
+                  "nativeType": "json",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "weakPoints": {
+                  "codecId": "pg/json@1",
+                  "nativeType": "json",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "LearningProfile"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "userId"
+                ]
+              },
+              "uniques": []
+            },
             "LearningSession": {
+              "checks": [
+                {
+                  "expression": "\"stage\" IN ('DIAGNOSE', 'EXPLAIN', 'PRACTICE', 'ASSESS', 'REVIEW')",
+                  "name": "LearningSession_stage_check_df720be3",
+                  "prefix": "LearningSession_stage_check"
+                },
+                {
+                  "expression": "\"state\" IN ('ACTIVE', 'COMPLETED', 'FAILED')",
+                  "name": "LearningSession_state_check_f6e8ff79",
+                  "prefix": "LearningSession_state_check"
+                }
+              ],
               "columns": {
                 "completedAt": {
                   "codecId": "pg/timestamptz-string@1",
@@ -908,10 +1889,36 @@
                   "nativeType": "int4",
                   "nullable": false
                 },
+                "stage": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "EXPLAIN"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "LearningStage",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
                 "state": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
-                  "nullable": false
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "LearningSessionState",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "subject": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "title": {
                   "codecId": "pg/text@1",
@@ -957,6 +1964,15 @@
                 }
               ],
               "indexes": [
+                {
+                  "columns": [
+                    "userId",
+                    "createdAt"
+                  ],
+                  "name": "LearningSession_userId_createdAt_idx_f726f04a",
+                  "prefix": "LearningSession_userId_createdAt_idx",
+                  "unique": false
+                },
                 {
                   "columns": [
                     "userId"
@@ -1297,6 +2313,40 @@
             }
           },
           "valueSet": {
+            "AIRequestStatus": {
+              "kind": "valueSet",
+              "values": [
+                "PENDING",
+                "SUCCESS",
+                "FAILED"
+              ]
+            },
+            "AssessmentPhase": {
+              "kind": "valueSet",
+              "values": [
+                "PRE",
+                "POST",
+                "TRANSFER"
+              ]
+            },
+            "LearningSessionState": {
+              "kind": "valueSet",
+              "values": [
+                "ACTIVE",
+                "COMPLETED",
+                "FAILED"
+              ]
+            },
+            "LearningStage": {
+              "kind": "valueSet",
+              "values": [
+                "DIAGNOSE",
+                "EXPLAIN",
+                "PRACTICE",
+                "ASSESS",
+                "REVIEW"
+              ]
+            },
             "MessageRole": {
               "kind": "valueSet",
               "values": [
@@ -1328,10 +2378,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "d42352313bf509902a033b23bf9f859b8a21032037ada1d1067f1bd7a7c12bda"
+    "storageHash": "d7a4d82ff050dcfdb7a55a6f4fc74436db9681957211d47bce23d8afcd84ce0b"
   },
   "execution": {
-    "executionHash": "410f9abeedc0035048c1702a11ae4b5ffefbb9b040f2aedf727de4ffe1b38f9e",
+    "executionHash": "9d6827a7c3ebba924f05ac163af4e3d9fc21f7f1aa225b5ec7f79c89851b1e38",
     "mutations": {
       "defaults": [
         {
@@ -1342,7 +2392,40 @@
           "ref": {
             "column": "id",
             "namespace": "public",
+            "table": "AIRequest"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
             "table": "AppSession"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "Assessment"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "AssessmentAnswer"
           }
         },
         {
