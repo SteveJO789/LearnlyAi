@@ -1,11 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
-const NavButton =
-  "rounded-lg bg-primary px-6 py-3.5 text-base font-medium text-primary-foreground shadow-sm hover:opacity-90 transition-colors";
+import SiteHeader from "../components/SiteHeader";
 
 export default function CreatePage() {
   const router = useRouter();
@@ -36,22 +34,13 @@ export default function CreatePage() {
 
   return (
     <div className="min-h-screen bg-background text-text">
-      <header className="flex items-center justify-between px-5 py-6 sm:px-12 lg:px-20">
-        <Link href="/Home" className="text-lg font-medium tracking-wide">
-          LOGO
-        </Link>
-        <div className="flex gap-3">
-          <Link href="/Account/Profile" className={NavButton}>
-            Account
-          </Link>
-          <Link href="/Home" className={NavButton}>
-            HOME
-          </Link>
-          <Link href="/Create" className={NavButton}>
-            Create
-          </Link>
-        </div>
-      </header>
+      <SiteHeader
+        links={[
+          { label: "Account", href: "/Account/Profile" },
+          { label: "HOME", href: "/Home" },
+          { label: "Create", href: "/Create" },
+        ]}
+      />
 
       <main className="px-5 sm:px-12 lg:px-20 pb-24">
         <div

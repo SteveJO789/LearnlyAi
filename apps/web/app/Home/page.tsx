@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import "./style.css";
+
+import SiteHeader from "../components/SiteHeader";
 
 // NOTE(Cake): image URLs below are temporary Figma-hosted asset links
 // (expire ~7 days after being generated). Swap these for real, permanent
@@ -18,83 +19,17 @@ const cardImage2 =
 const cardImage3 =
   "https://www.figma.com/api/mcp/asset/8fd24a11-50b7-4cdf-aa32-f638d45dcf65/6ec63.png";
 
-const HeadButton =
-  "rounded-lg bg-primary px-6 py-3.5 text-base font-medium text-primary-foreground shadow-sm hover:opacity-90 transition-colors";
-
 export default function HomePage() {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-background text-text">
-      <header className="flex w-full items-center justify-between px-5 py-6 sm:px-12 lg:px-20">
-        <span className="text-lg font-medium tracking-wide">
-          LOGO
-        </span>
-
-        <div className="ml-auto flex items-center space-x-4">
-          <Link href="/Create" className={HeadButton}>
-            Create
-          </Link>
-          <Link href="/Lessons" className={HeadButton}>
-            Lessons
-          </Link>
-
-          {/* เมนู Account Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className={HeadButton}
-              type="button"
-            >
-              Account
-            </button>
-
-            {isOpen && (
-              <div
-                className="absolute right-0 mt-2 w-40 rounded-2xl bg-white/80 p-2 shadow-xl backdrop-blur-md border border-neutral-100 flex flex-col space-y-1 z-50"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(120% 140% at 15% 20%, #ffe89e 0%, transparent 45%), radial-gradient(120% 140% at 80% 30%, #8178ff 0%, transparent 55%), radial-gradient(140% 160% at 60% 90%, #ff0d9b 0%, transparent 60%), linear-gradient(135deg, #ff2fb0, #8178ff)",
-                }}
-              >
-                <Link
-                  href="/Account/Profile"
-                  className="w-full py-2 text-center text-sm font-medium text-purple-600 bg-white/70 hover:bg-purple-50 rounded-xl transition-all shadow-sm"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Profile
-                </Link>
-
-                <Link
-                  href="/Account/History"
-                  className="w-full py-2 text-center text-sm font-medium text-purple-600 bg-white/70 hover:bg-purple-50 rounded-xl transition-all shadow-sm"
-                  onClick={() => setIsOpen(false)}
-                >
-                  History
-                </Link>
-
-                <Link
-                  href="/Account/Settings"
-                  className="w-full py-2 text-center text-sm font-medium text-purple-600 bg-white/70 hover:bg-purple-50 rounded-xl transition-all shadow-sm"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Settings
-                </Link>
-
-                <button
-                  onClick={() => {
-                    setIsOpen(false);
-                    // ฟังก์ชัน Log Out
-                  }}
-                  className="w-full py-2 text-center text-sm font-medium text-purple-400 hover:text-purple-600 hover:bg-purple-50/50 rounded-xl transition-all mt-1"
-                >
-                  Log Out
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+      <SiteHeader
+        logoHref="/Home"
+        links={[
+          { label: "Create", href: "/Create" },
+          { label: "Lessons", href: "/Lessons" },
+        ]}
+        showAccountMenu
+      />
 
       <main className="px-5 sm:px-12 lg:px-20">
         <section className="relative max-w-[1100px] pt-6 pb-10">

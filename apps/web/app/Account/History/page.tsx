@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import AccountSidebar from "../components/AccountSidebar"; // นำเข้า Sidebar กลาง
+import SiteHeader from "../../components/SiteHeader";
 import { LESSONS } from "../../lib/mock-lessons"; // ข้อมูลบทเรียนชุดเดียวกับหน้า Lessons และ Learning Page
 
 type TabType = "Chat" | "Lessons" | "Uploaded Files" | "Test Results";
@@ -144,32 +145,13 @@ function HistoryContent() {
         </div>
       )}
 
-      {/* Header */}
-      <header className="flex items-center justify-between px-10 py-6">
-        <Link href="/" className="text-xl font-bold tracking-tight">
-          LOGO
-        </Link>
-        <div className="flex gap-4">
-          <Link
-            href="/Create"
-            className="rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground"
-          >
-            Create
-          </Link>
-          <Link
-            href="/Lessons"
-            className="rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground"
-          >
-            Lessons
-          </Link>
-          <Link
-            href="/Home"
-            className="rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground"
-          >
-            HOME
-          </Link>
-        </div>
-      </header>
+      <SiteHeader
+        links={[
+          { label: "Create", href: "/Create" },
+          { label: "Lessons", href: "/Lessons" },
+          { label: "HOME", href: "/Home" },
+        ]}
+      />
 
       {/* Main Content */}
       <main className="px-10 py-4 max-w-[1400px] mx-auto">
