@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 
+import SiteHeader from "../../components/SiteHeader";
+
 type ProfileTabType = "Personal Info" | "Theme";
 
 interface UserProfile {
@@ -133,23 +135,13 @@ function ProfileContent() {
 
   return (
     <div className="min-h-screen bg-background text-text transition-colors duration-200">
-      {/* Header */}
-      <header className="flex items-center justify-between px-10 py-6">
-        <Link href="/" className="text-xl font-bold tracking-tight">
-          LOGO
-        </Link>
-        <div className="flex gap-4">
-          <Link href="/Create" className="rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground">
-            Create
-          </Link>
-          <Link href="/Lessons" className="rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground">
-            Lessons
-          </Link>
-          <Link href="/Home" className="rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground">
-            HOME
-          </Link>
-        </div>
-      </header>
+      <SiteHeader
+        links={[
+          { label: "Create", href: "/Create" },
+          { label: "Lessons", href: "/Lessons" },
+          { label: "HOME", href: "/Home" },
+        ]}
+      />
 
       {/* Main Content */}
       <main className="px-10 py-4 max-w-[1400px] mx-auto">
