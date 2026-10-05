@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+﻿import { randomUUID } from "node:crypto";
 import { AIBoundaryError, normalizeProviderFailure } from "../ai/ai-boundary-error.js";
 import type { TutorContext } from "../ai/tutor-context.js";
 import type { TutorOrchestrator } from "../ai/tutor-orchestrator.js";
@@ -35,7 +35,8 @@ export class DefaultLearningEngine implements LearningEngine {
     const timestamp = this.now().toISOString();
     const session: LearningSession = {
       id: request.sessionId,
-      state: stage === "REVIEW" ? "COMPLETED" : "ACTIVE",
+      state: stage === "REVIEW" ? "COMPLETED" : stage === "DIAGNOSE" ? "PRE_TEST" : stage === "ASSESS" ? "POST_TEST" : "LEARNING",
+      lifecycleState: stage === "REVIEW" ? "COMPLETED" : "ACTIVE",
       stage,
       learningGoal: request.learningGoal ?? previous?.learningGoal,
       subject: request.subject ?? previous?.subject,
@@ -52,8 +53,8 @@ export class DefaultLearningEngine implements LearningEngine {
       const boundaryError = error instanceof AIBoundaryError ? error : normalizeProviderFailure(error);
       // Retain the last successful stage; never persist rejected model content.
       const failedSession: LearningSession = previous
-        ? { ...previous, state: "FAILED", version: session.version, updatedAt: timestamp }
-        : { ...session, state: "FAILED" };
+        ? { ...previous, lifecycleState: "FAILED", version: session.version, updatedAt: timestamp }
+        : { ...session, lifecycleState: "FAILED" };
       // A concurrent successful commit wins over this stale failure.
       await persistence.commit({ session: failedSession, messages: [], expectedVersion: previous?.version ?? null });
       throw boundaryError;

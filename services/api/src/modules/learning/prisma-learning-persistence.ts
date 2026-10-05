@@ -1,4 +1,4 @@
-import { db } from "../../prisma/db.js";
+﻿import { db } from "../../prisma/db.js";
 import type { ValidatedTutorOutput } from "../ai/tutor-output.js";
 import type { LearningMessage, LearningSession } from "./domain.js";
 import { getStagePolicy } from "./stage-machine.js";
@@ -25,6 +25,7 @@ function toLearningSession(row: LearningSessionRow): LearningSession {
   return {
     id: row.id,
     state: row.state,
+    lifecycleState: row.lifecycleState,
     stage: row.stage,
     learningGoal: row.learningGoal ?? undefined,
     subject: row.subject ?? undefined,
@@ -76,6 +77,7 @@ function toSessionCreateData(
     learningGoal: session.learningGoal ?? null,
     subject: session.subject ?? null,
     state: session.state,
+    lifecycleState: session.lifecycleState,
     stage: session.stage,
     progressPercent: session.progress.percent,
     version: session.version,
@@ -89,6 +91,7 @@ function toSessionUpdateData(session: LearningSession) {
     learningGoal: session.learningGoal ?? null,
     subject: session.subject ?? null,
     state: session.state,
+    lifecycleState: session.lifecycleState,
     stage: session.stage,
     progressPercent: session.progress.percent,
     version: session.version,
