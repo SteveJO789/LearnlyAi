@@ -123,7 +123,7 @@ function HistoryContent() {
               onClick={() => setSelectedFile(null)}
               className="absolute right-6 top-6 rounded-xl bg-secondary hover:opacity-80 px-6 py-2.5 text-sm font-medium text-text transition-all"
             >
-              Back
+              {t("history.back")}
             </button>
             <div className="flex flex-col items-center justify-center gap-6">
               <svg
@@ -176,7 +176,7 @@ function HistoryContent() {
                   onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
                   className="flex items-center gap-4 bg-secondary/80 border border-surface-border rounded-xl px-5 py-2.5 text-sm transition-all hover:bg-secondary"
                 >
-                  <span className="text-muted font-medium">date</span>
+                  <span className="text-muted font-medium">{t("history.dateLabel")}</span>
                   <span className="text-muted font-normal">
                     {startDate || endDate
                       ? `${startDate || "dd/mm/yy"} - ${endDate || "dd/mm/yy"}`
@@ -186,10 +186,10 @@ function HistoryContent() {
 
                 {isDatePickerOpen && (
                   <div className="absolute left-0 top-12 z-20 w-72 rounded-2xl border border-surface-border bg-surface p-4 shadow-xl flex flex-col gap-3 text-xs">
-                    <p className="font-medium">Select Date Range</p>
+                    <p className="font-medium">{t("history.selectDateRange")}</p>
 
                     <div className="flex flex-col gap-1">
-                      <label className="text-muted">From:</label>
+                      <label className="text-muted">{t("history.from")}</label>
                       <input
                         type="date"
                         value={startDate}
@@ -199,7 +199,7 @@ function HistoryContent() {
                     </div>
 
                     <div className="flex flex-col gap-1">
-                      <label className="text-muted">To:</label>
+                      <label className="text-muted">{t("history.to")}</label>
                       <input
                         type="date"
                         value={endDate}
@@ -217,14 +217,14 @@ function HistoryContent() {
                         }}
                         className="text-muted hover:text-text"
                       >
-                        Clear
+                        {t("history.clear")}
                       </button>
                       <button
                         type="button"
                         onClick={() => setIsDatePickerOpen(false)}
                         className="rounded-lg bg-primary text-primary-foreground px-3 py-1.5 font-medium hover:opacity-90 transition-opacity"
                       >
-                        Apply
+                        {t("history.apply")}
                       </button>
                     </div>
                   </div>
@@ -240,7 +240,7 @@ function HistoryContent() {
               {activeTab === null && (
                 <div className="flex-1 min-h-[550px] flex items-center justify-center">
                   <h2 className="text-4xl font-bold tracking-widest text-muted uppercase">
-                    HISTORY
+                    {t("history.title")}
                   </h2>
                 </div>
               )}
@@ -249,7 +249,7 @@ function HistoryContent() {
               {activeTab === "Chat" && (
                 <div className="flex flex-col gap-3 w-full">
                   {filteredChats.length === 0 ? (
-                    <p className="text-muted text-sm text-center py-12">No chat history found.</p>
+                    <p className="text-muted text-sm text-center py-12">{t("history.noChats")}</p>
                   ) : (
                     filteredChats.map((chat) => (
                       <Link
@@ -275,7 +275,7 @@ function HistoryContent() {
               {activeTab === "Lessons" && (
                 <div className="grid grid-cols-3 gap-6 w-full items-start">
                   {filteredLessons.length === 0 ? (
-                    <p className="text-muted text-sm col-span-3 text-center py-12">No lessons found.</p>
+                    <p className="text-muted text-sm col-span-3 text-center py-12">{t("history.noLessons")}</p>
                   ) : (
                     filteredLessons.map((lesson) => (
                       <Link
@@ -293,7 +293,7 @@ function HistoryContent() {
                         </div>
                         <div className="mt-1 flex flex-col gap-1.5">
                           <p className="text-[11px] text-muted font-medium">
-                            {lesson.progressPercent}% Completed
+                            {lesson.progressPercent}{t("history.percentCompleted")}
                           </p>
                           <div className="w-full h-2.5 bg-secondary rounded-full overflow-hidden">
                             <div
@@ -312,7 +312,7 @@ function HistoryContent() {
               {activeTab === "Uploaded Files" && (
                 <div className="grid grid-cols-3 gap-4 w-full items-start">
                   {filteredFiles.length === 0 ? (
-                    <p className="text-muted text-sm col-span-3 text-center py-12">No files found.</p>
+                    <p className="text-muted text-sm col-span-3 text-center py-12">{t("history.noFiles")}</p>
                   ) : (
                     filteredFiles.map((file) => (
                       <button
@@ -354,7 +354,7 @@ function HistoryContent() {
               {activeTab === "Test Results" && (
                 <div className="grid grid-cols-3 gap-6 w-full items-start">
                   {filteredTestResults.length === 0 ? (
-                    <p className="text-muted text-sm col-span-3 text-center py-12">No test results found.</p>
+                    <p className="text-muted text-sm col-span-3 text-center py-12">{t("history.noTestResults")}</p>
                   ) : (
                     filteredTestResults.map((test) => (
                       <div
@@ -372,7 +372,7 @@ function HistoryContent() {
 
                         <div className="flex flex-col gap-1">
                           <p className="text-[11px] text-muted font-medium">
-                            Pretest: {test.pretestScore}%
+                            {t("history.pretest")} {test.pretestScore}%
                           </p>
                           <div className="w-full h-2.5 bg-secondary rounded-full overflow-hidden">
                             <div
@@ -384,7 +384,7 @@ function HistoryContent() {
 
                         <div className="flex flex-col gap-1">
                           <p className="text-[11px] text-muted font-medium">
-                            Posttest: {test.posttestScore}%
+                            {t("history.posttest")} {test.posttestScore}%
                           </p>
                           <div className="w-full h-2.5 bg-secondary rounded-full overflow-hidden">
                             <div
