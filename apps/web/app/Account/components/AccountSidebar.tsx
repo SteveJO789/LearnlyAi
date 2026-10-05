@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import { useLanguage } from "../../lib/i18n/LanguageContext";
+
 type HistoryTabType = "Chat" | "Lessons" | "Uploaded Files" | "Test Results";
 type SettingTabType =
   | "Change Password"
@@ -18,10 +20,31 @@ interface AccountSidebarProps {
   activeTab?: HistoryTabType | SettingTabType | HelpTabType | null;
 }
 
+// Tab values double as routing keys (used in the URL and matched against in
+// each page's own state), so they stay in English — this just maps each one
+// to the dictionary key used to translate its on-screen label.
+const TAB_LABEL_KEYS: Record<HistoryTabType | SettingTabType | HelpTabType, string> = {
+  Chat: "sidebar.chat",
+  Lessons: "nav.lessons",
+  "Uploaded Files": "sidebar.uploadedFiles",
+  "Test Results": "sidebar.testResults",
+  "Change Password": "sidebar.changePassword",
+  "Learning Preferences": "sidebar.learningPreferences",
+  Notifications: "sidebar.notifications",
+  Language: "sidebar.language",
+  Privacy: "sidebar.privacy",
+  "Delete Account": "sidebar.deleteAccount",
+  "Help Center / FAQ": "sidebar.helpCenterFaq",
+  "Report a Problem": "sidebar.reportProblem",
+  "Contact Us": "sidebar.contactUs",
+};
+
 export default function AccountSidebar({
   activeSection,
   activeTab = null,
 }: AccountSidebarProps) {
+  const { t } = useLanguage();
+
   return (
     <aside className="w-64 rounded-2xl border border-surface-border p-5 flex flex-col gap-6 text-sm bg-surface shrink-0">
       {/* 1. Profile Section */}
@@ -34,14 +57,14 @@ export default function AccountSidebar({
               : "text-muted hover:text-text bg-secondary"
           }`}
         >
-          Profile
+          {t("nav.profile")}
         </Link>
         <ul className="space-y-3 text-muted px-2 text-center">
           <li className="cursor-pointer hover:text-text">
-            <Link href="/Account/Profile">Personal Info</Link>
+            <Link href="/Account/Profile">{t("sidebar.personalInfo")}</Link>
           </li>
           <li className="cursor-pointer hover:text-text">
-            <Link href="/Account/Profile">Theme</Link>
+            <Link href="/Account/Profile">{t("sidebar.theme")}</Link>
           </li>
         </ul>
       </div>
@@ -56,7 +79,7 @@ export default function AccountSidebar({
               : "bg-secondary text-muted hover:opacity-80"
           }`}
         >
-          History
+          {t("nav.history")}
         </Link>
         <ul className="space-y-2 px-2 text-center">
           {(
@@ -78,7 +101,7 @@ export default function AccountSidebar({
                       : "text-muted hover:text-text hover:bg-secondary/50"
                   }`}
                 >
-                  {tab}
+                  {t(TAB_LABEL_KEYS[tab])}
                 </Link>
               </li>
             );
@@ -96,7 +119,7 @@ export default function AccountSidebar({
               : "text-muted hover:text-text bg-secondary"
           }`}
         >
-          Setting
+          {t("sidebar.setting")}
         </Link>
         <ul className="space-y-2 px-2 text-center">
           {(
@@ -119,7 +142,7 @@ export default function AccountSidebar({
                       : "text-muted hover:text-text hover:bg-secondary/50"
                   }`}
                 >
-                  {tab}
+                  {t(TAB_LABEL_KEYS[tab])}
                 </Link>
               </li>
             );
@@ -133,7 +156,7 @@ export default function AccountSidebar({
                   : "text-muted hover:text-danger hover:bg-secondary/50"
               }`}
             >
-              Delete Account
+              {t("sidebar.deleteAccount")}
             </Link>
           </li>
         </ul>
@@ -149,7 +172,7 @@ export default function AccountSidebar({
               : "text-muted hover:text-text bg-secondary"
           }`}
         >
-          Help & Support
+          {t("sidebar.helpAndSupport")}
         </Link>
         <ul className="space-y-2 px-2 text-center">
           {(
@@ -170,7 +193,7 @@ export default function AccountSidebar({
                       : "text-muted hover:text-text hover:bg-secondary/50"
                   }`}
                 >
-                  {tab}
+                  {t(TAB_LABEL_KEYS[tab])}
                 </Link>
               </li>
             );

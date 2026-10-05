@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import AccountSidebar from "../components/AccountSidebar"; // นำเข้า Sidebar กลาง
 import SiteHeader from "../../components/SiteHeader";
+import { useLanguage } from "../../lib/i18n/LanguageContext";
 import { LESSONS } from "../../lib/mock-lessons"; // ข้อมูลบทเรียนชุดเดียวกับหน้า Lessons และ Learning Page
 
 type TabType = "Chat" | "Lessons" | "Uploaded Files" | "Test Results";
@@ -32,6 +33,7 @@ interface TestResultItem {
 }
 
 function HistoryContent() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") as TabType | null;
 
@@ -147,16 +149,16 @@ function HistoryContent() {
 
       <SiteHeader
         links={[
-          { label: "Create", href: "/Create" },
-          { label: "Lessons", href: "/Lessons" },
-          { label: "HOME", href: "/Home" },
+          { labelKey: "nav.create", href: "/Create" },
+          { labelKey: "nav.lessons", href: "/Lessons" },
+          { labelKey: "nav.home", href: "/Home" },
         ]}
       />
 
       {/* Main Content */}
       <main className="px-10 py-4 max-w-[1400px] mx-auto">
         <h1 className="mb-8 !text-[48px] font-bold tracking-tight whitespace-nowrap">
-          Your Account Settings
+          {t("settings.pageTitle")}
         </h1>
         <br />
 

@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense, FormEvent } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import AccountSidebar from "../components/AccountSidebar";
 import SiteHeader from "../../components/SiteHeader";
+import { useLanguage } from "../../lib/i18n/LanguageContext";
 
 type HelpTabType = "Help Center / FAQ" | "Report a Problem" | "Contact Us";
 
@@ -33,6 +34,7 @@ const FAQ_ITEMS = [
 ];
 
 function HelpContent() {
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab") as HelpTabType | null;
@@ -90,16 +92,16 @@ function HelpContent() {
     <div className="min-h-screen bg-background text-text relative transition-colors duration-200">
       <SiteHeader
         links={[
-          { label: "Create", href: "/Create" },
-          { label: "Lessons", href: "/Lessons" },
-          { label: "HOME", href: "/Home" },
+          { labelKey: "nav.create", href: "/Create" },
+          { labelKey: "nav.lessons", href: "/Lessons" },
+          { labelKey: "nav.home", href: "/Home" },
         ]}
       />
 
       {/* Main Content */}
       <main className="px-10 py-4 max-w-[1400px] mx-auto">
         <h1 className="mb-2 text-[48px] font-bold tracking-tight whitespace-nowrap">
-          Your Account Settings
+          {t("settings.pageTitle")}
         </h1>
         <div className="h-4" />
 

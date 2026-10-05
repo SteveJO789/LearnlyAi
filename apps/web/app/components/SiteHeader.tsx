@@ -3,17 +3,23 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import { useLanguage } from "../lib/i18n/LanguageContext";
+
 // Shared top nav used by Home, Create, Lessons, and every Account/* page.
 // Pass `links` for the plain-link buttons (e.g. Create, Lessons, HOME) and
 // set `showAccountMenu` on pages that should show the "Account" dropdown
 // (Profile / History / Setting / Log Out) instead of — or alongside — a
 // plain Account link.
+//
+// `labelKey` is a dictionary key (see app/lib/i18n/dictionary.ts), not the
+// literal label — that's what lets the same nav translate everywhere it's
+// used without every page having to call t() itself.
 
 const NavButton =
   "rounded-lg bg-primary px-6 py-3.5 text-base font-medium text-primary-foreground shadow-sm hover:opacity-90 transition-colors";
 
 export type NavLink = {
-  label: string;
+  labelKey: string;
   href: string;
 };
 
@@ -31,6 +37,8 @@ export default function SiteHeader({
   links = [],
   showAccountMenu = false,
 }: SiteHeaderProps) {
+  const { t } = useLanguage();
+
   return (
     <header className="flex w-full items-center justify-between px-5 py-6 sm:px-12 lg:px-20">
       <Link href={logoHref} className="text-lg font-medium tracking-wide">
@@ -40,7 +48,7 @@ export default function SiteHeader({
       <div className="flex items-center gap-3">
         {links.map((link) => (
           <Link key={link.href} href={link.href} className={NavButton}>
-            {link.label}
+            {t(link.labelKey)}
           </Link>
         ))}
 
@@ -51,12 +59,13 @@ export default function SiteHeader({
 }
 
 function AccountMenu() {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="relative">
       <button type="button" onClick={() => setIsOpen((open) => !open)} className={NavButton}>
-        Account
+        {t("nav.account")}
       </button>
 
       {isOpen && (
@@ -72,7 +81,7 @@ function AccountMenu() {
             onClick={() => setIsOpen(false)}
             className="w-full py-2 text-center text-sm font-medium text-purple-600 bg-white/70 hover:bg-purple-50 rounded-xl transition-all shadow-sm"
           >
-            Profile
+            {t("nav.profile")}
           </Link>
 
           <Link
@@ -80,17 +89,15 @@ function AccountMenu() {
             onClick={() => setIsOpen(false)}
             className="w-full py-2 text-center text-sm font-medium text-purple-600 bg-white/70 hover:bg-purple-50 rounded-xl transition-all shadow-sm"
           >
-            History
+            {t("nav.history")}
           </Link>
 
-          {/* NOTE(Cake): was pointing at /Account/Settings (plural, 404) —
-              fixed to match the real route /Account/Setting. */}
           <Link
             href="/Account/Setting"
             onClick={() => setIsOpen(false)}
             className="w-full py-2 text-center text-sm font-medium text-purple-600 bg-white/70 hover:bg-purple-50 rounded-xl transition-all shadow-sm"
           >
-            Settings
+            {t("nav.settings")}
           </Link>
 
           <button
@@ -101,7 +108,7 @@ function AccountMenu() {
             }}
             className="w-full py-2 text-center text-sm font-medium text-purple-400 hover:text-purple-600 hover:bg-purple-50/50 rounded-xl transition-all mt-1"
           >
-            Log Out
+            {t("nav.logOut")}
           </button>
         </div>
       )}

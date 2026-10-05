@@ -3,6 +3,8 @@
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { useEffect, useState, ReactNode } from "react";
 
+import { LanguageProvider } from "./lib/i18n/LanguageContext";
+
 // ดักจับและซ่อน Warning ของ React 19 ที่มาจาก next-themes ในโหมด Development
 if (typeof window !== "undefined") {
   const originalError = console.error;
@@ -54,7 +56,7 @@ export function Providers({ children }: { children: ReactNode }) {
       disableTransitionOnChange
     >
       {/* ใช้ mounted ช่วยเช็กเฉพาะส่วนที่อาจเกิด Hydration Mismatch ได้ แต่ปล่อยให้ Provider ทำงานตลอดเวลา */}
-      {children}
+      <LanguageProvider>{children}</LanguageProvider>
     </NextThemesProvider>
   );
 }
