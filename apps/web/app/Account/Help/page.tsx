@@ -10,32 +10,17 @@ type HelpTabType = "Help Center / FAQ" | "Report a Problem" | "Contact Us";
 
 const TABS: HelpTabType[] = ["Help Center / FAQ", "Report a Problem", "Contact Us"];
 
-const FAQ_ITEMS = [
-  {
-    q: "LearnlyAI ช่วยอะไรฉันได้บ้าง?",
-    a: "LearnlyAI เป็นติวเตอร์ AI ที่ช่วยสอนทีละขั้นตอนผ่านคำถามนำทางและคำใบ้ แทนที่จะให้คำตอบทันที เพื่อให้คุณเข้าใจที่มาที่ไปจริงๆ",
-  },
-  {
-    q: "ฉันอัปโหลดไฟล์แบบไหนได้บ้าง?",
-    a: "รองรับข้อความ, PDF และรูปภาพ ระบบจะอ่านเนื้อหาแล้วสร้างบทเรียนให้ตรงกับโจทย์ของคุณ",
-  },
-  {
-    q: "ถ้าคำตอบของ AI ผิด ฉันควรทำอย่างไร?",
-    a: "กด Report a Problem แจ้งปัญหานั้นมาได้เลย ทีมงานจะตรวจสอบและปรับปรุงคุณภาพคำตอบต่อไป",
-  },
-  {
-    q: "ข้อมูลของฉันถูกเก็บไว้ที่ไหน และปลอดภัยแค่ไหน?",
-    a: "ข้อมูลถูกเก็บอย่างปลอดภัยและใช้เพื่อปรับปรุงประสบการณ์การเรียนของคุณเท่านั้น ปรับการตั้งค่าความเป็นส่วนตัวได้ที่หน้า Setting > Privacy",
-  },
-  {
-    q: "ยกเลิกหรือลบบัญชีได้อย่างไร?",
-    a: "ไปที่ Setting > Delete Account แล้วทำตามขั้นตอนยืนยัน การลบบัญชีจะลบข้อมูลทั้งหมดอย่างถาวร",
-  },
-];
+// FAQ_ITEMS is built inside the component from the dictionary (see faqItems below)
+// so it can switch language — kept out of module scope on purpose.
 
 function HelpContent() {
   const { t } = useLanguage();
   const router = useRouter();
+
+  const faqItems = [1, 2, 3, 4, 5].map((n) => ({
+    q: t(`help.faq.q${n}`),
+    a: t(`help.faq.a${n}`),
+  }));
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab") as HelpTabType | null;
 
@@ -116,11 +101,11 @@ function HelpContent() {
               {/* Help Center / FAQ */}
               {activeTab === "Help Center / FAQ" && (
                 <div className="max-w-xl flex flex-col gap-4">
-                  <h3 className="text-xl font-bold">Help Center / FAQ</h3>
-                  <p className="text-sm text-muted -mt-2">คำถามที่พบบ่อย</p>
+                  <h3 className="text-xl font-bold">{t("help.faq.title")}</h3>
+                  <p className="text-sm text-muted -mt-2">{t("help.faq.subtitle")}</p>
 
                   <div className="flex flex-col gap-2 mt-2">
-                    {FAQ_ITEMS.map((item, index) => {
+                    {faqItems.map((item, index) => {
                       const isOpen = openFaq === index;
                       return (
                         <div
@@ -152,13 +137,13 @@ function HelpContent() {
                   </div>
 
                   <p className="text-sm text-muted mt-4">
-                    หาคำตอบที่ต้องการไม่เจอ?{" "}
+                    {t("help.faq.notFound")}{" "}
                     <button
                       type="button"
                       onClick={() => handleTabChange("Contact Us")}
                       className="text-primary hover:underline cursor-pointer"
                     >
-                      ติดต่อเรา
+                      {t("help.faq.contactLink")}
                     </button>
                   </p>
                 </div>
@@ -167,26 +152,24 @@ function HelpContent() {
               {/* Report a Problem */}
               {activeTab === "Report a Problem" && (
                 <div className="max-w-md flex flex-col gap-5">
-                  <h3 className="text-xl font-bold">Report a Problem</h3>
+                  <h3 className="text-xl font-bold">{t("help.report.title")}</h3>
 
                   {reportSubmitted ? (
                     <div className="rounded-xl border border-surface-border bg-background p-5 flex flex-col gap-3">
-                      <p className="text-sm font-medium">✓ ได้รับรายงานของคุณแล้ว ขอบคุณครับ</p>
-                      <p className="text-xs text-muted">
-                        ทีมงานจะตรวจสอบและติดต่อกลับหากต้องการข้อมูลเพิ่มเติม
-                      </p>
+                      <p className="text-sm font-medium">{t("help.report.submittedTitle")}</p>
+                      <p className="text-xs text-muted">{t("help.report.submittedDesc")}</p>
                       <button
                         type="button"
                         onClick={() => setReportSubmitted(false)}
                         className="self-start text-sm text-primary hover:underline cursor-pointer"
                       >
-                        แจ้งปัญหาอื่นเพิ่ม
+                        {t("help.report.reportAnother")}
                       </button>
                     </div>
                   ) : (
                     <form onSubmit={handleReportSubmit} className="flex flex-col gap-4">
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-muted">Issue Type</label>
+                        <label className="text-xs font-semibold text-muted">{t("help.report.issueType")}</label>
                         <div className="flex gap-2">
                           {(["Bug", "AI Answer", "Other"] as const).map((type) => (
                             <button
@@ -199,21 +182,19 @@ function HelpContent() {
                                   : "border-surface-border hover:border-primary/60"
                               }`}
                             >
-                              {type}
+                              {type === "Bug" ? t("help.report.issueBug") : type === "AI Answer" ? t("help.report.issueAiAnswer") : t("help.report.issueOther")}
                             </button>
                           ))}
                         </div>
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-muted">
-                          Describe what happened
-                        </label>
+                        <label className="text-xs font-semibold text-muted">{t("help.report.describe")}</label>
                         <textarea
                           value={report.description}
                           onChange={(e) => setReport({ ...report, description: e.target.value })}
                           rows={5}
-                          placeholder="เล่าให้เราฟังว่าเกิดอะไรขึ้น ขั้นตอนที่ทำก่อนเจอปัญหาคืออะไร..."
+                          placeholder={t("help.report.placeholder")}
                           className="rounded-xl border border-surface-border bg-transparent p-3 text-sm outline-none focus:border-primary resize-none"
                         />
                       </div>
@@ -223,7 +204,7 @@ function HelpContent() {
                         disabled={isSendingReport || !report.description.trim()}
                         className="self-start rounded-xl bg-primary text-primary-foreground px-6 py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all cursor-pointer"
                       >
-                        {isSendingReport ? "Sending..." : "Submit Report"}
+                        {isSendingReport ? t("help.report.sending") : t("help.report.submit")}
                       </button>
                     </form>
                   )}
@@ -233,35 +214,35 @@ function HelpContent() {
               {/* Contact Us */}
               {activeTab === "Contact Us" && (
                 <div className="max-w-xl flex flex-col gap-6">
-                  <h3 className="text-xl font-bold">Contact Us</h3>
+                  <h3 className="text-xl font-bold">{t("help.contact.title")}</h3>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="rounded-xl border border-surface-border bg-background p-4">
-                      <p className="text-xs font-semibold text-muted">Email</p>
+                      <p className="text-xs font-semibold text-muted">{t("help.contact.email")}</p>
                       <p className="text-sm font-medium mt-1">support@learnlyai.app</p>
                     </div>
                     <div className="rounded-xl border border-surface-border bg-background p-4">
-                      <p className="text-xs font-semibold text-muted">Support Hours</p>
-                      <p className="text-sm font-medium mt-1">จันทร์–ศุกร์ 9:00–18:00</p>
+                      <p className="text-xs font-semibold text-muted">{t("help.contact.hours")}</p>
+                      <p className="text-sm font-medium mt-1">{t("help.contact.hoursValue")}</p>
                     </div>
                   </div>
 
                   {contactSent ? (
                     <div className="rounded-xl border border-surface-border bg-background p-5 flex flex-col gap-3 max-w-md">
-                      <p className="text-sm font-medium">✓ ส่งข้อความถึงเราแล้ว</p>
-                      <p className="text-xs text-muted">ทีมงานจะติดต่อกลับทางอีเมลโดยเร็วที่สุด</p>
+                      <p className="text-sm font-medium">{t("help.contact.sentTitle")}</p>
+                      <p className="text-xs text-muted">{t("help.contact.sentDesc")}</p>
                       <button
                         type="button"
                         onClick={() => setContactSent(false)}
                         className="self-start text-sm text-primary hover:underline cursor-pointer"
                       >
-                        ส่งข้อความอีกครั้ง
+                        {t("help.contact.sendAgain")}
                       </button>
                     </div>
                   ) : (
                     <form onSubmit={handleContactSubmit} className="flex flex-col gap-4 max-w-md">
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-muted">Subject</label>
+                        <label className="text-xs font-semibold text-muted">{t("help.contact.subject")}</label>
                         <input
                           type="text"
                           value={contact.subject}
@@ -270,7 +251,7 @@ function HelpContent() {
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-muted">Message</label>
+                        <label className="text-xs font-semibold text-muted">{t("help.contact.message")}</label>
                         <textarea
                           value={contact.message}
                           onChange={(e) => setContact({ ...contact, message: e.target.value })}
@@ -283,7 +264,7 @@ function HelpContent() {
                         disabled={isSendingContact || !contact.subject.trim() || !contact.message.trim()}
                         className="self-start rounded-xl bg-primary text-primary-foreground px-6 py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all cursor-pointer"
                       >
-                        {isSendingContact ? "Sending..." : "Send Message"}
+                        {isSendingContact ? t("help.contact.sending") : t("help.contact.send")}
                       </button>
                     </form>
                   )}

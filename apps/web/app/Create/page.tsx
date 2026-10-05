@@ -57,10 +57,10 @@ export default function CreatePage() {
           {t("home.greeting")} <span>(user...)</span>
         </div>
 
-        <div className="mt-8 max-w-2xl mx-auto text-center">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("create.title")}</h1>
-          <p className="mt-3 text-muted">{t("create.subtitle")}</p>
-        </div>
+        <div className="mt-8 w-full max-w-xl sm:max-w-2xl mx-auto text-center px-4">
+  <h1 className="text-3xl font-bold tracking-tight sm:text-4xl whitespace-nowrap">{t("create.title")}</h1>
+  <p className="mt-3 text-muted">{t("create.subtitle")}</p>
+</div>
 
         <div className="mt-10 max-w-xl mx-auto flex flex-col items-center gap-5">
           <div className="w-full">
