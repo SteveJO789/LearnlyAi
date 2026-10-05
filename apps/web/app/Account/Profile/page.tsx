@@ -6,6 +6,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 
 import SiteHeader from "../../components/SiteHeader";
+import { useLanguage } from "../../lib/i18n/LanguageContext";
 
 type ProfileTabType = "Personal Info" | "Theme";
 
@@ -23,6 +24,7 @@ interface FormErrors {
 }
 
 function ProfileContent() {
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab") as ProfileTabType | null;
@@ -137,16 +139,16 @@ function ProfileContent() {
     <div className="min-h-screen bg-background text-text transition-colors duration-200">
       <SiteHeader
         links={[
-          { label: "Create", href: "/Create" },
-          { label: "Lessons", href: "/Lessons" },
-          { label: "HOME", href: "/Home" },
+          { labelKey: "nav.create", href: "/Create" },
+          { labelKey: "nav.lessons", href: "/Lessons" },
+          { labelKey: "nav.home", href: "/Home" },
         ]}
       />
 
       {/* Main Content */}
       <main className="px-10 py-4 max-w-[1400px] mx-auto">
         <h1 className="mb-2 text-[48px] font-bold tracking-tight whitespace-nowrap">
-          Your Account Settings
+          {t("settings.pageTitle")}
         </h1>
         <div className="h-4" />
 

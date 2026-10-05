@@ -6,6 +6,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import AccountSidebar from "../components/AccountSidebar";
 import SiteHeader from "../../components/SiteHeader";
 import Toggle from "../components/Toggle";
+import { useLanguage } from "../../lib/i18n/LanguageContext";
 
 type SettingTabType =
   | "Change Password"
@@ -25,6 +26,7 @@ const TABS: SettingTabType[] = [
 ];
 
 function SettingContent() {
+  const { t, language, setLanguage } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab") as SettingTabType | null;
@@ -87,9 +89,6 @@ function SettingContent() {
     achievements: true,
   });
 
-  // --- Language ---
-  const [language, setLanguage] = useState<"th" | "en">("th");
-
   // --- Privacy (Updated for EdTech / AI Platform) ---
   const [privacy, setPrivacy] = useState({
     aiTraining: true,
@@ -144,16 +143,16 @@ function SettingContent() {
 
       <SiteHeader
         links={[
-          { label: "Create", href: "/Create" },
-          { label: "Lessons", href: "/Lessons" },
-          { label: "HOME", href: "/Home" },
+          { labelKey: "nav.create", href: "/Create" },
+          { labelKey: "nav.lessons", href: "/Lessons" },
+          { labelKey: "nav.home", href: "/Home" },
         ]}
       />
 
       {/* Main Content */}
       <main className="px-10 py-4 max-w-[1400px] mx-auto">
         <h1 className="mb-2 text-[48px] font-bold tracking-tight whitespace-nowrap">
-          Your Account Settings
+          {t("settings.pageTitle")}
         </h1>
         <div className="h-4" />
 
@@ -351,13 +350,13 @@ function SettingContent() {
               {/* Language */}
               {activeTab === "Language" && (
                 <div className="max-w-md flex flex-col gap-4">
-                  <h3 className="text-xl font-bold">Language</h3>
-                  <p className="text-xs text-muted -mt-2">เลือกภาษาที่ใช้แสดงผลในเว็บไซต์</p>
+                  <h3 className="text-xl font-bold">{t("settings.language.title")}</h3>
+                  <p className="text-xs text-muted -mt-2">{t("settings.language.description")}</p>
                   <div className="flex flex-col gap-2">
                     {(
                       [
-                        { code: "th" as const, label: "ไทย (Thai)" },
-                        { code: "en" as const, label: "English" },
+                        { code: "th" as const, label: t("settings.language.thai") },
+                        { code: "en" as const, label: t("settings.language.english") },
                       ]
                     ).map((opt) => (
                       <button

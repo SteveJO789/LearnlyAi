@@ -4,8 +4,10 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 import SiteHeader from "../components/SiteHeader";
+import { useLanguage } from "../lib/i18n/LanguageContext";
 
 export default function CreatePage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -36,9 +38,9 @@ export default function CreatePage() {
     <div className="min-h-screen bg-background text-text">
       <SiteHeader
         links={[
-          { label: "Account", href: "/Account/Profile" },
-          { label: "HOME", href: "/Home" },
-          { label: "Create", href: "/Create" },
+          { labelKey: "nav.account", href: "/Account/Profile" },
+          { labelKey: "nav.home", href: "/Home" },
+          { labelKey: "nav.create", href: "/Create" },
         ]}
       />
 
@@ -52,39 +54,34 @@ export default function CreatePage() {
             backgroundPosition: "0% 50%",
           }}
         >
-          Hello <span>(user...)</span>
+          {t("home.greeting")} <span>(user...)</span>
         </div>
 
         <div className="mt-8 max-w-2xl mx-auto text-center">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Create Learning Session
-          </h1>
-          <p className="mt-3 text-muted">
-            What would you like to learn today? Type your question, or upload a file to get
-            started.
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("create.title")}</h1>
+          <p className="mt-3 text-muted">{t("create.subtitle")}</p>
         </div>
 
         <div className="mt-10 max-w-xl mx-auto flex flex-col items-center gap-5">
           <div className="w-full">
-            <p className="mb-1.5 text-xs font-semibold text-muted">text area</p>
+            <p className="mb-1.5 text-xs font-semibold text-muted">{t("create.textAreaLabel")}</p>
             <textarea
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               rows={6}
-              placeholder="Type your question here"
+              placeholder={t("create.placeholder")}
               className="w-full resize-none rounded-2xl border border-surface-border bg-surface p-5 text-sm outline-none focus:border-primary placeholder:text-muted"
             />
           </div>
 
-          <span className="text-sm text-muted">or</span>
+          <span className="text-sm text-muted">{t("create.or")}</span>
 
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className="w-full rounded-full border border-surface-border bg-surface py-4 text-sm text-muted hover:border-primary transition-colors cursor-pointer"
           >
-            {file ? `📎 ${file.name}` : "Upload File or Image"}
+            {file ? `📎 ${file.name}` : t("create.uploadPlaceholder")}
           </button>
           <input
             ref={fileInputRef}
@@ -99,7 +96,7 @@ export default function CreatePage() {
               onClick={() => setFile(null)}
               className="-mt-3 text-xs text-muted hover:text-danger self-end"
             >
-              Remove file
+              {t("create.removeFile")}
             </button>
           )}
 
@@ -109,7 +106,7 @@ export default function CreatePage() {
             disabled={!canStart || isStarting}
             className="w-full rounded-full bg-primary py-3.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40 transition-all cursor-pointer"
           >
-            {isStarting ? "Starting..." : "Start Learning..."}
+            {isStarting ? t("create.starting") : t("create.start")}
           </button>
         </div>
       </main>
