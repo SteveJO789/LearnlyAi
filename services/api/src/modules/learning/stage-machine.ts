@@ -1,4 +1,4 @@
-import type { TutorOutputStage, TutorProgress } from "../ai/tutor-output.js";
+﻿import type { TutorOutputStage, TutorProgress } from "../ai/tutor-output.js";
 import type { LearningRequest, LearningSession, LearningStage } from "./domain.js";
 import { LearningError } from "./learning-errors.js";
 
@@ -27,7 +27,7 @@ export function determineStage(
     if (action === "ADVANCE") throw new LearningError("INVALID_STAGE_TRANSITION");
     return initialStage;
   }
-  if (session.state !== "ACTIVE") throw new LearningError("SESSION_INACTIVE");
+  if (session.lifecycleState !== "ACTIVE") throw new LearningError("SESSION_INACTIVE");
   if (action !== "ADVANCE") return session.stage;
   const nextStage = LEARNING_STAGES[LEARNING_STAGES.indexOf(session.stage) + 1];
   if (!session.progress.canAdvance || !nextStage) {

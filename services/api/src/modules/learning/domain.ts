@@ -1,6 +1,7 @@
-import type { TutorProgress, ValidatedTutorOutput } from "../ai/tutor-output.js";
+﻿import type { TutorProgress, ValidatedTutorOutput } from "../ai/tutor-output.js";
 
-export type SessionState = "ACTIVE" | "COMPLETED" | "FAILED";
+export type SessionState = "INPUT" | "CONTENT_ANALYSIS" | "PRE_TEST" | "LEARNING" | "TRANSFER" | "POST_TEST" | "COMPLETED";
+export type SessionLifecycleState = "ACTIVE" | "COMPLETED" | "FAILED";
 export type LearningStage = "DIAGNOSE" | "EXPLAIN" | "PRACTICE" | "ASSESS" | "REVIEW";
 
 export interface LearningRequest {
@@ -21,6 +22,7 @@ export interface LearningEngine {
 export interface LearningSession {
   id: string;
   state: SessionState;
+  lifecycleState: SessionLifecycleState;
   stage: LearningStage;
   learningGoal?: string;
   subject?: string;

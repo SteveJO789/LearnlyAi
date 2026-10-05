@@ -1,0 +1,212 @@
+[
+  {
+    "id": "dropCheckConstraint.LearningSession.LearningSession_state_check_f6e8ff79",
+    "label": "Drop check constraint \"LearningSession_state_check_f6e8ff79\" on \"LearningSession\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "LearningSession_state_check_f6e8ff79",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"LearningSession_state_check_f6e8ff79\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LearningSession_state_check_f6e8ff79",
+          "public",
+          "\"public\".\"LearningSession\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"LearningSession_state_check_f6e8ff79\"",
+        "sql": "ALTER TABLE \"public\".\"LearningSession\" DROP CONSTRAINT \"LearningSession_state_check_f6e8ff79\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"LearningSession_state_check_f6e8ff79\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LearningSession_state_check_f6e8ff79",
+          "public",
+          "\"public\".\"LearningSession\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.LearningSession.lifecycleState",
+    "label": "Add column \"lifecycleState\" to \"LearningSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "lifecycleState",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"lifecycleState\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "lifecycleState"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"lifecycleState\"",
+        "sql": "ALTER TABLE \"public\".\"LearningSession\" ADD COLUMN \"lifecycleState\" text DEFAULT 'ACTIVE' NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"lifecycleState\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "lifecycleState"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "setDefault.LearningSession.state",
+    "label": "Set default on \"LearningSession\".\"state\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "state",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"state\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "state"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "set default on \"state\"",
+        "sql": "ALTER TABLE \"public\".\"LearningSession\" ALTER COLUMN \"state\" SET DEFAULT 'INPUT'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"state\" has a default",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "state"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.LearningSession.LearningSession_lifecycleState_check_1f2ffd0e",
+    "label": "Add check constraint \"LearningSession_lifecycleState_check_1f2ffd0e\" on \"LearningSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "LearningSession_lifecycleState_check_1f2ffd0e",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"LearningSession_lifecycleState_check_1f2ffd0e\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LearningSession_lifecycleState_check_1f2ffd0e",
+          "public",
+          "\"public\".\"LearningSession\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"LearningSession_lifecycleState_check_1f2ffd0e\"",
+        "sql": "ALTER TABLE \"public\".\"LearningSession\" ADD CONSTRAINT \"LearningSession_lifecycleState_check_1f2ffd0e\" CHECK (\"lifecycleState\" IN ('ACTIVE', 'COMPLETED', 'FAILED'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"LearningSession_lifecycleState_check_1f2ffd0e\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LearningSession_lifecycleState_check_1f2ffd0e",
+          "public",
+          "\"public\".\"LearningSession\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.LearningSession.LearningSession_state_check_d925cf7a",
+    "label": "Add check constraint \"LearningSession_state_check_d925cf7a\" on \"LearningSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "LearningSession_state_check_d925cf7a",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"LearningSession_state_check_d925cf7a\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LearningSession_state_check_d925cf7a",
+          "public",
+          "\"public\".\"LearningSession\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"LearningSession_state_check_d925cf7a\"",
+        "sql": "ALTER TABLE \"public\".\"LearningSession\" ADD CONSTRAINT \"LearningSession_state_check_d925cf7a\" CHECK (\"state\" IN ('INPUT', 'CONTENT_ANALYSIS', 'PRE_TEST', 'LEARNING', 'TRANSFER', 'POST_TEST', 'COMPLETED'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"LearningSession_state_check_d925cf7a\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LearningSession_state_check_d925cf7a",
+          "public",
+          "\"public\".\"LearningSession\""
+        ]
+      }
+    ]
+  }
+]

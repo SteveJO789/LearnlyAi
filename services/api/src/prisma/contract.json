@@ -83,7 +83,7 @@
               }
             ]
           },
-          "LearningSessionState": {
+          "LearningSessionLifecycleState": {
             "codecId": "pg/text@1",
             "members": [
               {
@@ -97,6 +97,39 @@
               {
                 "name": "FAILED",
                 "value": "FAILED"
+              }
+            ]
+          },
+          "LearningSessionState": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "INPUT",
+                "value": "INPUT"
+              },
+              {
+                "name": "CONTENT_ANALYSIS",
+                "value": "CONTENT_ANALYSIS"
+              },
+              {
+                "name": "PRE_TEST",
+                "value": "PRE_TEST"
+              },
+              {
+                "name": "LEARNING",
+                "value": "LEARNING"
+              },
+              {
+                "name": "TRANSFER",
+                "value": "TRANSFER"
+              },
+              {
+                "name": "POST_TEST",
+                "value": "POST_TEST"
+              },
+              {
+                "name": "COMPLETED",
+                "value": "COMPLETED"
               }
             ]
           },
@@ -759,6 +792,19 @@
                   "kind": "scalar"
                 }
               },
+              "lifecycleState": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "LearningSessionLifecycleState",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
               "progressPercent": {
                 "nullable": false,
                 "type": {
@@ -919,6 +965,9 @@
                 },
                 "learningGoal": {
                   "column": "learningGoal"
+                },
+                "lifecycleState": {
+                  "column": "lifecycleState"
                 },
                 "progressPercent": {
                   "column": "progressPercent"
@@ -1849,13 +1898,18 @@
             "LearningSession": {
               "checks": [
                 {
+                  "expression": "\"lifecycleState\" IN ('ACTIVE', 'COMPLETED', 'FAILED')",
+                  "name": "LearningSession_lifecycleState_check_1f2ffd0e",
+                  "prefix": "LearningSession_lifecycleState_check"
+                },
+                {
                   "expression": "\"stage\" IN ('DIAGNOSE', 'EXPLAIN', 'PRACTICE', 'ASSESS', 'REVIEW')",
                   "name": "LearningSession_stage_check_df720be3",
                   "prefix": "LearningSession_stage_check"
                 },
                 {
-                  "expression": "\"state\" IN ('ACTIVE', 'COMPLETED', 'FAILED')",
-                  "name": "LearningSession_state_check_f6e8ff79",
+                  "expression": "\"state\" IN ('INPUT', 'CONTENT_ANALYSIS', 'PRE_TEST', 'LEARNING', 'TRANSFER', 'POST_TEST', 'COMPLETED')",
+                  "name": "LearningSession_state_check_d925cf7a",
                   "prefix": "LearningSession_state_check"
                 }
               ],
@@ -1884,6 +1938,21 @@
                   "nativeType": "text",
                   "nullable": true
                 },
+                "lifecycleState": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "ACTIVE"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "LearningSessionLifecycleState",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
                 "progressPercent": {
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
@@ -1906,6 +1975,10 @@
                 },
                 "state": {
                   "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "INPUT"
+                  },
                   "nativeType": "text",
                   "nullable": false,
                   "valueSet": {
@@ -2329,12 +2402,24 @@
                 "TRANSFER"
               ]
             },
-            "LearningSessionState": {
+            "LearningSessionLifecycleState": {
               "kind": "valueSet",
               "values": [
                 "ACTIVE",
                 "COMPLETED",
                 "FAILED"
+              ]
+            },
+            "LearningSessionState": {
+              "kind": "valueSet",
+              "values": [
+                "INPUT",
+                "CONTENT_ANALYSIS",
+                "PRE_TEST",
+                "LEARNING",
+                "TRANSFER",
+                "POST_TEST",
+                "COMPLETED"
               ]
             },
             "LearningStage": {
@@ -2378,7 +2463,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "d7a4d82ff050dcfdb7a55a6f4fc74436db9681957211d47bce23d8afcd84ce0b"
+    "storageHash": "452158074d4d75d38f0c775bdb714abcc49090d7a429bc916b9a1a02c08bbcd1"
   },
   "execution": {
     "executionHash": "9d6827a7c3ebba924f05ac163af4e3d9fc21f7f1aa225b5ec7f79c89851b1e38",

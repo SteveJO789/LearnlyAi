@@ -8,10 +8,10 @@ model User {
   createdAt   TimestamptzString @default(now())
   updatedAt   temporal.updatedAtString()
 
-  oauthAccounts   OAuthAccount[]
-  appSessions     AppSession[]
+  oauthAccounts    OAuthAccount[]
+  appSessions      AppSession[]
   learningSessions LearningSession[]
-  learningProfile LearningProfile?
+  learningProfile  LearningProfile?
 }
 
 model OAuthAccount {
@@ -41,6 +41,16 @@ model AppSession {
 }
 
 enum LearningSessionState {
+  INPUT
+  CONTENT_ANALYSIS
+  PRE_TEST
+  LEARNING
+  TRANSFER
+  POST_TEST
+  COMPLETED
+}
+
+enum LearningSessionLifecycleState {
   ACTIVE
   COMPLETED
   FAILED
@@ -55,24 +65,25 @@ enum LearningStage {
 }
 
 model LearningSession {
-  id             String                @id @default(uuid())
-  userId         String
-  title          String
-  learningGoal   String?
-  subject        String?
-  state          LearningSessionState
-  stage          LearningStage @default(EXPLAIN)
+  id              String                       @id @default(uuid())
+  userId          String
+  title           String
+  learningGoal    String?
+  subject         String?
+  state           LearningSessionState        @default(INPUT)
+  lifecycleState  LearningSessionLifecycleState @default(ACTIVE)
+  stage           LearningStage               @default(EXPLAIN)
   progressPercent Int
-  version        Int                   @default(1)
-  createdAt      TimestamptzString     @default(now())
-  updatedAt      temporal.updatedAtString()
-  completedAt    TimestamptzString?
+  version         Int                         @default(1)
+  createdAt       TimestamptzString           @default(now())
+  updatedAt       temporal.updatedAtString()
+  completedAt     TimestamptzString?
 
-  user             User             @relation(fields: [userId], references: [id])
-  sourceMaterials  SourceMaterial[]
-  messages         Message[]
-  assessments      Assessment[]
-  aiRequests       AIRequest[]
+  user            User              @relation(fields: [userId], references: [id])
+  sourceMaterials SourceMaterial[]
+  messages        Message[]
+  assessments     Assessment[]
+  aiRequests      AIRequest[]
 
   @@index([userId, createdAt])
 }
@@ -115,7 +126,7 @@ enum MessageRole {
 }
 
 model Message {
-  id                String      @id @default(uuid())
+  id                String            @id @default(uuid())
   learningSessionId String
   role              MessageRole
   content           Json
@@ -134,7 +145,7 @@ enum AssessmentPhase {
 }
 
 model Assessment {
-  id                String             @id @default(uuid())
+  id                String           @id @default(uuid())
   learningSessionId String
   phase             AssessmentPhase
   score             Int?
@@ -185,20 +196,20 @@ enum AIRequestStatus {
 }
 
 model AIRequest {
-  id              String          @id @default(uuid())
+  id                String          @id @default(uuid())
   learningSessionId String
-  requestId       String
-  provider        String
-  model           String
-  operation       String
-  status          AIRequestStatus
-  latencyMs       Int?
-  inputTokens     Int?
-  outputTokens    Int?
-  errorCode       String?
-  promptSnapshot  Json?
-  outputSnapshot  Json?
-  createdAt       TimestamptzString @default(now())
+  requestId         String
+  provider          String
+  model             String
+  operation         String
+  status            AIRequestStatus
+  latencyMs         Int?
+  inputTokens       Int?
+  outputTokens      Int?
+  errorCode         String?
+  promptSnapshot    Json?
+  outputSnapshot    Json?
+  createdAt         TimestamptzString @default(now())
 
   learningSession LearningSession @relation(
     fields: [learningSessionId],
