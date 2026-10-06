@@ -9,16 +9,16 @@ export const metadata: Metadata = {
 
 export default function SignUpPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-background text-text">
+    <div className="min-h-screen flex flex-col bg-white text-black">
       <header className="px-5 pt-8 sm:px-12 lg:px-20">
-        <Link href="/" className="text-lg font-medium tracking-wide">
+        <Link href="/" className="text-lg font-medium tracking-wide text-black">
           LOGO
         </Link>
       </header>
 
       <main className="flex flex-1 flex-col items-center justify-center px-5 pb-24 pt-8">
-        <h1 className="mb-8 text-center text-xl font-normal text-muted whitespace-nowrap">
-        Create your account
+        <h1 className="mb-8 text-center text-xl font-normal text-neutral-500 whitespace-nowrap">
+          Create your account
         </h1>
         <br></br>
 

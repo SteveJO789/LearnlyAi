@@ -32,6 +32,31 @@
   animation: gradient-drift 12s ease-in-out infinite;
 }
 
+/* SignIn/SignUp are intentionally excluded from the theme system (decided
+   early on): they must always look like the Default (Teal) theme in Light
+   mode, no matter what brand theme or Light/Dark mode the visitor last
+   picked in Settings — a logged-out visitor hasn't chosen a theme yet, and
+   this page shouldn't carry one over from a previous session.
+
+   Put this class on each page's root wrapper div. Declaring these variables
+   directly on that element overrides whatever .dark/.theme-X classes are on
+   <html>, because a declaration on the element itself always wins over one
+   inherited from an ancestor — no matter which theme/mode is active there. */
+.auth-page {
+  --color-primary-rgb: 10, 209, 193;
+  --color-text-rgb: 55, 85, 114;
+  --primary: rgb(var(--color-primary-rgb));
+  --primary-foreground: #ffffff;
+  --secondary: #93FBFF;
+  --surface: #E2FFFC;
+  --background: #FFFFFF;
+  --text: rgb(var(--color-text-rgb));
+  --muted: #6B7280;
+  --surface-border: #E5E7EB;
+  --accent: #FFC06F;
+  --danger: #911005;
+}
+
 /* ===========================
    โครงสร้างธีมสีทั้ง 6 ชุด
 
