@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 import LoadingOverlay from "../components/LoadingOverlay"; // Adjust path to match your folder structure
-import { supabase } from "../../lib/supabase";
+import { getSupabaseClient } from "../../lib/supabase";
 
 export default function SigninForm() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function SigninForm() {
     setError(null);
     setIsLoading(true);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    let signInError;\n    try {\n      const result = await getSupabaseClient().auth.signInWithPassword({
       email,
       password,
     });
@@ -49,7 +49,7 @@ export default function SigninForm() {
     setError(null);
     setIsLoading(true);
 
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+    let oauthError;\n    try {\n      const result = await getSupabaseClient().auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
