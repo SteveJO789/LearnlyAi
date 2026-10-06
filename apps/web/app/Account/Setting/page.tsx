@@ -60,9 +60,9 @@ function SettingContent() {
   const handlePasswordSubmit = (e: FormEvent) => {
     e.preventDefault();
     const errors: Record<string, string> = {};
-    if (!passwords.current) errors.current = "กรุณากรอกรหัสผ่านปัจจุบัน";
-    if (passwords.next.length < 8) errors.next = "รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร";
-    if (passwords.next !== passwords.confirm) errors.confirm = "รหัสผ่านใหม่ไม่ตรงกัน";
+    if (!passwords.current) errors.current = t("settings.changePassword.errorCurrent");
+    if (passwords.next.length < 8) errors.next = t("settings.changePassword.errorLength");
+    if (passwords.next !== passwords.confirm) errors.confirm = t("settings.changePassword.errorMismatch");
     setPasswordErrors(errors);
     if (Object.keys(errors).length > 0) return;
 
@@ -70,7 +70,7 @@ function SettingContent() {
     setTimeout(() => {
       setIsSavingPassword(false);
       setPasswords({ current: "", next: "", confirm: "" });
-      showToast("เปลี่ยนรหัสผ่านเรียบร้อยแล้ว!");
+      showToast(t("settings.toast.passwordChanged"));
     }, 1200);
   };
 
@@ -106,10 +106,10 @@ function SettingContent() {
       {deleteConfirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
           <div className="w-full max-w-md rounded-2xl border border-surface-border bg-surface p-6 flex flex-col gap-4">
-            <h3 className="text-lg font-bold text-danger">ยืนยันการลบบัญชี</h3>
+            <h3 className="text-lg font-bold text-danger">{t("settings.deleteConfirm.title")}</h3>
             <p className="text-sm text-muted">
-              การลบบัญชีไม่สามารถย้อนกลับได้ ข้อมูลการเรียน ประวัติ และไฟล์ทั้งหมดของคุณจะหายไปถาวร
-              พิมพ์ <span className="font-semibold text-text">DELETE</span> เพื่อยืนยัน
+              {t("settings.deleteConfirm.body")}{" "}
+              <span className="font-semibold text-text">DELETE</span> {t("settings.deleteConfirm.bodyEnd")}
             </p>
             <input
               type="text"
@@ -127,14 +127,14 @@ function SettingContent() {
                 }}
                 className="rounded-xl border border-surface-border px-5 py-2.5 text-sm font-medium text-muted hover:bg-secondary transition-all"
               >
-                ยกเลิก
+                {t("settings.deleteConfirm.cancel")}
               </button>
               <button
                 type="button"
                 disabled={deleteConfirmText !== "DELETE"}
                 className="rounded-xl bg-danger px-5 py-2.5 text-sm font-medium text-white disabled:opacity-40 transition-all"
               >
-                ลบบัญชีถาวร
+                {t("settings.deleteConfirm.confirmButton")}
               </button>
             </div>
           </div>
@@ -173,10 +173,10 @@ function SettingContent() {
               {/* Change Password */}
               {activeTab === "Change Password" && (
                 <form onSubmit={handlePasswordSubmit} className="max-w-md flex flex-col gap-5">
-                  <h3 className="text-xl font-bold">Change Password</h3>
+                  <h3 className="text-xl font-bold">{t("settings.changePassword.title")}</h3>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-muted">Current Password</label>
+                    <label className="text-xs font-semibold text-muted">{t("settings.changePassword.current")}</label>
                     <input
                       type="password"
                       value={passwords.current}
@@ -194,7 +194,7 @@ function SettingContent() {
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-muted">New Password</label>
+                    <label className="text-xs font-semibold text-muted">{t("settings.changePassword.new")}</label>
                     <input
                       type="password"
                       value={passwords.next}
@@ -212,7 +212,7 @@ function SettingContent() {
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-muted">Confirm New Password</label>
+                    <label className="text-xs font-semibold text-muted">{t("settings.changePassword.confirm")}</label>
                     <input
                       type="password"
                       value={passwords.confirm}
@@ -234,7 +234,7 @@ function SettingContent() {
                     disabled={isSavingPassword}
                     className="self-start rounded-xl bg-primary text-primary-foreground px-6 py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all cursor-pointer"
                   >
-                    {isSavingPassword ? "Saving..." : "Save New Password"}
+                    {isSavingPassword ? t("settings.changePassword.saving") : t("settings.changePassword.save")}
                   </button>
                 </form>
               )}
@@ -242,13 +242,11 @@ function SettingContent() {
               {/* Learning Preferences */}
               {activeTab === "Learning Preferences" && (
                 <div className="max-w-md flex flex-col gap-8">
-                  <h3 className="text-xl font-bold">Learning Preferences</h3>
+                  <h3 className="text-xl font-bold">{t("settings.learningPreferences.title")}</h3>
 
                   <div>
-                    <p className="text-sm font-medium mb-1">Preferred Difficulty</p>
-                    <p className="text-xs text-muted mb-3">
-                      ปรับความยากของตัวอย่างและแบบฝึกหัดที่ AI สร้างให้
-                    </p>
+                    <p className="text-sm font-medium mb-1">{t("settings.learningPreferences.difficultyLabel")}</p>
+                    <p className="text-xs text-muted mb-3">{t("settings.learningPreferences.difficultyDesc")}</p>
                     <div className="flex gap-2">
                       {(["Easy", "Medium", "Hard"] as const).map((level) => (
                         <button
@@ -261,17 +259,15 @@ function SettingContent() {
                               : "border-surface-border hover:border-primary/60"
                           }`}
                         >
-                          {level}
+                          {t(`settings.learningPreferences.${level.toLowerCase()}`)}
                         </button>
                       ))}
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium mb-1">Hint Style</p>
-                    <p className="text-xs text-muted mb-3">
-                      เลือกวิธีที่ AI ช่วยตอนคุณติดขัด
-                    </p>
+                    <p className="text-sm font-medium mb-1">{t("settings.learningPreferences.hintStyleLabel")}</p>
+                    <p className="text-xs text-muted mb-3">{t("settings.learningPreferences.hintStyleDesc")}</p>
                     <div className="flex flex-col gap-2">
                       {(["Guided Questions", "Direct Answers"] as const).map((style) => (
                         <button
@@ -284,7 +280,7 @@ function SettingContent() {
                               : "border-surface-border hover:border-primary/60"
                           }`}
                         >
-                          {style}
+                          {style === "Guided Questions" ? t("settings.learningPreferences.guidedQuestions") : t("settings.learningPreferences.directAnswers")}
                         </button>
                       ))}
                     </div>
@@ -292,8 +288,8 @@ function SettingContent() {
 
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <p className="text-sm font-medium">Daily Study Goal</p>
-                      <span className="text-sm font-semibold text-primary">{dailyGoal} min</span>
+                      <p className="text-sm font-medium">{t("settings.learningPreferences.dailyGoalLabel")}</p>
+                      <span className="text-sm font-semibold text-primary">{dailyGoal} {t("settings.learningPreferences.minUnit")}</span>
                     </div>
                     <input
                       type="range"
@@ -308,10 +304,10 @@ function SettingContent() {
 
                   <button
                     type="button"
-                    onClick={() => showToast("บันทึกการตั้งค่าการเรียนรู้แล้ว!")}
+                    onClick={() => showToast(t("settings.toast.preferencesSaved"))}
                     className="self-start rounded-xl bg-primary text-primary-foreground px-6 py-2.5 text-sm font-medium hover:opacity-90 transition-all cursor-pointer"
                   >
-                    Save Preferences
+                    {t("settings.learningPreferences.save")}
                   </button>
                 </div>
               )}
@@ -319,28 +315,28 @@ function SettingContent() {
               {/* Notifications */}
               {activeTab === "Notifications" && (
                 <div className="max-w-md flex flex-col gap-2">
-                  <h3 className="text-xl font-bold mb-2">Notifications</h3>
+                  <h3 className="text-xl font-bold mb-2">{t("settings.notifications.title")}</h3>
                   <Toggle
-                    label="Email Notifications"
-                    description="รับอีเมลแจ้งเตือนทั่วไปจาก LearnlyAI"
+                    label={t("settings.notifications.email.label")}
+                    description={t("settings.notifications.email.description")}
                     checked={notifications.email}
                     onChange={(v) => setNotifications({ ...notifications, email: v })}
                   />
                   <Toggle
-                    label="Lesson Reminders"
-                    description="เตือนเมื่อถึงเวลาเรียนตามเป้าหมายรายวัน"
+                    label={t("settings.notifications.lessonReminders.label")}
+                    description={t("settings.notifications.lessonReminders.description")}
                     checked={notifications.lessonReminders}
                     onChange={(v) => setNotifications({ ...notifications, lessonReminders: v })}
                   />
                   <Toggle
-                    label="Weekly Summary"
-                    description="สรุปความคืบหน้าการเรียนรายสัปดาห์ทางอีเมล"
+                    label={t("settings.notifications.weeklySummary.label")}
+                    description={t("settings.notifications.weeklySummary.description")}
                     checked={notifications.weeklySummary}
                     onChange={(v) => setNotifications({ ...notifications, weeklySummary: v })}
                   />
                   <Toggle
-                    label="Achievement Alerts"
-                    description="แจ้งเตือนเมื่อปลดล็อกความสำเร็จใหม่"
+                    label={t("settings.notifications.achievements.label")}
+                    description={t("settings.notifications.achievements.description")}
                     checked={notifications.achievements}
                     onChange={(v) => setNotifications({ ...notifications, achievements: v })}
                   />
@@ -379,24 +375,24 @@ function SettingContent() {
               {/* Privacy (Updated) */}
               {activeTab === "Privacy" && (
                 <div className="max-w-md flex flex-col gap-3">
-                  <h3 className="text-xl font-bold mb-1">Privacy & Data Settings</h3>
-                  <p className="text-xs text-muted -mt-2 mb-2">ควบคุมการจัดการข้อมูลการเรียนรู้และประวัติแชทกับ AI ของคุณ</p>
+                  <h3 className="text-xl font-bold mb-1">{t("settings.privacy.title")}</h3>
+                  <p className="text-xs text-muted -mt-2 mb-2">{t("settings.privacy.description")}</p>
                   
                   <Toggle
-                    label="AI Training Permission"
-                    description="อนุญาตให้นำประวัติบทเรียนและแบบฝึกหัดของคุณไปช่วยพัฒนาโมเดล AI ให้ตอบคำถามฉลาดขึ้น"
+                    label={t("settings.privacy.aiTraining.label")}
+                    description={t("settings.privacy.aiTraining.description")}
                     checked={privacy.aiTraining}
                     onChange={(v) => setPrivacy({ ...privacy, aiTraining: v })}
                   />
                   <Toggle
-                    label="Auto-delete Chat History"
-                    description="ลบประวัติการสนทนากับ AI โดยอัตโนมัติทุกๆ 24 ชั่วโมงเพื่อความเป็นส่วนตัว"
+                    label={t("settings.privacy.autoDelete.label")}
+                    description={t("settings.privacy.autoDelete.description")}
                     checked={privacy.autoDeleteChat}
                     onChange={(v) => setPrivacy({ ...privacy, autoDeleteChat: v })}
                   />
                   <Toggle
-                    label="Save Learning Activity"
-                    description="บันทึกประวัติบทเรียน ผลคะแนน และความคืบหน้าการเรียนของคุณในระบบ"
+                    label={t("settings.privacy.saveActivity.label")}
+                    description={t("settings.privacy.saveActivity.description")}
                     checked={privacy.saveHistory}
                     onChange={(v) => setPrivacy({ ...privacy, saveHistory: v })}
                   />
@@ -404,10 +400,10 @@ function SettingContent() {
                   <div className="pt-2">
                     <button
                       type="button"
-                      onClick={() => showToast("บันทึกการตั้งค่าความเป็นส่วนตัวแล้ว!")}
+                      onClick={() => showToast(t("settings.toast.privacySaved"))}
                       className="rounded-xl bg-primary text-primary-foreground px-6 py-2.5 text-sm font-medium hover:opacity-90 transition-all cursor-pointer"
                     >
-                      Save Privacy Settings
+                      {t("settings.privacy.save")}
                     </button>
                   </div>
 
@@ -416,7 +412,7 @@ function SettingContent() {
                       href="/Account/Help?tab=Help%20Center"
                       className="text-sm text-primary hover:underline block"
                     >
-                      Read our Privacy Policy & Terms of Service →
+                      {t("settings.privacy.policyLink")}
                     </Link>
                   </div>
                 </div>
@@ -425,26 +421,22 @@ function SettingContent() {
               {/* Delete Account */}
               {activeTab === "Delete Account" && (
                 <div className="max-w-md flex flex-col gap-4">
-                  <h3 className="text-xl font-bold text-danger">Delete Account</h3>
+                  <h3 className="text-xl font-bold text-danger">{t("settings.deleteAccount.title")}</h3>
                   <div className="rounded-xl border border-danger/40 bg-danger/5 p-4">
-                    <p className="text-sm text-text">
-                      การลบบัญชีจะลบข้อมูลทั้งหมดของคุณอย่างถาวร ได้แก่:
-                    </p>
+                    <p className="text-sm text-text">{t("settings.deleteAccount.warning")}</p>
                     <ul className="list-disc list-inside text-sm text-muted mt-2 space-y-1">
-                      <li>ประวัติการสนทนากับ AI และบทเรียนทั้งหมด</li>
-                      <li>ไฟล์ที่อัปโหลดไว้</li>
-                      <li>ผลการทดสอบและความคืบหน้าการเรียน</li>
+                      <li>{t("settings.deleteAccount.item1")}</li>
+                      <li>{t("settings.deleteAccount.item2")}</li>
+                      <li>{t("settings.deleteAccount.item3")}</li>
                     </ul>
-                    <p className="text-sm text-danger font-medium mt-3">
-                      การกระทำนี้ไม่สามารถย้อนกลับได้
-                    </p>
+                    <p className="text-sm text-danger font-medium mt-3">{t("settings.deleteAccount.irreversible")}</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setDeleteConfirmOpen(true)}
                     className="self-start rounded-xl bg-danger px-6 py-2.5 text-sm font-medium text-white hover:opacity-90 transition-all cursor-pointer"
                   >
-                    Delete My Account
+                    {t("settings.deleteAccount.button")}
                   </button>
                 </div>
               )}
