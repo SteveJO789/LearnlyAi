@@ -7,9 +7,6 @@ import { useEffect, useState } from "react";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { getSupabaseClient } from "../../../lib/supabase";
 
-// หลัง verify อีเมล หรือหลัง login ด้วย Google Supabase จะ redirect มาที่หน้านี้
-// supabase-js อ่าน token/code จาก URL แล้วสร้าง session ให้เอง (detectSessionInUrl)
-// หน้านี้แค่รอให้ session พร้อม แล้วพาไปหน้าถัดไป
 const AFTER_LOGIN_PATH = "/";
 const TIMEOUT_MS = 10000;
 
@@ -18,7 +15,6 @@ export default function AuthCallbackPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // ลิงก์หมดอายุ / ถูกยกเลิก Supabase จะแนบ error_description มาใน URL
     const search = new URLSearchParams(window.location.search);
     const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
     const urlError = search.get("error_description") ?? hash.get("error_description");
@@ -27,7 +23,19 @@ export default function AuthCallbackPage() {
       return;
     }
 
-    let supabase;\n    try {\n      supabase = getSupabaseClient();\n    } catch (configurationError) {\n      setError(configurationError instanceof Error ? configurationError.message : "Authentication is unavailable.");\n      return;\n    }\n\n    let done = false;
+    let supabase;
+    try {
+      supabase = getSupabaseClient();
+    } catch (configurationError) {
+      setError(
+        configurationError instanceof Error
+          ? configurationError.message
+          : "Authentication is unavailable."
+      );
+      return;
+    }
+
+    let done = false;
     const goNext = () => {
       if (done) return;
       done = true;
