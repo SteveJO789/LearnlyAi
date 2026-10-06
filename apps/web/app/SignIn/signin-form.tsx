@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import LoadingOverlay from "../components/LoadingOverlay";
 import { getSupabaseClient } from "../../lib/supabase";
+import { syncCurrentUserProfile } from "../../lib/user-profile";
 
 export default function SigninForm() {
   const router = useRouter();
@@ -41,6 +42,7 @@ export default function SigninForm() {
         return;
       }
 
+      await syncCurrentUserProfile();
       router.push("/Home");
     } catch (configurationError) {
       setError(
