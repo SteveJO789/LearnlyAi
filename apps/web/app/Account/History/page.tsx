@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import AccountSidebar from "../components/AccountSidebar"; // นำเข้า Sidebar กลาง
 import SiteHeader from "../../components/SiteHeader";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
-import { LESSONS } from "../../lib/mock-lessons"; // ข้อมูลบทเรียนชุดเดียวกับหน้า Lessons และ Learning Page
+import { listLearningSessions, type LearningSessionSummary } from "../../../lib/learning-sessions";
 
 type TabType = "Chat" | "Lessons" | "Uploaded Files" | "Test Results";
 
@@ -17,7 +17,7 @@ interface FileItem {
 }
 
 interface ChatItem {
-  id: number;
+  id: string;
   title: string;
   lastMessage: string;
   date: string;
@@ -49,40 +49,31 @@ function HistoryContent() {
     setActiveTab(tabParam);
   }, [searchParams]);
 
-  const [filesHistory] = useState<FileItem[]>([
-    { id: 1, name: "equation-worksheet.pdf", date: "2026-09-10" },
-    { id: 2, name: "equation-worksheet(1).pdf", date: "2026-09-10" },
-    { id: 3, name: "equation-worksheet(2).pdf", date: "2026-09-10" },
-  ]);
+  const [sessionHistory, setSessionHistory] = useState<LearningSessionSummary[]>([]);
+  const [historyError, setHistoryError] = useState<string | null>(null);
 
-  const [chatHistory] = useState<ChatItem[]>([
-    {
-      id: 1,
-      title: "Linear Equations",
-      lastMessage: "ลองเริ่มย้าย +4 ไปอีกฝั่ง...",
-      date: "2026-09-10",
-    },
-    {
-      id: 2,
-      title: "Quadratic Functions",
-      lastMessage: "สูตร x = (-b ± √(b² - 4ac)) / 2a",
-      date: "2026-09-11",
-    },
-  ]);
+  useEffect(() => {
+    listLearningSessions()
+      .then(setSessionHistory)
+      .catch((loadError) => {
+        setHistoryError(
+          loadError instanceof Error ? loadError.message : "Could not load history.",
+        );
+      });
+  }, []);
 
-  const lessonsHistory = LESSONS;
+  // These tabs intentionally show no fabricated data until their APIs exist.
+  const filesHistory: FileItem[] = [];
+  const testResultsHistory: TestResultItem[] = [];
 
-  const [testResultsHistory] = useState<TestResultItem[]>([
-    {
-      id: 1,
-      title: "Linear Equations",
-      imageUrl:
-        "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=600",
-      pretestScore: 40,
-      posttestScore: 90,
-      date: "2026-09-10",
-    },
-  ]);
+  const chatHistory: ChatItem[] = sessionHistory.map((session) => ({
+    id: session.id,
+    title: session.title,
+    lastMessage: `${session.stage} · ${session.progressPercent}% completed`,
+    date: session.updatedAt.slice(0, 10),
+  }));
+
+  const lessonsHistory = sessionHistory;
 
   const filterByDate = (dateStr: string) => {
     if (!startDate && !endDate) return true;
@@ -236,6 +227,11 @@ function HistoryContent() {
 
             {/* Container เนื้อหาหลักของ History */}
             <div className="rounded-2xl border border-surface-border p-6 min-h-[650px] bg-surface flex flex-col justify-start">
+              {historyError && (
+                <p className="mb-4 rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
+                  {historyError}
+                </p>
+              )}
               {/* หน้า Default: HISTORY */}
               {activeTab === null && (
                 <div className="flex-1 min-h-[550px] flex items-center justify-center">
@@ -283,14 +279,13 @@ function HistoryContent() {
                         href={`/Lessons/${lesson.id}`}
                         className="rounded-2xl border border-surface-border p-4 bg-background flex flex-col gap-3 hover:border-primary/60 transition-all cursor-pointer"
                       >
-                        <h3 className="font-semibold text-sm">{lesson.title}</h3>
-                        <div className="w-full h-40 rounded-xl overflow-hidden bg-secondary">
-                          <img
-                            src={lesson.imageUrl}
-                            alt={lesson.title}
-                            className="w-full h-full object-cover"
-                          />
+                        <div className="flex items-start justify-between gap-3">
+                          <h3 className="font-semibold text-sm">{lesson.title}</h3>
+                          <span className="text-[10px] text-muted">{lesson.stage}</span>
                         </div>
+                        <p className="text-[10px] text-muted">
+                          {formatDateDisplay(lesson.updatedAt)}
+                        </p>
                         <div className="mt-1 flex flex-col gap-1.5">
                           <p className="text-[11px] text-muted font-medium">
                             {lesson.progressPercent}{t("history.percentCompleted")}
