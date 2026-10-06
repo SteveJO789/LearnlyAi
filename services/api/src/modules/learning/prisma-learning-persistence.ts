@@ -30,9 +30,8 @@ function toLearningSession(row: LearningSessionRow): LearningSession {
     learningGoal: row.learningGoal ?? undefined,
     subject: row.subject ?? undefined,
     progress: {
+      ...getStagePolicy(row.stage).progress,
       percent: row.progressPercent,
-      canAdvance: false,
-      nextAction: "CONTINUE",
     },
     version: row.version,
     createdAt: row.createdAt,
