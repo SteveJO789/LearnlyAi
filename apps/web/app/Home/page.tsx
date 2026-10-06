@@ -53,7 +53,7 @@ export default function HomePage() {
           </h1>
           <p className="mt-6 text-lg text-muted sm:text-xl lg:text-2xl">{t("home.tagline")}</p>
           <Link
-            href="/SignIn"
+            href="/Create"
             className="mt-10 inline-flex items-center rounded-lg bg-primary px-8 py-5 text-lg font-medium text-primary-foreground shadow-sm hover:opacity-90 sm:text-xl"
           >
             {t("home.start")}
