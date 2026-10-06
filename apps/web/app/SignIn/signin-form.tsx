@@ -109,19 +109,10 @@ export default function SigninForm() {
 
         <button
           type="button"
-<<<<<<< Updated upstream
-          onClick={() => {
-            setIsLoading(true);
-            setTimeout(() => {
-              setIsLoading(false);
-              router.push("/");
-            }, 1500);
-          }}
-          className="flex items-center justify-center gap-2 rounded-lg bg-secondary px-6 py-3.5 text-lg font-medium text-muted shadow-sm hover:opacity-90"
-=======
+
           onClick={handleGoogleSignIn}
           className="flex items-center justify-center gap-2 rounded-lg bg-neutral-100 px-6 py-3.5 text-lg font-medium text-neutral-500 shadow-sm hover:bg-neutral-200"
->>>>>>> Stashed changes
+
         >
           <GoogleIcon />
           <span>Log in with Google</span>

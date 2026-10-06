@@ -18,17 +18,6 @@ export default function SignupForm() {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-<<<<<<< Updated upstream
-    const email = String(formData.get("email") ?? "");
-    const password = String(formData.get("password") ?? "");
-    const confirmPassword = String(formData.get("confirmPassword") ?? "");
-
-    // Mock "email already registered" check, matching the Figma
-    // "Sign up-Email error" frame. Real check needs the backend —
-    // TODO(Best): replace once POST /auth/register (or similar) exists.
-    if (email === "taken@test.com") {
-      setError("This email is already registered. Try logging in instead.");
-=======
     const username = String(formData.get("username") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
@@ -41,7 +30,7 @@ export default function SignupForm() {
 
     if (password.length < MIN_PASSWORD_LENGTH) {
       setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
->>>>>>> Stashed changes
+
       return;
     }
 
