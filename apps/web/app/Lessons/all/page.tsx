@@ -1,56 +1,63 @@
-import Link from "next/link";
-import Image from "next/image";
+"use client";
 
-import { LESSONS } from "../../lib/mock-lessons";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+import SiteHeader from "../../components/SiteHeader";
+import {
+  listLearningSessions,
+  type LearningSessionSummary,
+} from "../../../lib/learning-sessions";
 
 export default function AllLessonsPage() {
+  const [sessions, setSessions] = useState<LearningSessionSummary[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    listLearningSessions()
+      .then(setSessions)
+      .catch((loadError) => {
+        setError(loadError instanceof Error ? loadError.message : "Could not load lessons.");
+      });
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-text">
-      <header className="flex items-center justify-between px-5 py-6 sm:px-12 lg:px-20">
-        <Link href="/Home" className="text-lg font-medium tracking-wide">
-          LOGO
-        </Link>
-        <Link href="/Lessons" className="text-sm text-muted hover:underline">
-          Back
-        </Link>
-      </header>
+      <SiteHeader
+        links={[
+          { labelKey: "nav.create", href: "/Create" },
+          { labelKey: "nav.home", href: "/Home" },
+        ]}
+        showAccountMenu
+      />
 
       <main className="px-5 sm:px-12 lg:px-20 pb-24">
-        <div
-          className="hello-gradient pointer-events-none bg-clip-text text-4xl font-medium tracking-tight text-transparent"
-          style={{
-            backgroundImage:
-              "radial-gradient(120% 140% at 15% 20%, #ffe89e 0%, transparent 45%), radial-gradient(120% 140% at 80% 30%, #8178ff 0%, transparent 55%), radial-gradient(140% 160% at 60% 90%, #ff0d9b 0%, transparent 60%), linear-gradient(135deg, #ff2fb0, #8178ff)",
-            backgroundSize: "180% 180%",
-            backgroundPosition: "0% 50%",
-          }}
-        >
-          Hello <span>(user...)</span>
-        </div>
-
         <h1 className="mt-6 text-3xl font-bold tracking-tight text-center">Your Lessons</h1>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
-          {LESSONS.map((lesson) => (
+        {error && <p className="mt-8 text-center text-sm text-danger">{error}</p>}
+
+        {!error && sessions.length === 0 && (
+          <p className="mt-8 text-center text-muted">No learning sessions yet.</p>
+        )}
+
+        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {sessions.map((session) => (
             <Link
-              key={lesson.id}
-              href={`/Lessons/${lesson.id}`}
-              className="flex flex-col gap-2 group"
+              key={session.id}
+              href={`/Lessons/${session.id}`}
+              className="rounded-2xl border border-surface-border bg-surface p-5 hover:border-primary/60"
             >
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl ring-1 ring-surface-border">
-                <Image
-                  src={lesson.imageUrl}
-                  alt={lesson.title}
-                  fill
-                  unoptimized
-                  className="object-cover transition-transform group-hover:scale-105"
-                />
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-medium">{session.title}</p>
+                <span className="text-xs text-muted">{session.stage}</span>
               </div>
-              <p className="text-sm font-medium">{lesson.title}</p>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+              <p className="mt-2 text-xs text-muted">
+                {new Date(session.updatedAt).toLocaleDateString()}
+              </p>
+              <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
                 <div
                   className="h-full rounded-full bg-primary"
-                  style={{ width: `${lesson.progressPercent}%` }}
+                  style={{ width: `${session.progressPercent}%` }}
                 />
               </div>
             </Link>
