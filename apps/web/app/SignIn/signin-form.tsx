@@ -41,7 +41,7 @@ export default function SigninForm() {
         return;
       }
 
-      router.push("/");
+      router.push("/Home");
     } catch (configurationError) {
       setError(
         configurationError instanceof Error
