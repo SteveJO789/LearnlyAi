@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { getSupabaseClient } from "../../../lib/supabase";
+import { syncCurrentUserProfile } from "../../../lib/user-profile";
 
 const AFTER_LOGIN_PATH = "/Home";
 const TIMEOUT_MS = 10000;
@@ -36,20 +37,31 @@ export default function AuthCallbackPage() {
     }
 
     let done = false;
-    const goNext = () => {
+    const goNext = async () => {
       if (done) return;
       done = true;
-      router.replace(AFTER_LOGIN_PATH);
+
+      try {
+        await syncCurrentUserProfile();
+        router.replace(AFTER_LOGIN_PATH);
+      } catch (profileError) {
+        done = false;
+        setError(
+          profileError instanceof Error
+            ? profileError.message
+            : "Could not load your profile."
+        );
+      }
     };
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) goNext();
+      if (session) void goNext();
     });
 
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) goNext();
+      if (data.session) void goNext();
     });
 
     const timer = setTimeout(() => {
