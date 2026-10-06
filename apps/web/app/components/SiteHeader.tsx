@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useLanguage } from "../lib/i18n/LanguageContext";
+import { getSupabaseClient } from "../../lib/supabase";
 
 // Shared top nav used by Home, Create, Lessons, and every Account/* page.
 // Pass `links` for the plain-link buttons (e.g. Create, Lessons, HOME) and
@@ -60,7 +62,21 @@ export default function SiteHeader({
 
 function AccountMenu() {
   const { t } = useLanguage();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    setIsOpen(false);
+    setIsLoggingOut(true);
+    try {
+      await getSupabaseClient().auth.signOut();
+    } finally {
+      router.replace("/SignIn");
+      router.refresh();
+      setIsLoggingOut(false);
+    }
+  }
 
   return (
     <div className="relative">
@@ -102,10 +118,8 @@ function AccountMenu() {
 
           <button
             type="button"
-            onClick={() => {
-              setIsOpen(false);
-              // TODO(Best): call the real logout endpoint once auth exists.
-            }}
+            onClick={handleLogout}
+            disabled={isLoggingOut}
             className="w-full py-2 text-center text-sm font-medium text-purple-400 hover:text-purple-600 hover:bg-purple-50/50 rounded-xl transition-all mt-1"
           >
             {t("nav.logOut")}

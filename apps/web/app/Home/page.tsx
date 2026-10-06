@@ -2,10 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import "./style.css";
 
 import SiteHeader from "../components/SiteHeader";
 import { useLanguage } from "../lib/i18n/LanguageContext";
+import { getCurrentUserProfile, type AppUserProfile } from "../../lib/user-profile";
 
 // NOTE(Cake): image URLs below are temporary Figma-hosted asset links
 // (expire ~7 days after being generated). Swap these for real, permanent
@@ -22,6 +25,29 @@ const cardImage3 =
 
 export default function HomePage() {
   const { t } = useLanguage();
+  const router = useRouter();
+  const [profile, setProfile] = useState<AppUserProfile | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    getCurrentUserProfile()
+      .then((currentProfile) => {
+        if (!active) return;
+        if (!currentProfile) {
+          router.replace("/SignIn");
+          return;
+        }
+        setProfile(currentProfile);
+      })
+      .catch(() => {
+        if (active) router.replace("/SignIn");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [router]);
 
   return (
     <div className="min-h-screen bg-background text-text">
@@ -45,7 +71,7 @@ export default function HomePage() {
               backgroundPosition: "0% 50%",
             }}
           >
-            {t("home.greeting")} <span>(user...)</span>
+            {t("home.greeting")} <span>{profile?.displayName ?? "..."}</span>
           </div>
 
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
@@ -53,7 +79,7 @@ export default function HomePage() {
           </h1>
           <p className="mt-6 text-lg text-muted sm:text-xl lg:text-2xl">{t("home.tagline")}</p>
           <Link
-            href="/SignIn"
+            href="/Create"
             className="mt-10 inline-flex items-center rounded-lg bg-primary px-8 py-5 text-lg font-medium text-primary-foreground shadow-sm hover:opacity-90 sm:text-xl"
           >
             {t("home.start")}
