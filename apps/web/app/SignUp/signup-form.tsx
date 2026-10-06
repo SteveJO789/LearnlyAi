@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 import LoadingOverlay from "../components/LoadingOverlay"; // Import Component Loading ที่เราสร้างไว้ (ปรับ path ให้ถูกต้อง)
-import { supabase } from "../../lib/supabase";
+import { getSupabaseClient } from "../../lib/supabase";
 
 // ต้องตรงกับ minimum password length ที่ตั้งไว้ใน Supabase project
 const MIN_PASSWORD_LENGTH = 8;
@@ -43,7 +43,7 @@ export default function SignupForm() {
     setError(null);
     setIsLoading(true);
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
+    let data;\n    let signUpError;\n    try {\n      const result = await getSupabaseClient().auth.signUp({
       email,
       password,
       options: {
