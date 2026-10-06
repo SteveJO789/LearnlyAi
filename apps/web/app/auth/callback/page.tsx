@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { getSupabaseClient } from "../../../lib/supabase";
 
-const AFTER_LOGIN_PATH = "/";
+const AFTER_LOGIN_PATH = "/Home";
 const TIMEOUT_MS = 10000;
 
 export default function AuthCallbackPage() {
