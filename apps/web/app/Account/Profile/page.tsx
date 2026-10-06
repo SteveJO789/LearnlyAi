@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 
 import SiteHeader from "../../components/SiteHeader";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
+import { syncCurrentUserProfile, updateCurrentUserProfile } from "../../../lib/user-profile";
 
 type ProfileTabType = "Personal Info" | "Theme";
 
@@ -72,9 +73,9 @@ function ProfileContent() {
   };
 
   const [initialUserInfo, setInitialUserInfo] = useState<UserProfile>({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+66 81 234 5678",
+    name: "",
+    email: "",
+    phone: "",
     avatarUrl: null,
   });
 
@@ -83,6 +84,30 @@ function ProfileContent() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSaving, setIsSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    syncCurrentUserProfile()
+      .then((profile) => {
+        if (!active) return;
+        const nextUserInfo: UserProfile = {
+          name: profile.displayName,
+          email: profile.email ?? "",
+          phone: "",
+          avatarUrl: profile.avatarUrl,
+        };
+        setInitialUserInfo(nextUserInfo);
+        setUserInfo(nextUserInfo);
+      })
+      .catch(() => {
+        if (active) router.replace("/SignIn");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [router]);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -112,17 +137,32 @@ function ProfileContent() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validateForm()) return;
     setIsSaving(true);
     setToastMessage(null);
 
-    setTimeout(() => {
-      setIsSaving(false);
-      setInitialUserInfo(userInfo);
+    try {
+      const saved = await updateCurrentUserProfile({
+        displayName: userInfo.name,
+      });
+
+      const nextUserInfo: UserProfile = {
+        ...userInfo,
+        name: saved.displayName,
+        email: saved.email ?? userInfo.email,
+        avatarUrl: saved.avatarUrl,
+      };
+
+      setUserInfo(nextUserInfo);
+      setInitialUserInfo(nextUserInfo);
       setToastMessage("บันทึกข้อมูลส่วนตัวเรียบร้อยแล้ว!");
       setTimeout(() => setToastMessage(null), 3000);
-    }, 1500);
+    } catch {
+      setToastMessage("ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -302,8 +342,12 @@ function ProfileContent() {
 
                   <div className="flex items-center gap-6 pb-4 border-b border-surface-border">
                     <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center text-2xl font-bold text-text overflow-hidden border border-surface-border shrink-0">
-                      {avatarPreview ? (
-                        <img src={avatarPreview} alt="Avatar Preview" className="w-full h-full object-cover" />
+                      {avatarPreview || userInfo.avatarUrl ? (
+                        <img
+                          src={avatarPreview ?? userInfo.avatarUrl ?? ""}
+                          alt="Profile avatar"
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         userInfo.name.charAt(0) || "U"
                       )}
@@ -344,15 +388,13 @@ function ProfileContent() {
                       <input
                         type="email"
                         value={userInfo.email}
-                        onChange={(e) => {
-                          setUserInfo({ ...userInfo, email: e.target.value });
-                          if (errors.email) setErrors({ ...errors, email: undefined });
-                        }}
-                        className={`rounded-xl border p-3 text-sm outline-none bg-transparent transition-all ${
+                        readOnly
+                        className={`rounded-xl border p-3 text-sm outline-none bg-transparent opacity-70 transition-all ${
                           errors.email ? "border-danger focus:border-danger" : "border-surface-border focus:border-primary"
                         }`}
                       />
                       {errors.email && <p className="text-xs text-danger mt-0.5">{errors.email}</p>}
+                      <p className="text-[11px] text-muted">Email is managed by your sign-in account.</p>
                     </div>
 
                     <div className="flex flex-col gap-1.5">
@@ -360,10 +402,8 @@ function ProfileContent() {
                       <input
                         type="text"
                         value={userInfo.phone}
-                        onChange={(e) => {
-                          setUserInfo({ ...userInfo, phone: e.target.value });
-                          if (errors.phone) setErrors({ ...errors, phone: undefined });
-                        }}
+                        placeholder="Not connected yet"
+                        disabled
                         className={`rounded-xl border p-3 text-sm outline-none bg-transparent transition-all ${
                           errors.phone ? "border-danger focus:border-danger" : "border-surface-border focus:border-primary"
                         }`}
