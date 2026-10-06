@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { respondToLearning, type LearningAction, type TutorOutput } from "./api";
+import { useLanguage } from "../../lib/i18n/LanguageContext";
 import BlockView, { CitationList } from "./blocks";
 
 type UserTurn = { id: string; role: "user"; text: string };
@@ -30,6 +31,7 @@ function SidebarIcon() {
 }
 
 export default function LearningSession({ sessionId, learningGoal, subject, initialInput }: Props) {
+  const { t } = useLanguage();
   const router = useRouter();
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState("");
@@ -83,7 +85,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
       });
       setTurns((previous) => [...previous, { id: nextId(), role: "tutor", output }]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ");
+      setError(err instanceof Error ? err.message : t("chat.unknownError"));
     } finally {
       setLoading(false);
     }
@@ -151,18 +153,18 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
             onClick={startNewSession}
             className="rounded-lg bg-primary px-4 py-3 text-base font-medium text-primary-foreground shadow-sm hover:opacity-90"
           >
-            + New session
+            {t("chat.newSession")}
           </button>
 
           <div className="text-sm text-muted">
-            <p className="mb-1 font-medium text-text">Current session</p>
+            <p className="mb-1 font-medium text-text">{t("chat.currentSession")}</p>
             <p className="break-all font-mono text-xs">{sessionId}</p>
-            {subject && <p className="mt-2">วิชา: {subject}</p>}
-            {learningGoal && <p className="mt-1">เป้าหมาย: {learningGoal}</p>}
+            {subject && <p className="mt-2">{t("chat.subject")} {subject}</p>}
+            {learningGoal && <p className="mt-1">{t("chat.goal")} {learningGoal}</p>}
           </div>
 
           <Link href="/Home" className="mt-auto text-sm text-muted hover:underline">
-            ← Back to Home
+            {t("chat.backToHome")}
           </Link>
         </div>
       </aside>
@@ -181,7 +183,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
                 <SidebarIcon />
               </button>
             )}
-            <h1 className="text-base font-medium text-muted">Learning session</h1>
+            <h1 className="text-base font-medium text-muted">{t("chat.title")}</h1>
           </div>
 
           {percent !== null && (
@@ -208,9 +210,9 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
             {turns.length === 0 && !loading && !error && (
               <div className="py-16 text-center">
-                <p className="text-2xl text-muted">วันนี้อยากเรียนเรื่องอะไร?</p>
+                <p className="text-2xl text-muted">{t("chat.whatToLearn")}</p>
                 {learningGoal && (
-                  <p className="mt-3 text-muted">เป้าหมาย: {learningGoal}</p>
+                  <p className="mt-3 text-muted">{t("chat.goal")} {learningGoal}</p>
                 )}
               </div>
             )}
@@ -250,7 +252,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
                   <span className="size-2 animate-bounce rounded-full bg-muted [animation-delay:-0.15s]" />
                   <span className="size-2 animate-bounce rounded-full bg-muted" />
                 </span>
-                AI กำลังคิด…
+                {t("chat.thinking")}
               </div>
             )}
 
@@ -265,7 +267,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
                   onClick={retry}
                   className="self-start rounded-lg border border-danger/40 bg-background px-4 py-2 text-sm font-medium hover:bg-danger/10"
                 >
-                  ลองอีกครั้ง
+                  {t("chat.retry")}
                 </button>
               </div>
             )}
@@ -277,7 +279,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
                   onClick={advance}
                   className="rounded-lg bg-primary px-6 py-3 text-base font-medium text-primary-foreground shadow-sm hover:opacity-90"
                 >
-                  Continue →
+                  {t("chat.continue")}
                 </button>
               </div>
             )}
@@ -304,14 +306,14 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
                 }
               }}
               rows={1}
-              placeholder="พิมพ์โจทย์หรือคำตอบของคุณ"
-              aria-label="Message"
+              placeholder={t("chat.placeholder")}
+              aria-label={t("chat.messageAriaLabel")}
               className="max-h-40 min-h-10 flex-1 resize-none bg-transparent py-2 text-base outline-none field-sizing-content placeholder:text-muted"
             />
             <button
               type="submit"
               disabled={loading || draft.trim().length === 0}
-              aria-label="Send"
+              aria-label={t("chat.sendAriaLabel")}
               className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -320,7 +322,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
             </button>
           </form>
           <p className="mx-auto mt-2 max-w-3xl text-center text-xs text-muted">
-            Enter เพื่อส่ง · Shift+Enter ขึ้นบรรทัดใหม่
+            {t("chat.sendHint")}
           </p>
         </div>
       </div>
