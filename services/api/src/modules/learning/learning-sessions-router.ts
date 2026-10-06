@@ -258,6 +258,12 @@ export function createLearningSessionsRouter(
         const input = body.input ?? body.message;
         const action = body.action ?? "RESPOND";
 
+        if (action !== "RESPOND" && action !== "ADVANCE") {
+          throw new LearningError("VALIDATION_ERROR", [
+            { path: "/action", message: "Must be RESPOND or ADVANCE." },
+          ]);
+        }
+
         const persistence = new PrismaLearningPersistence({
           userId: user.id,
           titleForSession: () => session.title,
@@ -277,10 +283,7 @@ export function createLearningSessionsRouter(
                 : "",
           learningGoal: session.learningGoal ?? undefined,
           subject: session.subject ?? undefined,
-          action:
-            action === "ADVANCE"
-              ? "ADVANCE"
-              : "RESPOND",
+          action,
         });
 
         response.status(200).json({ data: result });
