@@ -66,7 +66,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
       .then((session) => {
         if (!active) return;
 
-        const restored: Turn[] = session.messages.flatMap((message) => {
+        const restored = session.messages.flatMap<Turn>((message): Turn[] => {
           if (message.role === "USER" && typeof message.content === "string") {
             return [{ id: message.id, role: "user" as const, text: message.content }];
           }
@@ -131,8 +131,6 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
       const output = await respondToLearning({
         sessionId,
         input: request.input,
-        learningGoal,
-        subject,
         action: request.action,
       });
       setTurns((previous) => [...previous, { id: nextId(), role: "tutor", output }]);
