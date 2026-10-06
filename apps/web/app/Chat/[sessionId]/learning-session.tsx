@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { respondToLearning, type LearningAction, type TutorOutput } from "./api";
+import { getLearningSession } from "../../../lib/learning-sessions";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
 import BlockView, { CitationList } from "./blocks";
 
@@ -36,6 +37,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
+  const [hydrating, setHydrating] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -54,6 +56,56 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [turns, loading, error]);
+
+  useEffect(() => {
+    let active = true;
+    setHydrating(true);
+    setError(null);
+
+    getLearningSession(sessionId)
+      .then((session) => {
+        if (!active) return;
+
+        const restored: Turn[] = session.messages.flatMap((message) => {
+          if (message.role === "USER" && typeof message.content === "string") {
+            return [{ id: message.id, role: "user" as const, text: message.content }];
+          }
+
+          if (
+            message.role === "TUTOR" &&
+            message.content &&
+            typeof message.content === "object" &&
+            Array.isArray((message.content as TutorOutput).blocks)
+          ) {
+            return [{
+              id: message.id,
+              role: "tutor" as const,
+              output: message.content as TutorOutput,
+            }];
+          }
+
+          return [];
+        });
+
+        setTurns(restored);
+        turnCounter.current = restored.length;
+      })
+      .catch((loadError) => {
+        if (!active) return;
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : t("chat.unknownError"),
+        );
+      })
+      .finally(() => {
+        if (active) setHydrating(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [sessionId, t]);
 
   const lastTurn = turns[turns.length - 1];
   const lastTutorTurn = [...turns]
@@ -100,16 +152,16 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
     void run({ action: "RESPOND", input });
   }
 
-  // Auto-send the question the learner already typed on the Create page,
-  // so they don't have to retype it here. Runs once per page load.
+  // Only auto-send a Create-page question when this persisted session is empty.
+  // This avoids duplicating the first message after a refresh.
   useEffect(() => {
-    if (didAutoSend.current) return;
+    if (hydrating || didAutoSend.current || turns.length > 0) return;
     if (initialInput && initialInput.trim()) {
       didAutoSend.current = true;
       submit(initialInput);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialInput]);
+  }, [hydrating, initialInput, turns.length]);
 
   function advance() {
     if (loading) return;
@@ -122,7 +174,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
   }
 
   function startNewSession() {
-    router.push(`/Chat/${crypto.randomUUID()}`);
+    router.push("/Create");
   }
 
   return (
@@ -208,7 +260,11 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
 
         <div className="flex-1 overflow-y-auto">
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
-            {turns.length === 0 && !loading && !error && (
+            {hydrating && (
+              <div className="py-16 text-center text-muted">{t("chat.thinking")}</div>
+            )}
+
+            {turns.length === 0 && !hydrating && !loading && !error && (
               <div className="py-16 text-center">
                 <p className="text-2xl text-muted">{t("chat.whatToLearn")}</p>
                 {learningGoal && (
