@@ -116,7 +116,7 @@ export default function SigninForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="rounded-lg bg-primary px-6 py-3.5 text-lg font-medium text-primary-foreground shadow-sm hover:opacity-90 disabled:opacity-50"
+          className="rounded-lg bg-black px-6 py-3.5 text-lg font-medium text-white shadow-sm hover:opacity-90 disabled:opacity-50"
         >
           Log in
         </button>
@@ -124,13 +124,13 @@ export default function SigninForm() {
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          className="flex items-center justify-center gap-2 rounded-lg bg-neutral-100 px-6 py-3.5 text-lg font-medium text-neutral-500 shadow-sm hover:bg-neutral-200"
+          className="flex items-center justify-center gap-2 rounded-lg bg-white border border-gray-300 px-6 py-3.5 text-lg font-medium text-neutral-500 shadow-sm hover:bg-gray-50"
         >
           <GoogleIcon />
           <span>Log in with Google</span>
         </button>
 
-        <p className="mt-1 text-center text-base text-muted">
+        <p className="mt-1 text-center text-base text-neutral-500">
           Don&apos;t have an account?{" "}
           <Link href="/SignUp" className="font-medium text-blue-700 hover:underline">
             Sign up
