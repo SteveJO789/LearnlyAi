@@ -17,6 +17,11 @@
     "lint": "tsc --noEmit",
     "test": "npm run build && node --test test/*.test.mjs",
     "test:openrouter": "npm run build && node --env-file-if-exists=.env scripts/smoke-learning-openrouter.mjs",
+    "eval:rag:offline": "npm run build && node --test test/rag-evaluation.test.mjs && node evaluation/rag/run-offline.mjs",
+    "eval:rag:live": "npm run build && node --env-file-if-exists=.env evaluation/rag/run-live.mjs",
+    "eval:rag:summarize": "node --env-file-if-exists=.env evaluation/rag/summarize-live.mjs",
+    "eval:rag:p3.1:live": "npm run build && node --env-file-if-exists=.env evaluation/rag/run-live.mjs --p3.1",
+    "eval:rag:p3.1:summarize": "node --env-file-if-exists=.env evaluation/rag/summarize-live.mjs --p3.1",
     "skills:sync": "prisma skills sync",
     "contract:emit": "prisma contract emit"
   },
