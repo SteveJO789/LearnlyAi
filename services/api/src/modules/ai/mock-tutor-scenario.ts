@@ -31,8 +31,22 @@ export function mockTutorScenario(request: ModelRequest): TutorOutput {
           : `ตัวอย่างคำตอบจาก mock สำหรับ: ${task.studentInput}\nแบ่งโจทย์เป็นขั้นตอนเล็ก ๆ และตรวจเหตุผลของแต่ละขั้นก่อนดำเนินการต่อ`,
       };
   }
+  const knowledge = task.sourceMaterials.find((source) => source.knowledge);
+  if (knowledge) {
+    const citationIds = [knowledge.citation.id];
+    // Deterministic reference demonstration, not a model-based teaching assessment.
+    block = task.stage === "PRACTICE" || task.stage === "ASSESS"
+      ? { id: "blk_referenced_quiz", type: "quiz", questionId: "q_reference", format: "SHORT_TEXT",
+          prompt: "อธิบายความสัมพันธ์ของ V, I และ R และเงื่อนไขที่ใช้ความสัมพันธ์นี้ได้", citationIds }
+      : task.stage === "DIAGNOSE"
+        ? { id: "blk_referenced_question", type: "guided_question", expectedInput: "TEXT",
+            content: "V, I และ R แทนปริมาณใด และแต่ละปริมาณมีหน่วยอะไร?", citationIds }
+        : { id: "blk_referenced_explanation", type: "explanation", title: knowledge.citation.title,
+            content: knowledge.content, citationIds };
+  }
   return {
     schemaVersion: "1.0", responseId: task.responseId, sessionId: task.sessionId,
-    stage: task.outputStage, blocks: [block], progress: task.progress, citations: [],
+    stage: task.outputStage, blocks: [block], progress: task.progress,
+    citations: knowledge ? [{ ...knowledge.citation }] : [],
   };
 }

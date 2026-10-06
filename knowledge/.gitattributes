@@ -1,0 +1,3 @@
+# Review/promotion fingerprints cover exact bytes. Preserve them on every platform.
+# Do not normalize line endings during add or checkout (including core.autocrlf).
+* -text

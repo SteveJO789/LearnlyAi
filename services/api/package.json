@@ -8,7 +8,10 @@
   },
   "scripts": {
     "dev": "node --env-file-if-exists=.env --watch src/server.ts",
-    "build": "tsc -p tsconfig.json && node scripts/copy-contract.mjs",
+    "build": "npm run knowledge:prepare-runtime && tsc -p tsconfig.json && node scripts/copy-contract.mjs",
+    "knowledge:prepare-runtime": "npm --prefix ../../knowledge run knowledge:prepare-runtime",
+    "knowledge:verify-runtime": "node --test test/runtime-knowledge.test.mjs",
+    "knowledge:verify-fresh": "node scripts/verify-fresh-runtime.mjs",
     "start": "node dist/server.js",
     "start:env": "node --env-file-if-exists=.env dist/server.js",
     "lint": "tsc --noEmit",

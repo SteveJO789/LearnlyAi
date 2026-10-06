@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "review_id": "9604436ea2777898dae2c32ffd9e2cc0c410d8637c650eb498fad895d7b44dc0",
+  "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+  "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+  "artifact_sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+  "normalized_unit": "normalized/siyavula-physical-sciences-g10-g12-ccby/siyavula-physical-sciences-g11-en-ccby-3d893a4364f5/00758.json",
+  "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+  "chapter": "Chapter 11: Electric circuits",
+  "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law > Write the final answer",
+  "asset_locator": "OPS/xhtml/science11/equation/bf00c04f146e33fa47fe5ce14ef2b4a9.png",
+  "asset_kind": "math_image",
+  "latex": "R = \\frac{V}{I}, = \\frac{8}{2}, = 4 \\Omega",
+  "plain_text": "ยกตัวอย่างการแทนค่าและคำนวณสมการ",
+  "review_status": "verified",
+  "reviewer": "Steve",
+  "reviewed_at": "2026-10-01T10:16:12.681Z"
+}

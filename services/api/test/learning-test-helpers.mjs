@@ -25,6 +25,7 @@ export function createHarness(options = {}) {
     now: () => new Date("2026-09-27T00:00:00Z"),
     initialStage: options.initialStage,
     materials: options.materials,
+    knowledgeRetriever: options.knowledgeRetriever,
   });
   return { engine, persistence, requests };
 }

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "eval.linear.001",
+    "query": "ทำไมย้าย 5 ไปอีกข้างแล้วเครื่องหมายเปลี่ยน?",
+    "expected_concepts": [
+      "mathematics.algebra.linear-equations.equivalent-equations"
+    ],
+    "type": "conceptual_why"
+  },
+  {
+    "id": "eval.logic.001",
+    "query": "p → q เป็นเท็จเมื่อไหร่?",
+    "expected_concepts": [
+      "mathematics.foundations.logic.implication"
+    ],
+    "type": "definition_lookup"
+  },
+  {
+    "id": "eval.physics.001",
+    "query": "ถ้าเพิ่ม R แต่ V คงที่ กระแสจะเป็นอย่างไร เพราะอะไร?",
+    "expected_concepts": [
+      "physics.electricity.electric-circuits.ohms-law"
+    ],
+    "type": "conceptual_why"
+  }
+]

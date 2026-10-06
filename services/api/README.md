@@ -32,3 +32,10 @@ npm run dev
 `npm run dev`, `npm run start:env` และ `npm run test:openrouter` โหลดค่าจาก `services/api/.env` ส่วน production ควรกำหนดค่าผ่าน platform environment settings โดยตรง
 
 Prisma skill metadata สำหรับเครื่องมือ AI ไม่จำเป็นต่อ runtime หากต้องการสร้าง metadata สำหรับการพัฒนา ให้เรียก `npm run skills:sync` เอง โดยโฟลเดอร์ที่สร้างขึ้นจะถูก ignore โดย Git
+
+## Runtime Knowledge packaging
+
+API builds prepare the reviewed Ohm's Law 0.2.0 pilot from tracked source. Install
+the locked `knowledge/` dependencies alongside API dependencies first.
+See [runtime preparation and Vercel packaging](../../docs/runtime-knowledge-deployment.md)
+for commands, exact files, CI checks, `KNOWLEDGE_ROOT`, and the fresh-export smoke.

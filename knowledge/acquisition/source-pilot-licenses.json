@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "checked_at": "2026-10-01",
+  "checked_by": "Codex source-text inspection (not human mathematical or document approval)",
+  "artifacts": [
+    {
+      "artifact_id": "siyavula-mathematics-g10-en-unbranded-pilot",
+      "source_id": "siyavula-mathematics-g10-g12-ccby",
+      "artifact_sha256": "881f0968936e797a6f0fa4df305b92641c52add3812871ae39a791c2ee1e4a99",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "evidence_url": "https://www.siyavula.com/read",
+      "evidence_document": "OPS/xhtml/maths10/front-matter-epubs/copyright_acknowledgements_ccby.html",
+      "evidence_sha256": "727e17c81eb0eaa2a5020a1bda4ba8a66d2a1f9cf54ffb57e0e0da21429c4736",
+      "identity_evidence": "OPS/maths10-package.opf identifier www.siyavula.com.epubmaker.maths10, title maths10; maths10 content includes Chapter 4 Equations and inequalities.",
+      "status": "license_notice_verified_with_upstream_identity_typo",
+      "problems": ["Copyright page heading/title erroneously says Physical Sciences Grade 10.", "Catalogue overview and pre-existing registry said CC BY 3.0; downloaded artifact notice explicitly says CC-BY 4.0."],
+      "reuse_conditions": ["Attribute Siyavula Education and original Everything Maths and Sciences source; indicate adaptation.", "Do not claim endorsement or reuse trademarks without permission.", "Selected equations are PNG assets; no transcription accepted without human verification."],
+      "scope": "Unbranded Grade 10 English EPUB only; no other grade/edition license inferred."
+    },
+    {
+      "artifact_id": "open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107",
+      "source_id": "open-logic-project",
+      "artifact_sha256": "ac565ee57b35dda8ac043dcbbc10322b5b4002f12abcbc0b0c5c2ddbea426849",
+      "revision": "1e960beff9ed7835bf3e3f1335e21af3439cd107",
+      "revision_evidence_url": "https://api.github.com/repos/OpenLogicProject/OpenLogic/commits/1e960beff9ed7835bf3e3f1335e21af3439cd107",
+      "revision_committed_at": "2026-08-14T15:51:03Z",
+      "revision_signature": "unsigned; pin confirmed by GitHub API, not a cryptographic author signature",
+      "download_url": "https://codeload.github.com/OpenLogicProject/OpenLogic/zip/1e960beff9ed7835bf3e3f1335e21af3439cd107",
+      "license": "CC BY 4.0 for selected Open Logic Text content; ancillary files may have separate licenses",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "evidence_document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/LICENSE.md",
+      "evidence_sha256": "bb5e0179a1e9bdb55634a4303784cf73c297a1dcee27b92cd546bf398075531c",
+      "attribution_document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/README.md",
+      "attribution_sha256": "5caf9c104fd864181be05951028041799aaaa9f3dd52321b678b944d1be60176",
+      "status": "selected_text_license_verified",
+      "scope": "content/propositional-logic/syntax-and-semantics/*.tex only. No local copyright/license override found in those nine files; no blanket relicensing of archive dependencies.",
+      "reuse_conditions": ["Attribute The Open Logic Project / Open Logic Text; preserve CC BY 4.0 notice and indicate simplification/adaptation.", "Do not treat bundled LaTeX packages, styles, external images, or future chapters as blanket CC BY content; inspect their notices separately."],
+      "ancillary_files_requiring_separate_license_handling": ["sty/bussproofs-extra.sty", "sty/open-logic-book.cls", "sty/open-logic-debug.sty", "sty/open-logic-selective.sty", "sty/open-logic.sty", "open-logic-locale.sty"]
+    }
+  ]
+}

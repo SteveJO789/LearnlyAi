@@ -1,0 +1,893 @@
+{
+  "schema_version": "1.0",
+  "artifact_id": "siyavula-mathematics-g10-en-unbranded-pilot",
+  "source_id": "siyavula-mathematics-g10-g12-ccby",
+  "source_url": "https://www.siyavula.com/downloads/books/maths/Gr10_Mathematics_Learner_Eng_CC-BY.epub",
+  "artifact_sha256": "881f0968936e797a6f0fa4df305b92641c52add3812871ae39a791c2ee1e4a99",
+  "acquired_at": "2026-10-01T10:59:07.685Z",
+  "artifact_bytes": 49009925,
+  "archive_entries": 10247,
+  "scope": "Chapter 4 / 4.2 Solving linear equations only",
+  "normalized_records": 16,
+  "normalized_documents": 1,
+  "normalized_parser_versions": [
+    "2.1.0"
+  ],
+  "normalized_manifest_sha256": "99a6f4214dd170c8102d9fbc415889434ebef8f61c78f4a6028fbe0dbdf9acbc",
+  "selected_document_image_occurrences": 104,
+  "selected_document_equation_image_occurrences": 104,
+  "selected_document_other_image_occurrences": 0,
+  "selected_document_table_count": 0,
+  "textual_math_nodes": 0,
+  "normalized_math_expressions": 0,
+  "distinct_document_asset_references": 101,
+  "missing_asset_files": [],
+  "lost_asset_references": [],
+  "unexpected_asset_references": [],
+  "latex_slice_mismatches": [],
+  "latex_definitions": 0,
+  "latex_propositions": 0,
+  "latex_theorems": 0,
+  "latex_problems": 0,
+  "unresolved_macros_retained": [],
+  "candidate_concepts": [
+    {
+      "concept_id": "mathematics.algebra.linear-equations.linear-equation-one-variable",
+      "rationale": "definition: independently state nonzero leading coefficient",
+      "mapping_status": "prerequisite_candidate_Thai_grade_not_inferred",
+      "alignment_url": null,
+      "evidence": [
+        {
+          "normalized_unit": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00001.json",
+          "normalized_sha256": "b369f18d5b5320cf2bcfcfebbb1bc337ac2d710a97950c8455e2046d1299f125",
+          "source_locator": {
+            "chapter": "Chapter 4: Equations and inequalities",
+            "section": "4.2 Solving linear equations",
+            "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+          }
+        }
+      ]
+    },
+    {
+      "concept_id": "mathematics.algebra.linear-equations.balance-preserving-operations",
+      "rationale": "equal operations on both sides",
+      "mapping_status": "prerequisite_candidate_Thai_grade_not_inferred",
+      "alignment_url": null,
+      "evidence": [
+        {
+          "normalized_unit": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00002.json",
+          "normalized_sha256": "7c356196e76c3579b53fca5340c7c43da629eba7f8ab5fec5e173c249c1585df",
+          "source_locator": {
+            "chapter": "Chapter 4: Equations and inequalities",
+            "section": "4.2 Solving linear equations > Method for solving linear equations",
+            "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+          }
+        }
+      ]
+    },
+    {
+      "concept_id": "mathematics.algebra.linear-equations.inverse-operations",
+      "rationale": "isolate the unknown by reversible operations",
+      "mapping_status": "prerequisite_candidate_Thai_grade_not_inferred",
+      "alignment_url": null,
+      "evidence": [
+        {
+          "normalized_unit": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00002.json",
+          "normalized_sha256": "7c356196e76c3579b53fca5340c7c43da629eba7f8ab5fec5e173c249c1585df",
+          "source_locator": {
+            "chapter": "Chapter 4: Equations and inequalities",
+            "section": "4.2 Solving linear equations > Method for solving linear equations",
+            "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+          }
+        }
+      ]
+    },
+    {
+      "concept_id": "mathematics.algebra.linear-equations.bracket-expansion",
+      "rationale": "expand brackets before collecting like terms",
+      "mapping_status": "prerequisite_candidate_Thai_grade_not_inferred",
+      "alignment_url": null,
+      "evidence": [
+        {
+          "normalized_unit": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00002.json",
+          "normalized_sha256": "7c356196e76c3579b53fca5340c7c43da629eba7f8ab5fec5e173c249c1585df",
+          "source_locator": {
+            "chapter": "Chapter 4: Equations and inequalities",
+            "section": "4.2 Solving linear equations > Method for solving linear equations",
+            "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+          }
+        }
+      ]
+    },
+    {
+      "concept_id": "mathematics.algebra.linear-equations.substitution-check",
+      "rationale": "check the solution in the original equation",
+      "mapping_status": "prerequisite_candidate_Thai_grade_not_inferred",
+      "alignment_url": null,
+      "evidence": [
+        {
+          "normalized_unit": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00002.json",
+          "normalized_sha256": "7c356196e76c3579b53fca5340c7c43da629eba7f8ab5fec5e173c249c1585df",
+          "source_locator": {
+            "chapter": "Chapter 4: Equations and inequalities",
+            "section": "4.2 Solving linear equations > Method for solving linear equations",
+            "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+          }
+        }
+      ]
+    }
+  ],
+  "normalized_units": [
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00001.json",
+      "sha256": "b369f18d5b5320cf2bcfcfebbb1bc337ac2d710a97950c8455e2046d1299f125",
+      "title": "4.2 Solving linear equations",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/d842ee4ef3d92513a9b4b4abde9a42e6.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/ccc825ea674955eb4c676094db383117.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/7b52d9c9c24d2d79d0c61081680ae608.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/9dd4e461268c8034f5c8564e155c67a6.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/e11729b0b65ecade3fc272548a3883fc.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/f8f2355a0bc19ab3c059b0568705235c.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/2ef5f289907e592f74b08bd11bc6e175.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/3206a8f166903bfda36d066b0ba57b1c.png",
+          "alt": ""
+        }
+      ],
+      "warnings": [
+        "image_math_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00002.json",
+      "sha256": "7c356196e76c3579b53fca5340c7c43da629eba7f8ab5fec5e173c249c1585df",
+      "title": "Method for solving linear equations",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations > Method for solving linear equations",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [],
+      "warnings": []
+    },
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00003.json",
+      "sha256": "a0149e376fa26d6896a5049a096529ce18481e797a8125dd7fdef355846345d4",
+      "title": "Worked example 1: Solving linear equations",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations > Method for solving linear equations > Worked example 1: Solving linear equations",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/9dd4e461268c8034f5c8564e155c67a6.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/7634ab839402d5a2b7826d02d2ba4b2f.png",
+          "alt": ""
+        }
+      ],
+      "warnings": [
+        "image_math_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00004.json",
+      "sha256": "6496b201c7214a3bc9cab663aa805861dd204972c79d4ce3470ed895d3d96ebd",
+      "title": "Expand the brackets and simplify",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations > Method for solving linear equations > Worked example 1: Solving linear equations > Expand the brackets and simplify",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/55cbbd58428d904ec6091fd7c3df9b30.png",
+          "alt": ""
+        }
+      ],
+      "warnings": [
+        "image_math_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00005.json",
+      "sha256": "1c091f5490fd689d331d4f56d415367a3fc3a2917f37ffbb822fff08d2cafcba",
+      "title": "Divide both sides by 10",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations > Method for solving linear equations > Worked example 1: Solving linear equations > Divide both sides by 10",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/440bcb2225cd249b09bb29454f83249d.png",
+          "alt": ""
+        }
+      ],
+      "warnings": [
+        "image_math_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00006.json",
+      "sha256": "c37c70e87b733e4cba2341948cf0aab2d6afad7a3b1450dbbdf1da9f343d43c0",
+      "title": "Check the answer by substituting the solution back into the original equation",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations > Method for solving linear equations > Worked example 1: Solving linear equations > Check the answer by substituting the solution back into the original equation",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/983e273bf88897d6cb29570c025659e2.png",
+          "alt": ""
+        }
+      ],
+      "warnings": [
+        "image_math_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00007.json",
+      "sha256": "8098f8fba5aefbcb7586bf194cdb3efca9c305a738250c46e4275656602fb721",
+      "title": "Worked example 2: Solving linear equations",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations > Method for solving linear equations > Worked example 2: Solving linear equations",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/9dd4e461268c8034f5c8564e155c67a6.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/25adf1c13407c645890519fcacd9e88a.png",
+          "alt": ""
+        }
+      ],
+      "warnings": [
+        "image_math_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00008.json",
+      "sha256": "34bbc406887ed492fd193c273e40c18dcd913f389d8d4cec95214e332bbf621b",
+      "title": "Multiply both sides of the equation by ![Equation image: manual review required](epub:OPS/xhtml/maths10/equation/5a704bf9aa9539dc208d60bd6c75cd92.png)",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations > Method for solving linear equations > Worked example 2: Solving linear equations > Multiply both sides of the equation by ![Equation image: manual review required](epub:OPS/xhtml/maths10/equation/5a704bf9aa9539dc208d60bd6c75cd92.png)",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/5a704bf9aa9539dc208d60bd6c75cd92.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/5daa62c0eba3dda7adcaf834986b9540.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/1b784951acda869ba9467751b67b9fe5.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/00e47ea1cd3a52deb07163af8c737b22.png",
+          "alt": ""
+        }
+      ],
+      "warnings": [
+        "image_math_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00009.json",
+      "sha256": "1a1bc5e602ba176f4b323140601c59f9362128c93fa4a5a282d3f45c93d750cf",
+      "title": "Expand the brackets and simplify",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations > Method for solving linear equations > Worked example 2: Solving linear equations > Expand the brackets and simplify",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/f9f49dba0eaaabdf121efcb1e0fe0c15.png",
+          "alt": ""
+        }
+      ],
+      "warnings": [
+        "image_math_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00010.json",
+      "sha256": "d0323822b01838c8f139c967a0f63f9e5c21e3a02085ea6b0f36742fb71bee32",
+      "title": "Divide both sides by ![Equation image: manual review required](epub:OPS/xhtml/maths10/equation/ce11efe9ce415540f7681762716f152f.png)",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations > Method for solving linear equations > Worked example 2: Solving linear equations > Divide both sides by ![Equation image: manual review required](epub:OPS/xhtml/maths10/equation/ce11efe9ce415540f7681762716f152f.png)",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/ce11efe9ce415540f7681762716f152f.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/be118e8c3b3eef13eb6ae7447ec67a35.png",
+          "alt": ""
+        }
+      ],
+      "warnings": [
+        "image_math_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00011.json",
+      "sha256": "8f277cbc9b7f7c0a025f1d1170d29f8d783e4ce02a2e2c32784d45bf54b8e57b",
+      "title": "Check the answer by substituting the solution back into the original equation",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations > Method for solving linear equations > Worked example 2: Solving linear equations > Check the answer by substituting the solution back into the original equation",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/847944274eb7ee76971d3481053a851b.png",
+          "alt": ""
+        }
+      ],
+      "warnings": [
+        "image_math_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00012.json",
+      "sha256": "3771f4315c08339e24273dde75afebed673c788c57003d58b5779fc96e88c726",
+      "title": "Worked example 3: Solving linear equations",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations > Method for solving linear equations > Worked example 3: Solving linear equations",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/0cc175b9c0f1b6a831c399e269772661.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/d014dd476890d8d1bec18b124a22c4f5.png",
+          "alt": ""
+        }
+      ],
+      "warnings": [
+        "image_math_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00013.json",
+      "sha256": "d341d90389a69b378243d4b481ae4af95b18c342cc37c1c53a1ed4d283b97908",
+      "title": "Multiply the equation by the common denominator ![Equation image: manual review required](epub:OPS/xhtml/maths10/equation/e034bef515be80280cfb230b16515ba3.png) and simplify",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations > Method for solving linear equations > Worked example 3: Solving linear equations > Multiply the equation by the common denominator ![Equation image: manual review required](epub:OPS/xhtml/maths10/equation/e034bef515be80280cfb230b16515ba3.png) and simplify",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/e034bef515be80280cfb230b16515ba3.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/5a61677b1eddd5b49d4c81dd3bc793f0.png",
+          "alt": ""
+        }
+      ],
+      "warnings": [
+        "image_math_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00014.json",
+      "sha256": "340f51785aa8f4419f24ade09b742af30332b57a91677aea5008f864f30686e3",
+      "title": "Rearrange the terms and simplify",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations > Method for solving linear equations > Worked example 3: Solving linear equations > Rearrange the terms and simplify",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/4550de8439e123ea8def4bcd27d267cd.png",
+          "alt": ""
+        }
+      ],
+      "warnings": [
+        "image_math_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00015.json",
+      "sha256": "9a0c10e32e1b1727cf62fdd13024434894db6eeb682a9d3259152efc69d3e939",
+      "title": "Divide both sides by ![Equation image: manual review required](epub:OPS/xhtml/maths10/equation/89dba84b1eb6157236ae01cef24dff53.png)",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations > Method for solving linear equations > Worked example 3: Solving linear equations > Divide both sides by ![Equation image: manual review required](epub:OPS/xhtml/maths10/equation/89dba84b1eb6157236ae01cef24dff53.png)",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/89dba84b1eb6157236ae01cef24dff53.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/bf2d4b50d787662f3f63884bb774fd12.png",
+          "alt": ""
+        }
+      ],
+      "warnings": [
+        "image_math_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/00016.json",
+      "sha256": "e27ad54d0858a086231947b8169e92eb203a2ff311320acafb9c84580b5dc629",
+      "title": "Check the answer by substituting the solution back into the original equation",
+      "locator": {
+        "chapter": "Chapter 4: Equations and inequalities",
+        "section": "4.2 Solving linear equations > Method for solving linear equations > Worked example 3: Solving linear equations > Check the answer by substituting the solution back into the original equation",
+        "document": "OPS/xhtml/maths10/04-equations-and-inequalities-01.cnxmlplus.html"
+      },
+      "math_count": 0,
+      "assets": [
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/9a9ff7967ac99478e726eeb2ad524b7f.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/251dc67d00fbe63f9ad3a5fc1ce75cd3.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/0224bf63e67aa128fe4bee3a6fd2a989.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/4123397895bbdb3cc296da7667410d36.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/3a393d50a34fc07d271ceed7ebf9e72a.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/7e93bd0f2bc462a76400e3a78d439c7b.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/70725aba7b5dc047dc5376381d5766dc.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/9eef24458d8201aa037401698f05f7d8.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/93c14116cb01511f11b15795968b3f65.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/721e382025a5d79403217b36e87db209.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/abb855ed3773558614a7c020d288da03.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/df08073a9ad044bc6fe9eaa8628afbdc.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/c2e3dfe9a9a69eb78c26b34a866ef3e5.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/f85b464314dbe3bbcd6d293f9b936c32.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/9f2345ead485e786288c39303485bbe9.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/9a379b4327e26263351a40f1b76ec139.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/00f6136d5990a5d61403433b811238cd.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/9c4834348764ae736bfb0d49daf71f9c.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/7f91dd882597076588bde27606e8284d.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/9e8fc9496d8933bfadac350034a61b34.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/998fd6699524da1a0122a8951dee8cb7.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/6dda81dca47ae401928b8faf3a448211.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/998495d49f592a1e24645ecb9f8899ce.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/da9c03935ae97161ff5eea4ec65c1697.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/876a4a1381ff9446105250d107d30392.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/b765dd34719e12fe95348ddbb2f9e205.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/3b6a1fad38758e05d1b33f1be62044c2.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/e90d9404b9dac53cd54804dce0afa15f.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/341d8761cbdda7ef83869adb604c62e9.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/0093903deac110a68f9c94f763c8660c.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/e5c5b0def82cc6f2b675a721c7d97bda.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/e340fc83c20ec9ec0dfcd59c6e4ea382.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/25960c3f2028aa77084afc13a58982b4.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/c1c5eadba5190db24c827ee6d6e73734.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/5eb3be43b84e4ebb4f89ccbd751c8fdb.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/c3ee806e345544682424ac3cedee74e4.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/f0c4c0c10b7e8046d7b3c8f7d2e64a6b.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/d1a86a74d84f945ca97603ffec82f376.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/9bd7c128b32343920cbc182cfcb656b2.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/f041d2051024c4f5c7c5493908c6c3cc.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/c532ef63aec30cc05381ba51d7be92d5.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/d8a071e432c92a7d05055acdf0160473.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/46e7e6de1c4cdf698e1166cf83f4c116.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/d48945c4ca425c23c89dfa82a4c2d892.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/803d4aad4bc21f1ddb448bd0c67564da.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/210013d92f2a4457cda8c21cf0cca710.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/9caa9c272a34945bc632a3f389609bd1.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/3c0ccf51e1d22f1a25f9eee1c0a52990.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/40e144f9bcfbddffc0834a8c42259945.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/7395f334d00117b68b9e806cb9bcfda4.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/16c9acaab7bd0d09bd173bda3b89490e.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/d5d0a31cedd0c21bcb3e14c6c78aba00.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/f2ff282f228e55590b9dcbee03e6ff3b.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/db59536b8f74928d4aef6e06fdba5ad7.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/cf0d888282a858218d86fff5c47c633e.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/e1a12fb975f2bb56b386e72de7d75852.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/51df3a1ea87a4b5145645eca6b6b5481.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/60e0f8b45708dd914667dbeda18711e9.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/de4177c26a1787eed2407767f8f09a14.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/709d8dfb5cd4cc68ab899c04f07b4dff.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/51a26a53570fae4c0a753dec321e15fe.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/427e36c8d4a1ec037a9ba31240d25821.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/0842fde25d47ddc9da7297e33d5e4c4c.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/9268677f4bdfd0ec1d2da3fa38244c4c.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/2bec9123eaca583e5fa8e26721565002.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/19f6664d40ad5d4a8ed2dd75a4574abc.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/e6599910729a50d30f64ccb2bb3970a1.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/de9985e43e8e6b5db061361d4bd511a8.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/3b0f0f14849e465a259d2553f0e28373.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/de5d512b9d682f9c5e331e23511ed65c.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/b8e71dc9a94bb85567819359c445e8f4.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/23a04f2584db6c5117f81840b8c2217c.png",
+          "alt": ""
+        },
+        {
+          "kind": "math_image",
+          "archive_path": "OPS/xhtml/maths10/equation/6e8481e60df361b6c5e498c39368e530.png",
+          "alt": ""
+        }
+      ],
+      "warnings": [
+        "image_math_requires_review"
+      ]
+    }
+  ],
+  "approval": "none",
+  "image_transcription": "none",
+  "suitable_for_scaling": "conditional: text extraction viable; equation images require human verification before reuse"
+}

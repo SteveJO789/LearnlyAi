@@ -1,0 +1,295 @@
+{
+  "schema_version": "1.0",
+  "artifact_id": "open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107",
+  "source_id": "open-logic-project",
+  "source_url": "https://github.com/OpenLogicProject/OpenLogic/archive/1e960beff9ed7835bf3e3f1335e21af3439cd107.zip",
+  "artifact_sha256": "ac565ee57b35dda8ac043dcbbc10322b5b4002f12abcbc0b0c5c2ddbea426849",
+  "acquired_at": "2026-10-01T10:59:26.307Z",
+  "artifact_bytes": 1899294,
+  "archive_entries": 792,
+  "scope": "propositional-logic/syntax-and-semantics only",
+  "normalized_records": 9,
+  "normalized_documents": 9,
+  "normalized_parser_versions": [
+    "2.2.0"
+  ],
+  "normalized_manifest_sha256": "7968953cda5b1fc30c2c7c5c9468e1d4212b98465019ccb396d496dd4bad45c4",
+  "selected_document_image_occurrences": 0,
+  "selected_document_equation_image_occurrences": 0,
+  "selected_document_other_image_occurrences": 0,
+  "selected_document_table_count": 5,
+  "textual_math_nodes": 0,
+  "normalized_math_expressions": 272,
+  "distinct_document_asset_references": 0,
+  "missing_asset_files": [],
+  "lost_asset_references": [],
+  "unexpected_asset_references": [],
+  "latex_slice_mismatches": [],
+  "latex_definitions": 10,
+  "latex_propositions": 8,
+  "latex_theorems": 6,
+  "latex_problems": 11,
+  "unresolved_macros_retained": [
+    "\\iftag",
+    "\\tagitem",
+    "!!{token}",
+    "!A",
+    "\\pValue",
+    "\\olimport"
+  ],
+  "candidate_concepts": [
+    {
+      "concept_id": "mathematics.foundations.logic.statement-proposition",
+      "rationale": "propositional variables versus everyday statements",
+      "mapping_status": "candidate_M4_introductory_logic_not_indicator_certified",
+      "alignment_url": "https://proj14.ipst.ac.th/m4-6-math-basic/m4-math-basic/",
+      "evidence": [
+        {
+          "normalized_unit": "normalized/open-logic-project/open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107/00004.json",
+          "normalized_sha256": "74db295e0f1097da3d769581fd65144bad2fb6fb94ac86166189468f493e0bf1",
+          "source_locator": {
+            "chapter": "Syntax and Semantics",
+            "section": "Introduction",
+            "offset_start": 0,
+            "offset_end": 4148,
+            "document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/content/propositional-logic/syntax-and-semantics/introduction.tex"
+          }
+        }
+      ]
+    },
+    {
+      "concept_id": "mathematics.foundations.logic.negation",
+      "rationale": "negation truth table",
+      "mapping_status": "candidate_M4_introductory_logic_not_indicator_certified",
+      "alignment_url": "https://proj14.ipst.ac.th/m4-6-math-basic/m4-math-basic/",
+      "evidence": [
+        {
+          "normalized_unit": "normalized/open-logic-project/open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107/00009.json",
+          "normalized_sha256": "c6cdd6c785d4d7d5fb823f70189652bbfe0a7078a74e4cc2659d182a4cb52260",
+          "source_locator": {
+            "chapter": "Syntax and Semantics",
+            "section": "valuation and Satisfaction",
+            "offset_start": 0,
+            "offset_end": 5992,
+            "document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/content/propositional-logic/syntax-and-semantics/valuations-sat.tex"
+          }
+        }
+      ]
+    },
+    {
+      "concept_id": "mathematics.foundations.logic.conjunction",
+      "rationale": "conjunction truth table",
+      "mapping_status": "candidate_M4_introductory_logic_not_indicator_certified",
+      "alignment_url": "https://proj14.ipst.ac.th/m4-6-math-basic/m4-math-basic/",
+      "evidence": [
+        {
+          "normalized_unit": "normalized/open-logic-project/open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107/00009.json",
+          "normalized_sha256": "c6cdd6c785d4d7d5fb823f70189652bbfe0a7078a74e4cc2659d182a4cb52260",
+          "source_locator": {
+            "chapter": "Syntax and Semantics",
+            "section": "valuation and Satisfaction",
+            "offset_start": 0,
+            "offset_end": 5992,
+            "document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/content/propositional-logic/syntax-and-semantics/valuations-sat.tex"
+          }
+        }
+      ]
+    },
+    {
+      "concept_id": "mathematics.foundations.logic.disjunction",
+      "rationale": "inclusive disjunction truth table",
+      "mapping_status": "candidate_M4_introductory_logic_not_indicator_certified",
+      "alignment_url": "https://proj14.ipst.ac.th/m4-6-math-basic/m4-math-basic/",
+      "evidence": [
+        {
+          "normalized_unit": "normalized/open-logic-project/open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107/00009.json",
+          "normalized_sha256": "c6cdd6c785d4d7d5fb823f70189652bbfe0a7078a74e4cc2659d182a4cb52260",
+          "source_locator": {
+            "chapter": "Syntax and Semantics",
+            "section": "valuation and Satisfaction",
+            "offset_start": 0,
+            "offset_end": 5992,
+            "document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/content/propositional-logic/syntax-and-semantics/valuations-sat.tex"
+          }
+        }
+      ]
+    },
+    {
+      "concept_id": "mathematics.foundations.logic.implication",
+      "rationale": "material conditional truth table",
+      "mapping_status": "candidate_M4_introductory_logic_not_indicator_certified",
+      "alignment_url": "https://proj14.ipst.ac.th/m4-6-math-basic/m4-math-basic/",
+      "evidence": [
+        {
+          "normalized_unit": "normalized/open-logic-project/open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107/00009.json",
+          "normalized_sha256": "c6cdd6c785d4d7d5fb823f70189652bbfe0a7078a74e4cc2659d182a4cb52260",
+          "source_locator": {
+            "chapter": "Syntax and Semantics",
+            "section": "valuation and Satisfaction",
+            "offset_start": 0,
+            "offset_end": 5992,
+            "document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/content/propositional-logic/syntax-and-semantics/valuations-sat.tex"
+          }
+        }
+      ]
+    }
+  ],
+  "normalized_units": [
+    {
+      "path": "normalized/open-logic-project/open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107/00001.json",
+      "sha256": "5ae7cf5e39b7eec6759fbf1749102fb6c469da092697c28ef4f8dbcb411d3eb0",
+      "title": "Completeness of Propositional Logic",
+      "locator": {
+        "chapter": "Syntax and Semantics",
+        "section": "Completeness of Propositional Logic",
+        "offset_start": 0,
+        "offset_end": 4010,
+        "document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/content/propositional-logic/syntax-and-semantics/completeness.tex"
+      },
+      "math_count": 39,
+      "assets": [],
+      "warnings": [
+        "latex_macros_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/open-logic-project/open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107/00002.json",
+      "sha256": "5f5a7b594f37053ead28d3cd4533adfc370ba481ce08707ecfed9a8671b24cd3",
+      "title": "Formation Sequences",
+      "locator": {
+        "chapter": "Syntax and Semantics",
+        "section": "Formation Sequences",
+        "offset_start": 0,
+        "offset_end": 5278,
+        "document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/content/propositional-logic/syntax-and-semantics/formation-sequences.tex"
+      },
+      "math_count": 51,
+      "assets": [],
+      "warnings": [
+        "latex_macros_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/open-logic-project/open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107/00003.json",
+      "sha256": "b4f5de2ee0787adf82e4c4e22121a5d9c095b5be8e7084fd2239b255fda92b76",
+      "title": "Propositional formula",
+      "locator": {
+        "chapter": "Syntax and Semantics",
+        "section": "Propositional formula",
+        "offset_start": 0,
+        "offset_end": 7021,
+        "document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/content/propositional-logic/syntax-and-semantics/formulas.tex"
+      },
+      "math_count": 54,
+      "assets": [],
+      "warnings": [
+        "latex_macros_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/open-logic-project/open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107/00004.json",
+      "sha256": "74db295e0f1097da3d769581fd65144bad2fb6fb94ac86166189468f493e0bf1",
+      "title": "Introduction",
+      "locator": {
+        "chapter": "Syntax and Semantics",
+        "section": "Introduction",
+        "offset_start": 0,
+        "offset_end": 4148,
+        "document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/content/propositional-logic/syntax-and-semantics/introduction.tex"
+      },
+      "math_count": 18,
+      "assets": [],
+      "warnings": [
+        "latex_macros_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/open-logic-project/open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107/00005.json",
+      "sha256": "8f27cdf6ef2fcd27e4f47c09ce36bbcf3c63f56fc9eb471ec115d1aa103e723c",
+      "title": "Preliminaries",
+      "locator": {
+        "chapter": "Syntax and Semantics",
+        "section": "Preliminaries",
+        "offset_start": 0,
+        "offset_end": 4151,
+        "document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/content/propositional-logic/syntax-and-semantics/preliminaries.tex"
+      },
+      "math_count": 40,
+      "assets": [],
+      "warnings": [
+        "latex_macros_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/open-logic-project/open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107/00006.json",
+      "sha256": "8792213e52f508cc07a66faaae856a3498f92da38a563560dc3571e9b710564d",
+      "title": "Semantic Notions",
+      "locator": {
+        "chapter": "Syntax and Semantics",
+        "section": "Semantic Notions",
+        "offset_start": 0,
+        "offset_end": 2962,
+        "document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/content/propositional-logic/syntax-and-semantics/semantic-notions.tex"
+      },
+      "math_count": 19,
+      "assets": [],
+      "warnings": [
+        "latex_macros_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/open-logic-project/open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107/00007.json",
+      "sha256": "a9371cf30aeb430d3eb217e16bd22a800435e1712665d9204c0e99f01f121e44",
+      "title": "Soundness of Propositional Logic",
+      "locator": {
+        "chapter": "Syntax and Semantics",
+        "section": "Soundness of Propositional Logic",
+        "offset_start": 0,
+        "offset_end": 930,
+        "document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/content/propositional-logic/syntax-and-semantics/soundness.tex"
+      },
+      "math_count": 10,
+      "assets": [],
+      "warnings": [
+        "latex_macros_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/open-logic-project/open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107/00008.json",
+      "sha256": "40855f442803e4c5154e294e9a9bd0c12d10ada5fad0d119cca929126f8d9673",
+      "title": "Syntax and Semantics",
+      "locator": {
+        "chapter": "Syntax and Semantics",
+        "section": "Syntax and Semantics",
+        "offset_start": 0,
+        "offset_end": 579,
+        "document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/content/propositional-logic/syntax-and-semantics/syntax-and-semantics.tex"
+      },
+      "math_count": 0,
+      "assets": [],
+      "warnings": [
+        "latex_macros_requires_review"
+      ]
+    },
+    {
+      "path": "normalized/open-logic-project/open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107/00009.json",
+      "sha256": "c6cdd6c785d4d7d5fb823f70189652bbfe0a7078a74e4cc2659d182a4cb52260",
+      "title": "valuation and Satisfaction",
+      "locator": {
+        "chapter": "Syntax and Semantics",
+        "section": "valuation and Satisfaction",
+        "offset_start": 0,
+        "offset_end": 5992,
+        "document": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107/content/propositional-logic/syntax-and-semantics/valuations-sat.tex"
+      },
+      "math_count": 41,
+      "assets": [],
+      "warnings": [
+        "latex_macros_requires_review"
+      ]
+    }
+  ],
+  "approval": "none",
+  "image_transcription": "none",
+  "suitable_for_scaling": "conditional: preserve macro context, simplify university scope, human correctness/alignment review"
+}
