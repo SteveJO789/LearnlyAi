@@ -1,10 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import SiteHeader from "../components/SiteHeader";
 import { useLanguage } from "../lib/i18n/LanguageContext";
+import { createLearningSession } from "../../lib/learning-sessions";
+import { getCurrentUserProfile, type AppUserProfile } from "../../lib/user-profile";
 
 export default function CreatePage() {
   const { t } = useLanguage();
@@ -14,24 +16,48 @@ export default function CreatePage() {
   const [question, setQuestion] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [isStarting, setIsStarting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [profile, setProfile] = useState<AppUserProfile | null>(null);
 
   const canStart = question.trim().length > 0 || file !== null;
 
-  function handleStart() {
+  useEffect(() => {
+    getCurrentUserProfile()
+      .then(setProfile)
+      .catch(() => router.replace("/SignIn"));
+  }, [router]);
+
+  async function handleStart() {
     if (!canStart || isStarting) return;
+
+    if (file) {
+      setError(
+        "File upload persistence is not connected yet. Remove the file and start with text for now.",
+      );
+      return;
+    }
+
+    const input = question.trim();
+    if (!input) return;
+
+    setError(null);
     setIsStarting(true);
 
-    // TODO(Seiya): this should call POST /learning-sessions then
-    // POST /learning-sessions/{id}/materials for the file (see
-    // docs/api-contract.md). For now we just mint an id client-side and
-    // hand the question straight to the Chat page.
-    const sessionId = crypto.randomUUID();
-    const input = file ? `[แนบไฟล์: ${file.name}]\n${question}`.trim() : question.trim();
+    try {
+      const session = await createLearningSession({
+        title: input.replace(/\s+/g, " ").slice(0, 120),
+      });
 
-    const params = new URLSearchParams();
-    if (input) params.set("input", input);
-
-    router.push(`/Chat/${sessionId}?${params.toString()}`);
+      const params = new URLSearchParams({ input });
+      router.push(`/Chat/${session.id}?${params.toString()}`);
+    } catch (startError) {
+      setError(
+        startError instanceof Error
+          ? startError.message
+          : "Could not start a learning session.",
+      );
+      setIsStarting(false);
+    }
   }
 
   return (
@@ -54,7 +80,7 @@ export default function CreatePage() {
             backgroundPosition: "0% 50%",
           }}
         >
-          {t("home.greeting")} <span>(user...)</span>
+          {t("home.greeting")} <span>{profile?.displayName ?? "..."}</span>
         </div>
 
         <div className="mt-8 w-full max-w-xl sm:max-w-2xl mx-auto text-center px-4">
@@ -91,13 +117,27 @@ export default function CreatePage() {
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
           {file && (
-            <button
-              type="button"
-              onClick={() => setFile(null)}
-              className="-mt-3 text-xs text-muted hover:text-danger self-end"
-            >
-              {t("create.removeFile")}
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  setFile(null);
+                  setError(null);
+                }}
+                className="-mt-3 text-xs text-muted hover:text-danger self-end"
+              >
+                {t("create.removeFile")}
+              </button>
+              <p className="text-xs text-muted">
+                File upload is visible in the UI but is not persisted yet.
+              </p>
+            </>
+          )}
+
+          {error && (
+            <p className="w-full rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
+              {error}
+            </p>
           )}
 
           <button
