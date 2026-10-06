@@ -18,13 +18,13 @@ export default function SignupForm() {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-    const username = String(formData.get("username") ?? "").trim();
+    const displayName = String(formData.get("name") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
     const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
-    if (!username) {
-      setError("Username is required");
+    if (!displayName) {
+      setError("Name is required");
       return;
     }
 
@@ -46,7 +46,7 @@ export default function SignupForm() {
         email,
         password,
         options: {
-          data: { username },
+          data: { full_name: displayName, name: displayName },
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
@@ -87,9 +87,9 @@ export default function SignupForm() {
         >
           <input
             type="text"
-            name="username"
-            placeholder="Username"
-            autoComplete="username"
+            name="name"
+            placeholder="Name"
+            autoComplete="name"
             required
             className="w-full rounded-full bg-neutral-100 px-6 py-4 text-base text-neutral-900 placeholder:text-neutral-500 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-neutral-900"
           />
@@ -124,12 +124,12 @@ export default function SignupForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="rounded-lg bg-primary px-6 py-3.5 text-lg font-medium text-primary-foreground shadow-sm hover:opacity-90 disabled:opacity-50"
+          className="rounded-lg bg-black px-6 py-3.5 text-lg font-medium text-white shadow-sm hover:opacity-90 disabled:opacity-50"
         >
           Sign up
         </button>
 
-        <p className="mt-1 text-center text-base text-muted">
+        <p className="mt-1 text-center text-neutral-500 text-muted">
           Already have an account?{" "}
           <Link href="/SignIn" className="font-medium text-blue-700 hover:underline">
             Log in
