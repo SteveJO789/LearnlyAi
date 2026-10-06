@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import LoadingOverlay from "../../components/LoadingOverlay";
-import { supabase } from "../../../lib/supabase";
+import { getSupabaseClient } from "../../../lib/supabase";
 
 // หลัง verify อีเมล หรือหลัง login ด้วย Google Supabase จะ redirect มาที่หน้านี้
 // supabase-js อ่าน token/code จาก URL แล้วสร้าง session ให้เอง (detectSessionInUrl)
@@ -27,7 +27,7 @@ export default function AuthCallbackPage() {
       return;
     }
 
-    let done = false;
+    let supabase;\n    try {\n      supabase = getSupabaseClient();\n    } catch (configurationError) {\n      setError(configurationError instanceof Error ? configurationError.message : "Authentication is unavailable.");\n      return;\n    }\n\n    let done = false;
     const goNext = () => {
       if (done) return;
       done = true;
