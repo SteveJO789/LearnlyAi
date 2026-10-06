@@ -4,37 +4,61 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 import LoadingOverlay from "../components/LoadingOverlay"; // Adjust path to match your folder structure
+import { supabase } from "../../lib/supabase";
 
 export default function SigninForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-    const email = String(formData.get("email") ?? "");
+    const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
-
-    // Mock Login Logic
-    // Example: If email is "error@test.com", simulate invalid login credentials according to Figma
-    if (email === "error@test.com") {
-      setError("Incorrect email or password. Please try again.");
-      return;
-    }
 
     setError(null);
     setIsLoading(true);
 
-    // Simulate database lookup delay (1.5s)
-    setTimeout(() => {
-      // TODO(Best): wire this up to POST /api/v1/auth/google or a future
-      // email/password endpoint once docs/api-contract.md defines one.
-      
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setIsLoading(false);
+
+    if (signInError) {
+      const notConfirmed =
+        signInError.code === "email_not_confirmed" ||
+        /not confirmed/i.test(signInError.message);
+
+      // Figma "Sign in-error": ข้อความเดิมของทีม
+      setError(
+        notConfirmed
+          ? "Please verify your email before signing in."
+          : "Incorrect email or password. Please try again."
+      );
+      return;
+    }
+
+    router.push("/"); // Navigate to homepage on success
+  }
+
+  async function handleGoogleSignIn() {
+    setError(null);
+    setIsLoading(true);
+
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+
+    // สำเร็จ = browser ถูกพาไปหน้า Google เอง / ถ้า error ให้ปิด overlay แล้วแสดงข้อความ
+    if (oauthError) {
       setIsLoading(false);
-      router.push("/"); // Navigate to homepage on success
-    }, 1500);
+      setError(oauthError.message);
+    }
   }
 
   return (
@@ -85,6 +109,7 @@ export default function SigninForm() {
 
         <button
           type="button"
+<<<<<<< Updated upstream
           onClick={() => {
             setIsLoading(true);
             setTimeout(() => {
@@ -93,6 +118,10 @@ export default function SigninForm() {
             }, 1500);
           }}
           className="flex items-center justify-center gap-2 rounded-lg bg-secondary px-6 py-3.5 text-lg font-medium text-muted shadow-sm hover:opacity-90"
+=======
+          onClick={handleGoogleSignIn}
+          className="flex items-center justify-center gap-2 rounded-lg bg-neutral-100 px-6 py-3.5 text-lg font-medium text-neutral-500 shadow-sm hover:bg-neutral-200"
+>>>>>>> Stashed changes
         >
           <GoogleIcon />
           <span>Log in with Google</span>

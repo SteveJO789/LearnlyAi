@@ -4,16 +4,21 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 import LoadingOverlay from "../components/LoadingOverlay"; // Import Component Loading ที่เราสร้างไว้ (ปรับ path ให้ถูกต้อง)
+import { supabase } from "../../lib/supabase";
+
+// ต้องตรงกับ minimum password length ที่ตั้งไว้ใน Supabase project
+const MIN_PASSWORD_LENGTH = 8;
 
 export default function SignupForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false); // 1. เพิ่ม State สำหรับควบคุม Loading
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
+<<<<<<< Updated upstream
     const email = String(formData.get("email") ?? "");
     const password = String(formData.get("password") ?? "");
     const confirmPassword = String(formData.get("confirmPassword") ?? "");
@@ -23,6 +28,20 @@ export default function SignupForm() {
     // TODO(Best): replace once POST /auth/register (or similar) exists.
     if (email === "taken@test.com") {
       setError("This email is already registered. Try logging in instead.");
+=======
+    const username = String(formData.get("username") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
+    const password = String(formData.get("password") ?? "");
+    const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+    if (!username) {
+      setError("Username is required");
+      return;
+    }
+
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
+>>>>>>> Stashed changes
       return;
     }
 
@@ -33,16 +52,34 @@ export default function SignupForm() {
     }
 
     setError(null);
-    setIsLoading(true); // 2. เริ่มแสดงหน้า Loading เมื่อผ่านการ Validation
+    setIsLoading(true);
 
-    // 3. จำลองการส่งข้อมูลไปให้ Backend เช็ก DB (หน่วงเวลา 1.5 วินาที)
-    setTimeout(() => {
-      // TODO(Best): wire this up to a real "create account" endpoint once
-      // docs/api-contract.md defines one.
-      
-      setIsLoading(false); // ปิด Loading
-      router.push("/");    // ย้ายไปหน้า Homepage
-    }, 1500);
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        // username ส่งไปเก็บเป็น metadata ให้ backend ใช้ตอนสร้าง User ในฐานข้อมูลเรา
+        data: { username },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    setIsLoading(false);
+
+    if (signUpError) {
+      setError(signUpError.message);
+      return;
+    }
+
+    // เมื่อเปิด email confirmation Supabase อาจไม่ส่ง error ถ้าอีเมลนี้สมัครไปแล้ว
+    // แต่จะคืน user ที่ identities ว่างเปล่า (ต้องยืนยันพฤติกรรมนี้ตอนทดสอบจริง)
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      setError("This email is already registered");
+      return;
+    }
+
+    // ห้ามเข้า app ทันที ต้อง verify อีเมลก่อน
+    router.push(`/verify-email?email=${encodeURIComponent(email)}`);
   }
 
   return (
@@ -60,9 +97,9 @@ export default function SignupForm() {
         >
           <input
             type="text"
-            name="name"
-            placeholder="Name"
-            autoComplete="name"
+            name="username"
+            placeholder="Username"
+            autoComplete="username"
             required
             className="w-full rounded-full bg-neutral-100 px-6 py-4 text-base text-neutral-900 placeholder:text-neutral-500 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-neutral-900"
           />
