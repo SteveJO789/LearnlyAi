@@ -9,6 +9,7 @@ import {
   type AuthenticatedUser,
 } from "../auth/supabase-auth.js";
 import { createLearningEngine } from "./create-learning-engine.js";
+import { LearningError } from "./learning-errors.js";
 import { PrismaLearningPersistence } from "./prisma-learning-persistence.js";
 
 type SessionRow = NonNullable<
@@ -55,13 +56,12 @@ function readOptionalText(
 ): string | undefined {
   if (value === undefined) return undefined;
   if (typeof value !== "string" || !value.trim() || value.length > maxLength) {
-    const error = new Error(`${field} is invalid.`) as Error & {
-      status?: number;
-      code?: string;
-    };
-    error.status = 400;
-    error.code = "VALIDATION_ERROR";
-    throw error;
+    throw new LearningError("VALIDATION_ERROR", [
+      {
+        path: `/${field}`,
+        message: `Must be nonblank text of at most ${maxLength} characters.`,
+      },
+    ]);
   }
   return value.trim();
 }
@@ -92,6 +92,16 @@ function requireUser(request: AuthenticatedRequest): AuthenticatedUser {
     throw new Error("Authenticated request is missing authUser.");
   }
   return request.authUser;
+}
+
+function readSessionId(request: AuthenticatedRequest): string {
+  const value = request.params.sessionId;
+  if (typeof value !== "string" || !value.trim()) {
+    throw new LearningError("VALIDATION_ERROR", [
+      { path: "/sessionId", message: "A valid session id is required." },
+    ]);
+  }
+  return value;
 }
 
 export function createLearningSessionsRouter(
@@ -173,8 +183,9 @@ export function createLearningSessionsRouter(
   router.get("/:sessionId", async (request: AuthenticatedRequest, response, next) => {
     try {
       const user = requireUser(request);
+      const sessionId = readSessionId(request);
       const session = await db.orm.public.LearningSession
-        .where({ id: request.params.sessionId, userId: user.id })
+        .where({ id: sessionId, userId: user.id })
         .first();
 
       if (!session) {
@@ -222,8 +233,9 @@ export function createLearningSessionsRouter(
           return;
         }
 
+        const sessionId = readSessionId(request);
         const session = await db.orm.public.LearningSession
-          .where({ id: request.params.sessionId, userId: user.id })
+          .where({ id: sessionId, userId: user.id })
           .first();
 
         if (!session) {
