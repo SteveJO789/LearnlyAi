@@ -85,7 +85,7 @@ function HistoryContent() {
   const filteredFiles = filesHistory.filter((item) => filterByDate(item.date));
   const filteredChats = chatHistory.filter((item) => filterByDate(item.date));
   const filteredLessons = lessonsHistory.filter((item) =>
-    filterByDate(item.date)
+    filterByDate(item.updatedAt.slice(0, 10))
   );
   const filteredTestResults = testResultsHistory.filter((item) =>
     filterByDate(item.date)
