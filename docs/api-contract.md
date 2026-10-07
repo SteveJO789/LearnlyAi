@@ -9,7 +9,7 @@ Contract นี้ตั้งใจให้ Frontend ทำ mock server แล
 - JSON ใช้ `camelCase`; database column ใช้ `snake_case`
 - ID เป็น opaque string/UUID; client ห้าม parse ความหมายจาก ID
 - เวลาใช้ ISO 8601 UTC เช่น `2026-09-12T13:00:00Z`
-- Protected endpoint ใช้ application session cookie
+- Frontend authentication uses Supabase Auth. Protected learning-session endpoints require `Authorization: Bearer <supabase-access-token>`; the API derives the current user from the token and never accepts a client-supplied `userId`.
 
 ### Success Envelope
 
@@ -124,6 +124,19 @@ Request:
 ```
 
 Response payload ใน `data.tutorOutput` ต้องผ่าน [learning-output.schema.json](../contracts/learning-output.schema.json) และกฎอ้างอิง citation ของ server-side validator ก่อนส่งออกจาก backend ดู field, block, renderer และ versioning guidance ที่ [Tutor Output Contract](tutor-output-contract.md)
+
+### Current persistent-session implementation
+
+The following authenticated endpoints are implemented and persisted through PostgreSQL:
+
+- `POST /api/v1/learning-sessions`
+- `GET /api/v1/learning-sessions`
+- `GET /api/v1/learning-sessions/{sessionId}`
+- `POST /api/v1/learning-sessions/{sessionId}/interactions`
+
+Session ownership is derived from the verified Supabase user ID. The frontend must not send a `userId`.
+
+File/PDF/image materials and assessment submission endpoints remain planned work.
 
 ## Learning Engine Development Slice
 
