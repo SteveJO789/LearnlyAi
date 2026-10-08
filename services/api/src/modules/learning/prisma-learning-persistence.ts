@@ -189,7 +189,11 @@ export class PrismaLearningPersistence implements LearningPersistence {
       }
     }
 
-    return this.options.client.transaction(async (tx) => {
+    return this.options.client.transaction(async (transaction) => {
+      // Prisma 8 RC's Supabase transaction typing currently exposes a
+      // narrower TransactionContext; at runtime it carries the ORM surface.
+      // Keep all writes on that same transaction connection.
+      const tx = transaction as typeof transaction & { orm: UserDb["orm"] };
       if (change.expectedVersion === null) {
         const created = await tx.orm.public.LearningSession.createAll(
           [
