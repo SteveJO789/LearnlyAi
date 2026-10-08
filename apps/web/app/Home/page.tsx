@@ -8,7 +8,10 @@ import "./style.css";
 
 import SiteHeader from "../components/SiteHeader";
 import { useLanguage } from "../lib/i18n/LanguageContext";
-import { getCurrentUserProfile, type AppUserProfile } from "../../lib/user-profile";
+import {
+  getCurrentUserProfile,
+  type AppUserProfile,
+} from "../../lib/user-profile";
 
 // NOTE(Cake): image URLs below are temporary Figma-hosted asset links
 // (expire ~7 days after being generated). Swap these for real, permanent
@@ -16,10 +19,13 @@ import { getCurrentUserProfile, type AppUserProfile } from "../../lib/user-profi
 // before this ships anywhere beyond local dev.
 const heroImage =
   "https://www.figma.com/api/mcp/asset/8fd24a11-50b7-4cdf-aa32-f638d45dcf65/d7640.png";
+
 const cardImage1 =
   "https://www.figma.com/api/mcp/asset/8fd24a11-50b7-4cdf-aa32-f638d45dcf65/c0f52.png";
+
 const cardImage2 =
   "https://www.figma.com/api/mcp/asset/8fd24a11-50b7-4cdf-aa32-f638d45dcf65/a5fc4.png";
+
 const cardImage3 =
   "https://www.figma.com/api/mcp/asset/8fd24a11-50b7-4cdf-aa32-f638d45dcf65/6ec63.png";
 
@@ -34,14 +40,18 @@ export default function HomePage() {
     getCurrentUserProfile()
       .then((currentProfile) => {
         if (!active) return;
+
         if (!currentProfile) {
           router.replace("/SignIn");
           return;
         }
+
         setProfile(currentProfile);
       })
       .catch(() => {
-        if (active) router.replace("/SignIn");
+        if (active) {
+          router.replace("/SignIn");
+        }
       });
 
     return () => {
@@ -63,7 +73,7 @@ export default function HomePage() {
       <main className="px-5 sm:px-12 lg:px-20">
         <section className="relative max-w-[1100px] pt-6 pb-10">
           <div
-            className="hello-gradient pointer-events-none absolute right-0 top-6 hidden bg-clip-text text-4xl font-medium tracking-tight text-transparent sm:block lg:text-5xl"
+            className="hello-gradient pointer-events-none absolute right-0 top-6 hidden overflow-visible bg-clip-text pb-2 text-4xl font-medium leading-normal tracking-tight text-transparent sm:block lg:text-5xl"
             style={{
               backgroundImage:
                 "radial-gradient(120% 140% at 15% 20%, #ffe89e 0%, transparent 45%), radial-gradient(120% 140% at 80% 30%, #8178ff 0%, transparent 55%), radial-gradient(140% 160% at 60% 90%, #ff0d9b 0%, transparent 60%), linear-gradient(135deg, #ff2fb0, #8178ff)",
@@ -71,13 +81,18 @@ export default function HomePage() {
               backgroundPosition: "0% 50%",
             }}
           >
-            {t("home.greeting")} <span>{profile?.displayName ?? "..."}</span>
+            {t("home.greeting")}{" "}
+            <span>{profile?.displayName ?? "..."}</span>
           </div>
 
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
             {t("home.welcome")}
           </h1>
-          <p className="mt-6 text-lg text-muted sm:text-xl lg:text-2xl">{t("home.tagline")}</p>
+
+          <p className="mt-6 text-lg text-muted sm:text-xl lg:text-2xl">
+            {t("home.tagline")}
+          </p>
+
           <Link
             href="/Create"
             className="mt-10 inline-flex items-center rounded-lg bg-primary px-8 py-5 text-lg font-medium text-primary-foreground shadow-sm hover:opacity-90 sm:text-xl"
@@ -114,9 +129,15 @@ export default function HomePage() {
                   className="object-cover"
                 />
               </div>
+
               <div className="mt-6 max-w-[381px]">
-                <h3 className="text-2xl font-medium">{t("home.subheading")}</h3>
-                <p className="mt-1 text-2xl text-muted">{t("home.body1")}</p>
+                <h3 className="text-2xl font-medium">
+                  {t("home.subheading")}
+                </h3>
+
+                <p className="mt-1 text-2xl text-muted">
+                  {t("home.body1")}
+                </p>
               </div>
             </article>
 
@@ -130,17 +151,29 @@ export default function HomePage() {
                   className="object-cover"
                 />
               </div>
+
               <div className="max-w-[381px]">
-                <h3 className="text-2xl font-medium">{t("home.subheading")}</h3>
-                <p className="mt-1 text-2xl text-muted">{t("home.body2")}</p>
+                <h3 className="text-2xl font-medium">
+                  {t("home.subheading")}
+                </h3>
+
+                <p className="mt-1 text-2xl text-muted">
+                  {t("home.body2")}
+                </p>
               </div>
             </article>
 
             <article className="grid grid-cols-1 gap-8 md:grid-cols-2 md:items-start">
               <div className="max-w-[381px] md:order-1">
-                <h3 className="text-2xl font-medium">{t("home.subheading")}</h3>
-                <p className="mt-1 text-2xl text-muted">{t("home.body3")}</p>
+                <h3 className="text-2xl font-medium">
+                  {t("home.subheading")}
+                </h3>
+
+                <p className="mt-1 text-2xl text-muted">
+                  {t("home.body3")}
+                </p>
               </div>
+
               <div className="relative aspect-[656/405] w-full overflow-hidden rounded-lg md:order-2">
                 <Image
                   src={cardImage3}
