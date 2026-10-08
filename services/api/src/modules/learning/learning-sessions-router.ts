@@ -183,10 +183,12 @@ export function createLearningSessionsRouter(
   });
 
   router.get("/:sessionId", async (request: AuthenticatedRequest, response, next) => {
+    let phase: "auth" | "session" | "messages" | "response" = "auth";
     try {
       const user = requireUser(request);
       const sessionId = readSessionId(request);
       const client = await requestDb(request);
+      phase = "session";
       const session = await client.orm.public.LearningSession
         .where({ id: sessionId, userId: user.id })
         .first();
@@ -203,11 +205,13 @@ export function createLearningSessionsRouter(
         return;
       }
 
+      phase = "messages";
       const messages = await client.orm.public.Message
         .where({ learningSessionId: session.id })
         .orderBy((message) => message.createdAt.asc())
         .all();
 
+      phase = "response";
       response.status(200).json({
         data: {
           ...sessionSummary(session),
@@ -215,7 +219,28 @@ export function createLearningSessionsRouter(
         },
       });
     } catch (error) {
-      next(error);
+      // Never include JWTs, request bodies or SQL parameters in logs or responses.
+      // The request ID and phase isolate failures in session/message restoration.
+      console.error("[learning-session-detail] failed", {
+        requestId: response.locals.requestId,
+        phase,
+        errorName: error instanceof Error ? error.name : typeof error,
+        errorCode: error && typeof error === "object" && "code" in error
+          ? String(error.code)
+          : undefined,
+        errorMessage: error instanceof Error ? error.message.slice(0, 350) : undefined,
+      });
+      // The phase is a fixed enum with no query, token or user data.
+      // Return only the phase for this detail endpoint so Preview E2E can
+      // diagnose failures even when runtime log access is restricted.
+      response.status(500).json({
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "The request could not be completed.",
+          requestId: response.locals.requestId,
+          details: [{ path: "/lesson", message: `Lesson loading failed at ${phase} phase.` }],
+        },
+      });
     }
   });
 
