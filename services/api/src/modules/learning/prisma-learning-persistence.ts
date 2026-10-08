@@ -1,4 +1,4 @@
-﻿import { db } from "../../prisma/db.js";
+﻿import type { UserDb } from "../../prisma/db.js";
 import type { ValidatedTutorOutput } from "../ai/tutor-output.js";
 import type { LearningMessage, LearningSession } from "./domain.js";
 import { getStagePolicy } from "./stage-machine.js";
@@ -9,7 +9,6 @@ import type {
   MessageRepository,
 } from "./repositories.js";
 
-type UserDb = Awaited<ReturnType<typeof db.asUser>>;
 type LearningSessionRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["LearningSession"]["first"]>>>;
 type MessageRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["Message"]["first"]>>>;
 
