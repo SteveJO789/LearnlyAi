@@ -1,0 +1,383 @@
+[
+  {
+    "id": "column.public.User.username",
+    "label": "Add column \"username\" to \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "username",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"username\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "username"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"username\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ADD COLUMN \"username\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"username\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "username"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.User.authUserId",
+    "label": "Add column \"authUserId\" to \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "authUserId",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"authUserId\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "authUserId"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"authUserId\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ADD COLUMN \"authUserId\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"authUserId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "authUserId"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "data.cleanup-duplicate-users",
+    "label": "Remove duplicate public.User rows already represented by Supabase Auth",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "description": "duplicate user exists without dependent data",
+        "sql": "\n            SELECT EXISTS (\n              SELECT 1\n              FROM \"public\".\"User\" legacy\n              JOIN \"auth\".\"users\" auth_user\n                ON lower(auth_user.\"email\") = lower(legacy.\"email\")\n              JOIN \"public\".\"User\" canonical\n                ON canonical.\"id\" = auth_user.\"id\"::text\n              WHERE legacy.\"id\" <> auth_user.\"id\"::text\n                AND NOT EXISTS (\n                  SELECT 1\n                  FROM \"public\".\"LearningSession\" s\n                  WHERE s.\"userId\" = legacy.\"id\"\n                )\n                AND NOT EXISTS (\n                  SELECT 1\n                  FROM \"public\".\"LearningProfile\" p\n                  WHERE p.\"userId\" = legacy.\"id\"\n                )\n                AND NOT EXISTS (\n                  SELECT 1\n                  FROM \"public\".\"OAuthAccount\" o\n                  WHERE o.\"userId\" = legacy.\"id\"\n                )\n                AND NOT EXISTS (\n                  SELECT 1\n                  FROM \"public\".\"AppSession\" s\n                  WHERE s.\"userId\" = legacy.\"id\"\n                )\n            )\n          "
+      }
+    ],
+    "execute": [
+      {
+        "description": "remove safe duplicate users",
+        "sql": "\n            DELETE FROM \"public\".\"User\" legacy\n            USING \"auth\".\"users\" auth_user, \"public\".\"User\" canonical\n            WHERE lower(auth_user.\"email\") = lower(legacy.\"email\")\n              AND canonical.\"id\" = auth_user.\"id\"::text\n              AND legacy.\"id\" <> auth_user.\"id\"::text\n              AND NOT EXISTS (\n                SELECT 1\n                FROM \"public\".\"LearningSession\" s\n                WHERE s.\"userId\" = legacy.\"id\"\n              )\n              AND NOT EXISTS (\n                SELECT 1\n                FROM \"public\".\"LearningProfile\" p\n                WHERE p.\"userId\" = legacy.\"id\"\n              )\n              AND NOT EXISTS (\n                SELECT 1\n                FROM \"public\".\"OAuthAccount\" o\n                WHERE o.\"userId\" = legacy.\"id\"\n              )\n              AND NOT EXISTS (\n                SELECT 1\n                FROM \"public\".\"AppSession\" s\n                WHERE s.\"userId\" = legacy.\"id\"\n              )\n          "
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "no unsafe duplicate users remain",
+        "sql": "\n            SELECT NOT EXISTS (\n              SELECT 1\n              FROM \"public\".\"User\" legacy\n              JOIN \"auth\".\"users\" auth_user\n                ON lower(auth_user.\"email\") = lower(legacy.\"email\")\n              JOIN \"public\".\"User\" canonical\n                ON canonical.\"id\" = auth_user.\"id\"::text\n              WHERE legacy.\"id\" <> auth_user.\"id\"::text\n            )\n          "
+      }
+    ]
+  },
+  {
+    "id": "data.backfill-user-authUserId",
+    "label": "Backfill User.authUserId from Supabase Auth",
+    "operationClass": "data",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "description": "User.authUserId still has NULL values",
+        "sql": "\n            SELECT EXISTS (\n              SELECT 1\n              FROM \"public\".\"User\"\n              WHERE \"authUserId\" IS NULL\n            )\n          "
+      }
+    ],
+    "execute": [
+      {
+        "description": "set User.authUserId from auth.users",
+        "sql": "\n            UPDATE \"public\".\"User\" u\n            SET \"authUserId\" = auth_user.\"id\"::text\n            FROM \"auth\".\"users\" auth_user\n            WHERE u.\"authUserId\" IS NULL\n              AND (\n                u.\"id\" = auth_user.\"id\"::text\n                OR (\n                  lower(u.\"email\") = lower(auth_user.\"email\")\n                  AND NOT EXISTS (\n                    SELECT 1\n                    FROM \"public\".\"User\" canonical\n                    WHERE canonical.\"id\" = auth_user.\"id\"::text\n                  )\n                )\n              )\n          "
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "all User rows have authUserId",
+        "sql": "\n            SELECT NOT EXISTS (\n              SELECT 1\n              FROM \"public\".\"User\"\n              WHERE \"authUserId\" IS NULL\n            )\n          "
+      }
+    ]
+  },
+  {
+    "id": "dropTable.AppSession",
+    "label": "Drop table \"AppSession\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "AppSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"AppSession\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"AppSession\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"AppSession\"",
+        "sql": "DROP TABLE \"public\".\"AppSession\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"AppSession\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"AppSession\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropTable.OAuthAccount",
+    "label": "Drop table \"OAuthAccount\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "OAuthAccount"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"OAuthAccount\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OAuthAccount\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"OAuthAccount\"",
+        "sql": "DROP TABLE \"public\".\"OAuthAccount\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"OAuthAccount\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"OAuthAccount\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "alterNullability.setNotNull.User.authUserId",
+    "label": "Set NOT NULL on \"User\".\"authUserId\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "authUserId",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"authUserId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "authUserId"
+        ]
+      },
+      {
+        "description": "ensure no NULL values in \"authUserId\"",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"public\".\"User\" WHERE \"authUserId\" IS NULL) AS \"result\"",
+        "params": []
+      }
+    ],
+    "execute": [
+      {
+        "description": "set NOT NULL on \"authUserId\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ALTER COLUMN \"authUserId\" SET NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"authUserId\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "authUserId",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.User.User_authUserId_key",
+    "label": "Add unique constraint on \"User\" (authUserId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "User_authUserId_key",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"User_authUserId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_authUserId_key",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"User_authUserId_key\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ADD CONSTRAINT \"User_authUserId_key\" UNIQUE (\"authUserId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"User_authUserId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_authUserId_key",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.User.User_username_key",
+    "label": "Add unique constraint on \"User\" (username)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "User_username_key",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"User_username_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_username_key",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"User_username_key\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ADD CONSTRAINT \"User_username_key\" UNIQUE (\"username\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"User_username_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_username_key",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.User.User_email_idx_46df9cad",
+    "label": "Create index \"User_email_idx_46df9cad\" on \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "User_email_idx_46df9cad",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"User_email_idx_46df9cad\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User_email_idx_46df9cad\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"User_email_idx_46df9cad\"",
+        "sql": "CREATE INDEX \"User_email_idx_46df9cad\" ON \"public\".\"User\" (\"email\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"User_email_idx_46df9cad\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User_email_idx_46df9cad\""
+        ]
+      }
+    ]
+  }
+]
