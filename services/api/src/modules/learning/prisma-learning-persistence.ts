@@ -188,43 +188,67 @@ export class PrismaLearningPersistence implements LearningPersistence {
       }
     }
 
-    return this.options.client.transaction(async (transaction) => {
-      // Prisma 8 RC's Supabase transaction typing currently exposes a
-      // narrower TransactionContext; at runtime it carries the ORM surface.
-      // Keep all writes on that same transaction connection.
-      const tx = transaction as typeof transaction & { orm: UserDb["orm"] };
+    // Supabase RoleBoundDb.transaction returns a bare TransactionContext
+    // (execute/query only). Compile parameterized SQL with the role-bound
+    // client's builder and execute every statement on the SAME transaction.
+    const raw = this.options.client.raw;
+    return this.options.client.transaction(async (tx) => {
+      let affected = 0;
       if (change.expectedVersion === null) {
-        const created = await tx.orm.public.LearningSession.createAll(
-          [
-            toSessionCreateData(
-              change.session,
-              this.options.userId,
-              this.options.titleForSession(change.session),
-            ),
-          ],
-          { onConflict: "skip", conflictOn: ["id"] },
+        const row = toSessionCreateData(
+          change.session,
+          this.options.userId,
+          this.options.titleForSession(change.session),
         );
-
-        if (created.length !== 1) return false;
+        const plan = raw.sql`
+          INSERT INTO public."LearningSession"
+            ("id", "userId", "title", "learningGoal", "subject", "state",
+             "lifecycleState", "stage", "progressPercent", "version",
+             "createdAt", "updatedAt")
+          VALUES (
+            ${row.id}, ${row.userId}, ${row.title}, ${row.learningGoal},
+            ${row.subject}, ${row.state}, ${row.lifecycleState}, ${row.stage},
+            ${row.progressPercent}, ${row.version},
+            ${row.createdAt}::timestamptz, ${row.updatedAt}::timestamptz
+          )
+          ON CONFLICT ("id") DO NOTHING
+        `.affectedCount().build();
+        affected = (await tx.execute(plan)).affectedRows;
       } else {
-        const updated = await tx.orm.public.LearningSession
-          .where({
-            id: change.session.id,
-            userId: this.options.userId,
-            version: change.expectedVersion,
-          })
-          .update(toSessionUpdateData(change.session));
-
-        if (!updated) return false;
+        const row = toSessionUpdateData(change.session);
+        const plan = raw.sql`
+          UPDATE public."LearningSession" SET
+            "learningGoal" = ${row.learningGoal},
+            "subject" = ${row.subject},
+            "state" = ${row.state},
+            "lifecycleState" = ${row.lifecycleState},
+            "stage" = ${row.stage},
+            "progressPercent" = ${row.progressPercent},
+            "version" = ${row.version},
+            "updatedAt" = ${row.updatedAt}::timestamptz
+          WHERE "id" = ${change.session.id}
+            AND "userId" = ${this.options.userId}
+            AND "version" = ${change.expectedVersion}
+        `.affectedCount().build();
+        affected = (await tx.execute(plan)).affectedRows;
       }
 
-      if (change.messages.length > 0) {
-        await tx.orm.public.Message.createAll(
-          change.messages.map(toMessageCreateData),
-        );
-      }
+      if (affected !== 1) return false;
 
+      for (const message of change.messages) {
+        const row = toMessageCreateData(message);
+        const plan = raw.sql`
+          INSERT INTO public."Message"
+            ("id", "learningSessionId", "role", "content", "createdAt")
+          VALUES (
+            ${row.id}, ${row.learningSessionId}, ${row.role},
+            ${JSON.stringify(row.content)}::jsonb,
+            ${row.createdAt}::timestamptz
+          )
+        `.affectedCount().build();
+        await tx.execute(plan);
+      }
       return true;
-    });
+    });;
   }
 }
