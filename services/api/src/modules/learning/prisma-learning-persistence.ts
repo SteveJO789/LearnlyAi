@@ -1,5 +1,5 @@
 ﻿import type { UserDb } from "../../prisma/db.js";
-import { readPersistedMessages } from "./persisted-messages.js";
+import { readPersistedMessages, type PersistedMessage } from "./persisted-messages.js";
 import type { ValidatedTutorOutput } from "../ai/tutor-output.js";
 import type { LearningMessage, LearningSession } from "./domain.js";
 import { getStagePolicy } from "./stage-machine.js";
@@ -11,7 +11,6 @@ import type {
 } from "./repositories.js";
 
 type LearningSessionRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["LearningSession"]["first"]>>>;
-type MessageRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["Message"]["first"]>>>;
 
 export interface PrismaLearningPersistenceOptions {
   client: UserDb;
@@ -37,7 +36,7 @@ function toLearningSession(row: LearningSessionRow): LearningSession {
   };
 }
 
-function toLearningMessage(row: MessageRow): LearningMessage {
+function toLearningMessage(row: PersistedMessage): LearningMessage {
   const base = {
     id: row.id,
     sessionId: row.learningSessionId,
