@@ -206,8 +206,8 @@ export class PrismaLearningPersistence implements LearningPersistence {
              "lifecycleState", "stage", "progressPercent", "version",
              "createdAt", "updatedAt")
           VALUES (
-            ${row.id}, ${row.userId}, ${row.title}, ${row.learningGoal},
-            ${row.subject}, ${row.state}, ${row.lifecycleState}, ${row.stage},
+            ${row.id}, ${row.userId}, ${row.title}, NULLIF(${row.learningGoal ?? ""}, ''),
+            NULLIF(${row.subject ?? ""}, ''), ${row.state}, ${row.lifecycleState}, ${row.stage},
             ${row.progressPercent}, ${row.version},
             ${row.createdAt}::timestamptz, ${row.updatedAt}::timestamptz
           )
@@ -218,8 +218,8 @@ export class PrismaLearningPersistence implements LearningPersistence {
         const row = toSessionUpdateData(change.session);
         const plan = raw.sql`
           UPDATE public."LearningSession" SET
-            "learningGoal" = ${row.learningGoal},
-            "subject" = ${row.subject},
+            "learningGoal" = NULLIF(${row.learningGoal ?? ""}, ''),
+            "subject" = NULLIF(${row.subject ?? ""}, ''),
             "state" = ${row.state},
             "lifecycleState" = ${row.lifecycleState},
             "stage" = ${row.stage},
