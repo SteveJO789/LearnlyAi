@@ -108,6 +108,7 @@ function ProfileContent() {
   const handleAppearanceModeChange = async (
     nextAppearanceMode: "light" | "dark",
   ) => {
+    document.documentElement.classList.add("theme-transition");
     setTheme(nextAppearanceMode);
 
     try {
