@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { Router, type RequestHandler } from "express";
 
-import { db } from "../../prisma/db.js";
+import { getDb, type UserDb } from "../../prisma/db.js";
 import type { ModelProvider } from "../ai/providers/model-provider.js";
 import {
   requireSupabaseUser,
@@ -12,7 +12,6 @@ import { createLearningEngine } from "./create-learning-engine.js";
 import { LearningError } from "./learning-errors.js";
 import { PrismaLearningPersistence } from "./prisma-learning-persistence.js";
 
-type UserDb = Awaited<ReturnType<typeof db.asUser>>;
 type SessionRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["LearningSession"]["first"]>>>;
 type MessageRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["Message"]["first"]>>>;
 
@@ -92,7 +91,7 @@ function requireUser(request: AuthenticatedRequest): AuthenticatedUser {
 }
 async function requestDb(request: AuthenticatedRequest): Promise<UserDb> {
   requireUser(request);
-  return db.asUser(request.authToken!);
+  return (await getDb()).asUser(request.authToken!);
 }
 
 function readSessionId(request: AuthenticatedRequest): string {
