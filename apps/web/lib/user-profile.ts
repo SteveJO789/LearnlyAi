@@ -4,7 +4,7 @@ import type { User } from "@supabase/supabase-js";
 
 import { getSupabaseClient } from "./supabase";
 
-export type AppearanceMode = "light" | "dark" | "system";
+export type AppearanceMode = "light" | "dark";
 
 export type ColorTheme =
   | "default"
@@ -21,14 +21,14 @@ export type UserThemePreferences = {
 };
 
 const DEFAULT_THEME_PREFERENCES: UserThemePreferences = {
-  appearanceMode: "system",
+  appearanceMode: "light",
   colorTheme: "default",
 };
 
 const THEME_METADATA_KEY = "learnlyThemePreferences";
 
 const isAppearanceMode = (value: unknown): value is AppearanceMode =>
-  value === "light" || value === "dark" || value === "system";
+  value === "light" || value === "dark";
 
 const isColorTheme = (value: unknown): value is ColorTheme =>
   value === "default" ||
@@ -130,7 +130,7 @@ export async function syncCurrentUserProfile(): Promise<AppUserProfile> {
   if (error) throw error;
 
   // New accounts always start from the requested neutral Default palette
-  // and System appearance. Existing accounts are migrated separately below.
+  // and Light appearance. Existing accounts are migrated separately below.
   const metadata = user.user_metadata ?? {};
   if (!parseThemePreferences(metadata[THEME_METADATA_KEY])) {
     const nextMetadata = {
@@ -226,9 +226,8 @@ export async function getCurrentUserThemePreferences(): Promise<UserThemePrefere
     const legacyColorTheme = localStorage.getItem("app-color-theme");
 
     const migratedPreferences: UserThemePreferences = {
-      appearanceMode: isAppearanceMode(legacyAppearance)
-        ? legacyAppearance
-        : DEFAULT_THEME_PREFERENCES.appearanceMode,
+      appearanceMode:
+        legacyAppearance === "dark" ? "dark" : DEFAULT_THEME_PREFERENCES.appearanceMode,
       colorTheme: isColorTheme(legacyColorTheme)
         ? legacyColorTheme
         : DEFAULT_THEME_PREFERENCES.colorTheme,
