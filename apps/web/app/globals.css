@@ -4,6 +4,7 @@
 
 @theme {
   --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-background: var(--background);
   --color-text: var(--text);
@@ -31,15 +32,21 @@
   animation: gradient-drift 12s ease-in-out infinite;
 }
 
-/* ===========================
-   โครงสร้างธีมสีทั้ง 6 ชุด (ครบถ้วนตามต้องการ)
-   =========================== */
+/* SignIn/SignUp are intentionally excluded from the theme system (decided
+   early on): they must always look like the Default (Teal) theme in Light
+   mode, no matter what brand theme or Light/Dark mode the visitor last
+   picked in Settings — a logged-out visitor hasn't chosen a theme yet, and
+   this page shouldn't carry one over from a previous session.
 
-/* 1. ธีมเริ่มต้น / Modern Teal (#0AD1C1) */
-:root {
+   Put this class on each page's root wrapper div. Declaring these variables
+   directly on that element overrides whatever .dark/.theme-X classes are on
+   <html>, because a declaration on the element itself always wins over one
+   inherited from an ancestor — no matter which theme/mode is active there. */
+.auth-page {
   --color-primary-rgb: 10, 209, 193;
   --color-text-rgb: 55, 85, 114;
   --primary: rgb(var(--color-primary-rgb));
+  --primary-foreground: #ffffff;
   --secondary: #93FBFF;
   --surface: #E2FFFC;
   --background: #FFFFFF;
@@ -50,11 +57,45 @@
   --danger: #911005;
 }
 
+/* ===========================
+   โครงสร้างธีมสีทั้ง 6 ชุด
+
+   แต่ละธีมมี 2 เวอร์ชัน: .theme-X (Light) และ .dark.theme-X (Dark)
+   ทุกตัวแปรด้านล่าง (primary/secondary/surface/background + text/muted/
+   primary-foreground/surface-border) ถูกกำหนดแยกสำหรับ Light และ Dark
+   โดยเฉพาะ ไม่ใช่ค่าเดียวที่ใช้ร่วมกันทั้งสองโหมดอีกต่อไป — Dark mode ของ
+   แต่ละธีมจะมีพื้นหลังที่เข้มขึ้นจริง (ไม่ใช่แค่สลับสีตัวอักษรบนพื้นเดิม)
+   เพื่อให้มองเห็นความต่างชัดเจน และเลือกสีตัวอักษรจากค่า contrast จริง
+   ไม่ใช่ตามพื้นหลังเดิมที่อาจกลืนกัน
+
+   คอมโพเนนต์ใช้คลาส bg-primary / bg-secondary / bg-surface / bg-background /
+   text-text / text-muted / text-primary-foreground / border-surface-border
+   แล้วค่าจะสลับให้เองตามธีม + โหมดที่เลือกอยู่
+   =========================== */
+
+/* 1. ธีมเริ่มต้น / Modern Teal (#0AD1C1) — Light */
+:root {
+  --color-primary-rgb: 10, 209, 193;
+  --color-text-rgb: 55, 85, 114;
+  --primary: rgb(var(--color-primary-rgb));
+  --primary-foreground: #ffffff;
+  --secondary: #93FBFF;
+  --surface: #E2FFFC;
+  --background: #FFFFFF;
+  --text: rgb(var(--color-text-rgb));
+  --muted: #6B7280;
+  --surface-border: #E5E7EB;
+  --accent: #FFC06F;
+  --danger: #911005;
+}
+
+/* Modern Teal — Dark */
 .dark {
   --color-primary-rgb: 10, 209, 193;
   --color-text-rgb: 239, 246, 255;
   --primary: rgb(var(--color-primary-rgb));
-  --secondary: #93FBFF;
+  --primary-foreground: #0b1b1a;
+  --secondary: #164e4a;
   --surface: #1F2937;
   --background: #111827;
   --text: rgb(var(--color-text-rgb));
@@ -64,59 +105,134 @@
   --danger: #EF4444;
 }
 
-/* 2. ธีม Ruby / แดงเข้ม (#911005) */
+/* 2. ธีม Ruby / แดงเข้ม (#911005) — Light */
 .theme-ruby {
   --color-primary-rgb: 145, 16, 5;
   --primary: #911005;
+  --primary-foreground: #ffffff;
   --secondary: #F2F2F2;
   --surface: #EDDFDE;
   --background: #B0A09F;
   --text: #375572;
+  --muted: #6A5D5D;
   --surface-border: #9D8C8B;
 }
 
-/* 3. ธีม Peach / ชมพูอ่อน (#FFAAAA) */
+/* Ruby — Dark */
+.dark.theme-ruby {
+  --color-primary-rgb: 200, 29, 12;
+  --primary: #C81D0C;
+  --primary-foreground: #ffffff;
+  --secondary: #5C4442;
+  --surface: #2E1F1D;
+  --background: #1F1413;
+  --text: #F3E9E8;
+  --muted: #C9B6B4;
+  --surface-border: #4A3836;
+}
+
+/* 3. ธีม Peach / ชมพูอ่อน (#FFAAAA) — Light */
 .theme-peach {
   --color-primary-rgb: 255, 170, 170;
   --primary: #FFAAAA;
+  --primary-foreground: #5c3a3a;
   --secondary: #FFD1D1;
   --surface: #FFE2E2;
   --background: #FFF9F9;
   --text: #5c3a3a;
+  --muted: #8a6666;
   --surface-border: #F2CCCC;
 }
 
-/* 4. ธีม Sky / ฟ้าอ่อน (#BCE8FF) */
+/* Peach — Dark */
+.dark.theme-peach {
+  --color-primary-rgb: 255, 155, 155;
+  --primary: #FF9B9B;
+  --primary-foreground: #3a1f1f;
+  --secondary: #5C3A3D;
+  --surface: #35201F;
+  --background: #241516;
+  --text: #FCEAEA;
+  --muted: #D9B8B8;
+  --surface-border: #4A2F2E;
+}
+
+/* 4. ธีม Sky / ฟ้าอ่อน (#BCE8FF) — Light */
 .theme-sky {
   --color-primary-rgb: 188, 232, 255;
   --primary: #BCE8FF;
+  --primary-foreground: #0B3959;
   --secondary: #E2F5FF;
   --surface: #EFF3F4;
   --background: #F3FBFF;
   --text: #0B3959;
+  --muted: #4A7183;
   --surface-border: #D1E3EC;
 }
 
-/* 5. ธีม Gold / ส้มทอง (#FFC06F) */
+/* Sky — Dark */
+.dark.theme-sky {
+  --color-primary-rgb: 143, 212, 255;
+  --primary: #8FD4FF;
+  --primary-foreground: #07263A;
+  --secondary: #2E4A57;
+  --surface: #16283A;
+  --background: #0E1C24;
+  --text: #EAF6FF;
+  --muted: #AFD6E6;
+  --surface-border: #2B4150;
+}
+
+/* 5. ธีม Gold / ส้มทอง (#FFC06F) — Light */
 .theme-gold {
   --color-primary-rgb: 255, 192, 111;
   --primary: #FFC06F;
+  --primary-foreground: #593D0B;
   --secondary: #FFD896;
   --surface: #FFF5E3;
   --background: #FFEAC6;
   --text: #593D0B;
+  --muted: #8a6a2e;
   --surface-border: #EED6A8;
 }
 
-/* 6. ธีม Slate / น้ำเงินกรมท่า (#375572) */
+/* Gold — Dark */
+.dark.theme-gold {
+  --color-primary-rgb: 255, 201, 126;
+  --primary: #FFC97E;
+  --primary-foreground: #3a2808;
+  --secondary: #5C4420;
+  --surface: #352512;
+  --background: #241A0C;
+  --text: #FDF0DD;
+  --muted: #D9C4A0;
+  --surface-border: #4A3720;
+}
+
+/* 6. ธีม Slate / น้ำเงินกรมท่า (#375572) — Light */
 .theme-slate {
   --color-primary-rgb: 55, 85, 114;
   --primary: #375572;
+  --primary-foreground: #ffffff;
   --secondary: #456C91;
   --surface: #E5E6FF;
   --background: #707A7F;
   --text: #FFFFFF;
+  --muted: #6A5D5D;
   --surface-border: #5A666C;
+}
+
+/* Slate — Dark */
+.dark.theme-slate {
+  --color-primary-rgb: 74, 111, 147;
+  --primary: #4A6F93;
+  --primary-foreground: #ffffff;
+  --secondary: #30455C;
+  --surface: #333B6B;
+  --background: #2B3236;
+  --text: #FFFFFF;
+  --muted: #C9C6E0;
+  --surface-border: #454D6E;
 }
 
 /* ส่วนพื้นฐานและการแสดงผล */
@@ -218,94 +334,4 @@ li {
   margin-block: 0.75rem;
   padding-left: 0.35rem;
   line-height: 1.5;
-}
-
-/* ==========================================================
-   เชื่อมโยงคลาส Tailwind ให้วิ่งตามธีมสีที่เลือกอัตโนมัติ
-   ========================================================== */
-
-.theme-ruby button.bg-black, 
-.theme-ruby button.dark\:bg-white,
-.theme-ruby .bg-black {
-  background-color: var(--primary) !important;
-  color: #fff !important;
-}
-
-.theme-peach button.bg-black, 
-.theme-peach button.dark\:bg-white,
-.theme-peach .bg-black {
-  background-color: var(--primary) !important;
-  color: #5c3a3a !important;
-}
-
-.theme-gold button.bg-black, 
-.theme-gold button.dark\:bg-white,
-.theme-gold .bg-black {
-  background-color: var(--primary) !important;
-  color: #593D0B !important;
-}
-
-.theme-sky button.bg-black, 
-.theme-sky button.dark\:bg-white,
-.theme-sky .bg-black {
-  background-color: var(--primary) !important;
-  color: #0B3959 !important;
-}
-
-.theme-slate button.bg-black, 
-.theme-slate button.dark\:bg-white,
-.theme-slate .bg-black {
-  background-color: var(--primary) !important;
-  color: #fff !important;
-}
-@import "tailwindcss";
-
-/* ---------------------------------- */
-/* กำหนดค่าสีหลักของแต่ละ Brand Theme */
-/* ---------------------------------- */
-
-:root {
-  --brand-primary: #0ad1c1; /* Teal Modern */
-  --brand-primary-hover: #08b5a7;
-}
-
-.theme-peach {
-  --brand-primary: #ffaaaa;
-  --brand-primary-hover: #ff9191;
-  /* หากต้องการให้ธีมนี้เปลี่ยนโทนสีพื้นหลังภาพรวม (ตัวอย่าง: โทนพีชอ่อนๆ) */
-  background-color: #fffaf9 !important; 
-}
-
-.theme-gold {
-  --brand-primary: #ffc06f;
-  --brand-primary-hover: #f3b05b;
-}
-
-.theme-sky {
-  --brand-primary: #bce8ff;
-  --brand-primary-hover: #a2defc;
-}
-
-.theme-ruby {
-  --brand-primary: #911005;
-  --brand-primary-hover: #780d04;
-  /* ตัวอย่าง: หากเลือก Ruby แล้วอยากให้ภาพรวมหน้าเว็บมีกลิ่นอายเข้มขึ้น หรือปล่อยให้พื้นหลังเป็นปกติ */
-}
-
-.theme-slate {
-  --brand-primary: #375572;
-  --brand-primary-hover: #2c445b;
-}
-
-/* 
-  ตัวอย่างการใช้ตัวแปร --brand-primary กับปุ่มหลักหรือสถานะ Active 
-  เพื่อให้เวลาเปลี่ยนธีม ปุ่มต่างๆ จะเปลี่ยนสีตามธีมที่เลือกโดยอัตโนมัติ
-*/
-.brand-btn-primary {
-  background-color: var(--brand-primary);
-  color: #ffffff;
-}
-
-.brand-btn-primary:hover {
-  background-color: var(--brand-primary-hover);
 }

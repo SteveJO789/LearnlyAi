@@ -1,44 +1,80 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import LoadingOverlay from "../components/LoadingOverlay"; // Import Component Loading ที่เราสร้างไว้ (ปรับ path ให้ถูกต้อง)
+
+import LoadingOverlay from "../components/LoadingOverlay";
+import { getSupabaseClient } from "../../lib/supabase";
+
+const MIN_PASSWORD_LENGTH = 8;
 
 export default function SignupForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false); // 1. เพิ่ม State สำหรับควบคุม Loading
+  const [isLoading, setIsLoading] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
+    const displayName = String(formData.get("name") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
     const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
-    // เช็กว่ารหัสผ่านตรงกันไหม
+    if (!displayName) {
+      setError("Name is required");
+      return;
+    }
+
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords don't match");
       return;
     }
 
     setError(null);
-    setIsLoading(true); // 2. เริ่มแสดงหน้า Loading เมื่อผ่านการ Validation
+    setIsLoading(true);
 
-    // 3. จำลองการส่งข้อมูลไปให้ Backend เช็ก DB (หน่วงเวลา 1.5 วินาที)
-    setTimeout(() => {
-      // TODO(Best): wire this up to a real "create account" endpoint once
-      // docs/api-contract.md defines one.
-      
-      setIsLoading(false); // ปิด Loading
-      router.push("/");    // ย้ายไปหน้า Homepage
-    }, 1500);
+    try {
+      const { data, error: signUpError } = await getSupabaseClient().auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: displayName, name: displayName },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+
+      if (data.user && data.user.identities && data.user.identities.length === 0) {
+        setError("This email is already registered");
+        return;
+      }
+
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+    } catch (configurationError) {
+      setError(
+        configurationError instanceof Error
+          ? configurationError.message
+          : "Authentication is unavailable."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
     <>
-      {/* 4. แสดง Overlay หมุนๆ เมื่อ isLoading เป็น true */}
       {isLoading && <LoadingOverlay message="Creating your account..." />}
 
       <form className="flex w-full max-w-[500px] flex-col gap-4" onSubmit={handleSubmit}>
@@ -83,19 +119,17 @@ export default function SignupForm() {
           />
         </div>
 
-        {error && (
-          <p className="text-sm font-medium text-red-600">⚠️ {error}</p>
-        )}
+        {error && <p className="text-sm font-medium text-red-600">⚠️ {error}</p>}
 
         <button
           type="submit"
-          disabled={isLoading} // ป้องกันการกดซ้ำระหว่างโหลด
-          className="rounded-lg bg-black px-6 py-3.5 text-lg font-medium text-white shadow-sm hover:bg-neutral-800 disabled:opacity-50"
+          disabled={isLoading}
+          className="rounded-lg bg-black px-6 py-3.5 text-lg font-medium text-white shadow-sm hover:opacity-90 disabled:opacity-50"
         >
           Sign up
         </button>
 
-        <p className="mt-1 text-center text-base text-neutral-500">
+        <p className="mt-1 text-center text-neutral-500 text-muted">
           Already have an account?{" "}
           <Link href="/SignIn" className="font-medium text-blue-700 hover:underline">
             Log in

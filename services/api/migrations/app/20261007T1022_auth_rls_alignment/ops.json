@@ -1,0 +1,888 @@
+[
+  {
+    "id": "rlsPolicy.public.AIRequest.ai_request_select_own.drop",
+    "label": "Drop RLS policy \"ai_request_select_own\" on \"AIRequest\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "ai_request_select_own",
+        "table": "AIRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"ai_request_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AIRequest",
+          "ai_request_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop RLS policy \"ai_request_select_own\"",
+        "sql": "DROP POLICY \"ai_request_select_own\" ON \"public\".\"AIRequest\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"ai_request_select_own\" is absent",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AIRequest",
+          "ai_request_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.AIRequest.ai_request_select_own",
+    "label": "Create RLS policy \"ai_request_select_own\" on \"AIRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "ai_request_select_own",
+        "table": "AIRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"ai_request_select_own\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AIRequest",
+          "ai_request_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"ai_request_select_own\"",
+        "sql": "CREATE POLICY \"ai_request_select_own\" ON \"public\".\"AIRequest\" AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"AIRequest\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"ai_request_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AIRequest",
+          "ai_request_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.AssessmentAnswer.assessment_answer_select_own.drop",
+    "label": "Drop RLS policy \"assessment_answer_select_own\" on \"AssessmentAnswer\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "assessment_answer_select_own",
+        "table": "AssessmentAnswer"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"assessment_answer_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AssessmentAnswer",
+          "assessment_answer_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop RLS policy \"assessment_answer_select_own\"",
+        "sql": "DROP POLICY \"assessment_answer_select_own\" ON \"public\".\"AssessmentAnswer\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"assessment_answer_select_own\" is absent",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AssessmentAnswer",
+          "assessment_answer_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.AssessmentAnswer.assessment_answer_select_own",
+    "label": "Create RLS policy \"assessment_answer_select_own\" on \"AssessmentAnswer\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "assessment_answer_select_own",
+        "table": "AssessmentAnswer"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"assessment_answer_select_own\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AssessmentAnswer",
+          "assessment_answer_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"assessment_answer_select_own\"",
+        "sql": "CREATE POLICY \"assessment_answer_select_own\" ON \"public\".\"AssessmentAnswer\" AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1 FROM ((\"Assessment\" a JOIN \"LearningSession\" ls ON ((ls.id = a.\"learningSessionId\"))) JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((a.id = \"AssessmentAnswer\".\"assessmentId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"assessment_answer_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AssessmentAnswer",
+          "assessment_answer_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.Assessment.assessment_select_own.drop",
+    "label": "Drop RLS policy \"assessment_select_own\" on \"Assessment\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "assessment_select_own",
+        "table": "Assessment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"assessment_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Assessment",
+          "assessment_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop RLS policy \"assessment_select_own\"",
+        "sql": "DROP POLICY \"assessment_select_own\" ON \"public\".\"Assessment\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"assessment_select_own\" is absent",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Assessment",
+          "assessment_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.Assessment.assessment_select_own",
+    "label": "Create RLS policy \"assessment_select_own\" on \"Assessment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "assessment_select_own",
+        "table": "Assessment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"assessment_select_own\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Assessment",
+          "assessment_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"assessment_select_own\"",
+        "sql": "CREATE POLICY \"assessment_select_own\" ON \"public\".\"Assessment\" AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Assessment\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"assessment_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Assessment",
+          "assessment_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.LearningProfile.learning_profile_select_own.drop",
+    "label": "Drop RLS policy \"learning_profile_select_own\" on \"LearningProfile\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "learning_profile_select_own",
+        "table": "LearningProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"learning_profile_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningProfile",
+          "learning_profile_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop RLS policy \"learning_profile_select_own\"",
+        "sql": "DROP POLICY \"learning_profile_select_own\" ON \"public\".\"LearningProfile\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"learning_profile_select_own\" is absent",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningProfile",
+          "learning_profile_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.LearningProfile.learning_profile_select_own",
+    "label": "Create RLS policy \"learning_profile_select_own\" on \"LearningProfile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "learning_profile_select_own",
+        "table": "LearningProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"learning_profile_select_own\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningProfile",
+          "learning_profile_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"learning_profile_select_own\"",
+        "sql": "CREATE POLICY \"learning_profile_select_own\" ON \"public\".\"LearningProfile\" AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningProfile\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"learning_profile_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningProfile",
+          "learning_profile_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.LearningSession.learning_session_select_own.drop",
+    "label": "Drop RLS policy \"learning_session_select_own\" on \"LearningSession\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "learning_session_select_own",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"learning_session_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "learning_session_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop RLS policy \"learning_session_select_own\"",
+        "sql": "DROP POLICY \"learning_session_select_own\" ON \"public\".\"LearningSession\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"learning_session_select_own\" is absent",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "learning_session_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.LearningSession.learning_session_select_own",
+    "label": "Create RLS policy \"learning_session_select_own\" on \"LearningSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "learning_session_select_own",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"learning_session_select_own\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "learning_session_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"learning_session_select_own\"",
+        "sql": "CREATE POLICY \"learning_session_select_own\" ON \"public\".\"LearningSession\" AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"learning_session_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "learning_session_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.Message.message_select_own.drop",
+    "label": "Drop RLS policy \"message_select_own\" on \"Message\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "message_select_own",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"message_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Message",
+          "message_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop RLS policy \"message_select_own\"",
+        "sql": "DROP POLICY \"message_select_own\" ON \"public\".\"Message\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"message_select_own\" is absent",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Message",
+          "message_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.Message.message_select_own",
+    "label": "Create RLS policy \"message_select_own\" on \"Message\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "message_select_own",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"message_select_own\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Message",
+          "message_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"message_select_own\"",
+        "sql": "CREATE POLICY \"message_select_own\" ON \"public\".\"Message\" AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"message_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Message",
+          "message_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.SourceMaterial.source_material_select_own.drop",
+    "label": "Drop RLS policy \"source_material_select_own\" on \"SourceMaterial\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "source_material_select_own",
+        "table": "SourceMaterial"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"source_material_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop RLS policy \"source_material_select_own\"",
+        "sql": "DROP POLICY \"source_material_select_own\" ON \"public\".\"SourceMaterial\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"source_material_select_own\" is absent",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.SourceMaterial.source_material_select_own",
+    "label": "Create RLS policy \"source_material_select_own\" on \"SourceMaterial\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "source_material_select_own",
+        "table": "SourceMaterial"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"source_material_select_own\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"source_material_select_own\"",
+        "sql": "CREATE POLICY \"source_material_select_own\" ON \"public\".\"SourceMaterial\" AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"SourceMaterial\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"source_material_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.User.user_insert_own.drop",
+    "label": "Drop RLS policy \"user_insert_own\" on \"User\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "user_insert_own",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"user_insert_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_insert_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop RLS policy \"user_insert_own\"",
+        "sql": "DROP POLICY \"user_insert_own\" ON \"public\".\"User\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"user_insert_own\" is absent",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_insert_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.User.user_insert_own",
+    "label": "Create RLS policy \"user_insert_own\" on \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "user_insert_own",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"user_insert_own\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_insert_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"user_insert_own\"",
+        "sql": "CREATE POLICY \"user_insert_own\" ON \"public\".\"User\" AS PERMISSIVE FOR INSERT TO authenticated WITH CHECK ((\"authUserId\" = (( SELECT auth.uid() AS uid))::text))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"user_insert_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_insert_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.User.user_select_own.drop",
+    "label": "Drop RLS policy \"user_select_own\" on \"User\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "user_select_own",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"user_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop RLS policy \"user_select_own\"",
+        "sql": "DROP POLICY \"user_select_own\" ON \"public\".\"User\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"user_select_own\" is absent",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.User.user_select_own",
+    "label": "Create RLS policy \"user_select_own\" on \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "user_select_own",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"user_select_own\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"user_select_own\"",
+        "sql": "CREATE POLICY \"user_select_own\" ON \"public\".\"User\" AS PERMISSIVE FOR SELECT TO authenticated USING ((\"authUserId\" = (( SELECT auth.uid() AS uid))::text))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"user_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_select_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.User.user_update_own.drop",
+    "label": "Drop RLS policy \"user_update_own\" on \"User\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "user_update_own",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"user_update_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_update_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop RLS policy \"user_update_own\"",
+        "sql": "DROP POLICY \"user_update_own\" ON \"public\".\"User\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"user_update_own\" is absent",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_update_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.User.user_update_own",
+    "label": "Create RLS policy \"user_update_own\" on \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "user_update_own",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"user_update_own\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_update_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"user_update_own\"",
+        "sql": "CREATE POLICY \"user_update_own\" ON \"public\".\"User\" AS PERMISSIVE FOR UPDATE TO authenticated USING ((\"authUserId\" = (( SELECT auth.uid() AS uid))::text)) WITH CHECK ((\"authUserId\" = (( SELECT auth.uid() AS uid))::text))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"user_update_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_update_own"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "security.grant-authenticated-to-learnly-dev",
+    "label": "Allow learnly_dev to SET ROLE authenticated for Supabase RLS",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "description": "learnly_dev is not yet a member of authenticated with SET OPTION",
+        "sql": "\n              SELECT NOT EXISTS (\n                SELECT 1\n                FROM pg_auth_members m\n                JOIN pg_roles granted_role ON granted_role.oid = m.roleid\n                JOIN pg_roles member_role ON member_role.oid = m.member\n                WHERE granted_role.rolname = 'authenticated'\n                  AND member_role.rolname = 'learnly_dev'\n                  AND m.inherit_option = false\n                  AND m.set_option = true\n              )\n            "
+      }
+    ],
+    "execute": [
+      {
+        "description": "grant authenticated role to learnly_dev with SET",
+        "sql": "\n              GRANT authenticated TO learnly_dev WITH INHERIT FALSE, SET TRUE, ADMIN FALSE\n            "
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "learnly_dev can SET ROLE authenticated",
+        "sql": "\n              SELECT EXISTS (\n                SELECT 1\n                FROM pg_auth_members m\n                JOIN pg_roles granted_role ON granted_role.oid = m.roleid\n                JOIN pg_roles member_role ON member_role.oid = m.member\n                WHERE granted_role.rolname = 'authenticated'\n                  AND member_role.rolname = 'learnly_dev'\n                  AND m.inherit_option = false\n                  AND m.set_option = true\n              )\n            "
+      }
+    ]
+  }
+]

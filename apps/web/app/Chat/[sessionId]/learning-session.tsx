@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { respondToLearning, type LearningAction, type TutorOutput } from "./api";
+import { getLearningSession } from "../../../lib/learning-sessions";
+import { useLanguage } from "../../lib/i18n/LanguageContext";
 import BlockView, { CitationList } from "./blocks";
 
 type UserTurn = { id: string; role: "user"; text: string };
@@ -17,6 +19,7 @@ type Props = {
   sessionId: string;
   learningGoal?: string;
   subject?: string;
+  initialInput?: string;
 };
 
 function SidebarIcon() {
@@ -28,17 +31,20 @@ function SidebarIcon() {
   );
 }
 
-export default function LearningSession({ sessionId, learningGoal, subject }: Props) {
+export default function LearningSession({ sessionId, learningGoal, subject, initialInput }: Props) {
+  const { t } = useLanguage();
   const router = useRouter();
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
+  const [hydrating, setHydrating] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const lastRequest = useRef<PendingRequest | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const turnCounter = useRef(0);
+  const didAutoSend = useRef(false);
 
   // Start with the sidebar closed on phones so it doesn't cover the chat.
   useEffect(() => {
@@ -50,6 +56,56 @@ export default function LearningSession({ sessionId, learningGoal, subject }: Pr
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [turns, loading, error]);
+
+  useEffect(() => {
+    let active = true;
+    setHydrating(true);
+    setError(null);
+
+    getLearningSession(sessionId)
+      .then((session) => {
+        if (!active) return;
+
+        const restored = session.messages.flatMap<Turn>((message): Turn[] => {
+          if (message.role === "USER" && typeof message.content === "string") {
+            return [{ id: message.id, role: "user" as const, text: message.content }];
+          }
+
+          if (
+            message.role === "TUTOR" &&
+            message.content &&
+            typeof message.content === "object" &&
+            Array.isArray((message.content as TutorOutput).blocks)
+          ) {
+            return [{
+              id: message.id,
+              role: "tutor" as const,
+              output: message.content as TutorOutput,
+            }];
+          }
+
+          return [];
+        });
+
+        setTurns(restored);
+        turnCounter.current = restored.length;
+      })
+      .catch((loadError) => {
+        if (!active) return;
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : t("chat.unknownError"),
+        );
+      })
+      .finally(() => {
+        if (active) setHydrating(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [sessionId, t]);
 
   const lastTurn = turns[turns.length - 1];
   const lastTutorTurn = [...turns]
@@ -75,13 +131,11 @@ export default function LearningSession({ sessionId, learningGoal, subject }: Pr
       const output = await respondToLearning({
         sessionId,
         input: request.input,
-        learningGoal,
-        subject,
         action: request.action,
       });
       setTurns((previous) => [...previous, { id: nextId(), role: "tutor", output }]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ");
+      setError(err instanceof Error ? err.message : t("chat.unknownError"));
     } finally {
       setLoading(false);
     }
@@ -96,6 +150,17 @@ export default function LearningSession({ sessionId, learningGoal, subject }: Pr
     void run({ action: "RESPOND", input });
   }
 
+  // Only auto-send a Create-page question when this persisted session is empty.
+  // This avoids duplicating the first message after a refresh.
+  useEffect(() => {
+    if (hydrating || didAutoSend.current || turns.length > 0) return;
+    if (initialInput && initialInput.trim()) {
+      didAutoSend.current = true;
+      submit(initialInput);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrating, initialInput, turns.length]);
+
   function advance() {
     if (loading) return;
     void run({ action: "ADVANCE", input: "Continue" });
@@ -107,27 +172,27 @@ export default function LearningSession({ sessionId, learningGoal, subject }: Pr
   }
 
   function startNewSession() {
-    router.push(`/Chat/${crypto.randomUUID()}`);
+    router.push("/Create");
   }
 
   return (
-    <div className="flex h-dvh bg-white text-neutral-900">
+    <div className="flex h-dvh bg-background text-text">
       <aside
         inert={!sidebarOpen}
-        className={`fixed inset-y-0 left-0 z-20 shrink-0 overflow-hidden bg-neutral-50 transition-[width] duration-200 md:static ${
-          sidebarOpen ? "w-72 border-r border-neutral-200" : "w-0"
+        className={`fixed inset-y-0 left-0 z-20 shrink-0 overflow-hidden bg-surface transition-[width] duration-200 md:static ${
+          sidebarOpen ? "w-72 border-r border-surface-border" : "w-0"
         }`}
       >
         <div className="flex h-full w-72 flex-col gap-6 p-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-lg font-medium tracking-wide">
+            <Link href="/Home" className="text-lg font-medium tracking-wide">
               LOGO
             </Link>
             <button
               type="button"
               onClick={() => setSidebarOpen(false)}
               aria-label="Close sidebar"
-              className="rounded-lg p-2 text-neutral-500 hover:bg-neutral-200"
+              className="rounded-lg p-2 text-muted hover:bg-secondary"
             >
               <SidebarIcon />
             </button>
@@ -136,26 +201,26 @@ export default function LearningSession({ sessionId, learningGoal, subject }: Pr
           <button
             type="button"
             onClick={startNewSession}
-            className="rounded-lg bg-black px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-neutral-800"
+            className="rounded-lg bg-primary px-4 py-3 text-base font-medium text-primary-foreground shadow-sm hover:opacity-90"
           >
-            + New session
+            {t("chat.newSession")}
           </button>
 
-          <div className="text-sm text-neutral-500">
-            <p className="mb-1 font-medium text-neutral-700">Current session</p>
+          <div className="text-sm text-muted">
+            <p className="mb-1 font-medium text-text">{t("chat.currentSession")}</p>
             <p className="break-all font-mono text-xs">{sessionId}</p>
-            {subject && <p className="mt-2">วิชา: {subject}</p>}
-            {learningGoal && <p className="mt-1">เป้าหมาย: {learningGoal}</p>}
+            {subject && <p className="mt-2">{t("chat.subject")} {subject}</p>}
+            {learningGoal && <p className="mt-1">{t("chat.goal")} {learningGoal}</p>}
           </div>
 
-          <Link href="/" className="mt-auto text-sm text-neutral-500 hover:underline">
-            ← Back to Home
+          <Link href="/Home" className="mt-auto text-sm text-muted hover:underline">
+            {t("chat.backToHome")}
           </Link>
         </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between gap-4 border-b border-neutral-200 px-4 py-3">
+        <header className="flex items-center justify-between gap-4 border-b border-surface-border px-4 py-3">
           <div className="flex items-center gap-3">
             {!sidebarOpen && (
               <button
@@ -163,12 +228,12 @@ export default function LearningSession({ sessionId, learningGoal, subject }: Pr
                 onClick={() => setSidebarOpen(true)}
                 aria-label="Open sidebar"
                 aria-expanded={false}
-                className="rounded-lg p-2 text-neutral-500 hover:bg-neutral-100"
+                className="rounded-lg p-2 text-muted hover:bg-secondary"
               >
                 <SidebarIcon />
               </button>
             )}
-            <h1 className="text-base font-medium text-neutral-700">Learning session</h1>
+            <h1 className="text-base font-medium text-muted">{t("chat.title")}</h1>
           </div>
 
           {percent !== null && (
@@ -179,25 +244,29 @@ export default function LearningSession({ sessionId, learningGoal, subject }: Pr
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={percent}
-                className="h-2 w-28 overflow-hidden rounded-full bg-neutral-200 sm:w-44"
+                className="h-2 w-28 overflow-hidden rounded-full bg-secondary sm:w-44"
               >
                 <div
-                  className="h-full rounded-full bg-black transition-[width] duration-500"
+                  className="h-full rounded-full bg-primary transition-[width] duration-500"
                   style={{ width: `${percent}%` }}
                 />
               </div>
-              <span className="text-sm tabular-nums text-neutral-500">{percent}%</span>
+              <span className="text-sm tabular-nums text-muted">{percent}%</span>
             </div>
           )}
         </header>
 
         <div className="flex-1 overflow-y-auto">
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
-            {turns.length === 0 && !loading && !error && (
+            {hydrating && (
+              <div className="py-16 text-center text-muted">{t("chat.thinking")}</div>
+            )}
+
+            {turns.length === 0 && !hydrating && !loading && !error && (
               <div className="py-16 text-center">
-                <p className="text-2xl text-neutral-700">วันนี้อยากเรียนเรื่องอะไร?</p>
+                <p className="text-2xl text-muted">{t("chat.whatToLearn")}</p>
                 {learningGoal && (
-                  <p className="mt-3 text-neutral-500">เป้าหมาย: {learningGoal}</p>
+                  <p className="mt-3 text-muted">{t("chat.goal")} {learningGoal}</p>
                 )}
               </div>
             )}
@@ -206,7 +275,7 @@ export default function LearningSession({ sessionId, learningGoal, subject }: Pr
               if (turn.role === "user") {
                 return (
                   <div key={turn.id} className="flex justify-end">
-                    <p className="max-w-[85%] whitespace-pre-wrap rounded-2xl bg-neutral-100 px-4 py-3">
+                    <p className="max-w-[85%] whitespace-pre-wrap rounded-2xl bg-secondary px-4 py-3">
                       {turn.text}
                     </p>
                   </div>
@@ -231,28 +300,28 @@ export default function LearningSession({ sessionId, learningGoal, subject }: Pr
             })}
 
             {loading && (
-              <div className="flex items-center gap-3 text-neutral-500" aria-live="polite">
+              <div className="flex items-center gap-3 text-muted" aria-live="polite">
                 <span className="flex gap-1" aria-hidden="true">
-                  <span className="size-2 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.3s]" />
-                  <span className="size-2 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.15s]" />
-                  <span className="size-2 animate-bounce rounded-full bg-neutral-400" />
+                  <span className="size-2 animate-bounce rounded-full bg-muted [animation-delay:-0.3s]" />
+                  <span className="size-2 animate-bounce rounded-full bg-muted [animation-delay:-0.15s]" />
+                  <span className="size-2 animate-bounce rounded-full bg-muted" />
                 </span>
-                AI กำลังคิด…
+                {t("chat.thinking")}
               </div>
             )}
 
             {error && (
               <div
                 role="alert"
-                className="flex flex-col gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800"
+                className="flex flex-col gap-3 rounded-xl border border-danger/40 bg-danger/10 p-4 text-danger"
               >
                 <p>⚠️ {error}</p>
                 <button
                   type="button"
                   onClick={retry}
-                  className="self-start rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium hover:bg-red-100"
+                  className="self-start rounded-lg border border-danger/40 bg-background px-4 py-2 text-sm font-medium hover:bg-danger/10"
                 >
-                  ลองอีกครั้ง
+                  {t("chat.retry")}
                 </button>
               </div>
             )}
@@ -262,9 +331,9 @@ export default function LearningSession({ sessionId, learningGoal, subject }: Pr
                 <button
                   type="button"
                   onClick={advance}
-                  className="rounded-lg bg-black px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-neutral-800"
+                  className="rounded-lg bg-primary px-6 py-3 text-base font-medium text-primary-foreground shadow-sm hover:opacity-90"
                 >
-                  Continue →
+                  {t("chat.continue")}
                 </button>
               </div>
             )}
@@ -273,13 +342,13 @@ export default function LearningSession({ sessionId, learningGoal, subject }: Pr
           </div>
         </div>
 
-        <div className="border-t border-neutral-200 px-4 pb-5 pt-3">
+        <div className="border-t border-surface-border px-4 pb-5 pt-3">
           <form
             onSubmit={(event) => {
               event.preventDefault();
               submit(draft);
             }}
-            className="mx-auto flex w-full max-w-3xl items-end gap-3 rounded-3xl border border-neutral-300 bg-white p-2 pl-5 focus-within:border-neutral-900"
+            className="mx-auto flex w-full max-w-3xl items-end gap-3 rounded-3xl border border-surface-border bg-surface p-2 pl-5 focus-within:border-primary"
           >
             <textarea
               value={draft}
@@ -291,23 +360,23 @@ export default function LearningSession({ sessionId, learningGoal, subject }: Pr
                 }
               }}
               rows={1}
-              placeholder="พิมพ์โจทย์หรือคำตอบของคุณ"
-              aria-label="Message"
-              className="max-h-40 min-h-10 flex-1 resize-none bg-transparent py-2 text-base outline-none field-sizing-content placeholder:text-neutral-400"
+              placeholder={t("chat.placeholder")}
+              aria-label={t("chat.messageAriaLabel")}
+              className="max-h-40 min-h-10 flex-1 resize-none bg-transparent py-2 text-base text-text outline-none field-sizing-content placeholder:text-muted"
             />
             <button
               type="submit"
               disabled={loading || draft.trim().length === 0}
-              aria-label="Send"
-              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-black text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300"
+              aria-label={t("chat.sendAriaLabel")}
+              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M12 19V5M5 12l7-7 7 7" />
               </svg>
             </button>
           </form>
-          <p className="mx-auto mt-2 max-w-3xl text-center text-xs text-neutral-400">
-            Enter เพื่อส่ง · Shift+Enter ขึ้นบรรทัดใหม่
+          <p className="mx-auto mt-2 max-w-3xl text-center text-xs text-muted">
+            {t("chat.sendHint")}
           </p>
         </div>
       </div>

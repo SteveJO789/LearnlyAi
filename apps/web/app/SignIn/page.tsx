@@ -8,9 +8,9 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white text-neutral-900">
+    <div className="auth-page min-h-screen flex flex-col bg-white text-black">
       <header className="px-5 pt-8 sm:px-12 lg:px-20">
-        <Link href="/" className="text-lg font-medium tracking-wide text-neutral-900">
+        <Link href="/" className="text-lg font-medium tracking-wide text-black">
           LOGO
         </Link>
       </header>

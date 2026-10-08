@@ -17,7 +17,8 @@ test("valid input returns canonical validated output and commits a complete turn
   assert.deepEqual(output.citations, []);
   const session = await persistence.sessions.findById(sampleRequest.sessionId);
   assert.equal(session.stage, "EXPLAIN");
-  assert.equal(session.state, "ACTIVE");
+  assert.equal(session.state, "LEARNING");
+  assert.equal(session.lifecycleState, "ACTIVE");
   assert.equal(session.version, 1);
   assert.equal(session.learningGoal, "Solve linear equations");
   const messages = await persistence.messages.findBySessionId(sampleRequest.sessionId);
@@ -62,7 +63,7 @@ for (const [name, mutate] of [
     } else {
       await assert.rejects(engine.process(sampleRequest), (error) => error instanceof AIBoundaryError && error.code === "AI_INVALID_OUTPUT");
       assert.deepEqual(await persistence.messages.findBySessionId(sampleRequest.sessionId), []);
-      assert.equal((await persistence.sessions.findById(sampleRequest.sessionId)).state, "FAILED");
+      assert.equal((await persistence.sessions.findById(sampleRequest.sessionId)).lifecycleState, "FAILED");
     }
   });
 }
@@ -144,7 +145,8 @@ test("explicit advances follow all five stages and REVIEW completes the session"
     assert.equal(result.stage, contractStages[index]);
     const session = await persistence.sessions.findById(sampleRequest.sessionId);
     assert.equal(session.stage, stages[index]);
-    assert.equal(session.state, index === 4 ? "COMPLETED" : "ACTIVE");
+    assert.equal(session.state, contractStages[index]);
+    assert.equal(session.lifecycleState, index === 4 ? "COMPLETED" : "ACTIVE");
   }
   await assert.rejects(engine.process(sampleRequest), { code: "SESSION_INACTIVE" });
   assert.equal((await persistence.messages.findBySessionId(sampleRequest.sessionId)).length, 10);
@@ -170,7 +172,8 @@ test("failure retains the successful stage and history and prevents more termina
   await assert.rejects(engine.process({ ...sampleRequest, action: "ADVANCE" }), { code: "AI_INVALID_OUTPUT" });
   const session = await persistence.sessions.findById(sampleRequest.sessionId);
   assert.equal(session.stage, "EXPLAIN");
-  assert.equal(session.state, "FAILED");
+  assert.equal(session.state, "LEARNING");
+  assert.equal(session.lifecycleState, "FAILED");
   assert.equal((await persistence.messages.findBySessionId(sampleRequest.sessionId)).length, 2);
   await assert.rejects(engine.process(sampleRequest), { code: "SESSION_INACTIVE" });
   assert.equal(requests.length, 2);
@@ -207,6 +210,6 @@ test("a stale provider failure cannot mark a concurrently committed session FAIL
   await engine.process(sampleRequest);
   releaseFailure();
   await failure;
-  assert.equal((await persistence.sessions.findById(sampleRequest.sessionId)).state, "ACTIVE");
+  assert.equal((await persistence.sessions.findById(sampleRequest.sessionId)).lifecycleState, "ACTIVE");
   assert.equal((await persistence.messages.findBySessionId(sampleRequest.sessionId)).length, 2);
 });

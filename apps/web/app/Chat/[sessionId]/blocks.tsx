@@ -1,14 +1,18 @@
 import type { Block, Citation } from "./api";
+import { useLanguage } from "../../lib/i18n/LanguageContext";
 
 type ChoiceOption = { key: string; label: string };
 
-const feedbackStyles: Record<string, { label: string; className: string }> = {
-  CORRECT: { label: "ถูกต้อง", className: "border-green-200 bg-green-50 text-green-900" },
-  PARTIALLY_CORRECT: {
-    label: "ถูกบางส่วน",
-    className: "border-amber-200 bg-amber-50 text-amber-900",
-  },
-  TRY_AGAIN: { label: "ลองอีกครั้ง", className: "border-rose-200 bg-rose-50 text-rose-900" },
+const feedbackStyleClasses: Record<string, string> = {
+  CORRECT: "border-green-200 bg-green-50 text-green-900",
+  PARTIALLY_CORRECT: "border-amber-200 bg-amber-50 text-amber-900",
+  TRY_AGAIN: "border-rose-200 bg-rose-50 text-rose-900",
+};
+
+const feedbackLabelKeys: Record<string, string> = {
+  CORRECT: "chat.blocks.feedback.correct",
+  PARTIALLY_CORRECT: "chat.blocks.feedback.partiallyCorrect",
+  TRY_AGAIN: "chat.blocks.feedback.tryAgain",
 };
 
 function ChoiceButtons({
@@ -28,7 +32,7 @@ function ChoiceButtons({
           type="button"
           disabled={disabled}
           onClick={() => onChoose(choice.label)}
-          className="rounded-xl border border-neutral-300 bg-white px-4 py-3 text-left text-base hover:border-neutral-900 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-neutral-300"
+          className="rounded-xl border border-surface-border bg-background px-4 py-3 text-left text-base hover:border-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-surface-border"
         >
           {choice.label}
         </button>
@@ -45,22 +49,24 @@ type BlockViewProps = {
 };
 
 export default function BlockView({ block, interactive, onChoose }: BlockViewProps) {
+  const { t } = useLanguage();
+
   switch (block.type) {
     case "explanation":
       return (
-        <section className="rounded-2xl bg-neutral-50 p-5">
+        <section className="rounded-2xl bg-secondary/40 p-5">
           {block.title && (
-            <h3 className="mb-2 text-lg font-semibold text-neutral-900">{block.title}</h3>
+            <h3 className="mb-2 text-lg font-semibold text-text">{block.title}</h3>
           )}
-          <p className="whitespace-pre-wrap leading-relaxed text-neutral-800">{block.content}</p>
+          <p className="whitespace-pre-wrap leading-relaxed text-text">{block.content}</p>
         </section>
       );
 
     case "guided_question":
       return (
         <section className="rounded-2xl border border-indigo-200 bg-indigo-50 p-5">
-          <p className="mb-2 text-sm font-medium text-indigo-700">Question</p>
-          <p className="whitespace-pre-wrap leading-relaxed text-neutral-900">{block.content}</p>
+          <p className="mb-2 text-sm font-medium text-indigo-700">{t("chat.blocks.question")}</p>
+          <p className="whitespace-pre-wrap leading-relaxed text-text">{block.content}</p>
           {block.choices && block.choices.length > 0 && (
             <ChoiceButtons
               choices={block.choices.map((choice) => ({ key: choice, label: choice }))}
@@ -77,7 +83,7 @@ export default function BlockView({ block, interactive, onChoose }: BlockViewPro
           <p className="mb-2 text-sm font-medium text-amber-800">
             {block.title ?? `Hint${block.level ? ` ${block.level}` : ""}`}
           </p>
-          <p className="whitespace-pre-wrap leading-relaxed text-neutral-900">{block.content}</p>
+          <p className="whitespace-pre-wrap leading-relaxed text-text">{block.content}</p>
         </section>
       );
 
@@ -87,8 +93,8 @@ export default function BlockView({ block, interactive, onChoose }: BlockViewPro
 
       return (
         <section className="rounded-2xl border border-fuchsia-200 bg-fuchsia-50 p-5">
-          <p className="mb-2 text-sm font-medium text-fuchsia-700">Quiz</p>
-          <p className="whitespace-pre-wrap leading-relaxed text-neutral-900">{block.prompt}</p>
+          <p className="mb-2 text-sm font-medium text-fuchsia-700">{t("chat.blocks.quiz")}</p>
+          <p className="whitespace-pre-wrap leading-relaxed text-text">{block.prompt}</p>
           {hasChoices ? (
             <ChoiceButtons
               choices={(block.choices ?? []).map((choice) => ({
@@ -99,21 +105,20 @@ export default function BlockView({ block, interactive, onChoose }: BlockViewPro
               onChoose={onChoose}
             />
           ) : (
-            <p className="mt-3 text-sm text-neutral-500">พิมพ์คำตอบในช่องด้านล่าง</p>
+            <p className="mt-3 text-sm text-muted">{t("chat.blocks.typeBelow")}</p>
           )}
         </section>
       );
     }
 
     case "feedback": {
-      const style = feedbackStyles[block.result] ?? {
-        label: block.result,
-        className: "border-neutral-200 bg-neutral-50 text-neutral-900",
-      };
+      const className =
+        feedbackStyleClasses[block.result] ?? "border-surface-border bg-secondary/40 text-text";
+      const label = feedbackLabelKeys[block.result] ? t(feedbackLabelKeys[block.result]) : block.result;
 
       return (
-        <section className={`rounded-2xl border p-5 ${style.className}`}>
-          <p className="mb-2 text-sm font-semibold">{style.label}</p>
+        <section className={`rounded-2xl border p-5 ${className}`}>
+          <p className="mb-2 text-sm font-semibold">{label}</p>
           <p className="whitespace-pre-wrap leading-relaxed">{block.content}</p>
         </section>
       );
@@ -121,8 +126,8 @@ export default function BlockView({ block, interactive, onChoose }: BlockViewPro
 
     case "interactive":
       return (
-        <section className="rounded-2xl border border-dashed border-neutral-300 p-5 text-sm text-neutral-500">
-          Interactive component “{block.component}” (ยังไม่ได้ทำ)
+        <section className="rounded-2xl border border-dashed border-surface-border p-5 text-sm text-muted">
+          Interactive component “{block.component}” {t("chat.blocks.interactiveNotBuilt")}
         </section>
       );
 
@@ -130,8 +135,8 @@ export default function BlockView({ block, interactive, onChoose }: BlockViewPro
       // A block type this page doesn't know yet: show its text if it has any.
       const unknown = block as unknown as { content?: unknown };
       return typeof unknown.content === "string" ? (
-        <section className="rounded-2xl bg-neutral-50 p-5">
-          <p className="whitespace-pre-wrap leading-relaxed text-neutral-800">{unknown.content}</p>
+        <section className="rounded-2xl bg-secondary/40 p-5">
+          <p className="whitespace-pre-wrap leading-relaxed text-text">{unknown.content}</p>
         </section>
       ) : null;
     }
@@ -139,16 +144,18 @@ export default function BlockView({ block, interactive, onChoose }: BlockViewPro
 }
 
 export function CitationList({ citations }: { citations?: Citation[] }) {
+  const { t } = useLanguage();
+
   if (!citations || citations.length === 0) return null;
 
   return (
-    <div className="text-sm text-neutral-500">
-      <p className="mb-1 font-medium">แหล่งอ้างอิง</p>
+    <div className="text-sm text-muted">
+      <p className="mb-1 font-medium">{t("chat.blocks.references")}</p>
       <ul className="list-inside list-disc">
         {citations.map((citation) => (
           <li key={citation.id}>
             {citation.title}
-            {citation.page ? ` (หน้า ${citation.page})` : ""}
+            {citation.page ? ` (${t("chat.blocks.page")} ${citation.page})` : ""}
           </li>
         ))}
       </ul>

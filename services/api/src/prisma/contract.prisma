@@ -1,58 +1,69 @@
 // use prisma-8
 
 model User {
-  id          String   @id @default(uuid())
-  email       String?
-  displayName String
-  avatarUrl   String?
-  createdAt   TimestamptzString @default(now())
-  updatedAt   temporal.updatedAtString()
-  oauthAccounts OAuthAccount[]
-  appSessions AppSession[]
+  id                String   @id @default(uuid())
+  authUserId        String   @unique
+  username          String?  @unique
+  email             String?
+  displayName       String
+  avatarUrl         String?
+  createdAt         TimestamptzString @default(now())
+  updatedAt         temporal.updatedAtString()
+
   learningSessions LearningSession[]
+  learningProfile  LearningProfile?
+
+  @@index([email])
+  @@rls
 }
 
-model OAuthAccount {
-  id              String   @id @default(uuid())
-  userId          String
-  provider        String
-  subject         String
-  emailAtProvider String?
-  createdAt       TimestamptzString @default(now())
-  lastLoginAt     TimestamptzString?
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@unique([provider, subject])
+enum LearningSessionState {
+  INPUT
+  CONTENT_ANALYSIS
+  PRE_TEST
+  LEARNING
+  TRANSFER
+  POST_TEST
+  COMPLETED
 }
 
-model AppSession {
-  id          String   @id @default(uuid())
-  userId      String
-  tokenDigest String   @unique
-  expiresAt   TimestamptzString
-  createdAt   TimestamptzString @default(now())
-  lastSeenAt  TimestamptzString?
-  revokedAt   TimestamptzString?
+enum LearningSessionLifecycleState {
+  ACTIVE
+  COMPLETED
+  FAILED
+}
 
-  user User @relation(fields: [userId], references: [id])
+enum LearningStage {
+  DIAGNOSE
+  EXPLAIN
+  PRACTICE
+  ASSESS
+  REVIEW
 }
 
 model LearningSession {
-  id             String   @id @default(uuid())
-  userId         String
-  title          String
-  learningGoal   String?
-  state          String
+  id              String                        @id @default(uuid())
+  userId          String
+  title           String
+  learningGoal    String?
+  subject         String?
+  state           LearningSessionState          @default(INPUT)
+  lifecycleState  LearningSessionLifecycleState @default(ACTIVE)
+  stage           LearningStage                 @default(EXPLAIN)
   progressPercent Int
-  version        Int      @default(1)
-  createdAt      TimestamptzString @default(now())
-  updatedAt      temporal.updatedAtString()
-  completedAt    TimestamptzString?
+  version         Int                           @default(1)
+  createdAt       TimestamptzString             @default(now())
+  updatedAt       temporal.updatedAtString()
+  completedAt     TimestamptzString?
 
-  user User @relation(fields: [userId], references: [id])
+  user            User              @relation(fields: [userId], references: [id])
   sourceMaterials SourceMaterial[]
-  messages Message[]
+  messages        Message[]
+  assessments     Assessment[]
+  aiRequests      AIRequest[]
+
+  @@index([userId, createdAt])
+  @@rls
 }
 
 enum SourceMaterialType {
@@ -84,6 +95,8 @@ model SourceMaterial {
     fields: [learningSessionId],
     references: [id]
   )
+
+  @@rls
 }
 
 enum MessageRole {
@@ -93,7 +106,7 @@ enum MessageRole {
 }
 
 model Message {
-  id                String      @id @default(uuid())
+  id                String            @id @default(uuid())
   learningSessionId String
   role              MessageRole
   content           Json
@@ -103,4 +116,155 @@ model Message {
     fields: [learningSessionId],
     references: [id]
   )
+
+  @@rls
+}
+
+enum AssessmentPhase {
+  PRE
+  POST
+  TRANSFER
+}
+
+model Assessment {
+  id                String           @id @default(uuid())
+  learningSessionId String
+  phase             AssessmentPhase
+  score             Int?
+  maxScore          Int?
+  submittedAt       TimestamptzString?
+
+  learningSession LearningSession @relation(
+    fields: [learningSessionId],
+    references: [id]
+  )
+
+  answers AssessmentAnswer[]
+
+  @@unique([learningSessionId, phase])
+  @@rls
+}
+
+model AssessmentAnswer {
+  id           String @id @default(uuid())
+  assessmentId String
+  questionId   String
+  response     Json
+  isCorrect    Boolean?
+  awardedScore Int?
+
+  assessment Assessment @relation(
+    fields: [assessmentId],
+    references: [id]
+  )
+
+  @@rls
+}
+
+model LearningProfile {
+  userId     String @id
+  mastery    Json
+  strengths  Json
+  weakPoints Json
+  updatedAt  TimestamptzString
+
+  user User @relation(
+    fields: [userId],
+    references: [id]
+  )
+
+  @@rls
+}
+
+enum AIRequestStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model AIRequest {
+  id                String          @id @default(uuid())
+  learningSessionId String
+  requestId         String
+  provider          String
+  model             String
+  operation         String
+  status            AIRequestStatus
+  latencyMs         Int?
+  inputTokens       Int?
+  outputTokens      Int?
+  errorCode         String?
+  promptSnapshot    Json?
+  outputSnapshot    Json?
+  createdAt         TimestamptzString @default(now())
+
+  learningSession LearningSession @relation(
+    fields: [learningSessionId],
+    references: [id]
+  )
+
+  @@unique([requestId])
+  @@index([learningSessionId, createdAt])
+  @@rls
+}
+
+policy_select ai_request_select_own {
+  target = AIRequest
+  roles = [authenticated]
+  using = "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"AIRequest\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+}
+
+policy_select assessment_answer_select_own {
+  target = AssessmentAnswer
+  roles = [authenticated]
+  using = "(EXISTS ( SELECT 1 FROM ((\"Assessment\" a JOIN \"LearningSession\" ls ON ((ls.id = a.\"learningSessionId\"))) JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((a.id = \"AssessmentAnswer\".\"assessmentId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+}
+
+policy_select assessment_select_own {
+  target = Assessment
+  roles = [authenticated]
+  using = "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Assessment\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+}
+
+policy_select learning_profile_select_own {
+  target = LearningProfile
+  roles = [authenticated]
+  using = "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningProfile\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+}
+
+policy_select learning_session_select_own {
+  target = LearningSession
+  roles = [authenticated]
+  using = "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+}
+
+policy_select message_select_own {
+  target = Message
+  roles = [authenticated]
+  using = "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+}
+
+policy_select source_material_select_own {
+  target = SourceMaterial
+  roles = [authenticated]
+  using = "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"SourceMaterial\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+}
+
+policy_insert user_insert_own {
+  target = User
+  roles = [authenticated]
+  withCheck = "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
+}
+
+policy_select user_select_own {
+  target = User
+  roles = [authenticated]
+  using = "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
+}
+
+policy_update user_update_own {
+  target = User
+  roles = [authenticated]
+  using = "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
+  withCheck = "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
 }
