@@ -46,13 +46,13 @@ async function authHeaders(): Promise<HeadersInit> {
 
 async function readResponse<T>(response: Response): Promise<T> {
   const payload = (await response.json().catch(() => null)) as
-    | { data?: T; error?: { message?: string } }
+    | { data?: T; error?: { message?: string; requestId?: string } }
     | null;
 
   if (!response.ok) {
-    throw new Error(
-      payload?.error?.message ?? `Learning API request failed (${response.status}).`,
-    );
+    const message = payload?.error?.message ?? `Learning API request failed (${response.status}).`;
+    const requestId = payload?.error?.requestId ?? response.headers.get("x-request-id");
+    throw new Error(requestId ? `${message} (Request ID: ${requestId})` : message);
   }
 
   if (!payload || !("data" in payload)) {
