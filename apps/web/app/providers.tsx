@@ -3,10 +3,7 @@
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 import { useEffect, ReactNode } from "react";
 
-import {
-  getCurrentUserThemePreferences,
-  type ColorTheme,
-} from "./../lib/user-profile";
+import { getCurrentUserThemePreferences, type ColorTheme } from "./../lib/user-profile";
 import { LanguageProvider } from "./lib/i18n/LanguageContext";
 
 // ดักจับและซ่อน Warning ของ React 19 ที่มาจาก next-themes ในโหมด Development
@@ -162,36 +159,25 @@ function ThemeEffects() {
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
-    let active = true;
+    const savedColorTheme =
+      (localStorage.getItem("app-color-theme") as ColorTheme | null) ??
+      "default";
 
-    const applyTheme = async () => {
-      try {
-        const preferences = await getCurrentUserThemePreferences();
-        if (!active) return;
+    const root = document.documentElement;
+    root.classList.add("theme-transition");
 
-        applySavedColorTheme(
-          preferences.colorTheme,
-          resolvedTheme === "dark",
-        );
-      } catch {
-        if (!active) return;
+    applySavedColorTheme(
+      savedColorTheme,
+      resolvedTheme === "dark",
+    );
 
-        const savedColorTheme =
-          localStorage.getItem("app-color-theme") as ColorTheme | null;
-
-        applySavedColorTheme(
-          savedColorTheme && savedColorTheme !== "default"
-            ? savedColorTheme
-            : "default",
-          resolvedTheme === "dark",
-        );
-      }
-    };
-
-    void applyTheme();
+    const timeoutId = window.setTimeout(() => {
+      root.classList.remove("theme-transition");
+    }, 220);
 
     return () => {
-      active = false;
+      window.clearTimeout(timeoutId);
+      root.classList.remove("theme-transition");
     };
   }, [resolvedTheme]);
 
@@ -201,18 +187,44 @@ function ThemeEffects() {
         (localStorage.getItem("app-color-theme") as ColorTheme | null) ??
         "default";
 
-      applySavedColorTheme(savedColorTheme, resolvedTheme === "dark");
+      const root = document.documentElement;
+      root.classList.add("theme-transition");
+
+      applySavedColorTheme(
+        savedColorTheme,
+        resolvedTheme === "dark",
+      );
+
+      window.setTimeout(() => {
+        root.classList.remove("theme-transition");
+      }, 220);
     };
 
     window.addEventListener("color-theme-changed", handleColorThemeChanged);
 
     return () => {
-      window.removeEventListener(
-        "color-theme-changed",
-        handleColorThemeChanged,
-      );
+      window.removeEventListener("color-theme-changed", handleColorThemeChanged);
     };
   }, [resolvedTheme]);
+
+  useEffect(() => {
+    void getCurrentUserThemePreferences()
+      .then((preferences) => {
+        localStorage.setItem("app-color-theme", preferences.colorTheme);
+
+        const currentTheme =
+          document.documentElement.classList.contains("dark")
+            ? "dark"
+            : "light";
+
+        if (preferences.appearanceMode !== currentTheme) {
+          document.documentElement.classList.add("theme-transition");
+        }
+      })
+      .catch(() => {
+        // Local storage remains the fallback for the current session.
+      });
+  }, []);
 
   return null;
 }
@@ -222,7 +234,6 @@ export function Providers({ children }: { children: ReactNode }) {
     <NextThemesProvider
       attribute="class"
       defaultTheme="light"
-      disableTransitionOnChange
     >
       <ThemeEffects />
       <LanguageProvider>{children}</LanguageProvider>
