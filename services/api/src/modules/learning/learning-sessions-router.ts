@@ -11,9 +11,9 @@ import {
 import { createLearningEngine } from "./create-learning-engine.js";
 import { LearningError } from "./learning-errors.js";
 import { PrismaLearningPersistence } from "./prisma-learning-persistence.js";
+import { readPersistedMessages, type PersistedMessage } from "./persisted-messages.js";
 
 type SessionRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["LearningSession"]["first"]>>>;
-type MessageRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["Message"]["first"]>>>;
 
 export interface LearningSessionsRouterOptions {
   authenticate?: RequestHandler;
@@ -36,7 +36,7 @@ function sessionSummary(row: SessionRow) {
   };
 }
 
-function messageDto(row: MessageRow) {
+function messageDto(row: PersistedMessage) {
   return {
     id: row.id,
     role: row.role,
@@ -206,10 +206,7 @@ export function createLearningSessionsRouter(
       }
 
       phase = "messages";
-      const messages = await client.orm.public.Message
-        .where({ learningSessionId: session.id })
-        .orderBy((message) => message.createdAt.asc())
-        .all();
+      const messages = await readPersistedMessages(client, session.id);
 
       phase = "response";
       response.status(200).json({
