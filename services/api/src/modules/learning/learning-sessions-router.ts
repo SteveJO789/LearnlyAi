@@ -230,7 +230,17 @@ export function createLearningSessionsRouter(
           : undefined,
         errorMessage: error instanceof Error ? error.message.slice(0, 350) : undefined,
       });
-      next(error);
+      // The phase is a fixed enum with no query, token or user data.
+      // Return only the phase for this detail endpoint so Preview E2E can
+      // diagnose failures even when runtime log access is restricted.
+      response.status(500).json({
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "The request could not be completed.",
+          requestId: response.locals.requestId,
+          details: [{ path: "/lesson", message: `Lesson loading failed at ${phase} phase.` }],
+        },
+      });
     }
   });
 
