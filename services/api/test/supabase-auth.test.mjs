@@ -105,6 +105,7 @@ test("Supabase auth middleware exposes normalized authenticated user context", a
   });
 
   assert.equal(nextCalled, true);
+  assert.equal(request.authToken, "good-token");
   assert.deepEqual(request.authUser, {
     id: "user-123",
     email: "student@example.com",
