@@ -552,7 +552,7 @@ function ProfileContent() {
                       ].map((item) => (
                         <button
                           key={item.id}
-                          onClick={() => handleColorThemeChange(item.id)}
+                          onClick={() => handleColorThemeChange(item.id as ColorTheme)}
                           className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex items-center gap-4 ${
                             colorTheme === item.id
                               ? "border-primary bg-secondary font-semibold"
