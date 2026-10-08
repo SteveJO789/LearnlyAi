@@ -1,4 +1,4 @@
-﻿import { db } from "../../prisma/db.js";
+﻿import type { UserDb } from "../../prisma/db.js";
 import type { ValidatedTutorOutput } from "../ai/tutor-output.js";
 import type { LearningMessage, LearningSession } from "./domain.js";
 import { getStagePolicy } from "./stage-machine.js";
@@ -9,14 +9,11 @@ import type {
   MessageRepository,
 } from "./repositories.js";
 
-type LearningSessionRow = NonNullable<
-  Awaited<ReturnType<typeof db.orm.public.LearningSession.first>>
->;
-type MessageRow = NonNullable<
-  Awaited<ReturnType<typeof db.orm.public.Message.first>>
->;
+type LearningSessionRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["LearningSession"]["first"]>>>;
+type MessageRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["Message"]["first"]>>>;
 
 export interface PrismaLearningPersistenceOptions {
+  client: UserDb;
   userId: string;
   titleForSession: (session: LearningSession) => string;
 }
@@ -112,7 +109,7 @@ class PrismaLearningSessionRepository implements LearningSessionRepository {
   constructor(private readonly options: PrismaLearningPersistenceOptions) {}
 
   async findById(id: string): Promise<LearningSession | null> {
-    const row = await db.orm.public.LearningSession
+    const row = await this.options.client.orm.public.LearningSession
       .where({ id, userId: this.options.userId })
       .first();
 
@@ -120,13 +117,13 @@ class PrismaLearningSessionRepository implements LearningSessionRepository {
   }
 
   async save(session: LearningSession): Promise<void> {
-    const updated = await db.orm.public.LearningSession
+    const updated = await this.options.client.orm.public.LearningSession
       .where({ id: session.id, userId: this.options.userId })
       .update(toSessionUpdateData(session));
 
     if (updated) return;
 
-    await db.orm.public.LearningSession.create(
+    await this.options.client.orm.public.LearningSession.create(
       toSessionCreateData(
         session,
         this.options.userId,
@@ -140,7 +137,7 @@ class PrismaMessageRepository implements MessageRepository {
   constructor(private readonly options: PrismaLearningPersistenceOptions) {}
 
   async add(message: LearningMessage): Promise<void> {
-    const session = await db.orm.public.LearningSession
+    const session = await this.options.client.orm.public.LearningSession
       .where({ id: message.sessionId, userId: this.options.userId })
       .select("id")
       .first();
@@ -149,18 +146,18 @@ class PrismaMessageRepository implements MessageRepository {
       throw new Error("Learning session not found.");
     }
 
-    await db.orm.public.Message.create(toMessageCreateData(message));
+    await this.options.client.orm.public.Message.create(toMessageCreateData(message));
   }
 
   async findBySessionId(sessionId: string): Promise<LearningMessage[]> {
-    const session = await db.orm.public.LearningSession
+    const session = await this.options.client.orm.public.LearningSession
       .where({ id: sessionId, userId: this.options.userId })
       .select("id")
       .first();
 
     if (!session) return [];
 
-    const rows = await db.orm.public.Message
+    const rows = await this.options.client.orm.public.Message
       .where({ learningSessionId: sessionId })
       .orderBy((message) => message.createdAt.asc())
       .all();
@@ -191,39 +188,67 @@ export class PrismaLearningPersistence implements LearningPersistence {
       }
     }
 
-    return db.transaction(async (tx) => {
+    // Supabase RoleBoundDb.transaction returns a bare TransactionContext
+    // (execute/query only). Compile parameterized SQL with the role-bound
+    // client's builder and execute every statement on the SAME transaction.
+    const raw = this.options.client.raw;
+    return this.options.client.transaction(async (tx) => {
+      let affected = 0;
       if (change.expectedVersion === null) {
-        const created = await tx.orm.public.LearningSession.createAll(
-          [
-            toSessionCreateData(
-              change.session,
-              this.options.userId,
-              this.options.titleForSession(change.session),
-            ),
-          ],
-          { onConflict: "skip", conflictOn: ["id"] },
+        const row = toSessionCreateData(
+          change.session,
+          this.options.userId,
+          this.options.titleForSession(change.session),
         );
-
-        if (created.length !== 1) return false;
+        const plan = raw.sql`
+          INSERT INTO public."LearningSession"
+            ("id", "userId", "title", "learningGoal", "subject", "state",
+             "lifecycleState", "stage", "progressPercent", "version",
+             "createdAt", "updatedAt")
+          VALUES (
+            ${row.id}, ${row.userId}, ${row.title}, NULLIF(${row.learningGoal ?? ""}, ''),
+            NULLIF(${row.subject ?? ""}, ''), ${row.state}, ${row.lifecycleState}, ${row.stage},
+            ${row.progressPercent}, ${row.version},
+            ${row.createdAt}::timestamptz, ${row.updatedAt}::timestamptz
+          )
+          ON CONFLICT ("id") DO NOTHING
+        `.affectedCount().build();
+        affected = (await tx.execute(plan)).affectedRows;
       } else {
-        const updated = await tx.orm.public.LearningSession
-          .where({
-            id: change.session.id,
-            userId: this.options.userId,
-            version: change.expectedVersion,
-          })
-          .update(toSessionUpdateData(change.session));
-
-        if (!updated) return false;
+        const row = toSessionUpdateData(change.session);
+        const plan = raw.sql`
+          UPDATE public."LearningSession" SET
+            "learningGoal" = NULLIF(${row.learningGoal ?? ""}, ''),
+            "subject" = NULLIF(${row.subject ?? ""}, ''),
+            "state" = ${row.state},
+            "lifecycleState" = ${row.lifecycleState},
+            "stage" = ${row.stage},
+            "progressPercent" = ${row.progressPercent},
+            "version" = ${row.version},
+            "updatedAt" = ${row.updatedAt}::timestamptz
+          WHERE "id" = ${change.session.id}
+            AND "userId" = ${this.options.userId}
+            AND "version" = ${change.expectedVersion}
+        `.affectedCount().build();
+        affected = (await tx.execute(plan)).affectedRows;
       }
 
-      if (change.messages.length > 0) {
-        await tx.orm.public.Message.createAll(
-          change.messages.map(toMessageCreateData),
-        );
-      }
+      if (affected !== 1) return false;
 
+      for (const message of change.messages) {
+        const row = toMessageCreateData(message);
+        const plan = raw.sql`
+          INSERT INTO public."Message"
+            ("id", "learningSessionId", "role", "content", "createdAt")
+          VALUES (
+            ${row.id}, ${row.learningSessionId}, ${row.role},
+            ${JSON.stringify(row.content)}::jsonb,
+            ${row.createdAt}::timestamptz
+          )
+        `.affectedCount().build();
+        await tx.execute(plan);
+      }
       return true;
-    });
+    });;
   }
 }

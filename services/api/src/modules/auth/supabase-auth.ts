@@ -9,6 +9,7 @@ export type AuthenticatedUser = {
 
 export type AuthenticatedRequest = Request & {
   authUser?: AuthenticatedUser;
+  authToken?: string;
 };
 
 function readBearerToken(request: Request): string | null {
@@ -105,6 +106,7 @@ export async function requireSupabaseUser(
       metadata["name"];
     const avatarCandidate = metadata["avatar_url"] ?? metadata["picture"];
 
+    request.authToken = token;
     request.authUser = {
       id: user.id,
       email,
