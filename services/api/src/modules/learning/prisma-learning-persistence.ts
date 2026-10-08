@@ -9,14 +9,12 @@ import type {
   MessageRepository,
 } from "./repositories.js";
 
-type LearningSessionRow = NonNullable<
-  Awaited<ReturnType<typeof db.orm.public.LearningSession.first>>
->;
-type MessageRow = NonNullable<
-  Awaited<ReturnType<typeof db.orm.public.Message.first>>
->;
+type UserDb = Awaited<ReturnType<typeof db.asUser>>;
+type LearningSessionRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["LearningSession"]["first"]>>>;
+type MessageRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["Message"]["first"]>>>;
 
 export interface PrismaLearningPersistenceOptions {
+  client: UserDb;
   userId: string;
   titleForSession: (session: LearningSession) => string;
 }
@@ -112,7 +110,7 @@ class PrismaLearningSessionRepository implements LearningSessionRepository {
   constructor(private readonly options: PrismaLearningPersistenceOptions) {}
 
   async findById(id: string): Promise<LearningSession | null> {
-    const row = await db.orm.public.LearningSession
+    const row = await this.options.client.orm.public.LearningSession
       .where({ id, userId: this.options.userId })
       .first();
 
@@ -120,13 +118,13 @@ class PrismaLearningSessionRepository implements LearningSessionRepository {
   }
 
   async save(session: LearningSession): Promise<void> {
-    const updated = await db.orm.public.LearningSession
+    const updated = await this.options.client.orm.public.LearningSession
       .where({ id: session.id, userId: this.options.userId })
       .update(toSessionUpdateData(session));
 
     if (updated) return;
 
-    await db.orm.public.LearningSession.create(
+    await this.options.client.orm.public.LearningSession.create(
       toSessionCreateData(
         session,
         this.options.userId,
@@ -140,7 +138,7 @@ class PrismaMessageRepository implements MessageRepository {
   constructor(private readonly options: PrismaLearningPersistenceOptions) {}
 
   async add(message: LearningMessage): Promise<void> {
-    const session = await db.orm.public.LearningSession
+    const session = await this.options.client.orm.public.LearningSession
       .where({ id: message.sessionId, userId: this.options.userId })
       .select("id")
       .first();
@@ -149,18 +147,18 @@ class PrismaMessageRepository implements MessageRepository {
       throw new Error("Learning session not found.");
     }
 
-    await db.orm.public.Message.create(toMessageCreateData(message));
+    await this.options.client.orm.public.Message.create(toMessageCreateData(message));
   }
 
   async findBySessionId(sessionId: string): Promise<LearningMessage[]> {
-    const session = await db.orm.public.LearningSession
+    const session = await this.options.client.orm.public.LearningSession
       .where({ id: sessionId, userId: this.options.userId })
       .select("id")
       .first();
 
     if (!session) return [];
 
-    const rows = await db.orm.public.Message
+    const rows = await this.options.client.orm.public.Message
       .where({ learningSessionId: sessionId })
       .orderBy((message) => message.createdAt.asc())
       .all();
@@ -191,7 +189,7 @@ export class PrismaLearningPersistence implements LearningPersistence {
       }
     }
 
-    return db.transaction(async (tx) => {
+    return this.options.client.transaction(async (tx) => {
       if (change.expectedVersion === null) {
         const created = await tx.orm.public.LearningSession.createAll(
           [
