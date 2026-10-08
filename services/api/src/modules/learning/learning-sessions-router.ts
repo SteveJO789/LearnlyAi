@@ -12,12 +12,9 @@ import { createLearningEngine } from "./create-learning-engine.js";
 import { LearningError } from "./learning-errors.js";
 import { PrismaLearningPersistence } from "./prisma-learning-persistence.js";
 
-type SessionRow = NonNullable<
-  Awaited<ReturnType<typeof db.orm.public.LearningSession.first>>
->;
-type MessageRow = NonNullable<
-  Awaited<ReturnType<typeof db.orm.public.Message.first>>
->;
+type UserDb = Awaited<ReturnType<typeof db.asUser>>;
+type SessionRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["LearningSession"]["first"]>>>;
+type MessageRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["Message"]["first"]>>>;
 
 export interface LearningSessionsRouterOptions {
   authenticate?: RequestHandler;
@@ -66,10 +63,10 @@ function readOptionalText(
   return value.trim();
 }
 
-async function ensureAppUser(user: AuthenticatedUser): Promise<void> {
-  const existing = await db.orm.public.User.where({ id: user.id }).select("id").first();
+async function ensureAppUser(client: UserDb, user: AuthenticatedUser): Promise<void> {
+  const existing = await client.orm.public.User.where({ id: user.id }).select("id").first();
   if (existing) {
-    await db.orm.public.User.where({ id: user.id }).update({
+    await client.orm.public.User.where({ id: user.id }).update({
       authUserId: user.id,
       email: user.email,
       avatarUrl: user.avatarUrl,
@@ -78,7 +75,7 @@ async function ensureAppUser(user: AuthenticatedUser): Promise<void> {
     return;
   }
 
-  await db.orm.public.User.create({
+  await client.orm.public.User.create({
     id: user.id,
     authUserId: user.id,
     email: user.email,
@@ -90,10 +87,12 @@ async function ensureAppUser(user: AuthenticatedUser): Promise<void> {
 }
 
 function requireUser(request: AuthenticatedRequest): AuthenticatedUser {
-  if (!request.authUser) {
-    throw new Error("Authenticated request is missing authUser.");
-  }
+  if (!request.authUser || !request.authToken) throw new Error("Missing verified user context.");
   return request.authUser;
+}
+async function requestDb(request: AuthenticatedRequest): Promise<UserDb> {
+  requireUser(request);
+  return db.asUser(request.authToken!);
 }
 
 function readSessionId(request: AuthenticatedRequest): string {
@@ -140,11 +139,12 @@ export function createLearningSessionsRouter(
         learningGoal?.slice(0, 160) ??
         (subject ? `${subject} learning session` : "New learning session");
 
-      await ensureAppUser(user);
+      const client = await requestDb(request);
+      await ensureAppUser(client, user);
 
       const now = new Date().toISOString();
       const id = randomUUID();
-      const row = await db.orm.public.LearningSession.create({
+      const row = await client.orm.public.LearningSession.create({
         id,
         userId: user.id,
         title,
@@ -169,7 +169,8 @@ export function createLearningSessionsRouter(
   router.get("/", async (request: AuthenticatedRequest, response, next) => {
     try {
       const user = requireUser(request);
-      const rows = await db.orm.public.LearningSession
+      const client = await requestDb(request);
+      const rows = await client.orm.public.LearningSession
         .where({ userId: user.id })
         .orderBy((session) => session.updatedAt.desc())
         .all();
@@ -186,7 +187,8 @@ export function createLearningSessionsRouter(
     try {
       const user = requireUser(request);
       const sessionId = readSessionId(request);
-      const session = await db.orm.public.LearningSession
+      const client = await requestDb(request);
+      const session = await client.orm.public.LearningSession
         .where({ id: sessionId, userId: user.id })
         .first();
 
@@ -202,7 +204,7 @@ export function createLearningSessionsRouter(
         return;
       }
 
-      const messages = await db.orm.public.Message
+      const messages = await client.orm.public.Message
         .where({ learningSessionId: session.id })
         .orderBy((message) => message.createdAt.asc())
         .all();
@@ -236,7 +238,8 @@ export function createLearningSessionsRouter(
         }
 
         const sessionId = readSessionId(request);
-        const session = await db.orm.public.LearningSession
+        const client = await requestDb(request);
+      const session = await client.orm.public.LearningSession
           .where({ id: sessionId, userId: user.id })
           .first();
 
@@ -268,6 +271,7 @@ export function createLearningSessionsRouter(
 
         const persistence = new PrismaLearningPersistence({
           userId: user.id,
+          client,
           titleForSession: () => session.title,
         });
         const engine = createLearningEngine({
