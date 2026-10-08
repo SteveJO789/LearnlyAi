@@ -3,15 +3,24 @@ import { supabase } from '@prisma/orm-extension-supabase/runtime';
 import type { Contract } from './contract.d';
 import contractJson from './contract.json' with { type: 'json' };
 
-// A role-neutral root has no ORM access. Every learning route must bind the
-// verified Supabase JWT before querying Postgres so RLS sees auth.uid().
-const url = process.env['SUPABASE_URL'] ?? process.env['NEXT_PUBLIC_SUPABASE_URL'];
-if (!url) {
-  throw new Error('SUPABASE_URL must be configured for authenticated database access.');
+// Delay DB initialization until an authenticated route needs it. CI and
+// unauthenticated health checks do not need database credentials.
+let clientPromise: ReturnType<typeof supabase<Contract>> | undefined;
+
+export function getDb() {
+  if (!clientPromise) {
+    const url = process.env['SUPABASE_URL'] ?? process.env['NEXT_PUBLIC_SUPABASE_URL'];
+    const databaseUrl = process.env['DATABASE_URL'];
+    if (!url || !databaseUrl) {
+      throw new Error('SUPABASE_URL and DATABASE_URL are required for persistent learning.');
+    }
+    clientPromise = supabase<Contract>({
+      contractJson,
+      url: databaseUrl,
+      jwksUrl: `${url.replace(/\/+$/, '')}/auth/v1/.well-known/jwks.json`,
+    });
+  }
+  return clientPromise;
 }
 
-export const db = await supabase<Contract>({
-  contractJson,
-  url: process.env['DATABASE_URL']!,
-  jwksUrl: `${url.replace(/\/+$/, '')}/auth/v1/.well-known/jwks.json`,
-});
+export type UserDb = Awaited<ReturnType<Awaited<ReturnType<typeof getDb>>['asUser']>>;
