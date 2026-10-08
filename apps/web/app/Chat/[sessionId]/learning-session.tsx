@@ -362,7 +362,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
               rows={1}
               placeholder={t("chat.placeholder")}
               aria-label={t("chat.messageAriaLabel")}
-              className="max-h-40 min-h-10 flex-1 resize-none bg-transparent py-2 text-base outline-none field-sizing-content placeholder:text-muted"
+              className="max-h-40 min-h-10 flex-1 resize-none bg-transparent py-2 text-base text-text outline-none field-sizing-content placeholder:text-muted"
             />
             <button
               type="submit"
