@@ -1,4 +1,4 @@
-const RESPOND_PATH = "/api/learning/respond";
+import { sendLearningInteraction } from "../../../lib/learning-sessions";
 
 export type LearningAction = "RESPOND" | "ADVANCE";
 
@@ -60,8 +60,6 @@ export type TutorOutput = {
 export type LearningRequest = {
   sessionId: string;
   input: string;
-  learningGoal?: string;
-  subject?: string;
   action: LearningAction;
 };
 
@@ -75,47 +73,20 @@ export class LearningApiError extends Error {
   }
 }
 
-function extractErrorMessage(payload: unknown): string | null {
-  const message = (payload as { error?: { message?: unknown } } | null)?.error?.message;
-  return typeof message === "string" && message.length > 0 ? message : null;
-}
-
-export async function respondToLearning(request: LearningRequest): Promise<TutorOutput> {
-  let response: Response;
-
+export async function respondToLearning(
+  request: LearningRequest,
+): Promise<TutorOutput> {
   try {
-    response = await fetch(RESPOND_PATH, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(request),
+    return await sendLearningInteraction<TutorOutput>({
+      sessionId: request.sessionId,
+      message: request.input,
+      action: request.action,
     });
-  } catch {
+  } catch (error) {
     throw new LearningApiError(
-      "เชื่อมต่อ Learning API ไม่ได้ — ตรวจสอบว่า backend ทำงานอยู่และตั้งค่า API URL ถูกต้อง",
+      error instanceof Error
+        ? error.message
+        : "เชื่อมต่อ Learning API ไม่ได้",
     );
   }
-
-  let payload: unknown = null;
-  try {
-    payload = await response.json();
-  } catch {
-    // Body wasn't JSON; handled below.
-  }
-
-  if (!response.ok) {
-    throw new LearningApiError(
-      extractErrorMessage(payload) ?? `เซิร์ฟเวอร์ตอบกลับผิดพลาด (${response.status})`,
-      response.status,
-    );
-  }
-
-  const data = (payload as { data?: Partial<TutorOutput> } | null)?.data;
-
-  if (!data || !Array.isArray(data.blocks)) {
-    throw new LearningApiError(
-      "ข้อมูลจากเซิร์ฟเวอร์ไม่อยู่ในรูปแบบที่คาดไว้ (ไม่พบ data.blocks)",
-    );
-  }
-
-  return data as TutorOutput;
 }
