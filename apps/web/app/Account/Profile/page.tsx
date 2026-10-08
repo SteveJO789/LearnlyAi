@@ -7,7 +7,13 @@ import { useTheme } from "next-themes";
 
 import SiteHeader from "../../components/SiteHeader";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
-import { syncCurrentUserProfile, updateCurrentUserProfile } from "../../../lib/user-profile";
+import {
+  getCurrentUserThemePreferences,
+  syncCurrentUserProfile,
+  updateCurrentUserProfile,
+  updateCurrentUserThemePreferences,
+  type ColorTheme,
+} from "../../../lib/user-profile";
 
 type ProfileTabType = "Personal Info" | "Theme";
 
@@ -46,29 +52,82 @@ function ProfileContent() {
   };
 
   const { theme, setTheme } = useTheme();
-  const [colorTheme, setColorTheme] = useState<string>("default");
+  const [colorTheme, setColorTheme] = useState<ColorTheme>("default");
   const [mounted, setMounted] = useState(false);
 
-  const applyColorThemeClass = (themeName: string) => {
-    if (typeof window === "undefined") return;
-    const root = document.documentElement;
-    root.classList.remove("theme-ruby", "theme-peach", "theme-gold", "theme-sky", "theme-slate");
-    if (themeName !== "default") {
-      root.classList.add(themeName);
+  useEffect(() => {
+    let active = true;
+
+    const loadThemePreferences = async () => {
+      try {
+        const preferences = await getCurrentUserThemePreferences();
+        if (!active) return;
+
+        setTheme(preferences.appearanceMode);
+        setColorTheme(preferences.colorTheme);
+        localStorage.setItem("app-color-theme", preferences.colorTheme);
+      } catch {
+        if (!active) return;
+
+        const savedColorTheme = localStorage.getItem("app-color-theme");
+        if (
+          savedColorTheme === "default" ||
+          savedColorTheme === "theme-ruby" ||
+          savedColorTheme === "theme-peach" ||
+          savedColorTheme === "theme-sky" ||
+          savedColorTheme === "theme-gold" ||
+          savedColorTheme === "theme-slate" ||
+          savedColorTheme === "theme-teal"
+        ) {
+          setColorTheme(savedColorTheme);
+        }
+      }
+    };
+
+    setMounted(true);
+    void loadThemePreferences();
+
+    return () => {
+      active = false;
+    };
+  }, [setTheme]);
+
+  const persistThemePreferences = async (
+    nextAppearanceMode: "light" | "dark",
+    nextColorTheme: ColorTheme,
+  ) => {
+    await updateCurrentUserThemePreferences({
+      appearanceMode: nextAppearanceMode,
+      colorTheme: nextColorTheme,
+    });
+  };
+
+  const currentAppearanceMode =
+    theme === "dark" ? "dark" : "light";
+
+  const handleAppearanceModeChange = async (
+    nextAppearanceMode: "light" | "dark",
+  ) => {
+    document.documentElement.classList.add("theme-transition");
+    setTheme(nextAppearanceMode);
+
+    try {
+      await persistThemePreferences(nextAppearanceMode, colorTheme);
+    } catch {
+      // Keep the UI change even if account preference persistence fails.
     }
   };
 
-  useEffect(() => {
-    setMounted(true);
-    const savedColorTheme = localStorage.getItem("app-color-theme") || "default";
-    setColorTheme(savedColorTheme);
-    applyColorThemeClass(savedColorTheme);
-  }, []);
+  const handleColorThemeChange = async (nextColorTheme: ColorTheme) => {
+    setColorTheme(nextColorTheme);
+    localStorage.setItem("app-color-theme", nextColorTheme);
 
-  const handleColorThemeChange = (themeName: string) => {
-    setColorTheme(themeName);
-    localStorage.setItem("app-color-theme", themeName);
-    applyColorThemeClass(themeName);
+    try {
+      await persistThemePreferences(currentAppearanceMode, nextColorTheme);
+    } catch {
+      // Keep the UI change even if account preference persistence fails.
+    }
+
     window.dispatchEvent(new Event("color-theme-changed"));
   };
 
@@ -448,17 +507,16 @@ function ProfileContent() {
                     <h3 className="text-xl font-bold">Appearance Mode</h3>
                     <p className="text-sm text-muted mt-1">Choose how LearnlyAI looks to you (Light / Dark).</p>
 
-                    <div className="grid grid-cols-3 gap-4 mt-4">
+                    <div className="grid grid-cols-2 gap-4 mt-4">
                       {[
                         { id: "light", label: "Light Mode" },
                         { id: "dark", label: "Dark Mode" },
-                        { id: "system", label: "System Default" },
                       ].map((item) => (
                         <button
                           key={item.id}
-                          onClick={() => setTheme(item.id)}
+                          onClick={() => void handleAppearanceModeChange(item.id as "light" | "dark")}
                           className={`p-4 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center gap-3 ${
-                            theme === item.id
+                            currentAppearanceMode === item.id
                               ? "border-primary bg-secondary font-semibold"
                               : "border-surface-border hover:border-primary/60"
                           }`}
@@ -469,7 +527,7 @@ function ProfileContent() {
                                 ? "bg-neutral-900 border-neutral-800"
                                 : item.id === "light"
                                 ? "bg-white border-neutral-200"
-                                : "bg-gradient-to-br from-white via-neutral-400 to-neutral-900 border-neutral-300"
+                                : "bg-white border-neutral-200"
                             }`}
                           />
                           <span className="text-xs">{item.label}</span>
@@ -484,7 +542,8 @@ function ProfileContent() {
 
                     <div className="grid grid-cols-2 gap-4 mt-4">
                       {[
-                        { id: "default", label: "Teal Modern (#0AD1C1)", colorBg: "bg-[#0AD1C1]" },
+                        { id: "default", label: "Default (White / Black / Gray)", colorBg: "bg-gradient-to-br from-white via-neutral-300 to-neutral-900" },
+                        { id: "theme-teal", label: "Teal Modern (#0AD1C1)", colorBg: "bg-[#0AD1C1]" },
                         { id: "theme-peach", label: "Soft Peach (#FFAAAA)", colorBg: "bg-[#FFAAAA]" },
                         { id: "theme-gold", label: "Golden Amber (#FFC06F)", colorBg: "bg-[#FFC06F]" },
                         { id: "theme-sky", label: "Sky Breeze (#BCE8FF)", colorBg: "bg-[#BCE8FF]" },
@@ -493,7 +552,7 @@ function ProfileContent() {
                       ].map((item) => (
                         <button
                           key={item.id}
-                          onClick={() => handleColorThemeChange(item.id)}
+                          onClick={() => handleColorThemeChange(item.id as ColorTheme)}
                           className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex items-center gap-4 ${
                             colorTheme === item.id
                               ? "border-primary bg-secondary font-semibold"

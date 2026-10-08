@@ -73,16 +73,48 @@
    แล้วค่าจะสลับให้เองตามธีม + โหมดที่เลือกอยู่
    =========================== */
 
-/* 1. ธีมเริ่มต้น / Modern Teal (#0AD1C1) — Light */
+/* 1. Default / White / Black / Gray — Light */
 :root {
+  --color-primary-rgb: 17, 24, 39;
+  --color-text-rgb: 17, 24, 39;
+  --primary: #111827;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F3F4F6;
+  --surface: #FFFFFF;
+  --background: #FFFFFF;
+  --text: #111827;
+  --muted: #6B7280;
+  --surface-border: #E5E7EB;
+  --accent: #6B7280;
+  --danger: #B91C1C;
+}
+
+/* Default / White / Black / Gray — Dark */
+.dark {
+  --color-primary-rgb: 243, 244, 246;
+  --color-text-rgb: 249, 250, 251;
+  --primary: #F3F4F6;
+  --primary-foreground: #111827;
+  --secondary: #374151;
+  --surface: #1F2937;
+  --background: #111827;
+  --text: #F9FAFB;
+  --muted: #9CA3AF;
+  --surface-border: #374151;
+  --accent: #9CA3AF;
+  --danger: #EF4444;
+}
+
+/* Modern Teal — Light */
+.theme-teal {
   --color-primary-rgb: 10, 209, 193;
   --color-text-rgb: 55, 85, 114;
-  --primary: rgb(var(--color-primary-rgb));
-  --primary-foreground: #ffffff;
+  --primary: #0AD1C1;
+  --primary-foreground: #FFFFFF;
   --secondary: #93FBFF;
   --surface: #E2FFFC;
   --background: #FFFFFF;
-  --text: rgb(var(--color-text-rgb));
+  --text: #375572;
   --muted: #6B7280;
   --surface-border: #E5E7EB;
   --accent: #FFC06F;
@@ -90,15 +122,15 @@
 }
 
 /* Modern Teal — Dark */
-.dark {
+.dark.theme-teal {
   --color-primary-rgb: 10, 209, 193;
   --color-text-rgb: 239, 246, 255;
-  --primary: rgb(var(--color-primary-rgb));
-  --primary-foreground: #0b1b1a;
-  --secondary: #164e4a;
+  --primary: #0AD1C1;
+  --primary-foreground: #0B1B1A;
+  --secondary: #164E4A;
   --surface: #1F2937;
   --background: #111827;
-  --text: rgb(var(--color-text-rgb));
+  --text: #EFF6FF;
   --muted: #9CA3AF;
   --surface-border: #374151;
   --accent: #FFC06F;
@@ -243,6 +275,22 @@
 html,
 body {
   min-height: 100%;
+}
+
+html.theme-transition,
+html.theme-transition body,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition-property:
+    background-color,
+    border-color,
+    color,
+    fill,
+    stroke,
+    box-shadow;
+  transition-duration: 180ms;
+  transition-timing-function: ease;
 }
 
 body {
