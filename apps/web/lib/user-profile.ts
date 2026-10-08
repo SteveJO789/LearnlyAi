@@ -69,6 +69,7 @@ export async function syncCurrentUserProfile(): Promise<AppUserProfile> {
     .from("User")
     .insert({
       id: authProfile.id,
+      authUserId: user.id,
       email: authProfile.email,
       displayName: authProfile.displayName,
       avatarUrl: authProfile.avatarUrl,
