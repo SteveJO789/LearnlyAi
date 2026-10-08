@@ -245,6 +245,22 @@ body {
   min-height: 100%;
 }
 
+html.theme-transition,
+html.theme-transition body,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition-property:
+    background-color,
+    border-color,
+    color,
+    fill,
+    stroke,
+    box-shadow;
+  transition-duration: 180ms;
+  transition-timing-function: ease;
+}
+
 body {
   margin: 0;
   background: var(--background);
