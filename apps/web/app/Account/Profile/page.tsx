@@ -93,7 +93,7 @@ function ProfileContent() {
   }, [setTheme]);
 
   const persistThemePreferences = async (
-    nextAppearanceMode: "light" | "dark" | "system",
+    nextAppearanceMode: "light" | "dark",
     nextColorTheme: ColorTheme,
   ) => {
     await updateCurrentUserThemePreferences({
@@ -103,12 +103,10 @@ function ProfileContent() {
   };
 
   const currentAppearanceMode =
-    theme === "light" || theme === "dark" || theme === "system"
-      ? theme
-      : "system";
+    theme === "dark" ? "dark" : "light";
 
   const handleAppearanceModeChange = async (
-    nextAppearanceMode: "light" | "dark" | "system",
+    nextAppearanceMode: "light" | "dark",
   ) => {
     setTheme(nextAppearanceMode);
 
@@ -120,20 +118,11 @@ function ProfileContent() {
   };
 
   const handleColorThemeChange = async (nextColorTheme: ColorTheme) => {
-    const appearanceMode =
-      nextColorTheme !== "default" && currentAppearanceMode === "system"
-        ? "light"
-        : currentAppearanceMode;
-
     setColorTheme(nextColorTheme);
     localStorage.setItem("app-color-theme", nextColorTheme);
 
-    if (appearanceMode !== currentAppearanceMode) {
-      setTheme(appearanceMode);
-    }
-
     try {
-      await persistThemePreferences(appearanceMode, nextColorTheme);
+      await persistThemePreferences(currentAppearanceMode, nextColorTheme);
     } catch {
       // Keep the UI change even if account preference persistence fails.
     }
@@ -517,15 +506,14 @@ function ProfileContent() {
                     <h3 className="text-xl font-bold">Appearance Mode</h3>
                     <p className="text-sm text-muted mt-1">Choose how LearnlyAI looks to you (Light / Dark).</p>
 
-                    <div className="grid grid-cols-3 gap-4 mt-4">
+                    <div className="grid grid-cols-2 gap-4 mt-4">
                       {[
                         { id: "light", label: "Light Mode" },
                         { id: "dark", label: "Dark Mode" },
-                        { id: "system", label: "System Default" },
                       ].map((item) => (
                         <button
                           key={item.id}
-                          onClick={() => void handleAppearanceModeChange(item.id as "light" | "dark" | "system")}
+                          onClick={() => void handleAppearanceModeChange(item.id as "light" | "dark")}
                           className={`p-4 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center gap-3 ${
                             currentAppearanceMode === item.id
                               ? "border-primary bg-secondary font-semibold"
@@ -538,7 +526,7 @@ function ProfileContent() {
                                 ? "bg-neutral-900 border-neutral-800"
                                 : item.id === "light"
                                 ? "bg-white border-neutral-200"
-                                : "bg-gradient-to-br from-white via-neutral-400 to-neutral-900 border-neutral-300"
+                                : "bg-white border-neutral-200"
                             }`}
                           />
                           <span className="text-xs">{item.label}</span>
