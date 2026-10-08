@@ -9,7 +9,7 @@ import { getSupabaseClient } from "../../../lib/supabase";
 import { syncCurrentUserProfile } from "../../../lib/user-profile";
 
 const AFTER_LOGIN_PATH = "/Home";
-const TIMEOUT_MS = 10000;
+const SESSION_TIMEOUT_MS = 15000;
 
 export default function AuthCallbackPage() {
   const router = useRouter();
@@ -19,8 +19,8 @@ export default function AuthCallbackPage() {
     const search = new URLSearchParams(window.location.search);
     const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
     const urlError = search.get("error_description") ?? hash.get("error_description");
-    if (urlError) {
-      setError(urlError);
+    if (urlError || search.get("error") || hash.get("error")) {
+      setError(urlError ?? "Authentication was not completed. Please try again.");
       return;
     }
 
@@ -28,48 +28,69 @@ export default function AuthCallbackPage() {
     try {
       supabase = getSupabaseClient();
     } catch (configurationError) {
-      setError(
-        configurationError instanceof Error
-          ? configurationError.message
-          : "Authentication is unavailable."
-      );
+      setError(configurationError instanceof Error
+        ? configurationError.message
+        : "Authentication is unavailable.");
       return;
     }
 
-    let done = false;
-    const goNext = async () => {
-      if (done) return;
-      done = true;
+    let active = true;
+    let started = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let pending: ReturnType<typeof setTimeout> | undefined;
 
-      try {
-        await syncCurrentUserProfile();
-        router.replace(AFTER_LOGIN_PATH);
-      } catch (profileError) {
-        done = false;
-        setError(
-          profileError instanceof Error
+    const completeSignIn = () => {
+      if (!active || started) return;
+      started = true;
+      if (timer) clearTimeout(timer);
+
+      // Do not call Supabase auth APIs synchronously within onAuthStateChange:
+      // their internal auth lock may still be held by the notification callback.
+      pending = setTimeout(async () => {
+        try {
+          await syncCurrentUserProfile();
+          if (active) router.replace(AFTER_LOGIN_PATH);
+        } catch (profileError) {
+          if (!active) return;
+          setError(profileError instanceof Error
             ? profileError.message
-            : "Could not load your profile."
-        );
-      }
+            : "Could not load your profile.");
+        }
+      }, 0);
     };
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) void goNext();
+      if (session) completeSignIn();
     });
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) void goNext();
+    void supabase.auth.getSession().then(({ data, error: sessionError }) => {
+      if (!active || started) return;
+      if (sessionError) {
+        if (timer) clearTimeout(timer);
+        setError(sessionError.message);
+      } else if (data.session) {
+        completeSignIn();
+      }
+    }).catch((sessionError: unknown) => {
+      if (!active || started) return;
+      if (timer) clearTimeout(timer);
+      setError(sessionError instanceof Error
+        ? sessionError.message
+        : "Unable to restore your sign-in session.");
     });
 
-    const timer = setTimeout(() => {
-      if (!done) setError("Sign-in did not complete. Please try again.");
-    }, TIMEOUT_MS);
+    timer = setTimeout(() => {
+      if (active && !started) {
+        setError("Sign-in did not complete. Check your redirect URL or try again.");
+      }
+    }, SESSION_TIMEOUT_MS);
 
     return () => {
-      clearTimeout(timer);
+      active = false;
+      if (timer) clearTimeout(timer);
+      if (pending) clearTimeout(pending);
       subscription.unsubscribe();
     };
   }, [router]);
