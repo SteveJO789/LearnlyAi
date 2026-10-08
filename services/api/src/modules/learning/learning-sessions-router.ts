@@ -70,6 +70,7 @@ async function ensureAppUser(user: AuthenticatedUser): Promise<void> {
   const existing = await db.orm.public.User.where({ id: user.id }).select("id").first();
   if (existing) {
     await db.orm.public.User.where({ id: user.id }).update({
+      authUserId: user.id,
       email: user.email,
       avatarUrl: user.avatarUrl,
       updatedAt: new Date().toISOString(),
@@ -79,6 +80,7 @@ async function ensureAppUser(user: AuthenticatedUser): Promise<void> {
 
   await db.orm.public.User.create({
     id: user.id,
+    authUserId: user.id,
     email: user.email,
     displayName: user.displayName,
     avatarUrl: user.avatarUrl,
