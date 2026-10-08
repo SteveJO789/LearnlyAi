@@ -102,6 +102,11 @@ function ProfileContent() {
     });
   };
 
+  const currentAppearanceMode =
+    theme === "light" || theme === "dark" || theme === "system"
+      ? theme
+      : "system";
+
   const handleAppearanceModeChange = async (
     nextAppearanceMode: "light" | "dark" | "system",
   ) => {
@@ -116,12 +121,14 @@ function ProfileContent() {
 
   const handleColorThemeChange = async (nextColorTheme: ColorTheme) => {
     const appearanceMode =
-      nextColorTheme !== "default" && theme === "system" ? "light" : theme;
+      nextColorTheme !== "default" && currentAppearanceMode === "system"
+        ? "light"
+        : currentAppearanceMode;
 
     setColorTheme(nextColorTheme);
     localStorage.setItem("app-color-theme", nextColorTheme);
 
-    if (appearanceMode !== theme) {
+    if (appearanceMode !== currentAppearanceMode) {
       setTheme(appearanceMode);
     }
 
@@ -520,7 +527,7 @@ function ProfileContent() {
                           key={item.id}
                           onClick={() => void handleAppearanceModeChange(item.id as "light" | "dark" | "system")}
                           className={`p-4 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center gap-3 ${
-                            theme === item.id
+                            currentAppearanceMode === item.id
                               ? "border-primary bg-secondary font-semibold"
                               : "border-surface-border hover:border-primary/60"
                           }`}
