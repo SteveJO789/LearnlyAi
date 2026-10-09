@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -12,22 +11,6 @@ import {
   getCurrentUserProfile,
   type AppUserProfile,
 } from "../../lib/user-profile";
-
-// NOTE(Cake): image URLs below are temporary Figma-hosted asset links
-// (expire ~7 days after being generated). Swap these for real, permanent
-// assets — either exported from Figma into /public or final photography —
-// before this ships anywhere beyond local dev.
-const heroImage =
-  "https://www.figma.com/api/mcp/asset/8fd24a11-50b7-4cdf-aa32-f638d45dcf65/d7640.png";
-
-const cardImage1 =
-  "https://www.figma.com/api/mcp/asset/8fd24a11-50b7-4cdf-aa32-f638d45dcf65/c0f52.png";
-
-const cardImage2 =
-  "https://www.figma.com/api/mcp/asset/8fd24a11-50b7-4cdf-aa32-f638d45dcf65/a5fc4.png";
-
-const cardImage3 =
-  "https://www.figma.com/api/mcp/asset/8fd24a11-50b7-4cdf-aa32-f638d45dcf65/6ec63.png";
 
 function HomeFeatures({ t }: { t: (key: string) => string }) {
   const items = [["home.feature1Title","home.feature1Body","✦","bg-teal-100 text-teal-700"],["home.feature2Title","home.feature2Body","◎","bg-blue-100 text-blue-700"],["home.feature3Title","home.feature3Body","↗","bg-violet-100 text-violet-700"]] as const;
