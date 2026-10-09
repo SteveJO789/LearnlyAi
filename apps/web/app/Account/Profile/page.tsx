@@ -140,6 +140,7 @@ function ProfileContent() {
 
   const [userInfo, setUserInfo] = useState<UserProfile>(initialUserInfo);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarFailed, setAvatarFailed] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSaving, setIsSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -170,14 +171,27 @@ function ProfileContent() {
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("ไฟล์รูปภาพต้องมีขนาดไม่เกิน 5MB");
-        return;
-      }
-      const previewUrl = URL.createObjectURL(file);
-      setAvatarPreview(previewUrl);
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert("ไฟล์รูปภาพต้องมีขนาดไม่เกิน 5MB");
+      e.target.value = "";
+      return;
     }
+    if (!file.type.startsWith("image/")) {
+      alert("กรุณาเลือกไฟล์รูปภาพ");
+      e.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setAvatarFailed(false);
+        setAvatarPreview(reader.result);
+      }
+    };
+    reader.onerror = () => alert("อ่านไฟล์รูปภาพไม่สำเร็จ กรุณาลองใหม่");
+    reader.readAsDataURL(file);
   };
 
   const validateForm = (): boolean => {
@@ -204,6 +218,7 @@ function ProfileContent() {
     try {
       const saved = await updateCurrentUserProfile({
         displayName: userInfo.name,
+        ...(avatarPreview ? { avatarUrl: avatarPreview } : {}),
       });
 
       const nextUserInfo: UserProfile = {
@@ -213,6 +228,8 @@ function ProfileContent() {
         avatarUrl: saved.avatarUrl,
       };
 
+      setAvatarPreview(null);
+      setAvatarFailed(false);
       setUserInfo(nextUserInfo);
       setInitialUserInfo(nextUserInfo);
       setToastMessage("บันทึกข้อมูลส่วนตัวเรียบร้อยแล้ว!");
@@ -227,6 +244,7 @@ function ProfileContent() {
   const handleCancel = () => {
     setUserInfo(initialUserInfo);
     setAvatarPreview(null);
+    setAvatarFailed(false);
     setErrors({});
   };
 
@@ -401,11 +419,12 @@ function ProfileContent() {
 
                   <div className="flex items-center gap-6 pb-4 border-b border-surface-border">
                     <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center text-2xl font-bold text-text overflow-hidden border border-surface-border shrink-0">
-                      {avatarPreview || userInfo.avatarUrl ? (
+                      {(avatarPreview || userInfo.avatarUrl) && !avatarFailed ? (
                         <img
                           src={avatarPreview ?? userInfo.avatarUrl ?? ""}
-                          alt="Profile avatar"
-                          className="w-full h-full object-cover"
+                          alt=""
+                          onError={() => setAvatarFailed(true)}
+                          className="block h-full w-full object-cover"
                         />
                       ) : (
                         userInfo.name.charAt(0) || "U"

@@ -72,7 +72,7 @@ export default function CreatePage() {
 
       <main className="px-5 sm:px-12 lg:px-20 pb-24">
         <div
-          className="hello-gradient pointer-events-none bg-clip-text text-4xl font-medium tracking-tight text-transparent"
+          className="hello-gradient pointer-events-none max-w-full break-words bg-clip-text text-2xl font-medium leading-tight tracking-tight text-transparent sm:text-3xl lg:text-4xl"
           style={{
             backgroundImage:
               "radial-gradient(120% 140% at 15% 20%, #ffe89e 0%, transparent 45%), radial-gradient(120% 140% at 80% 30%, #8178ff 0%, transparent 55%), radial-gradient(140% 160% at 60% 90%, #ff0d9b 0%, transparent 60%), linear-gradient(135deg, #ff2fb0, #8178ff)",
@@ -80,11 +80,11 @@ export default function CreatePage() {
             backgroundPosition: "0% 50%",
           }}
         >
-          {t("home.greeting")} <span>{profile?.displayName ?? "..."}</span>
+          {t("home.greeting")} <span className="inline-block max-w-full break-words">{profile?.displayName ?? "..."}</span>
         </div>
 
-        <div className="mt-8 w-full max-w-xl sm:max-w-2xl mx-auto text-center px-4">
-  <h1 className="text-3xl font-bold tracking-tight sm:text-4xl whitespace-nowrap">{t("create.title")}</h1>
+        <div className="mx-auto mt-8 w-full max-w-3xl px-2 text-center sm:px-4">
+  <h1 className="break-words text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">{t("create.title")}</h1>
   <p className="mt-3 text-muted">{t("create.subtitle")}</p>
 </div>
 
