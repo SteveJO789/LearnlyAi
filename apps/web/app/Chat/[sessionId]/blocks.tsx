@@ -1,14 +1,18 @@
 import type { Block, Citation } from "./api";
+import { useLanguage } from "../../lib/i18n/LanguageContext";
 
 type ChoiceOption = { key: string; label: string };
 
-const feedbackStyles: Record<string, { label: string; className: string }> = {
-  CORRECT: { label: "ถูกต้อง", className: "border-green-200 bg-green-50 text-green-900" },
-  PARTIALLY_CORRECT: {
-    label: "ถูกบางส่วน",
-    className: "border-amber-200 bg-amber-50 text-amber-900",
-  },
-  TRY_AGAIN: { label: "ลองอีกครั้ง", className: "border-rose-200 bg-rose-50 text-rose-900" },
+const feedbackStyleClasses: Record<string, string> = {
+  CORRECT: "border-green-200 bg-green-50 text-green-900",
+  PARTIALLY_CORRECT: "border-amber-200 bg-amber-50 text-amber-900",
+  TRY_AGAIN: "border-rose-200 bg-rose-50 text-rose-900",
+};
+
+const feedbackLabelKeys: Record<string, string> = {
+  CORRECT: "chat.blocks.feedback.correct",
+  PARTIALLY_CORRECT: "chat.blocks.feedback.partiallyCorrect",
+  TRY_AGAIN: "chat.blocks.feedback.tryAgain",
 };
 
 function ChoiceButtons({
@@ -45,6 +49,8 @@ type BlockViewProps = {
 };
 
 export default function BlockView({ block, interactive, onChoose }: BlockViewProps) {
+  const { t } = useLanguage();
+
   switch (block.type) {
     case "explanation":
       return (
@@ -59,7 +65,7 @@ export default function BlockView({ block, interactive, onChoose }: BlockViewPro
     case "guided_question":
       return (
         <section className="rounded-2xl border border-indigo-200 bg-indigo-50 p-5">
-          <p className="mb-2 text-sm font-medium text-indigo-700">Question</p>
+          <p className="mb-2 text-sm font-medium text-indigo-700">{t("chat.blocks.question")}</p>
           <p className="whitespace-pre-wrap leading-relaxed text-text">{block.content}</p>
           {block.choices && block.choices.length > 0 && (
             <ChoiceButtons
@@ -87,7 +93,7 @@ export default function BlockView({ block, interactive, onChoose }: BlockViewPro
 
       return (
         <section className="rounded-2xl border border-fuchsia-200 bg-fuchsia-50 p-5">
-          <p className="mb-2 text-sm font-medium text-fuchsia-700">Quiz</p>
+          <p className="mb-2 text-sm font-medium text-fuchsia-700">{t("chat.blocks.quiz")}</p>
           <p className="whitespace-pre-wrap leading-relaxed text-text">{block.prompt}</p>
           {hasChoices ? (
             <ChoiceButtons
@@ -99,21 +105,20 @@ export default function BlockView({ block, interactive, onChoose }: BlockViewPro
               onChoose={onChoose}
             />
           ) : (
-            <p className="mt-3 text-sm text-muted">พิมพ์คำตอบในช่องด้านล่าง</p>
+            <p className="mt-3 text-sm text-muted">{t("chat.blocks.typeBelow")}</p>
           )}
         </section>
       );
     }
 
     case "feedback": {
-      const style = feedbackStyles[block.result] ?? {
-        label: block.result,
-        className: "border-surface-border bg-secondary/40 text-text",
-      };
+      const className =
+        feedbackStyleClasses[block.result] ?? "border-surface-border bg-secondary/40 text-text";
+      const label = feedbackLabelKeys[block.result] ? t(feedbackLabelKeys[block.result]) : block.result;
 
       return (
-        <section className={`rounded-2xl border p-5 ${style.className}`}>
-          <p className="mb-2 text-sm font-semibold">{style.label}</p>
+        <section className={`rounded-2xl border p-5 ${className}`}>
+          <p className="mb-2 text-sm font-semibold">{label}</p>
           <p className="whitespace-pre-wrap leading-relaxed">{block.content}</p>
         </section>
       );
@@ -122,7 +127,7 @@ export default function BlockView({ block, interactive, onChoose }: BlockViewPro
     case "interactive":
       return (
         <section className="rounded-2xl border border-dashed border-surface-border p-5 text-sm text-muted">
-          Interactive component “{block.component}” (ยังไม่ได้ทำ)
+          Interactive component “{block.component}” {t("chat.blocks.interactiveNotBuilt")}
         </section>
       );
 
@@ -139,16 +144,18 @@ export default function BlockView({ block, interactive, onChoose }: BlockViewPro
 }
 
 export function CitationList({ citations }: { citations?: Citation[] }) {
+  const { t } = useLanguage();
+
   if (!citations || citations.length === 0) return null;
 
   return (
     <div className="text-sm text-muted">
-      <p className="mb-1 font-medium">แหล่งอ้างอิง</p>
+      <p className="mb-1 font-medium">{t("chat.blocks.references")}</p>
       <ul className="list-inside list-disc">
         {citations.map((citation) => (
           <li key={citation.id}>
             {citation.title}
-            {citation.page ? ` (หน้า ${citation.page})` : ""}
+            {citation.page ? ` (${t("chat.blocks.page")} ${citation.page})` : ""}
           </li>
         ))}
       </ul>

@@ -8,10 +8,6 @@
       "model": "AIRequest",
       "namespace": "public"
     },
-    "AppSession": {
-      "model": "AppSession",
-      "namespace": "public"
-    },
     "Assessment": {
       "model": "Assessment",
       "namespace": "public"
@@ -30,10 +26,6 @@
     },
     "Message": {
       "model": "Message",
-      "namespace": "public"
-    },
-    "OAuthAccount": {
-      "model": "OAuthAccount",
       "namespace": "public"
     },
     "SourceMaterial": {
@@ -387,104 +379,6 @@
               },
               "namespaceId": "public",
               "table": "AIRequest"
-            }
-          },
-          "AppSession": {
-            "fields": {
-              "createdAt": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "kind": "scalar"
-                }
-              },
-              "expiresAt": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "kind": "scalar"
-                }
-              },
-              "id": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "lastSeenAt": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "kind": "scalar"
-                }
-              },
-              "revokedAt": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "kind": "scalar"
-                }
-              },
-              "tokenDigest": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "userId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              }
-            },
-            "relations": {
-              "user": {
-                "cardinality": "N:1",
-                "nullable": false,
-                "on": {
-                  "localFields": [
-                    "userId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "User",
-                  "namespace": "public"
-                }
-              }
-            },
-            "storage": {
-              "fields": {
-                "createdAt": {
-                  "column": "createdAt"
-                },
-                "expiresAt": {
-                  "column": "expiresAt"
-                },
-                "id": {
-                  "column": "id"
-                },
-                "lastSeenAt": {
-                  "column": "lastSeenAt"
-                },
-                "revokedAt": {
-                  "column": "revokedAt"
-                },
-                "tokenDigest": {
-                  "column": "tokenDigest"
-                },
-                "userId": {
-                  "column": "userId"
-                }
-              },
-              "namespaceId": "public",
-              "table": "AppSession"
             }
           },
           "Assessment": {
@@ -1082,104 +976,6 @@
               "table": "Message"
             }
           },
-          "OAuthAccount": {
-            "fields": {
-              "createdAt": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "kind": "scalar"
-                }
-              },
-              "emailAtProvider": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "id": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "lastLoginAt": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "kind": "scalar"
-                }
-              },
-              "provider": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "subject": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "userId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              }
-            },
-            "relations": {
-              "user": {
-                "cardinality": "N:1",
-                "nullable": false,
-                "on": {
-                  "localFields": [
-                    "userId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "User",
-                  "namespace": "public"
-                }
-              }
-            },
-            "storage": {
-              "fields": {
-                "createdAt": {
-                  "column": "createdAt"
-                },
-                "emailAtProvider": {
-                  "column": "emailAtProvider"
-                },
-                "id": {
-                  "column": "id"
-                },
-                "lastLoginAt": {
-                  "column": "lastLoginAt"
-                },
-                "provider": {
-                  "column": "provider"
-                },
-                "subject": {
-                  "column": "subject"
-                },
-                "userId": {
-                  "column": "userId"
-                }
-              },
-              "namespaceId": "public",
-              "table": "OAuthAccount"
-            }
-          },
           "SourceMaterial": {
             "fields": {
               "contentHash": {
@@ -1322,6 +1118,13 @@
           },
           "User": {
             "fields": {
+              "authUserId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "avatarUrl": {
                 "nullable": true,
                 "type": {
@@ -1363,24 +1166,16 @@
                   "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
+              },
+              "username": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
               }
             },
             "relations": {
-              "appSessions": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "userId"
-                  ]
-                },
-                "to": {
-                  "model": "AppSession",
-                  "namespace": "public"
-                }
-              },
               "learningProfile": {
                 "cardinality": "1:1",
                 "nullable": true,
@@ -1411,25 +1206,13 @@
                   "model": "LearningSession",
                   "namespace": "public"
                 }
-              },
-              "oauthAccounts": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "userId"
-                  ]
-                },
-                "to": {
-                  "model": "OAuthAccount",
-                  "namespace": "public"
-                }
               }
             },
             "storage": {
               "fields": {
+                "authUserId": {
+                  "column": "authUserId"
+                },
                 "avatarUrl": {
                   "column": "avatarUrl"
                 },
@@ -1447,6 +1230,9 @@
                 },
                 "updatedAt": {
                   "column": "updatedAt"
+                },
+                "username": {
+                  "column": "username"
                 }
               },
               "namespaceId": "public",
@@ -1461,6 +1247,181 @@
     "namespaces": {
       "public": {
         "entries": {
+          "policy": {
+            "ai_request_select_own": {
+              "kind": "policy",
+              "name": "ai_request_select_own_5424dd11",
+              "namespaceId": "public",
+              "operation": "select",
+              "permissive": true,
+              "prefix": "ai_request_select_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "AIRequest",
+              "using": "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"AIRequest\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "assessment_answer_select_own": {
+              "kind": "policy",
+              "name": "assessment_answer_select_own_c190452e",
+              "namespaceId": "public",
+              "operation": "select",
+              "permissive": true,
+              "prefix": "assessment_answer_select_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "AssessmentAnswer",
+              "using": "(EXISTS ( SELECT 1 FROM ((\"Assessment\" a JOIN \"LearningSession\" ls ON ((ls.id = a.\"learningSessionId\"))) JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((a.id = \"AssessmentAnswer\".\"assessmentId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "assessment_select_own": {
+              "kind": "policy",
+              "name": "assessment_select_own_d47c911a",
+              "namespaceId": "public",
+              "operation": "select",
+              "permissive": true,
+              "prefix": "assessment_select_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "Assessment",
+              "using": "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Assessment\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "learning_profile_select_own": {
+              "kind": "policy",
+              "name": "learning_profile_select_own_13d05569",
+              "namespaceId": "public",
+              "operation": "select",
+              "permissive": true,
+              "prefix": "learning_profile_select_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "LearningProfile",
+              "using": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningProfile\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "learning_session_select_own": {
+              "kind": "policy",
+              "name": "learning_session_select_own_a34ec569",
+              "namespaceId": "public",
+              "operation": "select",
+              "permissive": true,
+              "prefix": "learning_session_select_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "LearningSession",
+              "using": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "message_select_own": {
+              "kind": "policy",
+              "name": "message_select_own_968c3fb0",
+              "namespaceId": "public",
+              "operation": "select",
+              "permissive": true,
+              "prefix": "message_select_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "Message",
+              "using": "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "source_material_select_own": {
+              "kind": "policy",
+              "name": "source_material_select_own_f7e3ac0e",
+              "namespaceId": "public",
+              "operation": "select",
+              "permissive": true,
+              "prefix": "source_material_select_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "SourceMaterial",
+              "using": "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"SourceMaterial\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "user_insert_own": {
+              "kind": "policy",
+              "name": "user_insert_own_770e92f4",
+              "namespaceId": "public",
+              "operation": "insert",
+              "permissive": true,
+              "prefix": "user_insert_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "User",
+              "withCheck": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
+            },
+            "user_select_own": {
+              "kind": "policy",
+              "name": "user_select_own_4f3aea31",
+              "namespaceId": "public",
+              "operation": "select",
+              "permissive": true,
+              "prefix": "user_select_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "User",
+              "using": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
+            },
+            "user_update_own": {
+              "kind": "policy",
+              "name": "user_update_own_0788dd28",
+              "namespaceId": "public",
+              "operation": "update",
+              "permissive": true,
+              "prefix": "user_update_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "User",
+              "using": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)",
+              "withCheck": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
+            }
+          },
+          "rls": {
+            "AIRequest": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "AIRequest"
+            },
+            "Assessment": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "Assessment"
+            },
+            "AssessmentAnswer": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "AssessmentAnswer"
+            },
+            "LearningProfile": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "LearningProfile"
+            },
+            "LearningSession": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "LearningSession"
+            },
+            "Message": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "Message"
+            },
+            "SourceMaterial": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "SourceMaterial"
+            },
+            "User": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "User"
+            }
+          },
           "table": {
             "AIRequest": {
               "checks": [
@@ -1598,89 +1559,6 @@
                 {
                   "columns": [
                     "requestId"
-                  ]
-                }
-              ]
-            },
-            "AppSession": {
-              "columns": {
-                "createdAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
-                  "nativeType": "timestamptz",
-                  "nullable": false
-                },
-                "expiresAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "nativeType": "timestamptz",
-                  "nullable": false
-                },
-                "id": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": false
-                },
-                "lastSeenAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "nativeType": "timestamptz",
-                  "nullable": true
-                },
-                "revokedAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "nativeType": "timestamptz",
-                  "nullable": true
-                },
-                "tokenDigest": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": false
-                },
-                "userId": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": false
-                }
-              },
-              "foreignKeys": [
-                {
-                  "source": {
-                    "columns": [
-                      "userId"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "AppSession"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "User"
-                  }
-                }
-              ],
-              "indexes": [
-                {
-                  "columns": [
-                    "userId"
-                  ],
-                  "name": "AppSession_userId_idx_a489d58a",
-                  "prefix": "AppSession_userId_idx",
-                  "unique": false
-                }
-              ],
-              "primaryKey": {
-                "columns": [
-                  "id"
-                ]
-              },
-              "uniques": [
-                {
-                  "columns": [
-                    "tokenDigest"
                   ]
                 }
               ]
@@ -2142,90 +2020,6 @@
               },
               "uniques": []
             },
-            "OAuthAccount": {
-              "columns": {
-                "createdAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
-                  "nativeType": "timestamptz",
-                  "nullable": false
-                },
-                "emailAtProvider": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": true
-                },
-                "id": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": false
-                },
-                "lastLoginAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "nativeType": "timestamptz",
-                  "nullable": true
-                },
-                "provider": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": false
-                },
-                "subject": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": false
-                },
-                "userId": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": false
-                }
-              },
-              "foreignKeys": [
-                {
-                  "source": {
-                    "columns": [
-                      "userId"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "OAuthAccount"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "User"
-                  }
-                }
-              ],
-              "indexes": [
-                {
-                  "columns": [
-                    "userId"
-                  ],
-                  "name": "OAuthAccount_userId_idx_a489d58a",
-                  "prefix": "OAuthAccount_userId_idx",
-                  "unique": false
-                }
-              ],
-              "primaryKey": {
-                "columns": [
-                  "id"
-                ]
-              },
-              "uniques": [
-                {
-                  "columns": [
-                    "provider",
-                    "subject"
-                  ]
-                }
-              ]
-            },
             "SourceMaterial": {
               "checks": [
                 {
@@ -2340,6 +2134,11 @@
             },
             "User": {
               "columns": {
+                "authUserId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
                 "avatarUrl": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -2373,16 +2172,41 @@
                   "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": false
+                },
+                "username": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 }
               },
               "foreignKeys": [],
-              "indexes": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "email"
+                  ],
+                  "name": "User_email_idx_46df9cad",
+                  "prefix": "User_email_idx",
+                  "unique": false
+                }
+              ],
               "primaryKey": {
                 "columns": [
                   "id"
                 ]
               },
-              "uniques": []
+              "uniques": [
+                {
+                  "columns": [
+                    "authUserId"
+                  ]
+                },
+                {
+                  "columns": [
+                    "username"
+                  ]
+                }
+              ]
             }
           },
           "valueSet": {
@@ -2463,10 +2287,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "452158074d4d75d38f0c775bdb714abcc49090d7a429bc916b9a1a02c08bbcd1"
+    "storageHash": "c7b3938544e5e74ca8b9f22476cc7dbb3d987938d552a6e2214b5edd941b8665"
   },
   "execution": {
-    "executionHash": "9d6827a7c3ebba924f05ac163af4e3d9fc21f7f1aa225b5ec7f79c89851b1e38",
+    "executionHash": "1c5f64dbace57a6efe810d458509a690bf92acb20d8522d6bfb343791bdd4e83",
     "mutations": {
       "defaults": [
         {
@@ -2478,17 +2302,6 @@
             "column": "id",
             "namespace": "public",
             "table": "AIRequest"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "uuidv4",
-            "kind": "generator"
-          },
-          "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "AppSession"
           }
         },
         {
@@ -2548,17 +2361,6 @@
             "column": "id",
             "namespace": "public",
             "table": "Message"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "uuidv4",
-            "kind": "generator"
-          },
-          "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "OAuthAccount"
           }
         },
         {

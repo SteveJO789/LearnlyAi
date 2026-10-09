@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
         source: "/api/learning/:path*",
         destination: `${API_BASE_URL}/learning/:path*`,
       },
+      {
+        source: "/api/learning-sessions",
+        destination: `${API_BASE_URL}/learning-sessions`,
+      },
+      {
+        source: "/api/learning-sessions/:path*",
+        destination: `${API_BASE_URL}/learning-sessions/:path*`,
+      },
     ];
   },
 };

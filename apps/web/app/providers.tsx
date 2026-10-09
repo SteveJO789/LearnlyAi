@@ -1,8 +1,9 @@
 "use client";
 
-import { ThemeProvider as NextThemesProvider } from "next-themes";
-import { useEffect, useState, ReactNode } from "react";
+import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
+import { useEffect, ReactNode } from "react";
 
+import { getCurrentUserThemePreferences, type ColorTheme } from "./../lib/user-profile";
 import { LanguageProvider } from "./lib/i18n/LanguageContext";
 
 // ดักจับและซ่อน Warning ของ React 19 ที่มาจาก next-themes ในโหมด Development
@@ -19,43 +20,93 @@ if (typeof window !== "undefined") {
   };
 }
 
-export function Providers({ children }: { children: ReactNode }) {
-  const [mounted, setMounted] = useState(false);
+const COLOR_THEME_CLASSES: ColorTheme[] = [
+  "theme-ruby",
+  "theme-peach",
+  "theme-sky",
+  "theme-gold",
+  "theme-slate",
+  "theme-teal",
+];
+
+function applySavedColorTheme(colorTheme: ColorTheme) {
+  const root = document.documentElement;
+
+  root.classList.remove(...COLOR_THEME_CLASSES);
+
+  if (colorTheme !== "default") {
+    root.classList.add(colorTheme);
+  }
+}
+
+function ThemeEffects() {
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
-    setMounted(true);
-    
-    // โหลดและแปะ Brand Color Theme ทันทีที่แอปโหลดในทุกๆ หน้า
-    const applySavedTheme = () => {
-      const savedColorTheme = localStorage.getItem("app-color-theme") || "default";
+    const savedColorTheme =
+      (localStorage.getItem("app-color-theme") as ColorTheme | null) ??
+      "default";
+
+    applySavedColorTheme(savedColorTheme);
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.add("theme-transition");
+
+    const timeoutId = window.setTimeout(() => {
+      root.classList.remove("theme-transition");
+    }, 180);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      root.classList.remove("theme-transition");
+    };
+  }, [resolvedTheme]);
+
+  useEffect(() => {
+    const handleColorThemeChanged = () => {
+      const savedColorTheme =
+        (localStorage.getItem("app-color-theme") as ColorTheme | null) ??
+        "default";
+
       const root = document.documentElement;
-      
-      // ล้างคลาสธีมเก่าออกให้ครบทุกรูปแบบ
-      root.classList.remove("theme-ruby", "theme-peach", "theme-sky", "theme-gold", "theme-slate");
-      
-      if (savedColorTheme !== "default") {
-        root.classList.add(savedColorTheme);
-      }
+      root.classList.add("theme-transition");
+      applySavedColorTheme(savedColorTheme);
+
+      window.setTimeout(() => {
+        root.classList.remove("theme-transition");
+      }, 180);
     };
 
-    applySavedTheme();
+    window.addEventListener("color-theme-changed", handleColorThemeChanged);
 
-    // คอยฟัง Event เผื่อมีการเปลี่ยนสีจากหน้า Profile หน้าอื่นจะได้เปลี่ยนตามแบบ Real-time
-    window.addEventListener("color-theme-changed", applySavedTheme);
     return () => {
-      window.removeEventListener("color-theme-changed", applySavedTheme);
+      window.removeEventListener("color-theme-changed", handleColorThemeChanged);
     };
   }, []);
 
+  useEffect(() => {
+    void getCurrentUserThemePreferences()
+      .then((preferences) => {
+        localStorage.setItem("app-color-theme", preferences.colorTheme);
+        applySavedColorTheme(preferences.colorTheme);
+      })
+      .catch(() => {
+        // Local storage remains the fallback for the current session.
+      });
+  }, []);
+
+  return null;
+}
+
+export function Providers({ children }: { children: ReactNode }) {
   return (
-    // @ts-ignore
     <NextThemesProvider
       attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
+      defaultTheme="light"
     >
-      {/* ใช้ mounted ช่วยเช็กเฉพาะส่วนที่อาจเกิด Hydration Mismatch ได้ แต่ปล่อยให้ Provider ทำงานตลอดเวลา */}
+      <ThemeEffects />
       <LanguageProvider>{children}</LanguageProvider>
     </NextThemesProvider>
   );

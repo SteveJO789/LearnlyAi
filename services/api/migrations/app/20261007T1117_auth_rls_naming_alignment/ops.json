@@ -1,0 +1,432 @@
+[
+  {
+    "id": "rlsPolicy.public.AIRequest.ai_request_select_own.rename",
+    "label": "Rename RLS policy \"ai_request_select_own\" to \"ai_request_select_own_5424dd11\" on \"AIRequest\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "ai_request_select_own_5424dd11",
+        "table": "AIRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"ai_request_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AIRequest",
+          "ai_request_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename RLS policy \"ai_request_select_own\" to \"ai_request_select_own_5424dd11\"",
+        "sql": "ALTER POLICY \"ai_request_select_own\" ON \"public\".\"AIRequest\" RENAME TO \"ai_request_select_own_5424dd11\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"ai_request_select_own_5424dd11\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AIRequest",
+          "ai_request_select_own_5424dd11"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.Assessment.assessment_select_own.rename",
+    "label": "Rename RLS policy \"assessment_select_own\" to \"assessment_select_own_d47c911a\" on \"Assessment\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "assessment_select_own_d47c911a",
+        "table": "Assessment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"assessment_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Assessment",
+          "assessment_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename RLS policy \"assessment_select_own\" to \"assessment_select_own_d47c911a\"",
+        "sql": "ALTER POLICY \"assessment_select_own\" ON \"public\".\"Assessment\" RENAME TO \"assessment_select_own_d47c911a\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"assessment_select_own_d47c911a\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Assessment",
+          "assessment_select_own_d47c911a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.AssessmentAnswer.assessment_answer_select_own.rename",
+    "label": "Rename RLS policy \"assessment_answer_select_own\" to \"assessment_answer_select_own_c190452e\" on \"AssessmentAnswer\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "assessment_answer_select_own_c190452e",
+        "table": "AssessmentAnswer"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"assessment_answer_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AssessmentAnswer",
+          "assessment_answer_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename RLS policy \"assessment_answer_select_own\" to \"assessment_answer_select_own_c190452e\"",
+        "sql": "ALTER POLICY \"assessment_answer_select_own\" ON \"public\".\"AssessmentAnswer\" RENAME TO \"assessment_answer_select_own_c190452e\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"assessment_answer_select_own_c190452e\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AssessmentAnswer",
+          "assessment_answer_select_own_c190452e"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.LearningProfile.learning_profile_select_own.rename",
+    "label": "Rename RLS policy \"learning_profile_select_own\" to \"learning_profile_select_own_13d05569\" on \"LearningProfile\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "learning_profile_select_own_13d05569",
+        "table": "LearningProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"learning_profile_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningProfile",
+          "learning_profile_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename RLS policy \"learning_profile_select_own\" to \"learning_profile_select_own_13d05569\"",
+        "sql": "ALTER POLICY \"learning_profile_select_own\" ON \"public\".\"LearningProfile\" RENAME TO \"learning_profile_select_own_13d05569\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"learning_profile_select_own_13d05569\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningProfile",
+          "learning_profile_select_own_13d05569"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.LearningSession.learning_session_select_own.rename",
+    "label": "Rename RLS policy \"learning_session_select_own\" to \"learning_session_select_own_a34ec569\" on \"LearningSession\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "learning_session_select_own_a34ec569",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"learning_session_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "learning_session_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename RLS policy \"learning_session_select_own\" to \"learning_session_select_own_a34ec569\"",
+        "sql": "ALTER POLICY \"learning_session_select_own\" ON \"public\".\"LearningSession\" RENAME TO \"learning_session_select_own_a34ec569\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"learning_session_select_own_a34ec569\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "learning_session_select_own_a34ec569"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.Message.message_select_own.rename",
+    "label": "Rename RLS policy \"message_select_own\" to \"message_select_own_968c3fb0\" on \"Message\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "message_select_own_968c3fb0",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"message_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Message",
+          "message_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename RLS policy \"message_select_own\" to \"message_select_own_968c3fb0\"",
+        "sql": "ALTER POLICY \"message_select_own\" ON \"public\".\"Message\" RENAME TO \"message_select_own_968c3fb0\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"message_select_own_968c3fb0\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Message",
+          "message_select_own_968c3fb0"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.SourceMaterial.source_material_select_own.rename",
+    "label": "Rename RLS policy \"source_material_select_own\" to \"source_material_select_own_f7e3ac0e\" on \"SourceMaterial\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "source_material_select_own_f7e3ac0e",
+        "table": "SourceMaterial"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"source_material_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename RLS policy \"source_material_select_own\" to \"source_material_select_own_f7e3ac0e\"",
+        "sql": "ALTER POLICY \"source_material_select_own\" ON \"public\".\"SourceMaterial\" RENAME TO \"source_material_select_own_f7e3ac0e\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"source_material_select_own_f7e3ac0e\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_select_own_f7e3ac0e"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.User.user_insert_own.rename",
+    "label": "Rename RLS policy \"user_insert_own\" to \"user_insert_own_770e92f4\" on \"User\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "user_insert_own_770e92f4",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"user_insert_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_insert_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename RLS policy \"user_insert_own\" to \"user_insert_own_770e92f4\"",
+        "sql": "ALTER POLICY \"user_insert_own\" ON \"public\".\"User\" RENAME TO \"user_insert_own_770e92f4\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"user_insert_own_770e92f4\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_insert_own_770e92f4"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.User.user_select_own.rename",
+    "label": "Rename RLS policy \"user_select_own\" to \"user_select_own_4f3aea31\" on \"User\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "user_select_own_4f3aea31",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"user_select_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename RLS policy \"user_select_own\" to \"user_select_own_4f3aea31\"",
+        "sql": "ALTER POLICY \"user_select_own\" ON \"public\".\"User\" RENAME TO \"user_select_own_4f3aea31\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"user_select_own_4f3aea31\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_select_own_4f3aea31"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.User.user_update_own.rename",
+    "label": "Rename RLS policy \"user_update_own\" to \"user_update_own_0788dd28\" on \"User\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "user_update_own_0788dd28",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"user_update_own\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_update_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename RLS policy \"user_update_own\" to \"user_update_own_0788dd28\"",
+        "sql": "ALTER POLICY \"user_update_own\" ON \"public\".\"User\" RENAME TO \"user_update_own_0788dd28\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"user_update_own_0788dd28\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_update_own_0788dd28"
+        ]
+      }
+    ]
+  }
+]

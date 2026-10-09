@@ -1,4 +1,6 @@
-# LearnlyAI Project Milestone Update — 29 Sep 2026
+# LearnlyAI Project Milestone Update — 29 Sep 2026 (historical snapshot)
+
+> Historical record only. Current status: [2026-10-09 implementation update](project-status-2026-10-09.md). Login was approved afterward, persistent sessions/history merged, and Docker cancelled.
 
 ## Current milestone
 **AI Learning Session Vertical Slice: PASS**

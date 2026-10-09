@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useLanguage } from "../lib/i18n/LanguageContext";
+import { getSupabaseClient } from "../../lib/supabase";
 
 // Shared top nav used by Home, Create, Lessons, and every Account/* page.
 // Pass `links` for the plain-link buttons (e.g. Create, Lessons, HOME) and
@@ -24,7 +26,7 @@ export type NavLink = {
 };
 
 type SiteHeaderProps = {
-  /** Where the LOGO links to. Defaults to the Home page. */
+  /** Where the LearnlyAI brand links to. Defaults to the Home page. */
   logoHref?: string;
   /** Plain-link nav buttons, rendered left to right in this order. */
   links?: NavLink[];
@@ -41,8 +43,9 @@ export default function SiteHeader({
 
   return (
     <header className="flex w-full items-center justify-between px-5 py-6 sm:px-12 lg:px-20">
-      <Link href={logoHref} className="text-lg font-medium tracking-wide">
-        LOGO
+      <Link href={logoHref} aria-label="LearnlyAI home" className="flex items-center gap-2.5 text-lg font-bold tracking-tight">
+        <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-teal-400 to-sky-500 text-xl text-white shadow-sm">✿</span>
+        <span className="bg-gradient-to-r from-teal-600 via-sky-600 to-indigo-600 bg-clip-text text-transparent">LearnlyAI</span>
       </Link>
 
       <div className="flex items-center gap-3">
@@ -60,7 +63,21 @@ export default function SiteHeader({
 
 function AccountMenu() {
   const { t } = useLanguage();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    setIsOpen(false);
+    setIsLoggingOut(true);
+    try {
+      await getSupabaseClient().auth.signOut();
+    } finally {
+      router.replace("/SignIn");
+      router.refresh();
+      setIsLoggingOut(false);
+    }
+  }
 
   return (
     <div className="relative">
@@ -102,10 +119,8 @@ function AccountMenu() {
 
           <button
             type="button"
-            onClick={() => {
-              setIsOpen(false);
-              // TODO(Best): call the real logout endpoint once auth exists.
-            }}
+            onClick={handleLogout}
+            disabled={isLoggingOut}
             className="w-full py-2 text-center text-sm font-medium text-purple-400 hover:text-purple-600 hover:bg-purple-50/50 rounded-xl transition-all mt-1"
           >
             {t("nav.logOut")}

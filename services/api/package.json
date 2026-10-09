@@ -26,6 +26,7 @@
     "contract:emit": "prisma contract emit"
   },
   "dependencies": {
+    "@prisma/orm-extension-supabase": "8.0.0-rc.12",
     "@prisma/orm-postgres": "^8.0.0-rc.12",
     "ajv": "8.17.1",
     "ajv-formats": "3.0.1",

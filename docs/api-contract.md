@@ -1,4 +1,4 @@
-# HTTP API Contract (MVP Baseline)
+# HTTP API Contract — implemented vs planned (2026-10-09)
 
 Base path: `/api/v1`
 
@@ -9,7 +9,7 @@ Contract นี้ตั้งใจให้ Frontend ทำ mock server แล
 - JSON ใช้ `camelCase`; database column ใช้ `snake_case`
 - ID เป็น opaque string/UUID; client ห้าม parse ความหมายจาก ID
 - เวลาใช้ ISO 8601 UTC เช่น `2026-09-12T13:00:00Z`
-- Protected endpoint ใช้ application session cookie
+- Frontend authentication uses Supabase Auth. Protected learning-session endpoints require `Authorization: Bearer <supabase-access-token>`; the API derives the current user from the token and never accepts a client-supplied `userId`.
 
 ### Success Envelope
 
@@ -32,38 +32,26 @@ Contract นี้ตั้งใจให้ Frontend ทำ mock server แล
 }
 ```
 
-## Authentication
+## Authentication (implemented in Supabase, not Express)
 
-| Method | Endpoint | Auth |
-|---|---|---|
-| GET | `/auth/google` | Public |
-| GET | `/auth/google/callback` | Public |
-| GET | `/auth/me` | Required |
-| POST | `/auth/logout` | Required |
+Browser uses `supabase.auth.signInWithOAuth({provider: "google"})`, `signInWithPassword`, `signUp`, `signOut`, `getUser`, and `getSession`. Callback: `/auth/callback`; after login: `/Home`; email registration verification: `/verify-email`.
 
-`GET /auth/me`
+The old Express endpoints `GET /api/v1/auth/google`, `GET /api/v1/auth/google/callback`, `GET /api/v1/auth/me`, `POST /api/v1/auth/logout` are NOT implemented. Protected API endpoints require `Authorization: Bearer <Supabase access token>`.
 
-```json
-{
-  "data": {
-    "id": "usr_01J...",
-    "displayName": "Cake",
-    "email": "student@example.com",
-    "avatarUrl": "https://..."
-  }
-}
-```
+Profile data is currently synced and updated through browser Supabase client against RLS-protected `User`, not a custom Express profile endpoint.
 
 ## Learning Sessions
+
+Implemented: POST/GET `/learning-sessions`, GET `/learning-sessions/{sessionId}`, POST `/learning-sessions/{sessionId}/interactions`. Others in the table below are planned. Current history returns up to 100 items, not pagination.
 
 | Method | Endpoint | Purpose |
 |---|---|---|
 | POST | `/learning-sessions` | สร้าง session |
-| GET | `/learning-sessions` | History แบบ pagination |
+| GET | `/learning-sessions` | History list, capped at 100; pagination not implemented |
 | GET | `/learning-sessions/{sessionId}` | อ่าน session และ progress |
-| POST | `/learning-sessions/{sessionId}/materials` | ส่ง text หรือ upload PDF/image |
+| POST | `/learning-sessions/{sessionId}/materials` | PLANNED (not implemented): PDF/image/text upload |
 | POST | `/learning-sessions/{sessionId}/interactions` | ส่งคำตอบ/ขอคำใบ้/ตอบ guided question |
-| POST | `/learning-sessions/{sessionId}/assessments/{phase}/submissions` | ส่ง pre/post-test (`phase=pre|post`) |
+| POST | `/learning-sessions/{sessionId}/assessments/{phase}/submissions` | PLANNED (not implemented): pre/post assessment |
 
 ### Create Session
 
@@ -117,13 +105,26 @@ Request:
 
 ```json
 {
-  "action": "ANSWER",
+  "action": "RESPOND",
   "message": "เพราะแรงดันเท่ากับกระแสคูณความต้านทาน",
   "clientRequestId": "2e97f0f1-71df-4f94-a57a-e1f2846e0d23"
 }
 ```
 
-Response payload ใน `data.tutorOutput` ต้องผ่าน [learning-output.schema.json](../contracts/learning-output.schema.json) และกฎอ้างอิง citation ของ server-side validator ก่อนส่งออกจาก backend ดู field, block, renderer และ versioning guidance ที่ [Tutor Output Contract](tutor-output-contract.md)
+Response payload ใน `data` ต้องผ่าน [learning-output.schema.json](../contracts/learning-output.schema.json) และกฎอ้างอิง citation ของ server-side validator ก่อนส่งออกจาก backend ดู field, block, renderer และ versioning guidance ที่ [Tutor Output Contract](tutor-output-contract.md)
+
+### Current persistent-session implementation
+
+The following authenticated endpoints are implemented and persisted through PostgreSQL:
+
+- `POST /api/v1/learning-sessions`
+- `GET /api/v1/learning-sessions`
+- `GET /api/v1/learning-sessions/{sessionId}`
+- `POST /api/v1/learning-sessions/{sessionId}/interactions`
+
+Session ownership is derived from the verified Supabase user ID. The frontend must not send a `userId`.
+
+File/PDF/image materials and assessment submission endpoints remain planned work.
 
 ## Learning Engine Development Slice
 
@@ -155,15 +156,15 @@ See [Learning Engine Core](learning-engine-core.md) for the complete sample resp
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `/users/me/learning-profile` | Mastery, strengths และ weak points |
-| GET | `/users/me/progress` | Summary สำหรับ dashboard |
+| GET | `/users/me/learning-profile` | PLANNED (not implemented) |
+| GET | `/users/me/progress` | PLANNED (not implemented) |
 
 ## Health
 
 | Method | Endpoint | Purpose |
 |---|---|---|
 | GET | `/health/live` | Process ทำงานอยู่ ไม่ตรวจ external dependency |
-| GET | `/health/ready` | ตรวจ DB และ dependency ที่จำเป็นต่อ request |
+| GET | `/health/ready` | Current implementation checks API only, not database/dependencies |
 
 ## Status Codes
 

@@ -5,6 +5,7 @@ import { createLearningEngine, type CreateLearningEngineOptions } from "./module
 import type { LearningEngine } from "./modules/learning/domain.js";
 import { LearningError } from "./modules/learning/learning-errors.js";
 import { createLearningRouter } from "./modules/learning/learning-router.js";
+import { createLearningSessionsRouter } from "./modules/learning/learning-sessions-router.js";
 
 export interface AppOptions extends CreateLearningEngineOptions {
   learningEngine?: LearningEngine;
@@ -44,6 +45,10 @@ export function createApp(options: AppOptions = {}): Express {
   const learningRouter = createLearningRouter(engine);
   app.use("/api/learning", learningRouter);
   app.use("/api/v1/learning", learningRouter);
+  app.use(
+    "/api/v1/learning-sessions",
+    createLearningSessionsRouter({ modelProvider: options.modelProvider }),
+  );
 
   const handleError: ErrorRequestHandler = (error: unknown, _request, response, next) => {
     if (response.headersSent) {
