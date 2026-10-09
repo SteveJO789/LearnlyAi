@@ -1,0 +1,66 @@
+[
+  {
+    "id": "grant.material-owned-api-write",
+    "label": "Grant material access subject to ownership/API-context RLS",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "sql": "GRANT SELECT, INSERT ON TABLE public.\"SourceMaterial\" TO authenticated",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "sql": "SELECT has_table_privilege('authenticated', 'public.\"SourceMaterial\"', 'INSERT') AS result",
+        "params": []
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.SourceMaterial.source_material_insert_api_own_bbb50d09",
+    "label": "Create RLS policy \"source_material_insert_api_own_bbb50d09\" on \"SourceMaterial\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "source_material_insert_api_own_bbb50d09",
+        "table": "SourceMaterial"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"source_material_insert_api_own_bbb50d09\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_insert_api_own_bbb50d09"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"source_material_insert_api_own_bbb50d09\"",
+        "sql": "CREATE POLICY \"source_material_insert_api_own_bbb50d09\" ON \"public\".\"SourceMaterial\" AS PERMISSIVE FOR INSERT TO authenticated WITH CHECK (((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text)))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"source_material_insert_api_own_bbb50d09\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_insert_api_own_bbb50d09"
+        ]
+      }
+    ]
+  }
+]

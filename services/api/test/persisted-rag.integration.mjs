@@ -46,13 +46,26 @@ function dbClient(userId) {
   return {
     orm: { public: Object.fromEntries(['User','LearningSession','Message'].map(table => [table, tableApi(table)])) }, raw: { sql },
     query: plan => ({ toArray: async () => {
+      if (/FROM public\."SourceMaterial"/.test(plan.text)) return [];
+      if (/FROM public\."Assessment"/.test(plan.text)) return [];
       assert.match(plan.text, /SELECT[\s\S]+FROM public\."Message"/);
       const [sessionId] = plan.values;
       return clone(store.Message.filter(m => m.learningSessionId === sessionId && visible('Message',m)).sort((a,b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id)).map(({content,...row}) => ({ ...row, contentJson: JSON.stringify(content) })));
     }}),
     transaction: async fn => {
       const snapshot = clone(store);
+      let apiWrite = false;
       try { return await fn({ execute: async plan => {
+        if (/set_config\('learnly.api_write'/.test(plan.text)) { apiWrite = true; return { affectedRows: 1 }; }
+        assert.ok(apiWrite, 'Server-managed writes require the transaction-local API context');
+        if (/INSERT INTO public\."LearningSession"/.test(plan.text)) {
+          const [id, owner, title, goal, subject, state, lifecycleState, stage, progressPercent, version, createdAt, updatedAt] = plan.values;
+          assert.equal(owner, userId);
+          if (store.LearningSession.some(row => row.id === id)) return { affectedRows: 0 };
+          store.LearningSession.push({ id, userId: owner, title, learningGoal: goal || null, subject: subject || null,
+            state, lifecycleState, stage, progressPercent, version, createdAt, updatedAt, completedAt: null });
+          store.writes++; return { affectedRows: 1 };
+        }
         if (/UPDATE public\."LearningSession"/.test(plan.text)) {
           const [goal,subject,state,lifecycleState,stage,progressPercent,version,updatedAt,id,owner,expected] = plan.values;
           const row = store.LearningSession.find(s => s.id === id && s.userId === owner && s.userId === userId && s.version === expected);
@@ -131,6 +144,19 @@ test('no-match persisted interaction has no trusted citations', async () => {
     const r = await call(`/${id}/interactions`, {method:'POST',body:{input:'Explain photosynthesis.'}});
     assert.equal(r.status,200); assert.deepEqual(r.body.data.citations,[]);
     assert.deepEqual(JSON.parse(requests[0].messages.at(-1).content).sourceMaterials,[]);
+  });
+});
+test('pending pre-test and missing post-test gate learning/complete before model calls or writes', async () => {
+  await withApp(mockTutorScenario, async ({ call, requests }) => {
+    const id = await session(call);
+    store.LearningSession[0].state = 'PRE_TEST';
+    const before = store.writes;
+    const pre = await call(`/${id}/interactions`, { method: 'POST', body: { input: "Explain Ohm's law" } });
+    assert.equal(pre.status, 400); assert.equal(pre.body.error.code, 'INVALID_STAGE_TRANSITION');
+    store.LearningSession[0].state = 'POST_TEST'; store.LearningSession[0].stage = 'ASSESS';
+    const post = await call(`/${id}/interactions`, { method: 'POST', body: { action: 'ADVANCE' } });
+    assert.equal(post.status, 400); assert.equal(post.body.error.code, 'INVALID_STAGE_TRANSITION');
+    assert.equal(requests.length, 0); assert.equal(store.writes, before); assert.equal(store.Message.length, 0);
   });
 });
 for(const mode of ['missing','invalid']) test(`${mode} Knowledge rejects persisted interaction with no model call or turn writes`, async () => {

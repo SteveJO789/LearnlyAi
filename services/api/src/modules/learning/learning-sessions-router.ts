@@ -2,6 +2,9 @@ import { randomUUID } from "node:crypto";
 import { Router, type RequestHandler } from "express";
 
 import { getDb, type UserDb } from "../../prisma/db.js";
+import { withApiWrite } from "../../prisma/api-write.js";
+import { PrismaTextMaterials } from "../input/text-materials.js";
+import { PrismaAssessmentStore } from "../assessments/prisma-assessment-store.js";
 import type { ModelProvider } from "../ai/providers/model-provider.js";
 import {
   requireSupabaseUser,
@@ -143,20 +146,31 @@ export function createLearningSessionsRouter(
 
       const now = new Date().toISOString();
       const id = randomUUID();
-      const row = await client.orm.public.LearningSession.create({
+      const row = {
         id,
         userId: user.id,
         title,
         learningGoal: learningGoal ?? null,
         subject: subject ?? null,
-        state: "INPUT",
-        lifecycleState: "ACTIVE",
-        stage: "EXPLAIN",
+        state: "INPUT" as const,
+        lifecycleState: "ACTIVE" as const,
+        stage: "EXPLAIN" as const,
         progressPercent: 0,
         version: 0,
         createdAt: now,
         updatedAt: now,
         completedAt: null,
+      };
+      await withApiWrite(client, async tx => {
+        await tx.execute(client.raw.sql`
+          INSERT INTO public."LearningSession"
+          ("id", "userId", "title", "learningGoal", "subject", "state", "lifecycleState",
+           "stage", "progressPercent", "version", "createdAt", "updatedAt", "completedAt")
+          VALUES (${row.id}, ${row.userId}, ${row.title}, NULLIF(${row.learningGoal ?? ""}, ''),
+            NULLIF(${row.subject ?? ""}, ''), ${row.state}, ${row.lifecycleState}, ${row.stage},
+            ${row.progressPercent}, ${row.version}, ${row.createdAt}::timestamptz,
+            ${row.updatedAt}::timestamptz, NULL)
+        `.affectedCount().build());
       });
 
       response.status(201).json({ data: sessionSummary(row) });
@@ -207,12 +221,14 @@ export function createLearningSessionsRouter(
 
       phase = "messages";
       const messages = await readPersistedMessages(client, session.id);
+      const materials = await new PrismaTextMaterials(client, user.id).list(session.id);
 
       phase = "response";
       response.status(200).json({
         data: {
           ...sessionSummary(session),
           messages: messages.map(messageDto),
+          materials,
         },
       });
     } catch (error) {
@@ -282,6 +298,20 @@ export function createLearningSessionsRouter(
           ]);
         }
 
+        if (action === "ADVANCE" && session.stage === "ASSESS") {
+          const assessment = await new PrismaAssessmentStore(client, user.id).getAssessment(session.id, "POST");
+          if (!assessment?.submittedAt) throw new LearningError("INVALID_STAGE_TRANSITION", [
+            { path: "/action", message: "Submit the post-test before completing the learning session." },
+          ]);
+        }
+
+        if (session.state === "PRE_TEST" && session.stage === "EXPLAIN") {
+          const assessment = await new PrismaAssessmentStore(client, user.id).getAssessment(session.id, "PRE");
+          if (!assessment?.submittedAt) throw new LearningError("INVALID_STAGE_TRANSITION", [
+            { path: "/action", message: "Submit the pre-test before starting this learning session." },
+          ]);
+        }
+
         const persistence = new PrismaLearningPersistence({
           userId: user.id,
           client,
@@ -292,6 +322,7 @@ export function createLearningSessionsRouter(
           modelProvider: options.modelProvider,
           knowledgeRetriever: options.knowledgeRetriever,
           knowledgeRoot: options.knowledgeRoot,
+          materials: new PrismaTextMaterials(client, user.id),
         });
 
         const result = await engine.process({

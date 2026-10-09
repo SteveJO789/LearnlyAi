@@ -6,7 +6,7 @@ Contract นี้ตั้งใจให้ Frontend ทำ mock server แล
 
 ## Conventions
 
-- JSON ใช้ `camelCase`; database column ใช้ `snake_case`
+- JSON ใช้ `camelCase`; ใช้ชื่อ column จริงตาม canonical Prisma contract (ปัจจุบัน quoted camelCase)
 - ID เป็น opaque string/UUID; client ห้าม parse ความหมายจาก ID
 - เวลาใช้ ISO 8601 UTC เช่น `2026-09-12T13:00:00Z`
 - Frontend authentication uses Supabase Auth. Protected learning-session endpoints require `Authorization: Bearer <supabase-access-token>`; the API derives the current user from the token and never accepts a client-supplied `userId`.
@@ -42,16 +42,17 @@ Profile data is currently synced and updated through browser Supabase client aga
 
 ## Learning Sessions
 
-Implemented: POST/GET `/learning-sessions`, GET `/learning-sessions/{sessionId}`, POST `/learning-sessions/{sessionId}/interactions`. Others in the table below are planned. Current history returns up to 100 items, not pagination.
+Implemented on the MVP completion branch: sessions/history/interactions, text materials, assessment creation/retrieval/submission and learning profile/progress. PDF/image extraction remains unfinished. History returns up to 100 items, not pagination.
 
 | Method | Endpoint | Purpose |
 |---|---|---|
 | POST | `/learning-sessions` | สร้าง session |
 | GET | `/learning-sessions` | History list, capped at 100; pagination not implemented |
 | GET | `/learning-sessions/{sessionId}` | อ่าน session และ progress |
-| POST | `/learning-sessions/{sessionId}/materials` | PLANNED (not implemented): PDF/image/text upload |
+| POST | `/learning-sessions/{sessionId}/materials` | Text normalization/persistence; PDF/image remains planned |
 | POST | `/learning-sessions/{sessionId}/interactions` | ส่งคำตอบ/ขอคำใบ้/ตอบ guided question |
-| POST | `/learning-sessions/{sessionId}/assessments/{phase}/submissions` | PLANNED (not implemented): pre/post assessment |
+| POST/GET | `/learning-sessions/{sessionId}/assessments/{phase}` | Create/retrieve PRE, POST or TRANSFER |
+| POST | `/learning-sessions/{sessionId}/assessments/{phase}/submissions` | Deterministic scoring and owned answer/profile persistence |
 
 ### Create Session
 
@@ -80,9 +81,10 @@ Response `201`:
 
 ### Add Material
 
-- Text: `application/json` พร้อม `type=text` และ `text`
-- PDF/Image: `multipart/form-data` พร้อม `file`
-- Backend ต้องตอบ `202` ได้เมื่อ processing ทำต่อแบบ asynchronous/polling
+- Text: `application/json` พร้อม `{"type":"TEXT","text":"x² + 4 = 10"}`. Maximum 8000 characters; NFC and LF normalization preserve mathematical notation. Control characters/blank input are rejected.
+- Returns 201 with `materialId`, `type=TEXT`, `status=READY`, `normalizedText`, SHA-256 `contentHash`, `mimeType=text/plain`, UTF-8 `sizeBytes`.
+- Text is learner material, not reviewed trusted Knowledge. Stored material access is scoped to the owner; no raw learning input is placed in Create-page URLs.
+- PDF/Image extraction and multipart upload remain unfinished; do not assume 202 asynchronous processing exists.
 
 Normalized material ภายใน backend:
 
@@ -106,8 +108,7 @@ Request:
 ```json
 {
   "action": "RESPOND",
-  "message": "เพราะแรงดันเท่ากับกระแสคูณความต้านทาน",
-  "clientRequestId": "2e97f0f1-71df-4f94-a57a-e1f2846e0d23"
+  "message": "เพราะแรงดันเท่ากับกระแสคูณความต้านทาน"
 }
 ```
 
@@ -124,7 +125,30 @@ The following authenticated endpoints are implemented and persisted through Post
 
 Session ownership is derived from the verified Supabase user ID. The frontend must not send a `userId`.
 
-File/PDF/image materials and assessment submission endpoints remain planned work.
+Session detail now includes owned `materials` in addition to `messages`. Text-intake sessions enter PRE_TEST until PRE is submitted. ASSESS cannot ADVANCE to completion before POST is submitted. These gates reject before model calls or state/message writes. Legacy direct-session development flows retain their existing startup behavior.
+
+### Assessment (implemented on completion branch)
+
+Create with `POST /learning-sessions/{sessionId}/assessments/PRE`:
+
+```json
+{ "topic": "ohms-law", "language": "th" }
+```
+
+Topics currently supported by original numeric exercise templates: `linear-equations`, `ohms-law`; languages `th`/`en` (default th). This bounded exercise bank is not a claim of full curriculum coverage or reviewed Knowledge provenance.
+PRE is created before learning (DIAGNOSE or EXPLAIN version 0). POST requires ASSESS; TRANSFER requires PRACTICE/ASSESS. A subsequent phase must match the existing PRE topic. Existing phase creation is idempotent when topic/language match; changes return 409.
+
+The 201 `data` contains `id`, `sessionId`, `phase`, `topic`, `language`, `questions`, `score`, `maxScore`, `submittedAt`. Each question has `id`, `prompt`, `format=NUMBER`, optional `unit`; private grading rules and submission hashes are omitted. `score`/`submittedAt` are null before submission. `GET` also returns submitted `answers` (empty before submission).
+
+Submit with `POST /learning-sessions/{sessionId}/assessments/PRE/submissions`:
+
+```json
+{ "answers": [{ "questionId": "ohms-law:v1:PRE:1", "answer": 40 }, { "questionId": "ohms-law:v1:PRE:2", "answer": 2 }, { "questionId": "ohms-law:v1:PRE:3", "answer": 20 }] }
+```
+
+Use IDs/operands from the issued assessment, not these illustrative numbers. All three finite numeric answers are required; unknown/duplicate/missing IDs and client scoring fields return 400. Integer exercise scores are computed by code, never an LLM. A transaction saves score, answers and (POST/TRANSFER) the learning profile. Identical retries, including answer reordering, return the saved result without duplicate writes; changed submitted answers return 409 `ASSESSMENT_CONFLICT`. Foreign/unknown sessions return the same 404. Unsupported/malformed legacy snapshots return 503 `ASSESSMENT_UNAVAILABLE`.
+
+Public database writes to server-managed scores/progress/tutor messages require a transaction-local trusted API context plus ownership RLS. See [server-write decision](adr/assessment-server-writes.md). No client-supplied header/body/JWT metadata enables this context.
 
 ## Learning Engine Development Slice
 
@@ -156,8 +180,11 @@ See [Learning Engine Core](learning-engine-core.md) for the complete sample resp
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `/users/me/learning-profile` | PLANNED (not implemented) |
-| GET | `/users/me/progress` | PLANNED (not implemented) |
+| GET | `/users/me/learning-profile` | Latest assessed topic samples, strengths/weak points |
+| GET | `/users/me/progress` | Owned session totals/progress and PRE/POST comparisons |
+
+Learning profile returns `mastery` keyed by topic: `{percent,assessmentId,sampleQuestions,assessedAt}`, `strengths`, `weakPoints`, `updatedAt`. Empty profile: `{mastery:{},strengths:[],weakPoints:[],updatedAt:null}`. Latest submitted POST/TRANSFER sample per topic is used; >=80% is a strong result, <50% needs practice. These are small assessment samples, not a calibrated global mastery estimate.
+Progress returns `sessionCount`, `completedSessionCount`, `averageProgressPercent` and up to 100 comparison rows `{sessionId,topic,prePercent,postPercent,deltaPercent}`. Missing paired phases use null, never invented zero scores. Web forwards these via `/api/users/me/...` with the Supabase Bearer token.
 
 ## Health
 

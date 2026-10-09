@@ -7,12 +7,16 @@ import { LearningError } from "./modules/learning/learning-errors.js";
 import { createLearningRouter } from "./modules/learning/learning-router.js";
 import { createLearningSessionsRouter } from "./modules/learning/learning-sessions-router.js";
 import { createReadinessCheck, type ReadinessOptions } from "./shared/readiness.js";
+import { ApiError } from "./shared/api-error.js";
+import { createAssessmentRouter, createLearningProfileRouter, type AssessmentRouterOptions } from "./modules/assessments/assessment-router.js";
+import { createMaterialRouter } from "./modules/input/material-router.js";
 
 export interface AppOptions extends CreateLearningEngineOptions {
   learningEngine?: LearningEngine;
   /** Explicit test/local development opt-in. Never enabled on a deployment. */
   enableDevelopmentLearningRoute?: boolean;
   readiness?: ReadinessOptions;
+  assessment?: AssessmentRouterOptions;
 }
 
 export function createApp(options: AppOptions = {}): Express {
@@ -50,6 +54,14 @@ export function createApp(options: AppOptions = {}): Express {
     app.use("/api/v1/learning", learningRouter);
   }
   app.use(
+    "/api/v1/learning-sessions/:sessionId/materials", createMaterialRouter(),
+  );
+  app.use(
+    "/api/v1/learning-sessions/:sessionId/assessments",
+    createAssessmentRouter(options.assessment),
+  );
+  app.use("/api/v1/users/me", createLearningProfileRouter(options.assessment));
+  app.use(
     "/api/v1/learning-sessions",
     createLearningSessionsRouter({ modelProvider: options.modelProvider,
       knowledgeRetriever: options.knowledgeRetriever, knowledgeRoot: options.knowledgeRoot }),
@@ -71,9 +83,9 @@ export function createApp(options: AppOptions = {}): Express {
     let code = "INTERNAL_ERROR";
     let message = "The request could not be completed.";
     let details: ReadonlyArray<{ path: string; message: string }> = [];
-    if (error instanceof LearningError || error instanceof AIBoundaryError) {
+    if (error instanceof LearningError || error instanceof AIBoundaryError || error instanceof ApiError) {
       ({ status, code, message } = error);
-      if (error instanceof LearningError) {
+      if (error instanceof LearningError || error instanceof ApiError) {
         details = error.details.map((detail) => ({
           ...detail,
           path: detail.path === "/userInput" ? "/input" : detail.path,

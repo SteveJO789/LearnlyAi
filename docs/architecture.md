@@ -106,6 +106,8 @@ Human-centred AI policy สำหรับ MVP:
 
 ## 8. Reliability and Security
 
+MVP completion adds owned text material normalization/persistence, numeric assessment snapshots and deterministic grading. PRE/POST stage gates run before model execution. Prisma transactions atomically persist scores, answers and latest per-topic profile samples; per-user advisory locks serialize simultaneous profile updates. Public Data API writes to server-managed state require a trusted transaction-local API context in addition to ownership RLS, including restrictive guards that remain effective with older permissive policies. Browser Supabase Auth and profile editing remain unchanged. See [API contract](api-contract.md) and [write boundary decision](adr/assessment-server-writes.md).
+
 - Validate request ด้วย Zod และ validate AI output ด้วย JSON Schema
 - จำกัดชนิด/ขนาดไฟล์ และตรวจชื่อไฟล์ที่ไม่ปลอดภัย
 - กำหนด connect/read timeout และ retry เฉพาะ transient error
