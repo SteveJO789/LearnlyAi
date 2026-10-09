@@ -261,7 +261,37 @@ export const en: Dictionary = {
   "chat.blocks.feedback.partiallyCorrect": "Partially correct",
   "chat.blocks.feedback.tryAgain": "Try again",
   "chat.blocks.page": "page",
+
+  // --- Profile / Theme Settings ---
+  "settings.theme.appearanceTitle": "Appearance Mode",
+  "settings.theme.appearanceDesc": "Choose how LearnlyAI looks to you (Light / Dark).",
+  "settings.theme.lightMode": "Light Mode",
+  "settings.theme.darkMode": "Dark Mode",
+  "settings.theme.brandColorTitle": "Brand Color Theme",
+  "settings.theme.brandColorDesc": "Select your preferred accent theme color.",
+  "settings.theme.activePalette": "Active Palette",
+  "settings.theme.default": "Default",
+  "settings.theme.tealModern": "Teal Modern",
+  "settings.theme.softPeach": "Soft Peach",
+  "settings.theme.goldenAmber": "Golden Amber",
+  "settings.theme.skyBreeze": "Sky Breeze",
+  "settings.theme.rubyBurgundy": "Ruby Burgundy",
+  "settings.theme.slateBlue": "Slate Blue",
+
+  // --- Profile / Personal Info Settings ---
+  "settings.profile.changePhoto": "Change Photo",
+  "settings.profile.photoHint": "JPG, PNG or GIF (Max. 5MB)",
+  "settings.profile.fullName": "Full Name",
+  "settings.profile.emailAddress": "Email Address",
+  "settings.profile.emailManaged": "Email is managed by your sign-in account.",
+  "settings.profile.phoneNumber": "Phone Number",
+  "settings.profile.notConnected": "Not connected yet",
+  "settings.profile.saveChanges": "Save Changes",
+  "settings.profile.saving": "Saving...",
+  "settings.profile.cancel": "Cancel",
 };
+
+
 
 export const th: Dictionary = {
   "chat.preTest": "ทำแบบทดสอบก่อนเรียนเพื่อเริ่มบทเรียน",
@@ -500,4 +530,32 @@ export const th: Dictionary = {
   "chat.blocks.feedback.partiallyCorrect": "ถูกบางส่วน",
   "chat.blocks.feedback.tryAgain": "ลองอีกครั้ง",
   "chat.blocks.page": "หน้า",
+
+  // --- Profile / Theme Settings ---
+  "settings.theme.appearanceTitle": "โหมดการแสดงผล",
+  "settings.theme.appearanceDesc": "เลือกรูปแบบการแสดงผลของ LearnlyAI (สว่าง / มืด)",
+  "settings.theme.lightMode": "โหมดสว่าง",
+  "settings.theme.darkMode": "โหมดมืด",
+  "settings.theme.brandColorTitle": "ธีมสีหลักของแบรนด์",
+  "settings.theme.brandColorDesc": "เลือกสีหลักและโทนสีที่คุณชื่นชอบ",
+  "settings.theme.activePalette": "พาเลตต์ที่ใช้งานอยู่",
+  "settings.theme.default": "ค่าเริ่มต้น",
+  "settings.theme.tealModern": "เทลโมเดิร์น",
+  "settings.theme.softPeach": "พีชละมุน",
+  "settings.theme.goldenAmber": "ส้มทองคำ",
+  "settings.theme.skyBreeze": "ฟ้าบริสุทธ์",
+  "settings.theme.rubyBurgundy": "ทับทิมเบอร์กันดี",
+  "settings.theme.slateBlue": "น้ำเงินสเลท",
+
+  // --- Profile / Personal Info Settings ---
+  "settings.profile.changePhoto": "เปลี่ยนรูปภาพ",
+  "settings.profile.photoHint": "JPG, PNG หรือ GIF (สูงสุด 5MB)",
+  "settings.profile.fullName": "ชื่อ-นามสกุล",
+  "settings.profile.emailAddress": "ที่อยู่อีเมล",
+  "settings.profile.emailManaged": "อีเมลนี้จัดการผ่านบัญชีเข้าสู่ระบบของคุณ",
+  "settings.profile.phoneNumber": "เบอร์โทรศัพท์",
+  "settings.profile.notConnected": "ยังไม่ได้เชื่อมต่อ",
+  "settings.profile.saveChanges": "บันทึกการเปลี่ยนแปลง",
+  "settings.profile.saving": "กำลังบันทึก...",
+  "settings.profile.cancel": "ยกเลิก",
 };

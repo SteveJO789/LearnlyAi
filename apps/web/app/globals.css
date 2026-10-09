@@ -93,14 +93,14 @@
 .dark {
   --color-primary-rgb: 243, 244, 246;
   --color-text-rgb: 249, 250, 251;
-  --primary: #F3F4F6;
+  --primary: #ffffff;
   --primary-foreground: #111827;
-  --secondary: #374151;
-  --surface: #1F2937;
-  --background: #111827;
+  --secondary: #51565f;
+  --surface: #374354;
+  --background: #131822;
   --text: #F9FAFB;
-  --muted: #9CA3AF;
-  --surface-border: #374151;
+  --muted: #dbe1ec;
+  --surface-border: #657389;
   --accent: #9CA3AF;
   --danger: #EF4444;
 }
@@ -128,11 +128,11 @@
   --primary: #0AD1C1;
   --primary-foreground: #0B1B1A;
   --secondary: #164E4A;
-  --surface: #1F2937;
+  --surface: #1d3f3f;
   --background: #111827;
   --text: #EFF6FF;
-  --muted: #9CA3AF;
-  --surface-border: #374151;
+  --muted: #d7f8f3;
+  --surface-border: #829b99;
   --accent: #FFC06F;
   --danger: #EF4444;
 }
@@ -143,11 +143,11 @@
   --primary: #911005;
   --primary-foreground: #ffffff;
   --secondary: #F2F2F2;
-  --surface: #EDDFDE;
-  --background: #B0A09F;
-  --text: #375572;
-  --muted: #6A5D5D;
-  --surface-border: #9D8C8B;
+  --surface: #c16f6b;
+  --background: #f1e3e2;
+  --text: #4b0f0f;
+  --muted: #5b1010;
+  --surface-border: #420b09;
 }
 
 /* Ruby — Dark */
@@ -159,8 +159,8 @@
   --surface: #2E1F1D;
   --background: #1F1413;
   --text: #F3E9E8;
-  --muted: #C9B6B4;
-  --surface-border: #4A3836;
+  --muted: #ecc8c4;
+  --surface-border: #7d544f;
 }
 
 /* 3. ธีม Peach / ชมพูอ่อน (#FFAAAA) — Light */
@@ -186,7 +186,7 @@
   --background: #241516;
   --text: #FCEAEA;
   --muted: #D9B8B8;
-  --surface-border: #4A2F2E;
+  --surface-border: #877372;
 }
 
 /* 4. ธีม Sky / ฟ้าอ่อน (#BCE8FF) — Light */
@@ -194,12 +194,12 @@
   --color-primary-rgb: 188, 232, 255;
   --primary: #BCE8FF;
   --primary-foreground: #0B3959;
-  --secondary: #E2F5FF;
-  --surface: #EFF3F4;
-  --background: #F3FBFF;
+  --secondary: #c2d6e1;
+  --surface: #daf6fd;
+  --background: #ffffff;
   --text: #0B3959;
-  --muted: #4A7183;
-  --surface-border: #D1E3EC;
+  --muted: #2d6883;
+  --surface-border: #70b3d0;
 }
 
 /* Sky — Dark */
@@ -212,7 +212,7 @@
   --background: #0E1C24;
   --text: #EAF6FF;
   --muted: #AFD6E6;
-  --surface-border: #2B4150;
+  --surface-border: #436479;
 }
 
 /* 5. ธีม Gold / ส้มทอง (#FFC06F) — Light */
@@ -221,11 +221,11 @@
   --primary: #FFC06F;
   --primary-foreground: #593D0B;
   --secondary: #FFD896;
-  --surface: #FFF5E3;
-  --background: #FFEAC6;
+  --surface: #ffe7bb;
+  --background: #fff5e4;
   --text: #593D0B;
-  --muted: #8a6a2e;
-  --surface-border: #EED6A8;
+  --muted: #695f4b;
+  --surface-border: #c58f2b;
 }
 
 /* Gold — Dark */
@@ -238,7 +238,7 @@
   --background: #241A0C;
   --text: #FDF0DD;
   --muted: #D9C4A0;
-  --surface-border: #4A3720;
+  --surface-border: #5d4528;
 }
 
 /* 6. ธีม Slate / น้ำเงินกรมท่า (#375572) — Light */
@@ -248,9 +248,9 @@
   --primary-foreground: #ffffff;
   --secondary: #456C91;
   --surface: #E5E6FF;
-  --background: #707A7F;
-  --text: #FFFFFF;
-  --muted: #6A5D5D;
+  --background: #b6d7e5;
+  --text: #395775;
+  --muted: #38597e;
   --surface-border: #5A666C;
 }
 
@@ -259,12 +259,12 @@
   --color-primary-rgb: 74, 111, 147;
   --primary: #4A6F93;
   --primary-foreground: #ffffff;
-  --secondary: #30455C;
+  --secondary: #2d3d4e;
   --surface: #333B6B;
   --background: #2B3236;
   --text: #FFFFFF;
-  --muted: #C9C6E0;
-  --surface-border: #454D6E;
+  --muted: #e4e2ed;
+  --surface-border: #535d83;
 }
 
 /* ส่วนพื้นฐานและการแสดงผล */
@@ -382,4 +382,64 @@ li {
   margin-block: 0.75rem;
   padding-left: 0.35rem;
   line-height: 1.5;
+}
+
+/* แอนิเมชันลอยไปมาแบบไร้ทิศทางและส่ายไปมา */
+@keyframes floatRandom1 {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(120px, 80px) scale(1.1); }
+  66% { transform: translate(-80px, 140px) scale(0.95); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+@keyframes floatRandom2 {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(-140px, 100px) scale(1.05); }
+  66% { transform: translate(90px, -70px) scale(1.15); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+@keyframes floatRandom3 {
+  0% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(100px, -120px) scale(1.1); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-roam-1 {
+  animation: floatRandom1 15s ease-in-out infinite alternate;
+}
+
+.animate-roam-2 {
+  animation: floatRandom2 18s ease-in-out infinite alternate;
+}
+
+.animate-roam-3 {
+  animation: floatRandom3 12s ease-in-out infinite alternate;
+}
+
+/* แอนิเมชันดาวลอยช้าๆ แบบนุ่มนวลเหมือนเมฆบนท้องฟ้าการ์ตูน */
+@keyframes dreamyDrift {
+  0% { transform: translate(0px, 0px) scale(0.9); opacity: 0.4; }
+  50% { transform: translate(60px, -40px) scale(1.1); opacity: 0.9; }
+  100% { transform: translate(-40px, 50px) scale(0.9); opacity: 0.4; }
+}
+
+.animate-dreamy {
+  animation: dreamyDrift 22s ease-in-out infinite alternate;
+}
+
+.animate-dreamy-slow {
+  animation: dreamyDrift 30s ease-in-out infinite alternate;
+}
+
+/* แอนิเมชันดาวลอยช้าแบบสโลว์โมชันที่สุด */
+@keyframes dreamySlowerDrift {
+  0% { transform: translate(0px, 0px) scale(1); opacity: 0.6; }
+  33% { transform: translate(30px, -20px) scale(1.05); opacity: 1; }
+  66% { transform: translate(-20px, 30px) scale(0.95); opacity: 0.6; }
+  100% { transform: translate(10px, 10px) scale(1); opacity: 1; }
+}
+
+.animate-dreamy-slowest {
+  animation: dreamySlowerDrift 45s ease-in-out infinite alternate;
 }
