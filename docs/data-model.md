@@ -1,11 +1,11 @@
-# Data Model (MVP Baseline)
+# Data Model — current contract + planned scope (2026-10-09)
+
+> Source of truth: [`services/api/src/prisma/contract.prisma`](../services/api/src/prisma/contract.prisma). Supabase Auth owns identity and login sessions; old application OAuthAccount/AppSession tables are not part of current contract.
 
 ## Entity Relationship
 
 ```mermaid
 erDiagram
-    USERS ||--o{ OAUTH_ACCOUNTS : owns
-    USERS ||--o{ APP_SESSIONS : authenticates
     USERS ||--o{ LEARNING_SESSIONS : learns
     LEARNING_SESSIONS ||--o{ SOURCE_MATERIALS : receives
     LEARNING_SESSIONS ||--o{ MESSAGES : contains
@@ -26,24 +26,12 @@ erDiagram
 - `avatar_url` text nullable
 - `created_at`, `updated_at`
 
-### `oauth_accounts`
+### Supabase authentication mapping
 
-- `id` UUID PK
-- `user_id` UUID FK → users
-- `provider` text เช่น `google`
-- `subject` text จาก OIDC `sub`
-- `email_at_provider` text nullable
-- `created_at`, `last_login_at`
-- `UNIQUE(provider, subject)`
-
-OAuth token ไม่ควรเก็บหากระบบไม่ต้องเรียก Google API หลัง login หากจำเป็นในอนาคตต้อง encrypt และกำหนด retention แยก
-
-### `app_sessions`
-
-- `id` UUID PK
-- `user_id` UUID FK → users
-- `token_digest` text UNIQUE
-- `expires_at`, `created_at`, `last_seen_at`, `revoked_at`
+- `User.authUserId` is unique and maps to Supabase Auth user UUID; current app profile sync uses the same UUID as `User.id`.
+- Google provider identity, email/password credentials, email verification and session management belong to Supabase Auth.
+- User-owned operations are scoped to verified JWT identity and database RLS (`auth.uid()`).
+- `oauth_accounts` and `app_sessions` were old plans, not actual current tables.
 
 ### `learning_sessions`
 
@@ -107,8 +95,12 @@ OAuth token ไม่ควรเก็บหากระบบไม่ต้�
 
 ทุก repository/query ที่อ่าน resource ของผู้ใช้ต้องรับ `current_user_id` และ scope query ด้วย owner เสมอ การตรวจว่ามี ID อยู่ก่อนแล้วค่อยเช็ก owner ภายหลังอาจทำให้ข้อมูลรั่วผ่าน 404/403 behavior
 
+## Implementation notes
+
+Assessment, LearningProfile, and SourceMaterial contracts are defined but their full application flows remain unfinished (#13, #15, #16). Live RAG vector retrieval remains #11. Current avatar update may store a Base64 data URL in User.avatarUrl: migrate binary objects to Supabase Storage instead. Use the checked-in Prisma 8 contract and app migration workflow, not an assumed `schema.prisma` file.
+
 ## Migration Rule
 
-- ใช้ Prisma Migrate ทุกครั้งที่ schema เปลี่ยน
+- ใช้ Prisma 8 contract + repository migrations โดยตรวจ database migration state ก่อน deploy
 - Migration ต้อง rollback ได้เมื่อสมเหตุสมผล
 - Test database ต้องสร้างจาก migration เดียวกับ production ไม่ใช้ schema ที่เขียนแยก
