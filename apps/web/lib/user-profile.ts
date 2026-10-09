@@ -170,6 +170,7 @@ export async function getCurrentUserProfile(): Promise<AppUserProfile | null> {
 
 export async function updateCurrentUserProfile(input: {
   displayName: string;
+  avatarUrl?: string | null;
 }): Promise<AppUserProfile> {
   const supabase = getSupabaseClient();
   const {
@@ -184,6 +185,7 @@ export async function updateCurrentUserProfile(input: {
     .from("User")
     .update({
       displayName: input.displayName.trim(),
+      ...(input.avatarUrl !== undefined ? { avatarUrl: input.avatarUrl } : {}),
       updatedAt: new Date().toISOString(),
     })
     .eq("id", user.id)
