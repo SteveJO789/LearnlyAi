@@ -26,7 +26,7 @@ test("Learning Engine passes the current query/subject to the port and maps immu
     return local.retriever.retrieve(query);
   } } });
   const output = await engine.process(input);
-  assert.deepEqual(calls, [{ studentInput: input.userInput, subject: "physics" }]);
+  assert.deepEqual(calls, [{ studentInput: input.userInput, subject: "physics", previousStudentInputs: [] }]);
   const task = JSON.parse(requests[0].messages.at(-1).content);
   const reference = (await local.retriever.retrieve({ studentInput: input.userInput }))[0];
   assert.equal(task.sourceMaterials.length, 1);

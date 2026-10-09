@@ -116,8 +116,9 @@ test('authenticated persisted route retrieves reviewed Knowledge, restores citat
     const detail = await call(`/${id}`); assert.equal(detail.status,200);
     assert.equal(detail.body.data.messages.length,2);
     assert.deepEqual(detail.body.data.messages.find(m => m.role==='TUTOR').content,output);
-    const followup = await call(`/${id}/interactions`, { method:'POST',body:{input:"Using Ohm's law, what if resistance doubles at constant voltage?"} });
+    const followup = await call(`/${id}/interactions`, { method:'POST',body:{input:"What if resistance doubles at constant voltage?"} });
     assert.equal(followup.status,200); assert.equal(followup.body.data.progress.percent,25);
+    assert.deepEqual(followup.body.data.blocks[0].citationIds, [output.citations[0].id]);
     assert.equal(requests.length,2); assert.equal(requests[1].messages.length-2,2);
     assert.ok(requests[1].messages.some(m => m.role==='assistant' && JSON.parse(m.content).responseId===output.responseId));
     assert.equal((await call(`/${id}`)).body.data.messages.length,4);

@@ -18,6 +18,11 @@ Fresh runtime export จับ source ก่อนการแก้ connectivit
 คำสั่งทั้งหมดและ exit codes ถูกบันทึกโดย `node scripts/verify-mvp.mjs` ใน `.verification-results/summary.json` พร้อม individual logs
 Prisma unscoped `migration check --json` พบ 4 integrity failures; เก็บผลเดิมและแก้ graph ต่อ ไม่ลด checks เพื่ออ้างว่า migration ผ่านครบ
 
+Milestone 2: API **220/220**, persisted-RAG integration **8/8**, adaptive regressions **5 conversations + 1 language test** ผ่าน
+Offline core retrieval TP4/TN3/FP0/FN0; 13 records รวม follow-ups ตรงกับ expected retrieval เป็น corpus/fixture ขนาดเล็ก ไม่ใช่ universal retrieval proof
+ผลใหม่: [retrieval evidence](evidence/mvp-milestone2-rag-offline.json)
+Draft PR https://github.com/SteveJO789/LearnlyAi/pull/74; ยังไม่ merge/ปิด issue
+
 ## Security
 
 อ่าน policies จาก Supabase catalog แล้ว: ownership SELECT และ LearningSession/Message write policies มีอยู่; ส่วนฟีเจอร์ assessment/material/profile ยังขาด write policies

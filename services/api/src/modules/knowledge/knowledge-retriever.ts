@@ -3,6 +3,8 @@ export interface KnowledgeQuery {
   readonly subject?: string;
   /** Filter on reference content language, not the language of the question. */
   readonly language?: string;
+  /** Bounded learner turns only; used to resolve a short follow-up, never to authorize sources. */
+  readonly previousStudentInputs?: readonly string[];
 }
 
 export interface KnowledgeSource {

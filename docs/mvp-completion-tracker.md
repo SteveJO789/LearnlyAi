@@ -21,9 +21,9 @@
 | Profile sync/edit | #2 #16 | Web เรียก Supabase User จริง | mastery, avatar Storage, UX tests | User RLS | apps/web/lib/user-profile.ts | safe test DB |
 | Persistent sessions/history | #8 #9 #14 | Prisma + JWT-scoped persistence จริง | whole-flow tests, failed-session recovery, retry correctness | Auth/DB | learning-sessions-router, PrismaLearningPersistence | real RLS fixture environment |
 | P3.1 curated RAG integration | #11 #12 | merged แล้ว | fresh integrated regression and packaging | reviewed Knowledge | ancestor checks; code present | corpus มี concept เดียว |
-| Retrieval relevance/history | #11 | lexical pilot | false positives, follow-up context, deterministic tests | P3.1 | voltage alone currently matches Ohm | ไม่มี |
+| Retrieval relevance/history | #11 | lexical pilot + bounded follow-up implemented | broader corpus/vector retrieval | P3.1 | core TP4/TN3/FP0/FN0; reset/revocation tests | corpus/model coverage |
 | Embeddings/pgvector ingestion and Top-K | #3 #11 | ยังไม่มี working implementation | chunks/vectors/metadata/queries | safe DB, approved source | Prisma contract ไม่มี Document/Chunk จริง | safe non-production DB; embedding model/budget |
-| Adaptive tutoring | #39 | stage prompts/history มีอยู่ | simpler hints, guided teaching, language, >=5 multi-turn scenarios | #12 | prompts and engine tests | live quality budget |
+| Adaptive tutoring | #39 | deterministic language/mode + stage/history prompts | real model teaching-quality review | #12 | 5 multi-turn regressions + language test pass | live quality not run yet |
 | Assessment PRE/POST scoring/persistence | #13 | model definitions เท่านั้น | creation/submission/scoring/profile/API/UI | #2 #3 | contract.prisma | safe DB migrations |
 | Learning profile/statistics | #13 #16 | planned | mastery, strengths/weaknesses, pre/post history | Assessment | no endpoints | safe DB |
 | Text/PDF/image normalization | #15 | text chat; upload ไม่ครบ | extraction/OCR/type/size/security/storage/engine input | #2 #3 | Create currently text only | OCR/runtime assets; safe Storage |
@@ -57,3 +57,17 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - User authorized production project for tests: use rollback-contained synthetic data; no destructive production migrations or live-user changes.
 - User approved total live AI/embedding budget **US$1** for this MVP run; spent by this Goal so far US$0. Verify prices/reserve worst-case cost before requests; no live calls yet.
 - Supabase security advisor: leaked password protection disabled (WARN); account/plan setting remains unmodified. See https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
+
+### Milestone 2 — conversation-aware retrieval / adaptive instructions
+
+- Milestone 1 local commit `8699721`, remote equivalent `6ba99c6`; tree hash เท่ากันทุกไฟล์
+- Draft PR https://github.com/SteveJO789/LearnlyAi/pull/74 — ไม่ merge และไม่ปิด issues
+- ตัด voltage/current-only match; transformer/battery/induction ไม่โยง Ohm อัตโนมัติ
+- Follow-up ใช้ learner history สูงสุด 4 turns และ re-read review eligibility ทุกครั้ง; topic switch/thanks ไม่รับ citation เก่า
+- Adaptive mode ACKNOWLEDGE/SIMPLIFY/HINT/GUIDE/STANDARD และภาษา th/en จาก current input/explicit request; stage/progress เป็น engine authority, ไม่ repair model output
+- Regression 5 บทสนทนา + language override ผ่าน; แก้ Thai NFKC สระอำให้ตรวจ “คำใบ้” ได้
+- API 220/220; persisted integration 8/8; core retrieval TP4/TN3/FP0/FN0 และ offline 13 records ตรงกับ expected retrieval
+- Failures ที่แก้: lowercase Ω, query-port assertion ไม่รองรับ history, history test parse plain text เป็น JSON และ Thai NFKC keyword mismatch; rerun ผ่านโดยไม่ลด validators
+- ผล offline ใหม่แยกด้วย `--output`; ไม่แก้ historical P3/P3.1 live evidence
+- ข้อจำกัด: adaptive tests ตรวจ instruction/history/state ไม่พิสูจน์ model teaching quality; vector/assessment/upload ยังไม่ครบ
+- Fetch อีกครั้ง: develop ยัง e2ddfdd; งานถัดไป canonical Prisma write-policy/migration consistency สำหรับ Assessment/Profile/Input APIs จริง

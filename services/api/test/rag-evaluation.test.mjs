@@ -38,7 +38,7 @@ test("P3 core retrieval uses the prepared real reviewed release; precision limit
       assert.equal(found[0].conceptId, dataset.knowledge.conceptId);
       assert.equal(found[0].conceptVersion, dataset.knowledge.version);
     }
-    if (scenario.id === "R5") assert.equal(actual, false);
+    assert.equal(actual, scenario.expectedRetrieval, scenario.id);
     records.push({ id: scenario.id, expected: scenario.expectedRetrieval, actual });
   }
   t.diagnostic(JSON.stringify({ category: "OFFLINE_DETERMINISTIC", retrieval: records, metrics: retrievalMetrics(records) }));
@@ -78,10 +78,12 @@ test("multi-turn evaluator observes real history, current references and no stal
   await harness.engine.process(request);
   const next = await harness.engine.process({ ...request, userInput: "What if resistance doubles?" });
   assert.deepEqual(harness.requests[1].messages.map((message) => message.role), ["system", "user", "assistant", "user"]);
-  assert.equal(harness.retrievals[1].found.length, 0);
-  assert.deepEqual(next.citations, []);
+  assert.equal(harness.retrievals[1].found.length, 1);
+  assert.equal(next.citations.length, 1);
   const lastTask = JSON.parse(harness.requests[1].messages.at(-1).content);
-  assert.deepEqual(lastTask.sourceMaterials, []);
+  assert.equal(lastTask.sourceMaterials.length, 1);
+  assert.equal(next.citations[0].id, lastTask.sourceMaterials[0].citation.id);
+  assert.deepEqual(next.blocks[0].citationIds, [next.citations[0].id]);
 });
 
 test("missing retrieval artifact still prevents any provider call or persistence write", async (t) => {

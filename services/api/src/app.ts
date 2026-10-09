@@ -51,7 +51,8 @@ export function createApp(options: AppOptions = {}): Express {
   }
   app.use(
     "/api/v1/learning-sessions",
-    createLearningSessionsRouter({ modelProvider: options.modelProvider }),
+    createLearningSessionsRouter({ modelProvider: options.modelProvider,
+      knowledgeRetriever: options.knowledgeRetriever, knowledgeRoot: options.knowledgeRoot }),
   );
 
   app.use((_request, response) => {

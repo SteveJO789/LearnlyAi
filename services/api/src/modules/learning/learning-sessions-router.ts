@@ -8,7 +8,7 @@ import {
   type AuthenticatedRequest,
   type AuthenticatedUser,
 } from "../auth/supabase-auth.js";
-import { createLearningEngine } from "./create-learning-engine.js";
+import { createLearningEngine, type CreateLearningEngineOptions } from "./create-learning-engine.js";
 import { LearningError } from "./learning-errors.js";
 import { PrismaLearningPersistence } from "./prisma-learning-persistence.js";
 import { readPersistedMessages, type PersistedMessage } from "./persisted-messages.js";
@@ -16,7 +16,7 @@ import { logSessionLoadFailure } from "../../shared/safe-diagnostics.js";
 
 type SessionRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["LearningSession"]["first"]>>>;
 
-export interface LearningSessionsRouterOptions {
+export interface LearningSessionsRouterOptions extends Pick<CreateLearningEngineOptions, "knowledgeRetriever" | "knowledgeRoot"> {
   authenticate?: RequestHandler;
   modelProvider?: ModelProvider;
 }
@@ -290,6 +290,8 @@ export function createLearningSessionsRouter(
         const engine = createLearningEngine({
           learningPersistence: persistence,
           modelProvider: options.modelProvider,
+          knowledgeRetriever: options.knowledgeRetriever,
+          knowledgeRoot: options.knowledgeRoot,
         });
 
         const result = await engine.process({

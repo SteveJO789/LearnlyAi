@@ -98,7 +98,7 @@ for (const [name, mutate, accepted] of [
   });
 }
 
-for (const question of ["How does a battery maintain voltage?", "Who invented Ohm's law and in what exact year?"]) {
+for (const question of ["Who invented Ohm's law and in what exact year?"]) {
   test(`captured prompt limits attribution and absent-detail answers for: ${question}`, async () => {
     const harness = createEvaluationHarness(fixture());
     await harness.engine.process({ ...input, userInput: question });
