@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "record_path": "reviews/records/26e2cb969b81403be090de55cc3c25ccb70c9592d80a3c49cb0a96d6b9e8b35d.json",
+  "asset_id": "ohms-example-solution",
+  "editor": "Codex",
+  "corrected_at": "2026-10-01T10:35:33Z",
+  "requested_by": "user",
+  "request": "แก้เลยสิ",
+  "reason": "Correct swapped R/I assignments to match the existing human-verified problem values: R = 10 Ω and I = 4 A. No OCR or image inference was used.",
+  "basis_asset_ids": [
+    "ohms-example-resistance-part-1",
+    "ohms-example-resistance-part-2",
+    "ohms-example-current-part-1",
+    "ohms-example-current-part-2"
+  ],
+  "previous_record_sha256": "909f745f39a8d307247d3cd681cddfaad7aedbf8c0d74568ba3b64d2053bf5e8",
+  "original_human_review": {
+    "review_status": "verified",
+    "reviewer": "Steve",
+    "reviewed_at": "2026-10-01T10:28:56.338Z"
+  },
+  "before": {
+    "latex": "R = \\frac{V}{I} , RI = \\frac{V}{I} I , V = IR, I = 10 , R = 4 , V  = 40 V",
+    "plain_text": "ยกตัวอย่างการแทนค่าในสมการ R = V/I จากนั้น คูณ I ทั้งสองด้านจึงได้ V = IR แทนค่า I = 10 , R = 4 จึงคำนวณได้ 40V"
+  },
+  "after": {
+    "latex": "R = \\frac{V}{I} , RI = \\frac{V}{I} I , V = IR, R = 10\\,\\Omega , I = 4\\,\\mathrm{A} , V = 40\\,\\mathrm{V}",
+    "plain_text": "ยกตัวอย่างการแทนค่าในสมการ R = V/I จากนั้นคูณ I ทั้งสองด้านจึงได้ V = IR แทนค่า R = 10 Ω และ I = 4 A จึงคำนวณได้ 40 V"
+  },
+  "approval_scope": "User-directed transcription correction only. The original reviewer and timestamp are preserved; no new human review event or document approval is claimed."
+}

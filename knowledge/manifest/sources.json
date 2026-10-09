@@ -1,0 +1,217 @@
+{
+  "schema_version": "1.0",
+  "license_checked_at": "2026-09-29",
+  "policy": {
+    "production_rag_default": "Only reviewed LearnlyAI-authored/curated documents derived from approved sources may be embedded.",
+    "raw_ingestion_forbidden": true,
+    "required_production_permission_states": [
+      "allowed",
+      "internally_authored"
+    ],
+    "reference_only_states": [
+      "reference_only",
+      "unclear",
+      "do_not_ingest"
+    ]
+  },
+  "sources": [
+    {
+      "source_id": "obec-core-curriculum-2560",
+      "name": "Thai Basic Education Core Curriculum and Revised Learning Indicators",
+      "organization": "Office of the Basic Education Commission (OBEC)",
+      "subject": [
+        "mathematics",
+        "science"
+      ],
+      "language": [
+        "th"
+      ],
+      "source_type": "official_curriculum",
+      "official_url": "https://academic.obec.go.th/web/mission/view/34",
+      "content_url": "https://academic.obec.go.th/web/mission/view/34",
+      "license": "License unclear — manual verification required for corpus reuse",
+      "rag_permission_status": "reference_only",
+      "priority": "A",
+      "recommended_usage": "Authoritative curriculum mapping, learning objectives, grade/track metadata and traceability. Do not bulk-embed.",
+      "notes": "Foundational for Thai curriculum alignment."
+    },
+    {
+      "source_id": "ipst-upper-secondary-math",
+      "name": "IPST Upper-Secondary Mathematics Curriculum and Teaching Resources",
+      "organization": "IPST / สสวท.",
+      "subject": [
+        "mathematics"
+      ],
+      "language": [
+        "th"
+      ],
+      "source_type": "official_curriculum_and_teaching_material",
+      "official_url": "https://www.ipst.ac.th/resource/teacher-guide",
+      "content_url": "https://proj14.ipst.ac.th/m4-6-math-basic/m4-math-basic/",
+      "license": "Copyright IPST; reference-only for LearnlyAI corpus unless explicit permission is obtained",
+      "rag_permission_status": "reference_only",
+      "priority": "A",
+      "recommended_usage": "Curriculum alignment, Thai terminology, topic sequencing, validation.",
+      "notes": "Use for mapping logic to Thai M.4. Independently author LearnlyAI explanations."
+    },
+    {
+      "source_id": "ipst-upper-secondary-physics",
+      "name": "IPST Upper-Secondary Physics Resources",
+      "organization": "IPST / สสวท.",
+      "subject": [
+        "physics"
+      ],
+      "language": [
+        "th"
+      ],
+      "source_type": "official_curriculum_and_teaching_material",
+      "official_url": "https://www.ipst.ac.th/resource/teacher-guide",
+      "content_url": "https://proj14.ipst.ac.th/m4-6-physics/",
+      "license": "Copyright IPST; reference-only for LearnlyAI corpus unless explicit permission is obtained",
+      "rag_permission_status": "reference_only",
+      "priority": "A",
+      "recommended_usage": "Define Thai physics scope, terminology, grade mapping and learning sequence.",
+      "notes": "M.5 electricity is the key MVP mapping target."
+    },
+    {
+      "source_id": "siyavula-mathematics-g10-g12-ccby",
+      "name": "Siyavula Mathematics Grades 10–12 — Unbranded Editions",
+      "organization": "Siyavula Education",
+      "subject": [
+        "mathematics"
+      ],
+      "language": [
+        "en"
+      ],
+      "source_type": "OER",
+      "official_url": "https://www.siyavula.com/read",
+      "content_url": "https://www.siyavula.com/read",
+      "license": "CC BY 4.0 for the verified Grade 10 English unbranded EPUB",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "rag_permission_status": "allowed",
+      "priority": "A",
+      "recommended_usage": "Primary reusable math content source. Parse unbranded EPUB, map concepts to IPST, then curate/rewrite/localize to Thai.",
+      "notes": "2026-10-01: Grade 10 English CC-BY EPUB internal copyright page declares CC BY 4.0 but its heading incorrectly says Physical Sciences; OPF identifier/title and mathematics chapter content establish the artifact identity. Preserve this upstream defect in the license audit. Verify other artifacts independently; do not use branded CC BY-ND editions."
+    },
+    {
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "name": "Siyavula Physical Sciences Grades 10–12 — Unbranded Editions",
+      "organization": "Siyavula Education",
+      "subject": [
+        "physics",
+        "chemistry"
+      ],
+      "language": [
+        "en"
+      ],
+      "source_type": "OER",
+      "official_url": "https://www.siyavula.com/read",
+      "content_url": "https://www.siyavula.com/read",
+      "license": "CC BY 4.0 for the verified Grade 11 English unbranded EPUB",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "rag_permission_status": "allowed",
+      "priority": "A",
+      "recommended_usage": "Primary reusable physics content source. Retain only physics sections relevant to mapped Thai concepts.",
+      "notes": "2026-10-01: Grade 11 English CC-BY EPUB copyright page declares CC BY 4.0, despite the catalogue overview linking 3.0. Verify each other grade/edition before acquisition. EPUB preferred over PDF; do not copy CAPS grade labels into Thai metadata."
+    },
+    {
+      "source_id": "open-logic-project",
+      "name": "Open Logic Project",
+      "organization": "Open Logic Project",
+      "subject": [
+        "mathematics",
+        "mathematical_logic"
+      ],
+      "language": [
+        "en"
+      ],
+      "source_type": "OER",
+      "official_url": "https://openlogicproject.org/",
+      "content_url": "https://openlogicproject.org/download/",
+      "license": "CC BY 4.0 unless otherwise noted",
+      "rag_permission_status": "allowed",
+      "priority": "A",
+      "recommended_usage": "Formal correctness source for selected M.4 logic concepts; simplify heavily for Thai upper-secondary level.",
+      "notes": "Do not let university-level chapter organization define Thai curriculum structure."
+    },
+    {
+      "source_id": "phet",
+      "name": "PhET Interactive Simulations",
+      "organization": "University of Colorado Boulder",
+      "subject": [
+        "physics",
+        "mathematics"
+      ],
+      "language": [
+        "multi"
+      ],
+      "source_type": "interactive_OER",
+      "official_url": "https://phet.colorado.edu/",
+      "content_url": "https://phet.colorado.edu/",
+      "license": "CC BY-NC 4.0 for standard HTML simulations",
+      "rag_permission_status": "reference_only",
+      "priority": "B",
+      "recommended_usage": "Interactive enrichment links and activities; not a foundational text embedding corpus.",
+      "notes": "Store as interactive_resource metadata, ingestion=false."
+    },
+    {
+      "source_id": "openstax",
+      "name": "OpenStax",
+      "organization": "Rice University / OpenStax",
+      "subject": [
+        "mathematics",
+        "physics"
+      ],
+      "language": [
+        "en"
+      ],
+      "source_type": "open_textbook_platform",
+      "official_url": "https://openstax.org/",
+      "content_url": "https://openstax.org/",
+      "license": "Current documentation includes AI-ingestion restrictions; permission required for LearnlyAI RAG ingestion",
+      "rag_permission_status": "reference_only",
+      "priority": "C",
+      "recommended_usage": "Human quality-control/reference only unless written permission is obtained.",
+      "notes": "Keep outside embedding pipeline."
+    },
+    {
+      "source_id": "pauls-online-math-notes",
+      "name": "Paul's Online Math Notes",
+      "organization": "Paul Dawkins / Lamar University",
+      "subject": [
+        "mathematics"
+      ],
+      "language": [
+        "en"
+      ],
+      "source_type": "university_educational_website",
+      "official_url": "https://tutorial.math.lamar.edu/",
+      "content_url": "https://tutorial.math.lamar.edu/",
+      "license": "Copyrighted; custom Terms of Use",
+      "rag_permission_status": "reference_only",
+      "priority": "C",
+      "recommended_usage": "Pedagogical reference for worked-example style and misconception ideas; independently author LearnlyAI content.",
+      "notes": "Do not copy/store as RAG source material."
+    },
+    {
+      "source_id": "ck12",
+      "name": "CK-12",
+      "organization": "CK-12 Foundation",
+      "subject": [
+        "mathematics",
+        "physics"
+      ],
+      "language": [
+        "en"
+      ],
+      "source_type": "educational_platform",
+      "official_url": "https://www.ck12.org/",
+      "content_url": "https://www.ck12.org/",
+      "license": "CK-12 Curriculum Materials License",
+      "rag_permission_status": "do_not_ingest",
+      "priority": "D",
+      "recommended_usage": "Do not ingest, scrape, create automated derivatives, or embed without explicit written permission.",
+      "notes": "Hard block in automated ingestion."
+    }
+  ]
+}

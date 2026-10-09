@@ -2,16 +2,19 @@
 import { AIBoundaryError, normalizeProviderFailure } from "../ai/ai-boundary-error.js";
 import type { TutorContext } from "../ai/tutor-context.js";
 import type { TutorOrchestrator } from "../ai/tutor-orchestrator.js";
+import type { KnowledgeRetriever } from "../knowledge/knowledge-retriever.js";
 import type { LearningEngine, LearningRequest, LearningResult, LearningSession, LearningStage } from "./domain.js";
 import { LearningError } from "./learning-errors.js";
 import { normalizeLearningRequest } from "./learning-request.js";
 import type { LearningPersistence, SourceMaterialRepository } from "./repositories.js";
 import { determineStage, getStagePolicy } from "./stage-machine.js";
+import { knowledgeSourceMaterials } from "./knowledge-source-material.js";
 
 export interface LearningEngineDependencies {
   orchestrator: TutorOrchestrator;
   persistence: LearningPersistence;
   materials?: SourceMaterialRepository;
+  knowledgeRetriever?: KnowledgeRetriever;
   initialStage?: LearningStage;
   idFactory?: () => string;
   now?: () => Date;
@@ -76,11 +79,29 @@ export class DefaultLearningEngine implements LearningEngine {
     session: LearningSession,
     outputStage: TutorContext["outputStage"],
   ): Promise<TutorContext> {
-    const { persistence, materials } = this.dependencies;
-    const [messages, sourceMaterials] = await Promise.all([
-      persistence.messages.findBySessionId(session.id),
+    const { persistence, materials, knowledgeRetriever } = this.dependencies;
+    const messages = await persistence.messages.findBySessionId(session.id);
+    const retrieve = async () => {
+      try {
+        const references = await knowledgeRetriever?.retrieve({
+          studentInput: request.userInput, subject: session.subject,
+          previousStudentInputs: messages.filter(message => message.role === "USER")
+            .slice(-4).map(message => message.content as string),
+        }) ?? [];
+        return knowledgeSourceMaterials(references);
+      } catch {
+        // Artifact/adapter failures are not provider failures and must not end the session.
+        throw new LearningError("KNOWLEDGE_UNAVAILABLE");
+      }
+    };
+    const [sessionMaterials, knowledgeMaterials] = await Promise.all([
       materials?.findBySessionId(session.id) ?? Promise.resolve([]),
+      retrieve(),
     ]);
+    const sourceMaterials = [...sessionMaterials, ...knowledgeMaterials];
+    if (new Set(sourceMaterials.map((source) => source.citation.id)).size !== sourceMaterials.length) {
+      throw new LearningError("KNOWLEDGE_UNAVAILABLE");
+    }
     return {
       sessionId: session.id,
       responseId: this.idFactory(),

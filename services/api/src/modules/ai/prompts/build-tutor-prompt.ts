@@ -8,6 +8,7 @@ import { EXPLAIN_PROMPT } from "./explain-prompt.js";
 import { PRACTICE_PROMPT } from "./practice-prompt.js";
 import { REVIEW_PROMPT } from "./review-prompt.js";
 import { TUTOR_SYSTEM_PROMPT } from "./system-prompt.js";
+import { adaptiveInstructions, selectAdaptivePolicy } from "./adaptive-policy.js";
 
 const STAGE_PROMPTS: Record<LearningStage, string> = {
   DIAGNOSE: DIAGNOSE_PROMPT,
@@ -23,9 +24,10 @@ export function buildTutorPrompt(context: TutorContext): ModelRequest {
     messages: [
       {
         role: "system",
-        content: `${TUTOR_SYSTEM_PROMPT}\n\n${STAGE_PROMPTS[context.stage]}\n\nTutor Output schema:\n${JSON.stringify(getTutorOutputSchema())}`,
+        content: `${TUTOR_SYSTEM_PROMPT}\n\n${STAGE_PROMPTS[context.stage]}\n\n${adaptiveInstructions(selectAdaptivePolicy(context))}\n\nTutor Output schema:\n${JSON.stringify(getTutorOutputSchema())}`,
       },
       ...previousMessages,
+      // JSON keeps source text/metadata in task data; never interpolate it into the system message.
       { role: "user", content: JSON.stringify(task) },
     ],
     temperature: 0.2,

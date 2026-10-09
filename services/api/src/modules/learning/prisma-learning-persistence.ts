@@ -1,5 +1,6 @@
 ﻿import type { UserDb } from "../../prisma/db.js";
 import { readPersistedMessages, type PersistedMessage } from "./persisted-messages.js";
+import { withApiWrite } from "../../prisma/api-write.js";
 import type { ValidatedTutorOutput } from "../ai/tutor-output.js";
 import type { LearningMessage, LearningSession } from "./domain.js";
 import { getStagePolicy } from "./stage-machine.js";
@@ -117,19 +118,20 @@ class PrismaLearningSessionRepository implements LearningSessionRepository {
   }
 
   async save(session: LearningSession): Promise<void> {
-    const updated = await this.options.client.orm.public.LearningSession
-      .where({ id: session.id, userId: this.options.userId })
-      .update(toSessionUpdateData(session));
-
-    if (updated) return;
-
-    await this.options.client.orm.public.LearningSession.create(
-      toSessionCreateData(
-        session,
-        this.options.userId,
-        this.options.titleForSession(session),
-      ),
-    );
+    const row = toSessionCreateData(session, this.options.userId, this.options.titleForSession(session));
+    await withApiWrite(this.options.client, async tx => {
+      await tx.execute(this.options.client.raw.sql`
+        INSERT INTO public."LearningSession"
+        ("id", "userId", "title", "learningGoal", "subject", "state", "lifecycleState", "stage", "progressPercent", "version", "createdAt", "updatedAt")
+        VALUES (${row.id}, ${row.userId}, ${row.title}, NULLIF(${row.learningGoal ?? ""}, ''), NULLIF(${row.subject ?? ""}, ''),
+          ${row.state}, ${row.lifecycleState}, ${row.stage}, ${row.progressPercent}, ${row.version},
+          ${row.createdAt}::timestamptz, ${row.updatedAt}::timestamptz)
+        ON CONFLICT ("id") DO UPDATE SET "learningGoal" = EXCLUDED."learningGoal", "subject" = EXCLUDED."subject",
+          "state" = EXCLUDED."state", "lifecycleState" = EXCLUDED."lifecycleState", "stage" = EXCLUDED."stage",
+          "progressPercent" = EXCLUDED."progressPercent", "version" = EXCLUDED."version", "updatedAt" = EXCLUDED."updatedAt"
+        WHERE "LearningSession"."userId" = ${this.options.userId}
+      `.affectedCount().build());
+    });
   }
 }
 
@@ -146,7 +148,13 @@ class PrismaMessageRepository implements MessageRepository {
       throw new Error("Learning session not found.");
     }
 
-    await this.options.client.orm.public.Message.create(toMessageCreateData(message));
+    const row = toMessageCreateData(message);
+    await withApiWrite(this.options.client, async tx => {
+      await tx.execute(this.options.client.raw.sql`
+        INSERT INTO public."Message" ("id", "learningSessionId", "role", "content", "createdAt")
+        VALUES (${row.id}, ${row.learningSessionId}, ${row.role}, ${JSON.stringify(row.content)}::jsonb, ${row.createdAt}::timestamptz)
+      `.affectedCount().build());
+    });
   }
 
   async findBySessionId(sessionId: string): Promise<LearningMessage[]> {
@@ -189,7 +197,7 @@ export class PrismaLearningPersistence implements LearningPersistence {
     // (execute/query only). Compile parameterized SQL with the role-bound
     // client's builder and execute every statement on the SAME transaction.
     const raw = this.options.client.raw;
-    return this.options.client.transaction(async (tx) => {
+    return withApiWrite(this.options.client, async (tx) => {
       let affected = 0;
       if (change.expectedVersion === null) {
         const row = toSessionCreateData(
@@ -246,6 +254,6 @@ export class PrismaLearningPersistence implements LearningPersistence {
         await tx.execute(plan);
       }
       return true;
-    });;
+    });
   }
 }

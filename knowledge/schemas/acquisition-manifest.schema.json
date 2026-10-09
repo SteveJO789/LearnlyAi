@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learnlyai.local/schemas/acquisition-manifest.schema.json",
+  "title": "LearnlyAI Source Acquisition Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "artifact_id",
+          "filename",
+          "raw_path",
+          "sha256",
+          "acquired_at",
+          "parser_version",
+          "license_status",
+          "license",
+          "source_url"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "artifact_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "filename": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[^/\\\\]+$"
+          },
+          "raw_path": {
+            "type": "string",
+            "pattern": "^raw/[a-z0-9][a-z0-9-]*/[a-z0-9][a-z0-9-]*/[^/]+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "acquired_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "parser_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          },
+          "license_status": {
+            "type": "string",
+            "enum": [
+              "allowed",
+              "internally_authored"
+            ]
+          },
+          "license": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_url": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
+    }
+  }
+}

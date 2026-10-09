@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "prepared_at": "2026-10-01",
+  "artifacts": [
+    {
+      "source_id": "siyavula-mathematics-g10-g12-ccby",
+      "artifact_id": "siyavula-mathematics-g10-en-unbranded-pilot",
+      "filename": "Gr10_Mathematics_Learner_Eng_CC-BY.epub",
+      "source_url": "https://www.siyavula.com/downloads/books/maths/Gr10_Mathematics_Learner_Eng_CC-BY.epub",
+      "status": "acquired_scoped_normalized_draft_pending_human_review",
+      "sha256": "881f0968936e797a6f0fa4df305b92641c52add3812871ae39a791c2ee1e4a99",
+      "license_check": "Verify internal copyright page before recording an artifact-specific license; catalogue CC-BY label alone does not establish version.",
+      "evidence_url": "https://www.siyavula.com/read"
+    },
+    {
+      "source_id": "open-logic-project",
+      "artifact_id": "open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107",
+      "filename": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107.zip",
+      "commit": "1e960beff9ed7835bf3e3f1335e21af3439cd107",
+      "source_url": "https://github.com/OpenLogicProject/OpenLogic/archive/1e960beff9ed7835bf3e3f1335e21af3439cd107.zip",
+      "status": "acquired_scoped_normalized_draft_pending_human_review",
+      "sha256": "ac565ee57b35dda8ac043dcbbc10322b5b4002f12abcbc0b0c5c2ddbea426849",
+      "license_check": "Verify LICENSE.md and content exceptions at the pinned commit; retain archive bytes and checksum.",
+      "evidence_url": "https://github.com/OpenLogicProject/OpenLogic/blob/1e960beff9ed7835bf3e3f1335e21af3439cd107/LICENSE.md"
+    }
+  ]
+}

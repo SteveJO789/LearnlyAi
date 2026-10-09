@@ -1,0 +1,203 @@
+{
+  "schemaVersion": "1.0",
+  "category": "OFFLINE_DETERMINISTIC",
+  "knowledge": {
+    "conceptId": "physics.electricity.electric-circuits.ohms-law",
+    "version": "0.2.0",
+    "status": "reviewed"
+  },
+  "coreRetrieval": {
+    "truePositive": 4,
+    "falsePositive": 0,
+    "falseNegative": 0,
+    "trueNegative": 3,
+    "precision": {
+      "numerator": 4,
+      "denominator": 4
+    },
+    "recall": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  "records": [
+    {
+      "scenarioId": "R1",
+      "turn": 1,
+      "input": "Explain Ohm's law.",
+      "expected": true,
+      "actual": true,
+      "retrieved": [
+        {
+          "conceptId": "physics.electricity.electric-circuits.ohms-law",
+          "version": "0.2.0",
+          "passageId": "physics.electricity.electric-circuits.ohms-law@0.2.0:teaching-v1"
+        }
+      ],
+      "previousMessageCount": 0
+    },
+    {
+      "scenarioId": "R2",
+      "turn": 1,
+      "input": "If current is 2 A and resistance is 20 Ω, what is the voltage?",
+      "expected": true,
+      "actual": true,
+      "retrieved": [
+        {
+          "conceptId": "physics.electricity.electric-circuits.ohms-law",
+          "version": "0.2.0",
+          "passageId": "physics.electricity.electric-circuits.ohms-law@0.2.0:teaching-v1"
+        }
+      ],
+      "previousMessageCount": 0
+    },
+    {
+      "scenarioId": "R3",
+      "turn": 1,
+      "input": "ถ้ากระแสไฟฟ้า 2 A และความต้านทาน 20 Ω แรงดันไฟฟ้าเท่าไร",
+      "expected": true,
+      "actual": true,
+      "retrieved": [
+        {
+          "conceptId": "physics.electricity.electric-circuits.ohms-law",
+          "version": "0.2.0",
+          "passageId": "physics.electricity.electric-circuits.ohms-law@0.2.0:teaching-v1"
+        }
+      ],
+      "previousMessageCount": 0
+    },
+    {
+      "scenarioId": "R4",
+      "turn": 1,
+      "input": "How do I use V = IR?",
+      "expected": true,
+      "actual": true,
+      "retrieved": [
+        {
+          "conceptId": "physics.electricity.electric-circuits.ohms-law",
+          "version": "0.2.0",
+          "passageId": "physics.electricity.electric-circuits.ohms-law@0.2.0:teaching-v1"
+        }
+      ],
+      "previousMessageCount": 0
+    },
+    {
+      "scenarioId": "R5",
+      "turn": 1,
+      "input": "Explain photosynthesis.",
+      "expected": false,
+      "actual": false,
+      "retrieved": [],
+      "previousMessageCount": 0
+    },
+    {
+      "scenarioId": "R6",
+      "turn": 1,
+      "input": "Explain AC voltage in a transformer.",
+      "expected": false,
+      "actual": false,
+      "retrieved": [],
+      "previousMessageCount": 0
+    },
+    {
+      "scenarioId": "R7",
+      "turn": 1,
+      "input": "How does a battery maintain voltage?",
+      "expected": false,
+      "actual": false,
+      "retrieved": [],
+      "previousMessageCount": 0
+    },
+    {
+      "scenarioId": "M1",
+      "turn": 1,
+      "input": "Explain Ohm's law.",
+      "expected": true,
+      "actual": true,
+      "retrieved": [
+        {
+          "conceptId": "physics.electricity.electric-circuits.ohms-law",
+          "version": "0.2.0",
+          "passageId": "physics.electricity.electric-circuits.ohms-law@0.2.0:teaching-v1"
+        }
+      ],
+      "previousMessageCount": 0
+    },
+    {
+      "scenarioId": "M1",
+      "turn": 2,
+      "input": "What if resistance doubles?",
+      "expected": true,
+      "actual": true,
+      "retrieved": [
+        {
+          "conceptId": "physics.electricity.electric-circuits.ohms-law",
+          "version": "0.2.0",
+          "passageId": "physics.electricity.electric-circuits.ohms-law@0.2.0:teaching-v1"
+        }
+      ],
+      "previousMessageCount": 2
+    },
+    {
+      "scenarioId": "M2",
+      "turn": 1,
+      "input": "Explain Ohm's law.",
+      "expected": true,
+      "actual": true,
+      "retrieved": [
+        {
+          "conceptId": "physics.electricity.electric-circuits.ohms-law",
+          "version": "0.2.0",
+          "passageId": "physics.electricity.electric-circuits.ohms-law@0.2.0:teaching-v1"
+        }
+      ],
+      "previousMessageCount": 0
+    },
+    {
+      "scenarioId": "M2",
+      "turn": 2,
+      "input": "Thanks.",
+      "expected": false,
+      "actual": false,
+      "retrieved": [],
+      "previousMessageCount": 2
+    },
+    {
+      "scenarioId": "S1",
+      "turn": 1,
+      "input": "Explain Ohm's law.",
+      "expected": true,
+      "actual": true,
+      "retrieved": [
+        {
+          "conceptId": "physics.electricity.electric-circuits.ohms-law",
+          "version": "0.2.0",
+          "passageId": "physics.electricity.electric-circuits.ohms-law@0.2.0:teaching-v1"
+        }
+      ],
+      "previousMessageCount": 0,
+      "framing": {
+        "referenceOnly": true,
+        "noSystemContamination": true,
+        "rolesIntact": true,
+        "bounded": true
+      }
+    },
+    {
+      "scenarioId": "U1",
+      "turn": 1,
+      "input": "Who invented Ohm's law and in what exact year?",
+      "expected": true,
+      "actual": true,
+      "retrieved": [
+        {
+          "conceptId": "physics.electricity.electric-circuits.ohms-law",
+          "version": "0.2.0",
+          "passageId": "physics.electricity.electric-circuits.ohms-law@0.2.0:teaching-v1"
+        }
+      ],
+      "previousMessageCount": 0
+    }
+  ],
+  "warning": "Mock responses establish framing/validator behavior only, not live answer correctness or injection resistance."
+}

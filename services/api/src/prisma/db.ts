@@ -18,6 +18,7 @@ export function getDb() {
       contractJson,
       url: databaseUrl,
       jwksUrl: `${url.replace(/\/+$/, '')}/auth/v1/.well-known/jwks.json`,
+      poolOptions: { connectionTimeoutMillis: 3000 },
     });
   }
   return clientPromise;

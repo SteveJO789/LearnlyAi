@@ -1,98 +1,33 @@
-# Authentication: Google OAuth 2.0 + OpenID Connect
+# Authentication — implemented and approved (2026-10-09)
 
-## Decision
+The project owner confirms login is complete and usable. **Supabase Auth** handles Google OAuth 2.0/OIDC and email/password signup/login with email verification. The old Express-managed Google OIDC and custom application-cookie approach is superseded.
 
-MVP ใช้ **Google OpenID Connect (OIDC)** บน OAuth 2.0 Authorization Code Flow เพียง provider เดียว และใช้ server-side application session ผ่าน HttpOnly cookie
-
-OAuth 2.0 ทำหน้าที่ authorization ส่วน OIDC เพิ่ม identity layer สำหรับ login
-
-## Login Sequence
+## Actual flow
 
 ```mermaid
 sequenceDiagram
-    actor U as User
-    participant W as Next.js
-    participant A as Express.js
-    participant G as Google OIDC
-    participant D as PostgreSQL
-
-    U->>W: Continue with Google
-    W->>A: GET /api/v1/auth/google
-    A-->>U: 302 Redirect + state
-    U->>G: Authenticate and consent
-    G-->>A: authorization code + state
-    A->>G: Exchange code and validate ID token
-    A->>D: Find/create OAuth account and user
-    A->>D: Create application session
-    A-->>U: Set-Cookie + redirect to /dashboard
-    W->>A: GET /api/v1/auth/me
-    A-->>W: Current user
+    actor User
+    participant Web as Next.js
+    participant Auth as Supabase Auth
+    participant API as Express on Vercel
+    participant DB as Supabase PostgreSQL
+    User->>Web: /SignIn or /SignUp
+    Web->>Auth: Google OAuth / email login or signUp
+    Auth-->>Web: Session and redirect
+    Web->>Web: /auth/callback and syncCurrentUserProfile()
+    Web-->>User: /Home
+    Web->>API: Authorization Bearer Supabase access token
+    API->>Auth: Verify token via /auth/v1/user
+    API->>DB: RLS-scoped query with verified JWT
+    API-->>Web: User-owned sessions
 ```
 
-## API Endpoints
+Web routes: `/SignIn`, `/SignUp`, `/verify-email`, `/auth/callback`, `/Home`. Supabase browser client uses `signInWithOAuth`, `signInWithPassword`, `signUp`, `getUser/getSession`, and `signOut`. The synced `public.User` profile maps `authUserId` to the Supabase user ID.
 
-| Method | Path | Authentication | Behavior |
-|---|---|---|---|
-| GET | `/api/v1/auth/google` | Public | สร้าง state แล้ว redirect ไป Google |
-| GET | `/api/v1/auth/google/callback` | Public | ตรวจ state/code, validate ID token, find/create user, create app session |
-| GET | `/api/v1/auth/me` | Cookie | คืน current user หรือ 401 |
-| POST | `/api/v1/auth/logout` | Cookie | revoke/delete app session และ clear cookie |
+There are **no Express auth/google, auth/google/callback, auth/me or auth/logout endpoints** in the current backend. Protected learning-session API requests must send a Supabase access token, validated by `requireSupabaseUser`. Database ownership and RLS checks use verified identity.
 
-First login คือ registration: เมื่อ `(provider, subject)` ยังไม่มี ระบบจะสร้าง `users` และ `oauth_accounts` ใน transaction เดียวกัน ครั้งถัดไปถือเป็น login
+## Environment and security
 
-## Identity Mapping
+Browser: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_API_BASE_URL`. API: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `DATABASE_URL`. Configure Google provider and redirect allow-list in Supabase Auth and Google Cloud. Do not set a custom Express `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` or `SESSION_SECRET` for the current implementation.
 
-- ใช้ Google claim `sub` เป็น provider identity
-- ห้ามใช้ email เป็น primary OAuth identity
-- บังคับ unique constraint `(provider, subject)`
-- Email/name/avatar เป็น profile claims ที่อัปเดตได้ ไม่ใช่ proof of identity ถาวร
-
-## Application Session
-
-ตัวอย่าง cookie:
-
-```text
-learnly_session=<opaque-random-value>
-```
-
-ค่าที่แนะนำ:
-
-| Attribute | Development | Production |
-|---|---|---|
-| `HttpOnly` | true | true |
-| `Secure` | false เฉพาะ localhost | true |
-| `SameSite` | Lax | Lax |
-| `Path` | `/` | `/` |
-| Expiry | กำหนดชัดเจน | กำหนดชัดเจนและ rotate ได้ |
-
-Database ควรเก็บ hash/digest ของ session token ไม่เก็บ raw token หากทำได้
-
-## Frontend Rules
-
-- ปุ่มหลักใช้ข้อความ `Continue with Google`
-- ไม่จำเป็นต้องแยกหน้า Login และ Register ใน OAuth-only MVP
-- Request ที่ต้อง login ต้องส่ง cookie (`credentials: include` เมื่อ frontend/backend ต่าง origin)
-- เมื่อได้ 401 ให้ redirect ไป `/login` โดยไม่วนลูป
-- ห้ามเก็บ ID token หรือ app session ใน `localStorage`
-
-## Required Environment Variables
-
-```dotenv
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-GOOGLE_REDIRECT_URI=http://localhost:8000/api/v1/auth/google/callback
-SESSION_SECRET=
-FRONTEND_URL=http://localhost:3000
-```
-
-ไฟล์ `.env` จริงห้าม commit เข้า repository
-
-## Security Acceptance Criteria
-
-- ตรวจ `state` และ exact redirect URI
-- ใช้ OIDC library ที่ดูแล code exchange และ token validation ไม่ implement protocol เองทั้งหมด
-- ตรวจ issuer, audience, expiry และ signature ของ ID token
-- Rotate session หลัง login สำเร็จเพื่อป้องกัน session fixation
-- Logout ต้อง invalidate session ฝั่ง server
-- Error response ห้ามส่ง authorization code, token หรือ provider error detail ที่อ่อนไหวกลับ client
-- Protected endpoint ทุกตัวต้อง derive user จาก application session เท่านั้น
+Never expose service-role/database secrets in browser code. Never log auth codes, tokens or passwords. Full cross-user isolation and production E2E belong to #14; login approval does not imply that those checks have passed.

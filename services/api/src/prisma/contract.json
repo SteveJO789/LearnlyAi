@@ -424,10 +424,31 @@
                   "kind": "scalar"
                 }
               },
+              "snapshot": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/json@1",
+                  "kind": "scalar"
+                }
+              },
+              "submissionHash": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "submittedAt": {
                 "nullable": true,
                 "type": {
                   "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "topic": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
               }
@@ -482,8 +503,17 @@
                 "score": {
                   "column": "score"
                 },
+                "snapshot": {
+                  "column": "snapshot"
+                },
+                "submissionHash": {
+                  "column": "submissionHash"
+                },
                 "submittedAt": {
                   "column": "submittedAt"
+                },
+                "topic": {
+                  "column": "topic"
                 }
               },
               "namespaceId": "public",
@@ -1261,6 +1291,19 @@
               "tableName": "AIRequest",
               "using": "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"AIRequest\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
             },
+            "assessment_answer_insert_api_own": {
+              "kind": "policy",
+              "name": "assessment_answer_insert_api_own_6ac7083b",
+              "namespaceId": "public",
+              "operation": "insert",
+              "permissive": true,
+              "prefix": "assessment_answer_insert_api_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "AssessmentAnswer",
+              "withCheck": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"Assessment\" a JOIN \"LearningSession\" s ON s.id = a.\"learningSessionId\" JOIN \"User\" u ON u.id = s.\"userId\" WHERE a.id = \"AssessmentAnswer\".\"assessmentId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+            },
             "assessment_answer_select_own": {
               "kind": "policy",
               "name": "assessment_answer_select_own_c190452e",
@@ -1273,6 +1316,19 @@
               ],
               "tableName": "AssessmentAnswer",
               "using": "(EXISTS ( SELECT 1 FROM ((\"Assessment\" a JOIN \"LearningSession\" ls ON ((ls.id = a.\"learningSessionId\"))) JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((a.id = \"AssessmentAnswer\".\"assessmentId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "assessment_insert_api_own": {
+              "kind": "policy",
+              "name": "assessment_insert_api_own_277fff40",
+              "namespaceId": "public",
+              "operation": "insert",
+              "permissive": true,
+              "prefix": "assessment_insert_api_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "Assessment",
+              "withCheck": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"Assessment\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
             },
             "assessment_select_own": {
               "kind": "policy",
@@ -1287,6 +1343,33 @@
               "tableName": "Assessment",
               "using": "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Assessment\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
             },
+            "assessment_update_api_own": {
+              "kind": "policy",
+              "name": "assessment_update_api_own_168c1514",
+              "namespaceId": "public",
+              "operation": "update",
+              "permissive": true,
+              "prefix": "assessment_update_api_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "Assessment",
+              "using": "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"Assessment\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+              "withCheck": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"Assessment\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+            },
+            "learning_profile_insert_api_own": {
+              "kind": "policy",
+              "name": "learning_profile_insert_api_own_62b5c283",
+              "namespaceId": "public",
+              "operation": "insert",
+              "permissive": true,
+              "prefix": "learning_profile_insert_api_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "LearningProfile",
+              "withCheck": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"User\" u WHERE u.id = \"LearningProfile\".\"userId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+            },
             "learning_profile_select_own": {
               "kind": "policy",
               "name": "learning_profile_select_own_13d05569",
@@ -1299,6 +1382,33 @@
               ],
               "tableName": "LearningProfile",
               "using": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningProfile\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "learning_profile_update_api_own": {
+              "kind": "policy",
+              "name": "learning_profile_update_api_own_40a07354",
+              "namespaceId": "public",
+              "operation": "update",
+              "permissive": true,
+              "prefix": "learning_profile_update_api_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "LearningProfile",
+              "using": "(EXISTS (SELECT 1 FROM \"User\" u WHERE u.id = \"LearningProfile\".\"userId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+              "withCheck": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"User\" u WHERE u.id = \"LearningProfile\".\"userId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+            },
+            "learning_session_insert_own": {
+              "kind": "policy",
+              "name": "learning_session_insert_own_2be3816c",
+              "namespaceId": "public",
+              "operation": "insert",
+              "permissive": true,
+              "prefix": "learning_session_insert_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "LearningSession",
+              "withCheck": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
             },
             "learning_session_select_own": {
               "kind": "policy",
@@ -1313,6 +1423,46 @@
               "tableName": "LearningSession",
               "using": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
             },
+            "learning_session_update_own": {
+              "kind": "policy",
+              "name": "learning_session_update_own_056e8007",
+              "namespaceId": "public",
+              "operation": "update",
+              "permissive": true,
+              "prefix": "learning_session_update_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "LearningSession",
+              "using": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+              "withCheck": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "message_api_insert_guard": {
+              "kind": "policy",
+              "name": "message_api_insert_guard_649e1632",
+              "namespaceId": "public",
+              "operation": "insert",
+              "permissive": false,
+              "prefix": "message_api_insert_guard",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "Message",
+              "withCheck": "(current_setting('learnly.api_write', true) = '1')"
+            },
+            "message_insert_own": {
+              "kind": "policy",
+              "name": "message_insert_own_4f346578",
+              "namespaceId": "public",
+              "operation": "insert",
+              "permissive": true,
+              "prefix": "message_insert_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "Message",
+              "withCheck": "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
             "message_select_own": {
               "kind": "policy",
               "name": "message_select_own_968c3fb0",
@@ -1325,6 +1475,46 @@
               ],
               "tableName": "Message",
               "using": "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "session_api_insert_guard": {
+              "kind": "policy",
+              "name": "session_api_insert_guard_649e1632",
+              "namespaceId": "public",
+              "operation": "insert",
+              "permissive": false,
+              "prefix": "session_api_insert_guard",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "LearningSession",
+              "withCheck": "(current_setting('learnly.api_write', true) = '1')"
+            },
+            "session_api_update_guard": {
+              "kind": "policy",
+              "name": "session_api_update_guard_cca2e683",
+              "namespaceId": "public",
+              "operation": "update",
+              "permissive": false,
+              "prefix": "session_api_update_guard",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "LearningSession",
+              "using": "true",
+              "withCheck": "(current_setting('learnly.api_write', true) = '1')"
+            },
+            "source_material_insert_api_own": {
+              "kind": "policy",
+              "name": "source_material_insert_api_own_bbb50d09",
+              "namespaceId": "public",
+              "operation": "insert",
+              "permissive": true,
+              "prefix": "source_material_insert_api_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "SourceMaterial",
+              "withCheck": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
             },
             "source_material_select_own": {
               "kind": "policy",
@@ -1603,9 +1793,24 @@
                   "nativeType": "int4",
                   "nullable": true
                 },
+                "snapshot": {
+                  "codecId": "pg/json@1",
+                  "nativeType": "json",
+                  "nullable": true
+                },
+                "submissionHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "submittedAt": {
                   "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "topic": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
                   "nullable": true
                 }
               },
@@ -1717,7 +1922,14 @@
                   "id"
                 ]
               },
-              "uniques": []
+              "uniques": [
+                {
+                  "columns": [
+                    "assessmentId",
+                    "questionId"
+                  ]
+                }
+              ]
             },
             "LearningProfile": {
               "columns": {
@@ -2287,7 +2499,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "c7b3938544e5e74ca8b9f22476cc7dbb3d987938d552a6e2214b5edd941b8665"
+    "storageHash": "d17a8bc493eb8d240a7a2d0c664b00ec49f5823963634f78f5385a01bd26b397"
   },
   "execution": {
     "executionHash": "1c5f64dbace57a6efe810d458509a690bf92acb20d8522d6bfb343791bdd4e83",
@@ -2423,7 +2635,15 @@
       "scalarList": true
     }
   },
-  "extensions": {},
+  "extensions": {
+    "supabase": {
+      "familyId": "sql",
+      "id": "supabase",
+      "kind": "extension",
+      "targetId": "postgres",
+      "version": "8.0.0-rc.12"
+    }
+  },
   "meta": {},
   "_generated": {
     "warning": "⚠️  GENERATED FILE - DO NOT EDIT",

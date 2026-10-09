@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0",
+  "curriculum_system": "thai-basic-education-2551-revised-2560",
+  "authority_chain": [
+    "OBEC",
+    "IPST"
+  ],
+  "organization_rule": "subject -> domain -> topic -> concept; grade and curriculum role are metadata, not top-level folders",
+  "mvp": {
+    "mathematics": {
+      "linear-equations": {
+        "curriculum_role": "prerequisite",
+        "grade_range": [
+          "m4",
+          "m5",
+          "m6"
+        ],
+        "concepts": [
+          "equality",
+          "equivalent-equations",
+          "solution-and-solution-set",
+          "one-step-linear-equations",
+          "multi-step-linear-equations",
+          "distributive-property",
+          "fractional-equations",
+          "decimal-equations",
+          "variables-on-both-sides",
+          "identity-infinitely-many-solutions",
+          "inconsistent-no-solution",
+          "formula-rearrangement",
+          "word-problem-modeling"
+        ]
+      },
+      "mathematical-logic": {
+        "curriculum_role": "required",
+        "grade_range": [
+          "m4"
+        ],
+        "curriculum_track": [
+          "basic",
+          "additional"
+        ],
+        "concepts": [
+          "statement-proposition",
+          "truth-value",
+          "simple-vs-compound-statement",
+          "negation",
+          "conjunction",
+          "disjunction",
+          "implication",
+          "biconditional",
+          "truth-table",
+          "converse",
+          "inverse",
+          "contrapositive",
+          "logical-equivalence",
+          "tautology",
+          "contradiction",
+          "quantifiers",
+          "negating-quantified-statements"
+        ]
+      }
+    },
+    "physics": {
+      "electricity": {
+        "curriculum_role": "required",
+        "grade_range": [
+          "m5"
+        ],
+        "curriculum_track": [
+          "additional"
+        ],
+        "concepts": [
+          "electric-charge",
+          "charge-conservation",
+          "coulombs-law",
+          "electric-field",
+          "field-line-interpretation",
+          "electric-potential",
+          "potential-difference",
+          "capacitance",
+          "electric-current",
+          "conventional-current",
+          "resistance",
+          "resistivity",
+          "ohms-law",
+          "series-resistance",
+          "parallel-resistance",
+          "simple-circuit-topology",
+          "ammeter-voltmeter",
+          "emf-battery",
+          "electrical-energy",
+          "electrical-power",
+          "simple-dc-circuit-analysis",
+          "common-circuit-misconceptions"
+        ]
+      }
+    }
+  }
+}

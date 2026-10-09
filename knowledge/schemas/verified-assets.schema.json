@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learnlyai.local/schemas/verified-assets.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "assets"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "assets": {"type": "array", "items": {"$ref": "#/$defs/asset"}}
+  },
+  "$defs": {
+    "locator": {
+      "type": "object", "additionalProperties": false,
+      "required": ["chapter", "section"],
+      "properties": {
+        "chapter": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "section": {"type": "string", "minLength": 1, "pattern": "\\S"}
+      }
+    },
+    "asset": {
+      "type": "object", "additionalProperties": false,
+      "required": ["asset_id", "kind", "artifact_id", "source_id", "artifact_sha256", "source_document", "locator", "original_asset_reference", "transcription", "latex", "verification"],
+      "properties": {
+        "asset_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+        "kind": {"enum": ["equation", "diagram"]},
+        "artifact_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+        "source_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+        "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "source_document": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "locator": {"$ref": "#/$defs/locator"},
+        "original_asset_reference": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "transcription": {"type": ["string", "null"]},
+        "latex": {"type": ["string", "null"]},
+        "verification": {
+          "type": "object", "additionalProperties": false,
+          "required": ["status", "reviewer", "verified_at", "method"],
+          "properties": {
+            "status": {"enum": ["pending", "verified", "rejected"]},
+            "reviewer": {"type": ["string", "null"]},
+            "verified_at": {"type": ["string", "null"], "format": "date"},
+            "method": {"enum": ["human_transcription", null]}
+          }
+        }
+      },
+      "allOf": [{
+        "if": {"properties": {"verification": {"type": "object", "properties": {"status": {"const": "verified"}}, "required": ["status"]}}, "required": ["verification"]},
+        "then": {
+          "properties": {
+            "transcription": {"type": "string", "minLength": 1, "pattern": "\\S"},
+            "verification": {"type": "object", "properties": {
+              "reviewer": {"type": "string", "minLength": 1, "pattern": "\\S"},
+              "verified_at": {"type": "string", "format": "date"},
+              "method": {"const": "human_transcription"}
+            }}
+          },
+          "allOf": [{
+            "if": {"properties": {"kind": {"const": "equation"}}, "required": ["kind"]},
+            "then": {"properties": {"latex": {"type": "string", "minLength": 1, "pattern": "\\S"}}}
+          }]
+        }
+      }]
+    }
+  }
+}

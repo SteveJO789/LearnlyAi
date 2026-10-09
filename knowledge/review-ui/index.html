@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="th">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LearnlyAI · Source review</title><link rel="stylesheet" href="/style.css"></head>
+<body>
+  <header><h1>LearnlyAI · Human source review</h1><p>ตรวจภาพต้นฉบับและบันทึกคำถอดด้วยตนเอง — การตรวจ asset ไม่ใช่การอนุมัติเอกสารสำหรับนักเรียน</p></header>
+  <div class="controls">
+    <label>Concept <select id="concept"></select></label>
+    <label>ชื่อผู้ตรวจ / Reviewer <input id="reviewer" autocomplete="name" placeholder="กรอกชื่อก่อนบันทึก"></label>
+    <label><input type="checkbox" id="preview-toggle"> แสดง curated preview</label>
+  </div>
+  <p id="progress" role="status">Loading source units…</p>
+  <p id="message" role="status" aria-live="polite"></p>
+  <main>
+    <aside><h2>Candidate units</h2><p>เลือก checkbox เพื่อกำหนดชุดตรวจ คลิกชื่อเพื่อเปิดเนื้อหา</p><div id="units"></div></aside>
+    <article id="detail"><p>เลือกหัวข้อทางซ้ายเพื่อเริ่มตรวจ</p></article>
+  </main>
+  <template id="detail-template">
+    <h2 class="unit-title"></h2>
+    <dl class="locator"><dt>Chapter</dt><dd class="chapter"></dd><dt>Section</dt><dd class="section"></dd><dt>Source document</dt><dd class="document"></dd></dl>
+    <details><summary>Exact source locator</summary><pre class="exact-locator"></pre></details>
+    <h3>Original English source evidence</h3><div class="evidence"></div>
+    <h3>Equation and diagram review</h3><p>ช่องถอดข้อความเริ่มว่าง อ่านภาพแล้วกรอกด้วยตนเอง หากอ่านไม่ได้ เลือก Needs correction หรือ Skip</p>
+    <div class="assets"></div><section class="preview" hidden><h3>Future curated preview · ยังไม่อนุมัติ</h3><div class="preview-content"></div></section>
+  </template>
+  <template id="asset-template">
+    <section class="asset-card"><h4 class="asset-title"></h4><img class="asset-image" alt="Original source asset">
+      <p class="asset-status"></p>
+      <details><summary>Asset source locator</summary><code class="asset-locator"></code></details>
+      <label class="latex-label">Verified LaTeX <textarea class="latex" rows="2" placeholder="กรอก LaTeX หลังอ่านภาพ"></textarea></label>
+      <label>Plain text / คำอธิบายภาพ <textarea class="plain-text" rows="2" placeholder="กรอกคำถอดข้อความหรืออธิบายแผนผัง"></textarea></label>
+      <div class="actions"><button type="button" data-status="verified">Verify</button><button type="button" data-status="needs_correction">Needs correction</button><button type="button" data-status="skipped">Skip</button></div>
+    </section>
+  </template>
+  <script src="/app.js" defer></script>
+</body></html>
