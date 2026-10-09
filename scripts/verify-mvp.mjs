@@ -18,7 +18,7 @@ const steps = [
   ['persistent-rag-integration', 'services/api', ['--experimental-test-module-mocks', '--test', 'test/persisted-rag.integration.mjs']],
   ['rag-offline-evaluation', 'services/api', ['evaluation/rag/run-offline.mjs', '--output', resolve(out, 'rag-offline-summary.json')]],
   ['web-typecheck', 'apps/web', ['node_modules/typescript/bin/tsc', '--noEmit']],
-  ['web-tests', 'apps/web', ['--test']],
+  ['web-tests', 'apps/web', ['scripts/run-tests.mjs']],
   ['web-production-build', 'apps/web', ['node_modules/next/dist/bin/next', 'build']],
   ['fresh-runtime', 'services/api', ['scripts/verify-fresh-runtime.mjs']],
 ];

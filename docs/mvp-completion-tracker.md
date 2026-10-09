@@ -24,11 +24,11 @@
 | Retrieval relevance/history | #11 | lexical pilot + bounded follow-up implemented | broader corpus/vector retrieval | P3.1 | core TP4/TN3/FP0/FN0; reset/revocation tests | corpus/model coverage |
 | Embeddings/pgvector ingestion and Top-K | #3 #11 | ยังไม่มี working implementation | chunks/vectors/metadata/queries | safe DB, approved source | Prisma contract ไม่มี Document/Chunk จริง | safe non-production DB; embedding model/budget |
 | Adaptive tutoring | #39 | deterministic language/mode + stage/history prompts | real model teaching-quality review | #12 | 5 multi-turn regressions + language test pass | live quality not run yet |
-| Assessment PRE/POST scoring/persistence | #13 | model definitions เท่านั้น | creation/submission/scoring/profile/API/UI | #2 #3 | contract.prisma | safe DB migrations |
-| Learning profile/statistics | #13 #16 | planned | mastery, strengths/weaknesses, pre/post history | Assessment | no endpoints | safe DB |
-| Text/PDF/image normalization | #15 | text chat; upload ไม่ครบ | extraction/OCR/type/size/security/storage/engine input | #2 #3 | Create currently text only | OCR/runtime assets; safe Storage |
-| Learning UI | #9 | persisted chat/structured blocks | stage, recovery, interactive/hint tests, mobile/accessibility | API contracts | Chat/[sessionId] | browser evidence pending |
-| Dashboard/History/Profile | #16 | history real; other progress incomplete | real recent/mastery/pre-post + empty/error/loading | #13 | Account/History exists; /History absent | no feature API yet |
+| Assessment PRE/POST scoring/persistence | #13 | APIs, snapshot, deterministic scoring, atomic answers/profile implemented | broader question bank; real Auth/browser journey; release migration | #2 #3 | 6 real API/Prisma/DB groups PASS; HTTP/scoring tests | deploy after team merge |
+| Learning profile/statistics | #13 #16 | owned APIs and Home/Profile UI implemented | browser/mobile QA; expanded curriculum evidence | Assessment | concurrent samples/PRE-POST comparison real DB PASS | develop-only CD |
+| Text/PDF/image normalization | #15 | normalized persistent TEXT + engine materials implemented | PDF/image extraction/OCR, file validation/Storage | #2 #3 | NFC/math tests, real material RLS rollback PASS | OCR/dependency/runtime assets |
+| Learning UI | #9 | stage, PRE/POST journey, actual 3 interactive widgets, structured blocks | provider-failure recovery, browser/mobile/keyboard QA | API contracts | rendering/calculator/contract tests; build PASS | browser evidence pending |
+| Dashboard/History/Profile | #16 | real summary metrics/recent sessions/comparisons, /History alias | browser/mobile/empty/error interaction checks | #13 | new metrics APIs + rendering/client tests | develop-only CD |
 | Reliability/security | #14 | partial | readiness dependencies, auth timeout, log safety, public dev route | core integration | defects identified in app/auth/router | none for local fixes |
 | Release readiness | #14/all | incomplete | builds, fresh install/DB/E2E/preview/issue criteria | all above | CI configured; latest hosted status failed | Vercel build limit, no safe DB yet |
 
@@ -100,3 +100,21 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - Validate finite numeric answers, issued question IDs, duplicate/missing answers และ reject client score metadata; public question DTO ไม่มี grading rule/answer key
 - Scoring tests 3/3 + API typecheck ผ่าน; ยังต้องทำ snapshot persistence, owned submission transaction, server-owned score protection, Learning Profile endpoints และ UI
 - Local milestone mapping: 8699721→remote6ba99c6, 7bf96bf→remote96e79e4, 6b0ddc5→remote3aab5fb; trees ตรงกันทุก milestone
+
+### Milestone 5 — Assessment/Profile integration and text intake
+
+- Implemented creation/retrieval/submission for PRE/POST/TRANSFER, immutable generated numeric snapshots, deterministic scoring and exact-retry receipts; client score fields rejected
+- Real Prisma adapter keeps ownership/RLS active; one transaction writes score + answers + profile. Per-user advisory lock prevents concurrent topic updates from losing samples
+- New restrictive API-write guards prevent direct owned progress/tutor-message edits through Data API; assessment/profile writes require both ownership and transaction-local API context
+- Real API→Prisma→PostgreSQL verification: 6 groups PASS (score/answers, concurrent mastery, comparisons, retry, isolation/tamper protection, rollback). Signed test identities/Auth transport injected; not real OAuth/login
+- Fixture COMMIT initially rejected by automatic approval review; user explicitly authorized isolated fixture creation + cleanup. Schema created only for tests, then deleted; `fixture_removed=true` verified. No public production tables or learner records changed
+- New TEXT material API persists normalized input with NFC/LF, content hash and byte size. Superscript math survives; arbitrary control characters rejected. Material is USER_MATERIAL, never reviewed Knowledge
+- Material RLS rollback test PASS; owned text persisted, another learner cannot read/write it, all fixture objects removed
+- Create persists text -> Assessment PRE -> Chat reads input from owned materials; raw input no longer appears in new Create URLs. PRE must be submitted before learning and POST before completion; legacy standalone/direct flows retained
+- New Home/Profile metrics, strengths/weak points/latest sample sizes, recent sessions and paired scores use authenticated APIs; /History preserves Cake page via redirect
+- Assessment UI has labels, numeric validation, loading/errors/retry/idempotent resubmission; Chat shows stage; all 3 interactive components now compute with editable controls
+- Final milestone checks: Knowledge 50/50; API 230/230; persisted learning/RAG integration 9/9; frontend client/render/simulation 12/12; all typechecks/builds pass. Fresh source-only export: deterministic 9 Knowledge files, API 230/230 and relocated runtime 4/4 PASS
+- CI run153 (head de6a68c) passed on Linux with fresh installs/source packaging: https://github.com/SteveJO789/LearnlyAi/actions/runs/37920597651 . Current changes require a new CI run; do not reuse that run as current-head proof
+- Pending: browser/mobile/keyboard E2E; provider-failure recovery; PDF/image/OCR; embedding/pgvector; full historical migration replay; release/public migration and deployed smoke after team merge into develop
+- Next implementation: file input + retrieval persistence after publishing/reviewing this milestone. Live AI budget remains US$0 of approved US$1
+- Local npm still blocked by NVM4306 (untrusted delegated npm-cli.js, npm package 11.19.0). Do not invoke the delegated script indirectly or blindly trust it; verify provenance/repair before installing PDF/OCR dependencies

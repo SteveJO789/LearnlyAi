@@ -50,6 +50,10 @@ Base SHA e2ddfdd: GitHub statuses Vercel Web/API failure และชี้ buil
 
 ## Release checklist
 
+Latest completion-branch evidence (2026-10-09): Assessment/Profile APIs and typed UI, deterministic integer exercise scoring, immutable answer receipts and transactional learning profile updates are implemented. Text intake persists normalized input and preserves math. Three interactive widgets replace placeholders. [Actual assessment DB evidence](evidence/mvp-assessment-db-verification.json): six API/Prisma/PostgreSQL groups PASS, with synthetic signed identities; fixture cleanup verified. Material isolation also passed real rollback-only SQL tests.
+
+Latest local checks: Knowledge 50/50, API 230/230, persisted RAG/session integration 9/9, frontend client/render/calculator 12/12, typechecks and final Web/API builds pass. Fresh source export: 9 deterministic Knowledge files, API 230/230 and relocated runtime 4/4 PASS. These tests do not prove browser keyboard/mobile behavior or actual Supabase OAuth. No public production migration or deployment occurred. PDF/image/OCR, vectors and broad source review remain outstanding; no full completion claim.
+
 - [ ] ทุก feature/issue criterion มี working code และ evidence
 - [ ] Unit/integration/contract/E2E/security checks ผ่าน
 - [ ] Production Web/API builds ผ่าน

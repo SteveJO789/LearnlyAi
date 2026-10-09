@@ -8,6 +8,12 @@
 export type Dictionary = Record<string, string>;
 
 export const en: Dictionary = {
+  "chat.preTest": "Take the pre-test to start learning",
+  "chat.stage.DIAGNOSE": "Check understanding",
+  "chat.stage.EXPLAIN": "Learn",
+  "chat.stage.PRACTICE": "Practice",
+  "chat.stage.ASSESS": "Post-test",
+  "chat.stage.REVIEW": "Review",
   // --- Nav (SiteHeader + Account dropdown) ---
   "nav.create": "Create",
   "nav.lessons": "Lessons",
@@ -258,6 +264,12 @@ export const en: Dictionary = {
 };
 
 export const th: Dictionary = {
+  "chat.preTest": "ทำแบบทดสอบก่อนเรียนเพื่อเริ่มบทเรียน",
+  "chat.stage.DIAGNOSE": "ตรวจความเข้าใจ",
+  "chat.stage.EXPLAIN": "เรียนรู้",
+  "chat.stage.PRACTICE": "ฝึกทำ",
+  "chat.stage.ASSESS": "แบบทดสอบหลังเรียน",
+  "chat.stage.REVIEW": "ทบทวน",
   "nav.create": "สร้างบทเรียน",
   "nav.lessons": "บทเรียน",
   "nav.home": "หน้าแรก",

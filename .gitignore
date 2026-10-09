@@ -32,3 +32,4 @@ uploads/
 .cursor/
 .devin/
 .verification-results/
+.web-test-build/
