@@ -171,15 +171,27 @@ function ProfileContent() {
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("ไฟล์รูปภาพต้องมีขนาดไม่เกิน 5MB");
-        return;
-      }
-      const previewUrl = URL.createObjectURL(file);
-      setAvatarFailed(false);
-      setAvatarPreview(previewUrl);
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert("ไฟล์รูปภาพต้องมีขนาดไม่เกิน 5MB");
+      e.target.value = "";
+      return;
     }
+    if (!file.type.startsWith("image/")) {
+      alert("กรุณาเลือกไฟล์รูปภาพ");
+      e.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setAvatarFailed(false);
+        setAvatarPreview(reader.result);
+      }
+    };
+    reader.onerror = () => alert("อ่านไฟล์รูปภาพไม่สำเร็จ กรุณาลองใหม่");
+    reader.readAsDataURL(file);
   };
 
   const validateForm = (): boolean => {
@@ -206,6 +218,7 @@ function ProfileContent() {
     try {
       const saved = await updateCurrentUserProfile({
         displayName: userInfo.name,
+        ...(avatarPreview ? { avatarUrl: avatarPreview } : {}),
       });
 
       const nextUserInfo: UserProfile = {
@@ -215,6 +228,8 @@ function ProfileContent() {
         avatarUrl: saved.avatarUrl,
       };
 
+      setAvatarPreview(null);
+      setAvatarFailed(false);
       setUserInfo(nextUserInfo);
       setInitialUserInfo(nextUserInfo);
       setToastMessage("บันทึกข้อมูลส่วนตัวเรียบร้อยแล้ว!");
@@ -229,6 +244,7 @@ function ProfileContent() {
   const handleCancel = () => {
     setUserInfo(initialUserInfo);
     setAvatarPreview(null);
+    setAvatarFailed(false);
     setErrors({});
   };
 
