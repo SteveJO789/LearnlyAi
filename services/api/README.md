@@ -10,7 +10,7 @@ Module baseline:
 - `ai_orchestrator`, `rag`
 - `shared` สำหรับ config, database, errors และ logging
 
-เริ่ม implementation ด้วย `/health/live`, `/health/ready`, Google OIDC และ mock learning vertical slice ก่อนเชื่อม AI provider จริง
+Current implementation includes health endpoints, standalone learning engine slice and JWT-protected persistent learning-session routes. Supabase Auth manages Google/email login; Express validates its Bearer tokens. `/health/ready` is currently API-only, not a DB probe.
 
 Frontend และ Backend ใช้ TypeScript ร่วมกัน แต่ต้องสื่อสารผ่าน HTTP/shared contracts ไม่ import business implementation ข้าม service
 
@@ -25,6 +25,7 @@ The standalone Learning Engine slice is implemented at `POST /api/learning/respo
 คัดลอก `.env.example` เป็น `.env` ภายในโฟลเดอร์นี้ แล้วแทนที่ placeholder เฉพาะค่าที่ต้องใช้ `.env` จะไม่ถูก commit เข้า repository
 
 ```bash
+npm ci
 cp .env.example .env
 npm run dev
 ```

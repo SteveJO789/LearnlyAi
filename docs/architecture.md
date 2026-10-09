@@ -1,6 +1,6 @@
 # สถาปัตยกรรมระบบ Learnly AI
 
-เอกสารนี้เป็น Architecture Baseline v2 สำหรับ MVP และเป็น source of truth ร่วมกันของ Frontend, Backend, Data และ AI workstream
+เอกสารนี้เป็น Implementation-aligned Architecture (2026-10-09) สำหรับ MVP และเป็น source of truth ร่วมกันของ Frontend, Backend, Data และ AI workstream
 
 ## 1. Architecture Style
 
@@ -20,8 +20,9 @@
 ```mermaid
 flowchart TB
     Learner["ผู้เรียน"] --> Web["Next.js Web App"]
-    Web -->|"HTTPS + HttpOnly cookie"| API["Express.js Modular Monolith"]
-    API -->|"OAuth 2.0 / OIDC"| Google["Google Identity"]
+    Web -->|"Google OAuth / Email-Password"| Auth["Supabase Auth"]
+    Auth --> Google["Google Identity"]
+    Web -->|"Verified Supabase Bearer token"| API["Express.js Modular Monolith"]
     API --> DB["PostgreSQL + pgvector"]
     API --> Files["File/Object Storage"]
     API --> Provider["AI Provider Adapter"]
@@ -32,7 +33,7 @@ flowchart TB
 
 | Module | หน้าที่ | ห้ามรับผิดชอบ |
 |---|---|---|
-| `auth` | OIDC callback, app session, current user, logout | ไม่เก็บ password และไม่ให้ frontend verify identity เอง |
+| `auth` | Verify Supabase JWT and attach user context for protected API | ไม่เก็บ password และไม่ให้ frontend verify identity เอง |
 | `users` | Profile และ user identity ภายในระบบ | ไม่จัดการ token ของ AI provider |
 | `learning_sessions` | สร้าง session, state transition, history | ไม่สร้างคำตอบ LLM โดยตรง |
 | `input_processing` | Validate/normalize text, PDF, image/OCR | ไม่ตัดสิน learning stage |
@@ -91,9 +92,7 @@ Human-centred AI policy สำหรับ MVP:
 
 ## 6. Authentication Boundary
 
-Login ใช้ Google OpenID Connect บน OAuth 2.0 Authorization Code Flow แล้วสร้าง **application session ฝั่ง server** รายละเอียดอยู่ใน [authentication.md](authentication.md)
-
-Frontend ไม่รับ Google client secret, ไม่สร้าง user จากข้อมูลที่ยังไม่ verify และไม่เก็บ application token ใน `localStorage`
+**Approved complete (2026-10-09):** Google OAuth/OIDC and email/password login, registration and verification are managed by Supabase Auth. The browser callback at `/auth/callback` syncs the app profile and routes to `/Home`. Express does not implement its own Google callback or application-cookie session. Protected learning-session endpoints validate Supabase Bearer tokens and use JWT-scoped RLS for database access. See [authentication.md](authentication.md).
 
 ## 7. Data and Storage
 
@@ -121,21 +120,21 @@ Frontend ไม่รับ Google client secret, ไม่สร้าง user 
 
 ```mermaid
 flowchart TB
-    Browser["Browser"] --> Web["Next.js container"]
-    Browser --> API["Express.js container"]
-    API --> DB["PostgreSQL + pgvector"]
-    API --> Volume["Development file volume"]
-    API --> External["Google + AI provider"]
+    Browser["Browser"] --> Web["Next.js on Vercel"]
+    Browser --> Auth["Supabase Auth: Google / Email"]
+    Web --> API["Express API on Vercel"]
+    API --> DB["Hosted Supabase PostgreSQL / RLS"]
+    API --> Model["OpenRouter / Mock"]
+    Auth --> DB
 ```
 
-Docker Compose ใช้สำหรับ local development และ demo deployment ส่วน production ต้องเปิด HTTPS และตั้ง cookie `Secure=true`
-
-Backend ใช้ Node.js + Express.js + TypeScript และ Prisma ตามเนื้อหาที่ทีมเรียนในรายวิชา ส่วน AI/RAG อยู่หลัง TypeScript interfaces และ provider adapters หากอนาคตจำเป็นต้องมี runtime อื่นจึงค่อยพิจารณาแยก worker ผ่าน Architecture Decision ใหม่ ซึ่งไม่รวมอยู่ใน MVP นี้
+No Docker or Docker Compose. Local development uses Node.js 24.x via `npm ci` and `npm run dev` in `apps/web` and `services/api`. Set environment variables in Vercel/Supabase; never commit secrets. `/health/ready` currently reports API process readiness only, not DB readiness.
 
 ## 10. Out of Scope for MVP
 
 - Microservices, event bus และ Kubernetes
-- Email/password authentication และ password reset
+- Custom Express-owned OAuth sessions (replaced by Supabase Auth)
+- Password reset UX (not part of confirmed completed login scope)
 - Multi-provider account linking UI
 - Fine-tuning model
 - Real-time collaborative classroom
