@@ -1,0 +1,492 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learnlyai.local/schemas/knowledge.schema.json",
+  "title": "LearnlyAI Curated Knowledge Document",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "schema_version",
+    "status",
+    "subject",
+    "grade_range",
+    "curriculum_track",
+    "curriculum_role",
+    "domain",
+    "topic",
+    "subtopic",
+    "content_type",
+    "difficulty",
+    "title",
+    "language",
+    "prerequisites",
+    "learning_objectives",
+    "source_refs",
+    "review",
+    "retrieval_summary",
+    "version",
+    "sections"
+  ],
+  "properties": {
+    "source_pilot": {"$ref": "https://learnlyai.local/schemas/source-pilot.schema.json"},
+    "curation": {"$ref": "https://learnlyai.local/schemas/curation-provenance.schema.json"},
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:\\.[a-z0-9-]+)+$"
+    },
+    "schema_version": {
+      "const": "1.0"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "in_review",
+        "reviewed",
+        "deprecated"
+      ]
+    },
+    "subject": {
+      "type": "string",
+      "enum": [
+        "mathematics",
+        "physics"
+      ]
+    },
+    "grade_range": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "m4",
+          "m5",
+          "m6",
+          "prerequisite"
+        ]
+      }
+    },
+    "curriculum_track": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "additional",
+        "prerequisite",
+        "mixed"
+      ]
+    },
+    "curriculum_role": {
+      "type": "string",
+      "enum": [
+        "required",
+        "enrichment",
+        "prerequisite",
+        "remediation"
+      ]
+    },
+    "curriculum": {
+      "type": "string",
+      "const": "thai-basic-education-2551-revised-2560"
+    },
+    "domain": {
+      "type": "string",
+      "minLength": 1
+    },
+    "topic": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subtopic": {
+      "type": "string",
+      "minLength": 1
+    },
+    "content_type": {
+      "type": "string",
+      "enum": [
+        "concept",
+        "formula",
+        "worked-example",
+        "misconception",
+        "overview"
+      ]
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "foundational",
+        "core",
+        "advanced"
+      ]
+    },
+    "title": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "th",
+        "en"
+      ],
+      "properties": {
+        "th": {
+          "type": "string",
+          "minLength": 1
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "language": {
+      "type": "string",
+      "enum": [
+        "th",
+        "en",
+        "bilingual"
+      ]
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "learning_objectives": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "formula_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "formulas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "expression",
+          "variables",
+          "conditions"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expression": {
+            "type": "string",
+            "minLength": 1
+          },
+          "variables": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "symbol",
+                "meaning",
+                "unit"
+              ],
+              "properties": {
+                "symbol": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "meaning": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "unit": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "conditions": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "worked_examples": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "problem",
+          "solution",
+          "checked_answer"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "problem": {
+            "type": "string",
+            "minLength": 1
+          },
+          "solution": {
+            "type": "string",
+            "minLength": 1
+          },
+          "checked_answer": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "curriculum_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "authority",
+          "reference"
+        ],
+        "properties": {
+          "authority": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "usage": {
+            "type": "string",
+            "enum": [
+              "alignment_only",
+              "terminology",
+              "validation"
+            ]
+          }
+        }
+      }
+    },
+    "source_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "usage"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string"
+          },
+          "locator": {
+            "type": "string"
+          },
+          "usage": {
+            "type": "string",
+            "enum": [
+              "content_source",
+              "curriculum_alignment_only",
+              "reference_only",
+              "verification"
+            ]
+          }
+        }
+      }
+    },
+    "interactive_resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "provider",
+          "activity",
+          "purpose",
+          "ingestion"
+        ],
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "activity": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "ingestion": {
+            "const": false
+          }
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content_status",
+        "math_physics_reviewed",
+        "language_reviewed"
+      ],
+      "properties": {
+        "content_status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "in_review",
+            "reviewed",
+            "deprecated"
+          ]
+        },
+        "math_physics_reviewed": {
+          "type": "boolean"
+        },
+        "language_reviewed": {
+          "type": "boolean"
+        },
+        "reviewer": {
+          "type": "string"
+        },
+        "reviewed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        }
+      }
+    },
+    "retrieval_summary": {
+      "type": "string",
+      "minLength": 20
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "heading",
+          "slug",
+          "level",
+          "markdown"
+        ],
+        "properties": {
+          "heading": {
+            "type": "string",
+            "minLength": 1
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 1
+          },
+          "level": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 6
+          },
+          "markdown": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {"required": ["source_pilot"], "properties": {"source_pilot": true}},
+      "then": {"properties": {"status": {"const": "draft"}}}
+    },
+    {
+      "if": {
+        "required": [
+          "formula_ids"
+        ],
+        "properties": {
+          "formula_ids": true
+        }
+      },
+      "then": {
+        "required": [
+          "formulas"
+        ],
+        "properties": {
+          "formulas": true
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "content_type"
+        ],
+        "properties": {
+          "content_type": {
+            "const": "formula"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "formulas"
+        ],
+        "properties": {
+          "formulas": true
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "content_type"
+        ],
+        "properties": {
+          "content_type": {
+            "const": "worked-example"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "worked_examples"
+        ],
+        "properties": {
+          "worked_examples": true
+        }
+      }
+    }
+  ]
+}

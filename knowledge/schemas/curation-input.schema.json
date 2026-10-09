@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learnlyai.local/schemas/curation-input.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "concept_id", "authorship", "formula_asset_id", "selections", "student_content", "worked_example"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "concept_id": {"const": "physics.electricity.electric-circuits.ohms-law"},
+    "authorship": {"const": "learnlyai"},
+    "formula_asset_id": {"type": "string", "minLength": 1},
+    "selections": {"type": "array", "minItems": 4, "items": {"$ref": "#/$defs/selection"}},
+    "student_content": {
+      "type": "object", "additionalProperties": false,
+      "required": ["concept", "intuition", "formal_definition", "conditions", "sanity_check", "common_mistakes", "retrieval_summary"],
+      "properties": {
+        "concept": {"$ref": "#/$defs/thai"},
+        "intuition": {"$ref": "#/$defs/thai"},
+        "formal_definition": {"$ref": "#/$defs/thai"},
+        "conditions": {"$ref": "#/$defs/thai"},
+        "sanity_check": {"$ref": "#/$defs/thai"},
+        "common_mistakes": {"$ref": "#/$defs/thai"},
+        "retrieval_summary": {"$ref": "#/$defs/thai"}
+      }
+    },
+    "worked_example": {
+      "type": "object", "additionalProperties": false,
+      "required": ["problem_template_th", "solution_template_th", "equation_asset_ids", "answer"],
+      "properties": {
+        "problem_template_th": {"$ref": "#/$defs/thai"},
+        "solution_template_th": {"$ref": "#/$defs/thai"},
+        "equation_asset_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "answer": {
+          "type": "object", "additionalProperties": false,
+          "required": ["value", "unit", "quantity", "unit_required", "asset_id"],
+          "properties": {
+            "value": {"type": ["number", "null"]},
+            "unit": {"type": "string"},
+            "quantity": {"enum": ["potential_difference", "electric_current", "resistance"]},
+            "unit_required": {"const": true},
+            "asset_id": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "thai": {"type": "string", "minLength": 1, "pattern": "[ก-๙]"},
+    "selection": {
+      "type": "object", "additionalProperties": false,
+      "required": ["selection_id", "kind", "normalized_unit", "source_id", "artifact_id", "source_document", "locator", "asset_ids"],
+      "properties": {
+        "selection_id": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["definition", "equation", "diagram", "worked_example"]},
+        "normalized_unit": {"type": "string", "pattern": "^normalized/[a-z0-9-]+/[a-z0-9-]+/[0-9]+\\.json$"},
+        "source_id": {"type": "string", "minLength": 1},
+        "artifact_id": {"type": "string", "minLength": 1},
+        "source_document": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "locator": {"$ref": "https://learnlyai.local/schemas/verified-assets.schema.json#/$defs/locator"},
+        "asset_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    }
+  }
+}

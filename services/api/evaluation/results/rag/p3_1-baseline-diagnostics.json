@@ -1,0 +1,232 @@
+{
+  "workstream": "P3.1",
+  "originalP3StartedAt": "2026-10-06T03:14:00.227Z",
+  "outputTokenLimit": 2048,
+  "records": [
+    {
+      "id": "R1.1.1",
+      "status": "ACCEPTED",
+      "inputTokens": 2526,
+      "outputTokens": 1471,
+      "finishReason": "stop",
+      "outputCharacters": 2842,
+      "validJson": true,
+      "blockCount": 4
+    },
+    {
+      "id": "R1.2.1",
+      "status": "REJECTED",
+      "inputTokens": 2502,
+      "outputTokens": 960,
+      "finishReason": "stop",
+      "outputCharacters": 2520,
+      "validJson": true,
+      "blockCount": 5
+    },
+    {
+      "id": "R1.3.1",
+      "status": "ACCEPTED",
+      "inputTokens": 2506,
+      "outputTokens": 1023,
+      "finishReason": "stop",
+      "outputCharacters": 2206,
+      "validJson": true,
+      "blockCount": 3
+    },
+    {
+      "id": "R2.1.1",
+      "status": "REJECTED",
+      "blockCount": null
+    },
+    {
+      "id": "R2.2.1",
+      "status": "ACCEPTED",
+      "inputTokens": 2517,
+      "outputTokens": 1462,
+      "finishReason": "stop",
+      "outputCharacters": 1909,
+      "validJson": true,
+      "blockCount": 4
+    },
+    {
+      "id": "R2.3.1",
+      "status": "ACCEPTED",
+      "inputTokens": 2537,
+      "outputTokens": 913,
+      "finishReason": "stop",
+      "outputCharacters": 1652,
+      "validJson": true,
+      "blockCount": 3
+    },
+    {
+      "id": "R3.1.1",
+      "status": "REJECTED",
+      "inputTokens": 2528,
+      "outputTokens": 765,
+      "finishReason": "stop",
+      "outputCharacters": 857,
+      "validJson": true,
+      "blockCount": 1
+    },
+    {
+      "id": "R3.2.1",
+      "status": "ACCEPTED",
+      "inputTokens": 2533,
+      "outputTokens": 1348,
+      "finishReason": "stop",
+      "outputCharacters": 1746,
+      "validJson": true,
+      "blockCount": 3
+    },
+    {
+      "id": "R3.3.1",
+      "status": "ACCEPTED",
+      "inputTokens": 2550,
+      "outputTokens": 1024,
+      "finishReason": "stop",
+      "outputCharacters": 1547,
+      "validJson": true,
+      "blockCount": 3
+    },
+    {
+      "id": "R4.1.1",
+      "status": "ACCEPTED",
+      "inputTokens": 2532,
+      "outputTokens": 1858,
+      "finishReason": "stop",
+      "outputCharacters": 2740,
+      "validJson": true,
+      "blockCount": 4
+    },
+    {
+      "id": "R5.1.1",
+      "status": "ACCEPTED",
+      "inputTokens": 1894,
+      "outputTokens": 631,
+      "finishReason": "stop",
+      "outputCharacters": 2083,
+      "validJson": true,
+      "blockCount": 6
+    },
+    {
+      "id": "R5.2.1",
+      "status": "ACCEPTED",
+      "inputTokens": 1919,
+      "outputTokens": 854,
+      "finishReason": "stop",
+      "outputCharacters": 1752,
+      "validJson": true,
+      "blockCount": 3
+    },
+    {
+      "id": "R5.3.1",
+      "status": "ACCEPTED",
+      "inputTokens": 1914,
+      "outputTokens": 949,
+      "finishReason": "stop",
+      "outputCharacters": 2271,
+      "validJson": true,
+      "blockCount": 4
+    },
+    {
+      "id": "R6.1.1",
+      "status": "REJECTED",
+      "inputTokens": 2538,
+      "outputTokens": 2048,
+      "finishReason": "length",
+      "outputCharacters": 2747,
+      "validJson": false,
+      "blockCount": null
+    },
+    {
+      "id": "R7.1.1",
+      "status": "ACCEPTED",
+      "inputTokens": 2504,
+      "outputTokens": 1985,
+      "finishReason": "stop",
+      "outputCharacters": 2480,
+      "validJson": true,
+      "blockCount": 3
+    },
+    {
+      "id": "M1.1.1",
+      "status": "ACCEPTED",
+      "inputTokens": 2503,
+      "outputTokens": 1980,
+      "finishReason": "stop",
+      "outputCharacters": 3429,
+      "validJson": true,
+      "blockCount": 4
+    },
+    {
+      "id": "M1.1.2",
+      "status": "REJECTED",
+      "inputTokens": 2910,
+      "outputTokens": 2048,
+      "finishReason": "length",
+      "outputCharacters": 2999,
+      "validJson": false,
+      "blockCount": null
+    },
+    {
+      "id": "M2.1.1",
+      "status": "ACCEPTED",
+      "inputTokens": 2504,
+      "outputTokens": 1930,
+      "finishReason": "stop",
+      "outputCharacters": 2732,
+      "validJson": true,
+      "blockCount": 5
+    },
+    {
+      "id": "M2.1.2",
+      "status": "ACCEPTED",
+      "inputTokens": 2954,
+      "outputTokens": 868,
+      "finishReason": "stop",
+      "outputCharacters": 1479,
+      "validJson": true,
+      "blockCount": 3
+    },
+    {
+      "id": "S1.1.1",
+      "status": "ACCEPTED",
+      "inputTokens": 2609,
+      "outputTokens": 1630,
+      "finishReason": "stop",
+      "outputCharacters": 3087,
+      "validJson": true,
+      "blockCount": 4
+    },
+    {
+      "id": "S1.2.1",
+      "status": "ACCEPTED",
+      "inputTokens": 2607,
+      "outputTokens": 1725,
+      "finishReason": "stop",
+      "outputCharacters": 3201,
+      "validJson": true,
+      "blockCount": 4
+    },
+    {
+      "id": "S1.3.1",
+      "status": "ACCEPTED",
+      "inputTokens": 2583,
+      "outputTokens": 1488,
+      "finishReason": "stop",
+      "outputCharacters": 2059,
+      "validJson": true,
+      "blockCount": 3
+    },
+    {
+      "id": "U1.1.1",
+      "status": "REJECTED",
+      "inputTokens": 2511,
+      "outputTokens": 2048,
+      "finishReason": "length",
+      "outputCharacters": 3221,
+      "validJson": false,
+      "blockCount": null
+    }
+  ]
+}

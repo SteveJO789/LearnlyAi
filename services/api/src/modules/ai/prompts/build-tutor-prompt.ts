@@ -26,6 +26,7 @@ export function buildTutorPrompt(context: TutorContext): ModelRequest {
         content: `${TUTOR_SYSTEM_PROMPT}\n\n${STAGE_PROMPTS[context.stage]}\n\nTutor Output schema:\n${JSON.stringify(getTutorOutputSchema())}`,
       },
       ...previousMessages,
+      // JSON keeps source text/metadata in task data; never interpolate it into the system message.
       { role: "user", content: JSON.stringify(task) },
     ],
     temperature: 0.2,

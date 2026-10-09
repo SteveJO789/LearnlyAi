@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "review_id": "935f7ea0f56483ecc0f6d8396cea1bd68b0c80fb52e8a3f9b30e0a2f61bca2d5",
+  "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+  "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+  "artifact_sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+  "normalized_unit": "normalized/siyavula-physical-sciences-g10-g12-ccby/siyavula-physical-sciences-g11-en-ccby-3d893a4364f5/00740.json",
+  "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+  "chapter": "Chapter 11: Electric circuits",
+  "section": "11.2 Ohm's Law",
+  "asset_locator": "OPS/xhtml/science11/equation/dd7536794b63bf90eccfd37f9b147d7f.png",
+  "asset_kind": "math_image",
+  "latex": "I",
+  "plain_text": "I = กระแส (A)",
+  "review_status": "verified",
+  "reviewer": "Steve",
+  "reviewed_at": "2026-10-01T10:03:53.652Z"
+}

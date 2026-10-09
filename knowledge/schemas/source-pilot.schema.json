@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learnlyai.local/schemas/source-pilot.schema.json",
+  "title": "Text-only source pilot draft evidence (not review approval)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "authorship", "example_origin", "equation_image_policy", "curriculum_mapping", "evidence"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "authorship": {"const": "learnlyai"},
+    "example_origin": {"const": "independently_authored_not_source_transcription"},
+    "equation_image_policy": {"const": "excluded_pending_human_verification"},
+    "curriculum_mapping": {"enum": ["prerequisite_candidate_pending_alignment", "ipst_m4_introductory_logic_candidate"]},
+    "evidence": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["normalized_unit", "normalized_sha256", "source_id", "artifact_id", "artifact_sha256", "source_document", "chapter", "section", "excerpt"],
+        "properties": {
+          "normalized_unit": {"type": "string", "pattern": "^normalized/[a-z0-9-]+/[a-z0-9-]+/[0-9]+\\.json$"},
+          "normalized_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "source_id": {"type": "string", "minLength": 1},
+          "artifact_id": {"type": "string", "minLength": 1},
+          "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "source_document": {"type": "string", "minLength": 1},
+          "chapter": {"type": "string", "minLength": 1},
+          "section": {"type": "string", "minLength": 1},
+          "excerpt": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "review_id": "26e2cb969b81403be090de55cc3c25ccb70c9592d80a3c49cb0a96d6b9e8b35d",
+  "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+  "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+  "artifact_sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+  "normalized_unit": "normalized/siyavula-physical-sciences-g10-g12-ccby/siyavula-physical-sciences-g11-en-ccby-3d893a4364f5/00757.json",
+  "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+  "chapter": "Chapter 11: Electric circuits",
+  "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law > Solve the problem",
+  "asset_locator": "OPS/xhtml/science11/equation/f4fc9c4b2019001565f443a461414bc2.png",
+  "asset_kind": "math_image",
+  "latex": "R = \\frac{V}{I} , RI = \\frac{V}{I} I , V = IR, R = 10\\,\\Omega , I = 4\\,\\mathrm{A} , V = 40\\,\\mathrm{V}",
+  "plain_text": "ยกตัวอย่างการแทนค่าในสมการ R = V/I จากนั้นคูณ I ทั้งสองด้านจึงได้ V = IR แทนค่า R = 10 Ω และ I = 4 A จึงคำนวณได้ 40 V",
+  "review_status": "verified",
+  "reviewer": "Steve",
+  "reviewed_at": "2026-10-01T10:28:56.338Z"
+}

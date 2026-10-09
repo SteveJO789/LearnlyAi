@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learnlyai.local/schemas/normalized-unit.schema.json",
+  "title": "LearnlyAI Normalized Source Unit",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source_id",
+    "artifact_id",
+    "locator",
+    "title",
+    "content",
+    "math",
+    "language",
+    "content_format",
+    "provenance"
+  ],
+  "properties": {
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "archive_path", "alt"],
+        "properties": {
+          "kind": {"enum": ["image", "math_image"]},
+          "archive_path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"},
+          "alt": {"type": "string"}
+        }
+      }
+    },
+    "normalization_warnings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"enum": ["image_math_requires_review", "image_requires_review", "complex_table_requires_review", "latex_macros_requires_review"]}
+    },
+    "source_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "artifact_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chapter",
+        "section"
+      ],
+      "properties": {
+        "offset_start": {"type": "integer", "minimum": 0},
+        "offset_end": {"type": "integer", "minimum": 1},
+        "chapter": {
+          "type": "string",
+          "minLength": 1
+        },
+        "section": {
+          "type": "string",
+          "minLength": 1
+        },
+        "document": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "content": {
+      "type": "string",
+      "minLength": 1
+    },
+    "math": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "language": {
+      "const": "en"
+    },
+    "content_format": {
+      "type": "string",
+      "enum": [
+        "markdown",
+        "latex"
+      ]
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_sha256",
+        "raw_path",
+        "source_url",
+        "license_status",
+        "parser_version"
+      ],
+      "properties": {
+        "artifact_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "raw_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "license_status": {
+          "type": "string",
+          "enum": [
+            "allowed",
+            "internally_authored"
+          ]
+        },
+        "parser_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        }
+      }
+    }
+  }
+}

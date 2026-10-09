@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learnlyai.local/schemas/curation-provenance.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["concept_id", "authorship", "input_sha256", "formula_asset_id", "selections", "asset_snapshots", "answer"],
+  "properties": {
+    "concept_id": {"const": "physics.electricity.electric-circuits.ohms-law"},
+    "authorship": {"const": "learnlyai"},
+    "input_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "formula_asset_id": {"type": "string", "minLength": 1},
+    "selections": {"type": "array", "minItems": 4, "items": {"$ref": "https://learnlyai.local/schemas/curation-input.schema.json#/$defs/selection"}},
+    "asset_snapshots": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["asset_id", "sha256"],
+        "properties": {
+          "asset_id": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+        }
+      }
+    },
+    "answer": {"$ref": "https://learnlyai.local/schemas/curation-input.schema.json#/properties/worked_example/properties/answer"}
+  }
+}
