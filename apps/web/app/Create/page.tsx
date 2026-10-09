@@ -66,7 +66,7 @@ export default function CreatePage() {
         links={[
           { labelKey: "nav.account", href: "/Account/Profile" },
           { labelKey: "nav.home", href: "/Home" },
-          { labelKey: "nav.create", href: "/Create" },
+          { labelKey: "nav.create", href: "/Create#learning-input" },
         ]}
       />
 
@@ -88,7 +88,7 @@ export default function CreatePage() {
   <p className="mt-3 text-muted">{t("create.subtitle")}</p>
 </div>
 
-        <div className="mt-10 max-w-xl mx-auto flex flex-col items-center gap-5">
+        <div id="learning-input" className="mt-10 max-w-xl mx-auto flex scroll-mt-8 flex-col items-center gap-5">
           <div className="w-full">
             <p className="mb-1.5 text-xs font-semibold text-muted">{t("create.textAreaLabel")}</p>
             <textarea
@@ -144,7 +144,7 @@ export default function CreatePage() {
             type="button"
             onClick={handleStart}
             disabled={!canStart || isStarting}
-            className="w-full rounded-full bg-primary py-3.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40 transition-all cursor-pointer"
+            className={`w-full rounded-full bg-primary py-3.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40 transition-all cursor-pointer ${canStart && !isStarting ? "motion-safe:animate-bounce shadow-lg shadow-primary/25 ring-2 ring-primary/20" : ""}`}
           >
             {isStarting ? t("create.starting") : t("create.start")}
           </button>
