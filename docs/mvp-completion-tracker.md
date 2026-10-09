@@ -92,3 +92,11 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - CLI default origin `db` ยังชี้ baseline เก่า d7a4d82; first generated plan จึง fork/มี placeholders — เก็บ draft ผิดไว้ใน ignored evidence แล้ว regenerate ด้วย `--from c7b3938` ไม่ apply draft
 - Release gate: inspect actual production migration history/marker before applying any package; ห้าม replay legacy destructive data cleanup อัตโนมัติ
 - งานถัดไป: Assessment question snapshot/scoring/owned persistence และ Learning Profile APIs/UI (#13/#16)
+
+### Assessment implementation เริ่มแล้ว (ยังไม่ complete)
+
+- สร้าง deterministic exercises สำหรับ linear equations และ Ohm calculations ด้วย original templates; ไม่อ้างว่าเป็น reviewed Knowledge
+- Question seed ผูกกับ assessment ID/topic/phase; pre/post snapshot ทำซ้ำได้และคะแนนไม่ใช้ LLM
+- Validate finite numeric answers, issued question IDs, duplicate/missing answers และ reject client score metadata; public question DTO ไม่มี grading rule/answer key
+- Scoring tests 3/3 + API typecheck ผ่าน; ยังต้องทำ snapshot persistence, owned submission transaction, server-owned score protection, Learning Profile endpoints และ UI
+- Local milestone mapping: 8699721→remote6ba99c6, 7bf96bf→remote96e79e4, 6b0ddc5→remote3aab5fb; trees ตรงกันทุก milestone
