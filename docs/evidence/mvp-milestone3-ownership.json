@@ -1,0 +1,20 @@
+{
+  "verificationDate": "2026-10-09",
+  "contractStorageHash": "909232ef628ba8386f0750907474dc43f24d85090276eb3ea0f292b2672000ef",
+  "migration": "20261009T1032_session_ownership_contract",
+  "migrationOrigin": "c7b3938544e5e74ca8b9f22476cc7dbb3d987938d552a6e2214b5edd941b8665",
+  "artifactIntegrity": "All checks passed",
+  "apiTests": { "passed": 220, "failed": 0 },
+  "databaseVerification": {
+    "method": "Generated new migration operations on empty cloned tables in an isolated schema, synthetic JWT claims and rollback",
+    "ownerReadWrite": "PASS",
+    "crossUserSessionAndMessageRead": "PASS",
+    "crossUserUpdateAndInsert": "PASS",
+    "ownerReassignment": "PASS",
+    "schemaRemovedAfterRollback": true,
+    "publicTablesAltered": false,
+    "existingLearnerRowsReadOrWritten": false,
+    "fullHistoricalMigrationReplay": "NOT RUN",
+    "productionPublicMigrationApplied": false
+  }
+}

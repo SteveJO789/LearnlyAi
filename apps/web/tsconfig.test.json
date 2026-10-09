@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "incremental": false,
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "outDir": ".web-test-build",
+    "rootDir": ".",
+    "plugins": []
+  },
+  "include": [
+    "next-env.d.ts",
+    "app/components/assessment-view.tsx",
+    "app/components/learning-summary.tsx",
+    "app/Chat/[sessionId]/blocks.tsx",
+    "lib/assessments.ts"
+  ],
+  "exclude": ["node_modules", ".next", ".web-test-build"]
+}

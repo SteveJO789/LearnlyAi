@@ -80,17 +80,21 @@ export class DefaultLearningEngine implements LearningEngine {
     outputStage: TutorContext["outputStage"],
   ): Promise<TutorContext> {
     const { persistence, materials, knowledgeRetriever } = this.dependencies;
+    const messages = await persistence.messages.findBySessionId(session.id);
     const retrieve = async () => {
       try {
-        const references = await knowledgeRetriever?.retrieve({ studentInput: request.userInput, subject: session.subject }) ?? [];
+        const references = await knowledgeRetriever?.retrieve({
+          studentInput: request.userInput, subject: session.subject,
+          previousStudentInputs: messages.filter(message => message.role === "USER")
+            .slice(-4).map(message => message.content as string),
+        }) ?? [];
         return knowledgeSourceMaterials(references);
       } catch {
         // Artifact/adapter failures are not provider failures and must not end the session.
         throw new LearningError("KNOWLEDGE_UNAVAILABLE");
       }
     };
-    const [messages, sessionMaterials, knowledgeMaterials] = await Promise.all([
-      persistence.messages.findBySessionId(session.id),
+    const [sessionMaterials, knowledgeMaterials] = await Promise.all([
       materials?.findBySessionId(session.id) ?? Promise.resolve([]),
       retrieve(),
     ]);

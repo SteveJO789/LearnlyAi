@@ -130,6 +130,9 @@ model Assessment {
   id                String           @id @default(uuid())
   learningSessionId String
   phase             AssessmentPhase
+  topic             String?
+  snapshot          Json?
+  submissionHash    String?
   score             Int?
   maxScore          Int?
   submittedAt       TimestamptzString?
@@ -158,6 +161,7 @@ model AssessmentAnswer {
     references: [id]
   )
 
+  @@unique([assessmentId, questionId])
   @@rls
 }
 
@@ -267,4 +271,83 @@ policy_update user_update_own {
   roles = [authenticated]
   using = "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
   withCheck = "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
+}
+
+policy_insert learning_session_insert_own {
+  target = LearningSession
+  roles = [authenticated]
+  withCheck = "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+}
+
+policy_update learning_session_update_own {
+  target = LearningSession
+  roles = [authenticated]
+  using = "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+  withCheck = "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+}
+
+policy_insert message_insert_own {
+  target = Message
+  roles = [authenticated]
+  withCheck = "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+}
+
+policy_insert session_api_insert_guard {
+  target = LearningSession
+  roles = [authenticated]
+  permissive = false
+  withCheck = "(current_setting('learnly.api_write', true) = '1')"
+}
+
+policy_update session_api_update_guard {
+  target = LearningSession
+  roles = [authenticated]
+  permissive = false
+  using = "true"
+  withCheck = "(current_setting('learnly.api_write', true) = '1')"
+}
+
+policy_insert message_api_insert_guard {
+  target = Message
+  roles = [authenticated]
+  permissive = false
+  withCheck = "(current_setting('learnly.api_write', true) = '1')"
+}
+
+policy_insert assessment_insert_api_own {
+  target = Assessment
+  roles = [authenticated]
+  withCheck = "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"Assessment\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+}
+
+policy_update assessment_update_api_own {
+  target = Assessment
+  roles = [authenticated]
+  using = "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"Assessment\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+  withCheck = "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"Assessment\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+}
+
+policy_insert assessment_answer_insert_api_own {
+  target = AssessmentAnswer
+  roles = [authenticated]
+  withCheck = "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"Assessment\" a JOIN \"LearningSession\" s ON s.id = a.\"learningSessionId\" JOIN \"User\" u ON u.id = s.\"userId\" WHERE a.id = \"AssessmentAnswer\".\"assessmentId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+}
+
+policy_insert learning_profile_insert_api_own {
+  target = LearningProfile
+  roles = [authenticated]
+  withCheck = "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"User\" u WHERE u.id = \"LearningProfile\".\"userId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+}
+
+policy_update learning_profile_update_api_own {
+  target = LearningProfile
+  roles = [authenticated]
+  using = "(EXISTS (SELECT 1 FROM \"User\" u WHERE u.id = \"LearningProfile\".\"userId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+  withCheck = "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"User\" u WHERE u.id = \"LearningProfile\".\"userId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+}
+
+policy_insert source_material_insert_api_own {
+  target = SourceMaterial
+  roles = [authenticated]
+  withCheck = "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
 }

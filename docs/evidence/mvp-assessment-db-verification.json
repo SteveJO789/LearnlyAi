@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-09",
+  "category": "REAL_POSTGRESQL_API_PRISMA_RLS_FIXTURE",
+  "schema": "learnly_verify_4e79a05c832b",
+  "userAuthorizedPersistentFixtureAndCleanup": true,
+  "checks": [
+    "PRE score/answer persistence and exact retry idempotency: PASS (2/3)",
+    "Concurrent POST submissions preserve both topic mastery samples: PASS",
+    "PRE/POST comparisons: PASS (67%, 0%, delta -67)",
+    "Second signed learner cannot access another learner assessment/profile: PASS",
+    "Unmarked own score/progress/mastery writes denied and context resets: PASS",
+    "Answer uniqueness failure rolls back score/answers/profile atomically: PASS"
+  ],
+  "cleanupVerified": { "fixture_removed": true },
+  "limitations": [
+    "Signed test identities/injected Auth transport; not real Supabase login/OAuth",
+    "Empty cloned tables plus generated new migration operations; not full historical migration replay",
+    "No public production table changes, no deployment smoke test, no paid model calls"
+  ]
+}

@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import SiteHeader from "../components/SiteHeader";
 import { useLanguage } from "../lib/i18n/LanguageContext";
-import { createLearningSession } from "../../lib/learning-sessions";
+import { createLearningSession, createTextMaterial } from "../../lib/learning-sessions";
 import { getCurrentUserProfile, type AppUserProfile } from "../../lib/user-profile";
 
 export default function CreatePage() {
@@ -47,9 +47,8 @@ export default function CreatePage() {
       const session = await createLearningSession({
         title: input.replace(/\s+/g, " ").slice(0, 120),
       });
-
-      const params = new URLSearchParams({ input });
-      router.push(`/Chat/${session.id}?${params.toString()}`);
+      await createTextMaterial(session.id, input);
+      router.push(`/Assessment/${session.id}?phase=PRE`);
     } catch (startError) {
       setError(
         startError instanceof Error

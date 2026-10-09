@@ -35,12 +35,40 @@ for (const input of [
   });
 }
 
-for (const input of ["Explain photosynthesis", "current project status", "antibiotic resistance", " \n\t ", "trivia=iron"]) {
+for (const input of ["Explain photosynthesis", "current project status", "antibiotic resistance", " \n\t ", "trivia=iron",
+  "Explain AC voltage in a transformer.", "How does a battery maintain voltage?", "What is voltage?", "Explain current in an induction coil"]) {
   test(`no fallback for unrelated/empty input ${JSON.stringify(input)}`, async (t) => {
     const { retriever } = harness(t);
     assert.deepEqual(await retriever.retrieve({ studentInput: input }), []);
   });
 }
+
+test("short follow-up re-reads the current reviewed source without trusting historical citation metadata", async (t) => {
+  const { retriever, document, write } = harness(t);
+  const query = { studentInput: "What if resistance doubles?", previousStudentInputs: ["Explain Ohm's law."] };
+  const found = await retriever.retrieve(query);
+  assert.equal(found.length, 1);
+  assert.equal(found[0].conceptVersion, "0.2.0");
+  document.review.content_status = "draft";
+  write(artifactPath, document);
+  assert.deepEqual(await retriever.retrieve(query), []);
+});
+
+test("topic switches/acknowledgements cannot inherit old Ohm context", async (t) => {
+  const { retriever } = harness(t);
+  for (const studentInput of ["Thanks.", "ขอบคุณ", "Explain photosynthesis", "What about a transformer?", "current project status"]) {
+    assert.deepEqual(await retriever.retrieve({ studentInput, previousStudentInputs: ["Ohm's law"] }), []);
+  }
+  assert.deepEqual(await retriever.retrieve({ studentInput: "I don't understand", previousStudentInputs: ["Ohm's law", "Explain photosynthesis"] }), []);
+  assert.deepEqual(await retriever.retrieve({ studentInput: "What if resistance doubles?" }), []);
+});
+
+test("retrieval history is bounded before artifact IO", async () => {
+  const retriever = new LocalKnowledgeRetriever({ readPilot: async () => assert.fail("must not read") });
+  for (const previousStudentInputs of [["a", "b", "c", "d", "e"], ["x".repeat(8001)], [42]]) {
+    await assert.rejects(retriever.retrieve({ studentInput: "Ohm's law", previousStudentInputs }), RangeError);
+  }
+});
 
 test("subject and reference-language filters are explicit; English query does not translate Thai reference", async (t) => {
   const { retriever } = harness(t);

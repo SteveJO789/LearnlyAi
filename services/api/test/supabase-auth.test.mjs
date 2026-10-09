@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
 
-import { requireSupabaseUser } from "../dist/modules/auth/supabase-auth.js";
+import { requireSupabaseUser, createSupabaseAuthenticator } from "../dist/modules/auth/supabase-auth.js";
 
 const originalFetch = globalThis.fetch;
 const originalUrl = process.env.SUPABASE_URL;
@@ -15,6 +15,40 @@ afterEach(() => {
 
   if (originalKey === undefined) delete process.env.SUPABASE_PUBLISHABLE_KEY;
   else process.env.SUPABASE_PUBLISHABLE_KEY = originalKey;
+});
+
+test("auth outage/rate limit are controlled 503 rather than invalid-login 401", async () => {
+  process.env.SUPABASE_URL = "https://example.supabase.co";
+  process.env.SUPABASE_PUBLISHABLE_KEY = "publishable-test-key";
+  for (const status of [429, 500, 503]) {
+    const authenticate = createSupabaseAuthenticator({ fetch: async () => new Response("sensitive error", { status }) });
+    const request = makeRequest("Bearer token-secret");
+    const response = makeResponse();
+    await authenticate(request, response, () => assert.fail("auth must fail closed"));
+    assert.equal(response.statusCode, 503);
+    assert.equal(response.body.error.code, "AUTH_UNAVAILABLE");
+    assert.doesNotMatch(JSON.stringify(response.body), /token-secret|sensitive error/);
+  }
+});
+
+test("auth request has a bounded abort deadline and no credential-bearing failure", async () => {
+  process.env.SUPABASE_URL = "https://example.supabase.co";
+  process.env.SUPABASE_PUBLISHABLE_KEY = "publishable-test-key";
+  const authenticate = createSupabaseAuthenticator({ timeoutMs: 15, fetch: async (_url, init) => {
+    assert.ok(init.signal instanceof AbortSignal);
+    return new Promise((_resolve, reject) => {
+      const keepAlive = setTimeout(() => reject(new Error("timeout did not abort")), 1000);
+      init.signal.addEventListener("abort", () => {
+        clearTimeout(keepAlive);
+        reject(new Error("token-secret cookie-secret email@example.com"));
+      }, { once: true });
+    });
+  } });
+  const response = makeResponse();
+  await authenticate(makeRequest("Bearer token-secret"), response, () => assert.fail("must fail closed"));
+  assert.equal(response.statusCode, 503);
+  assert.equal(response.body.error.code, "AUTH_UNAVAILABLE");
+  assert.doesNotMatch(JSON.stringify(response.body), /token-secret|cookie-secret|email@example.com/);
 });
 
 function makeRequest(authorization) {
