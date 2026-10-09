@@ -1,0 +1,218 @@
+{
+  "startedAt": "2026-10-09T09:54:01.188Z",
+  "commit": "e2ddfdd7788a5d20d66b496ee2917771b6ea3021",
+  "node": "v24.21.0",
+  "results": [
+    {
+      "name": "knowledge-typecheck",
+      "cwd": "knowledge",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json",
+        "--noEmit"
+      ],
+      "exitCode": 0,
+      "seconds": 0.376,
+      "evidence": []
+    },
+    {
+      "name": "knowledge-build",
+      "cwd": "knowledge",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json"
+      ],
+      "exitCode": 0,
+      "seconds": 0.309,
+      "evidence": []
+    },
+    {
+      "name": "knowledge-tests",
+      "cwd": "knowledge",
+      "args": [
+        "--test",
+        "--test-isolation=none",
+        "test/*.test.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 22.189,
+      "evidence": [
+        "✔ invalid grade and curriculum role values fail schema validation (5.7869ms)",
+        "✔ incomplete formula and worked-example objects fail validation (9.2545ms)",
+        "✔ pilot cannot bypass human workflow by forcing reviewed even with explicit reviewer metadata (697.7293ms)",
+        "✔ missing EPUB image assets fail normalization (7.8509ms)",
+        "✔ raw modification and normalized records without provenance fail validation (559.9069ms)",
+        "ℹ tests 50",
+        "ℹ pass 50",
+        "ℹ fail 0"
+      ]
+    },
+    {
+      "name": "runtime-prepare",
+      "cwd": "knowledge",
+      "args": [
+        "scripts/prepare-runtime.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.518,
+      "evidence": [
+        "Prepared validated reviewed Ohm's Law 0.2.0: 9 files, 34346 bytes."
+      ]
+    },
+    {
+      "name": "api-typecheck",
+      "cwd": "services/api",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json",
+        "--noEmit"
+      ],
+      "exitCode": 0,
+      "seconds": 0.494,
+      "evidence": []
+    },
+    {
+      "name": "api-build",
+      "cwd": "services/api",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json"
+      ],
+      "exitCode": 0,
+      "seconds": 0.508,
+      "evidence": []
+    },
+    {
+      "name": "api-contract-copy",
+      "cwd": "services/api",
+      "args": [
+        "scripts/copy-contract.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.091,
+      "evidence": []
+    },
+    {
+      "name": "api-tests",
+      "cwd": "services/api",
+      "args": [
+        "--test",
+        "test/*.test.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 8.904,
+      "evidence": [
+        "✔ OpenRouterModelProvider does not retry non-transient client errors (3.3898ms)",
+        "✔ OpenRouterModelProvider converts a transport timeout without real delays (1.0937ms)",
+        "✔ OpenRouterModelProvider retries a local transport timeout (1.3159ms)",
+        "✔ factory selects Mock without validating irrelevant OpenRouter configuration (0.5192ms)",
+        "✔ factory selects OpenRouter and injects its fetch dependency (0.3836ms)",
+        "✔ configuration rejects missing OpenRouter API key (0.4818ms)",
+        "✔ configuration rejects missing OpenRouter model (0.2675ms)",
+        "✔ a citation from history cannot bypass the current-turn source allowlist (168.8014ms)",
+        "✔ OpenRouter transport remains generic with retrieved context and grounded structured output (158.4011ms)",
+        "✔ OpenRouter empty length output retains safe truncation diagnostics without retry or raw body (187.252ms)",
+        "✔ all supported block discriminators pass validation (1.6777ms)",
+        "✔ blank required content and duplicate references fail (1.4897ms)",
+        "ℹ tests 208",
+        "ℹ pass 208",
+        "ℹ fail 0"
+      ]
+    },
+    {
+      "name": "persistent-rag-integration",
+      "cwd": "services/api",
+      "args": [
+        "--experimental-test-module-mocks",
+        "--test",
+        "test/persisted-rag.integration.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.865,
+      "evidence": [
+        "ℹ tests 8",
+        "ℹ pass 8",
+        "ℹ fail 0"
+      ]
+    },
+    {
+      "name": "rag-offline-evaluation",
+      "cwd": "services/api",
+      "args": [
+        "evaluation/rag/run-offline.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.938,
+      "evidence": []
+    },
+    {
+      "name": "web-typecheck",
+      "cwd": "apps/web",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "exitCode": 0,
+      "seconds": 0.479,
+      "evidence": []
+    },
+    {
+      "name": "web-tests",
+      "cwd": "apps/web",
+      "args": [
+        "--test"
+      ],
+      "exitCode": 0,
+      "seconds": 0.097,
+      "evidence": [
+        "ℹ tests 0",
+        "ℹ pass 0",
+        "ℹ fail 0"
+      ]
+    },
+    {
+      "name": "web-production-build",
+      "cwd": "apps/web",
+      "args": [
+        "node_modules/next/dist/bin/next",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 68.283,
+      "evidence": [
+        "Route (app)"
+      ]
+    },
+    {
+      "name": "fresh-runtime",
+      "cwd": "services/api",
+      "args": [
+        "scripts/verify-fresh-runtime.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 386.96,
+      "evidence": [
+        "Prepared validated reviewed Ohm's Law 0.2.0: 9 files, 34346 bytes.",
+        "Deterministic: 9 files; identical paths, lengths, SHA-256 and bytes.",
+        "✔ oversized or incomplete teaching passages fail instead of truncating formulas/examples (230.0487ms)",
+        "✔ schema violations fail closed (171.6237ms)",
+        "✔ oversized/non-string queries fail before artifact IO (0.6691ms)",
+        "✔ a citation from history cannot bypass the current-turn source allowlist (177.5326ms)",
+        "✔ all supported block discriminators pass validation (1.7354ms)",
+        "✔ blank required content and duplicate references fail (1.8081ms)",
+        "ℹ tests 208",
+        "ℹ pass 208",
+        "ℹ fail 0",
+        "ℹ tests 4",
+        "ℹ pass 4",
+        "ℹ fail 0",
+        "Fresh source-only export + relocated deployment runtime: PASS (no primary evidence paths or links)."
+      ]
+    }
+  ],
+  "finishedAt": "2026-10-09T10:02:12.298Z"
+}

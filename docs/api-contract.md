@@ -128,7 +128,7 @@ File/PDF/image materials and assessment submission endpoints remain planned work
 
 ## Learning Engine Development Slice
 
-`POST /learning/respond` is implemented at `/api/v1/learning/respond`, with an alias at `/api/learning/respond`. This standalone development slice uses in-memory persistence and currently does not require authentication. It does not replace the planned authenticated learning-session interaction endpoints.
+`POST /learning/respond` is a local development slice at `/api/v1/learning/respond`, with an alias at `/api/learning/respond`. It is disabled by default. Local developers may explicitly enable it with `APP_ENV=development` and `LEARNING_DEV_ROUTE_ENABLED=true`; it is always disabled when `NODE_ENV=production` or `VERCEL` is set. Both paths then return `404 NOT_FOUND` before provider execution. The MVP uses authenticated persistent learning-session interaction endpoints.
 
 Request:
 
@@ -164,7 +164,9 @@ See [Learning Engine Core](learning-engine-core.md) for the complete sample resp
 | Method | Endpoint | Purpose |
 |---|---|---|
 | GET | `/health/live` | Process ทำงานอยู่ ไม่ตรวจ external dependency |
-| GET | `/health/ready` | Current implementation checks API only, not database/dependencies |
+| GET | `/health/ready` | Database connectivity, reviewed runtime Knowledge and Auth configuration; 200 ready / 503 not_ready |
+
+Readiness returns `data.status` and `data.checks` containing `api`, `database`, `knowledge`, `authConfiguration` with `ok`/`failed` values. Probes have a 3-second deadline. Database connectivity uses `SELECT 1` on the configured application connection and reads no learner records; it does not prove RLS, schema compatibility or migration correctness. Auth configuration does not prove OAuth login or Auth service availability. No paid provider call is made. Liveness remains independent of all these dependencies.
 
 ## Status Codes
 

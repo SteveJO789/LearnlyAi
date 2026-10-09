@@ -12,6 +12,7 @@ import { createLearningEngine } from "./create-learning-engine.js";
 import { LearningError } from "./learning-errors.js";
 import { PrismaLearningPersistence } from "./prisma-learning-persistence.js";
 import { readPersistedMessages, type PersistedMessage } from "./persisted-messages.js";
+import { logSessionLoadFailure } from "../../shared/safe-diagnostics.js";
 
 type SessionRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["LearningSession"]["first"]>>>;
 
@@ -68,7 +69,6 @@ async function ensureAppUser(client: UserDb, user: AuthenticatedUser): Promise<v
     await client.orm.public.User.where({ id: user.id }).update({
       authUserId: user.id,
       email: user.email,
-      avatarUrl: user.avatarUrl,
       updatedAt: new Date().toISOString(),
     });
     return;
@@ -218,15 +218,7 @@ export function createLearningSessionsRouter(
     } catch (error) {
       // Never include JWTs, request bodies or SQL parameters in logs or responses.
       // The request ID and phase isolate failures in session/message restoration.
-      console.error("[learning-session-detail] failed", {
-        requestId: response.locals.requestId,
-        phase,
-        errorName: error instanceof Error ? error.name : typeof error,
-        errorCode: error && typeof error === "object" && "code" in error
-          ? String(error.code)
-          : undefined,
-        errorMessage: error instanceof Error ? error.message.slice(0, 350) : undefined,
-      });
+      logSessionLoadFailure(response.locals.requestId, phase);
       // The phase is a fixed enum with no query, token or user data.
       // Return only the phase for this detail endpoint so Preview E2E can
       // diagnose failures even when runtime log access is restricted.

@@ -31,7 +31,7 @@ export function createHarness(options = {}) {
 }
 
 export async function withTestServer(options, run) {
-  const server = createApp(options).listen(0, "127.0.0.1");
+  const server = createApp({ enableDevelopmentLearningRoute: true, ...options }).listen(0, "127.0.0.1");
   await once(server, "listening");
   const address = server.address();
   assert.ok(address && typeof address === "object");

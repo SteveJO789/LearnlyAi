@@ -16,6 +16,7 @@
     "start:env": "node --env-file-if-exists=.env dist/server.js",
     "lint": "tsc --noEmit",
     "test": "npm run build && node --test test/*.test.mjs",
+    "test:persistent": "npm run build && node --experimental-test-module-mocks --test test/persisted-rag.integration.mjs",
     "test:openrouter": "npm run build && node --env-file-if-exists=.env scripts/smoke-learning-openrouter.mjs",
     "eval:rag:offline": "npm run build && node --test test/rag-evaluation.test.mjs && node evaluation/rag/run-offline.mjs",
     "eval:rag:live": "npm run build && node --env-file-if-exists=.env evaluation/rag/run-live.mjs",
@@ -31,11 +32,13 @@
     "ajv": "8.17.1",
     "ajv-formats": "3.0.1",
     "express": "5.2.1",
+    "pg": "8.22.0",
     "prisma": "^8.0.0-rc.17"
   },
   "devDependencies": {
     "@types/express": "5.0.6",
     "@types/node": "^24.0.0",
+    "@types/pg": "8.20.4",
     "typescript": "7.0.2"
   }
 }

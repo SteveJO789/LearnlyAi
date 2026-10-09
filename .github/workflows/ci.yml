@@ -93,3 +93,6 @@ jobs:
 
       - name: Verify fresh source export and relocated API runtime
         run: npm run knowledge:verify-fresh
+
+      - name: Verify authenticated persisted RAG flow with offline transports
+        run: npm run test:persistent

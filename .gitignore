@@ -31,3 +31,4 @@ uploads/
 .claude/
 .cursor/
 .devin/
+.verification-results/

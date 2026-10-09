@@ -40,3 +40,12 @@ API builds prepare the reviewed Ohm's Law 0.2.0 pilot from tracked source. Insta
 the locked `knowledge/` dependencies alongside API dependencies first.
 See [runtime preparation and Vercel packaging](../../docs/runtime-knowledge-deployment.md)
 for commands, exact files, CI checks, `KNOWLEDGE_ROOT`, and the fresh-export smoke.
+# MVP verification (2026-10-09)
+
+`node ../../scripts/verify-mvp.mjs` from this directory runs deterministic checks, API/persisted-RAG tests, Web typecheck/build and source-only Knowledge packaging. Install locked dependencies in `services/api`, `apps/web`, and `knowledge` first using npm. Reports go to repository `.verification-results/` (ignored).
+
+The in-memory `/api/v1/learning/respond` and `/api/learning/respond` endpoints are disabled by default and always unavailable on Vercel/production. For explicit local experiments only, set `APP_ENV=development` and `LEARNING_DEV_ROUTE_ENABLED=true`. Real Web usage goes through Bearer-authenticated `/api/v1/learning-sessions`.
+
+`/health/ready` returns 503 if DB connectivity, reviewed Knowledge or Auth configuration fails; it does not validate OAuth, RLS or model availability. `node scripts/check-readiness.mjs` prints the same sanitized dependency status and closes the database connection.
+
+`npm run test:persistent` verifies router/Auth/engine/citations/Prisma persistence integration with offline service simulations. Actual PostgreSQL ownership checks are separately reproducible with `scripts/verify-session-rls.sql`: inspect the fixed synthetic UUIDs for collisions, run only with authorized DB access, and retain its final rollback/zero-fixture result. It changes no existing learner records.

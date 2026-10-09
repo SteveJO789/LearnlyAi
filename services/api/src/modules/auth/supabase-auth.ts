@@ -29,7 +29,8 @@ function getSupabaseConfig() {
   return { url: url.replace(/\/+$/, ""), key };
 }
 
-export async function requireSupabaseUser(
+export function createSupabaseAuthenticator(options: { timeoutMs?: number; fetch?: typeof fetch } = {}) {
+return async function authenticate(
   request: AuthenticatedRequest,
   response: Response,
   next: NextFunction,
@@ -61,7 +62,8 @@ export async function requireSupabaseUser(
   }
 
   try {
-    const authResponse = await fetch(`${config.url}/auth/v1/user`, {
+    const authResponse = await (options.fetch ?? fetch)(`${config.url}/auth/v1/user`, {
+      signal: AbortSignal.timeout(options.timeoutMs ?? 5000),
       headers: {
         authorization: `Bearer ${token}`,
         apikey: config.key,
@@ -69,6 +71,13 @@ export async function requireSupabaseUser(
     });
 
     if (!authResponse.ok) {
+      if (authResponse.status !== 401 && authResponse.status !== 403) {
+        response.status(503).json({ error: {
+          code: "AUTH_UNAVAILABLE", message: "Authentication service is temporarily unavailable.",
+          requestId: response.locals.requestId, details: [],
+        } });
+        return;
+      }
       response.status(401).json({
         error: {
           code: "UNAUTHORIZED",
@@ -130,4 +139,7 @@ export async function requireSupabaseUser(
       },
     });
   }
+};
 }
+
+export const requireSupabaseUser = createSupabaseAuthenticator();
