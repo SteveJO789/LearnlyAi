@@ -271,13 +271,14 @@ function ProfileContent() {
 
         <div className="flex gap-8 items-start">
           {/* Left Sidebar Menu */}
+          {/* Left Sidebar Menu */}
           <aside className="w-64 rounded-2xl border border-surface-border p-5 flex flex-col gap-6 text-sm bg-surface shrink-0">
             <div>
               <button
                 onClick={() => handleTabChange("Personal Info")}
                 className="w-full font-bold mb-3 text-center py-1.5 rounded-lg transition-all cursor-pointer bg-primary text-primary-foreground"
               >
-                Profile
+                {t("sidebar.personalInfo")}
               </button>
               <ul className="space-y-2 px-2 text-center">
                 {(["Personal Info", "Theme"] as ProfileTabType[]).map((tab) => (
@@ -290,7 +291,7 @@ function ProfileContent() {
                           : "text-muted hover:text-text"
                       }`}
                     >
-                      {tab}
+                      {tab === "Personal Info" ? t("sidebar.personalInfo") : t("sidebar.theme")}
                     </button>
                   </li>
                 ))}
@@ -303,27 +304,27 @@ function ProfileContent() {
                 href="/Account/History"
                 className="block w-full font-semibold text-muted mb-3 text-center bg-secondary py-1.5 rounded-lg hover:text-text transition-colors"
               >
-                History
+                {t("nav.history")}
               </Link>
               <ul className="space-y-2 px-2 text-center">
                 <li>
                   <Link href="/Account/History?tab=Chat" className="block py-1 text-muted hover:text-text transition-colors">
-                    Chat
+                    {t("sidebar.chat")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/Account/History?tab=Lessons" className="block py-1 text-muted hover:text-text transition-colors">
-                    Lessons
+                    {t("nav.lessons")}
                   </Link>
                 </li>
                 <li>
                   <Link href={`/Account/History?tab=${encodeURIComponent("Uploaded Files")}`} className="block py-1 text-muted hover:text-text transition-colors">
-                    Uploaded Files
+                    {t("sidebar.uploadedFiles")}
                   </Link>
                 </li>
                 <li>
                   <Link href={`/Account/History?tab=${encodeURIComponent("Test Results")}`} className="block py-1 text-muted hover:text-text transition-colors">
-                    Test Results
+                    {t("sidebar.testResults")}
                   </Link>
                 </li>
               </ul>
@@ -335,37 +336,37 @@ function ProfileContent() {
                 href="/Account/Setting"
                 className="block font-semibold text-muted mb-3 text-center bg-secondary py-1.5 rounded-lg hover:text-text transition-colors"
               >
-                Setting
+                {t("sidebar.setting")}
               </Link>
               <ul className="space-y-3 text-muted px-2 text-center">
                 <li>
                   <Link href="/Account/Setting?tab=Change%20Password" className="block py-1 hover:text-text transition-colors">
-                    Change Password
+                    {t("sidebar.changePassword")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/Account/Setting?tab=Learning%20Preferences" className="block py-1 hover:text-text transition-colors">
-                    Learning Preferences
+                    {t("sidebar.learningPreferences")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/Account/Setting?tab=Notifications" className="block py-1 hover:text-text transition-colors">
-                    Notifications
+                    {t("sidebar.notifications")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/Account/Setting?tab=Language" className="block py-1 hover:text-text transition-colors">
-                    Language
+                    {t("sidebar.language")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/Account/Setting?tab=Privacy" className="block py-1 hover:text-text transition-colors">
-                    Privacy
+                    {t("sidebar.privacy")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/Account/Setting?tab=Delete%20Account" className="block py-1 text-muted hover:text-danger transition-colors">
-                    Delete Account
+                    {t("sidebar.deleteAccount")}
                   </Link>
                 </li>
               </ul>
@@ -377,22 +378,22 @@ function ProfileContent() {
                 href="/Account/Help"
                 className="block font-semibold text-muted mb-3 text-center bg-secondary py-1.5 rounded-lg hover:text-text transition-colors"
               >
-                Help & Support
+                {t("sidebar.helpAndSupport")}
               </Link>
               <ul className="space-y-3 text-muted px-2 text-center">
                 <li>
                   <Link href="/Account/Help?tab=Help%20Center" className="block py-1 hover:text-text transition-colors">
-                    Help Center / FAQ
+                    {t("sidebar.helpCenterFaq")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/Account/Help?tab=Report%20a%20Problem" className="block py-1 hover:text-text transition-colors">
-                    Report a Problem
+                    {t("sidebar.reportProblem")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/Account/Help?tab=Contact%20Us" className="block py-1 hover:text-text transition-colors">
-                    Contact Us
+                    {t("sidebar.contactUs")}
                   </Link>
                 </li>
               </ul>
@@ -415,7 +416,7 @@ function ProfileContent() {
               {/* Sub-tab 1: Personal Info */}
               {activeTab === "Personal Info" && (
                 <div className="max-w-xl flex flex-col gap-6">
-                  <h3 className="text-xl font-bold">Personal Information</h3>
+                  <h3 className="text-xl font-bold">{t("sidebar.personalInfo")}</h3>
 
                   <div className="flex items-center gap-6 pb-4 border-b border-surface-border">
                     <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center text-2xl font-bold text-text overflow-hidden border border-surface-border shrink-0">
@@ -432,7 +433,7 @@ function ProfileContent() {
                     </div>
                     <div>
                       <label className="cursor-pointer inline-block px-4 py-2 text-sm font-medium border border-surface-border rounded-xl hover:bg-secondary transition-colors">
-                        Change Photo
+                        {t("settings.profile.changePhoto")}
                         <input
                           type="file"
                           accept="image/*"
@@ -440,13 +441,13 @@ function ProfileContent() {
                           className="hidden"
                         />
                       </label>
-                      <p className="text-[11px] text-muted mt-1.5">JPG, PNG or GIF (Max. 5MB)</p>
+                      <p className="text-[11px] text-muted mt-1.5">{t("settings.profile.photoHint")}</p>
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-muted">Full Name</label>
+                      <label className="text-xs font-semibold text-muted">{t("settings.profile.fullName")}</label>
                       <input
                         type="text"
                         value={userInfo.name}
@@ -462,7 +463,7 @@ function ProfileContent() {
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-muted">Email Address</label>
+                      <label className="text-xs font-semibold text-muted">{t("settings.profile.emailAddress")}</label>
                       <input
                         type="email"
                         value={userInfo.email}
@@ -472,15 +473,15 @@ function ProfileContent() {
                         }`}
                       />
                       {errors.email && <p className="text-xs text-danger mt-0.5">{errors.email}</p>}
-                      <p className="text-[11px] text-muted">Email is managed by your sign-in account.</p>
+                      <p className="text-[11px] text-muted">{t("settings.profile.emailManaged")}</p>
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-muted">Phone Number</label>
+                      <label className="text-xs font-semibold text-muted">{t("settings.profile.phoneNumber")}</label>
                       <input
                         type="text"
                         value={userInfo.phone}
-                        placeholder="Not connected yet"
+                        placeholder={t("settings.profile.notConnected")}
                         disabled
                         className={`rounded-xl border p-3 text-sm outline-none bg-transparent transition-all ${
                           errors.phone ? "border-danger focus:border-danger" : "border-surface-border focus:border-primary"
@@ -499,10 +500,10 @@ function ProfileContent() {
                         {isSaving ? (
                           <>
                             <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                            <span>Saving...</span>
+                            <span>{t("settings.profile.saving")}</span>
                           </>
                         ) : (
-                          "Save Changes"
+                          t("settings.profile.saveChanges")
                         )}
                       </button>
 
@@ -512,7 +513,7 @@ function ProfileContent() {
                         disabled={isSaving}
                         className="rounded-xl border border-surface-border px-6 py-2.5 text-sm font-medium text-muted hover:bg-secondary transition-all cursor-pointer disabled:opacity-50"
                       >
-                        Cancel
+                        {t("settings.profile.cancel")}
                       </button>
                     </div>
                   </div>
@@ -523,13 +524,13 @@ function ProfileContent() {
               {activeTab === "Theme" && (
                 <div className="max-w-xl flex flex-col gap-8">
                   <div>
-                    <h3 className="text-xl font-bold">Appearance Mode</h3>
-                    <p className="text-sm text-muted mt-1">Choose how LearnlyAI looks to you (Light / Dark).</p>
+                    <h3 className="text-xl font-bold">{t("settings.theme.appearanceTitle")}</h3>
+                    <p className="text-sm text-muted mt-1">{t("settings.theme.appearanceDesc")}</p>
 
                     <div className="grid grid-cols-2 gap-4 mt-4">
                       {[
-                        { id: "light", label: "Light Mode" },
-                        { id: "dark", label: "Dark Mode" },
+                        { id: "light", label: t("settings.theme.lightMode") },
+                        { id: "dark", label: t("settings.theme.darkMode") },
                       ].map((item) => (
                         <button
                           key={item.id}
@@ -556,18 +557,18 @@ function ProfileContent() {
                   </div>
 
                   <div className="border-t border-surface-border pt-6">
-                    <h3 className="text-xl font-bold">Brand Color Theme</h3>
-                    <p className="text-sm text-muted mt-1">Select your preferred accent theme color.</p>
+                    <h3 className="text-xl font-bold">{t("settings.theme.brandColorTitle")}</h3>
+                    <p className="text-sm text-muted mt-1">{t("settings.theme.brandColorDesc")}</p>
 
                     <div className="grid grid-cols-2 gap-4 mt-4">
                       {[
-                        { id: "default", label: "Default (White / Black / Gray)", colorBg: "bg-gradient-to-br from-white via-neutral-300 to-neutral-900" },
-                        { id: "theme-teal", label: "Teal Modern (#0AD1C1)", colorBg: "bg-[#0AD1C1]" },
-                        { id: "theme-peach", label: "Soft Peach (#FFAAAA)", colorBg: "bg-[#FFAAAA]" },
-                        { id: "theme-gold", label: "Golden Amber (#FFC06F)", colorBg: "bg-[#FFC06F]" },
-                        { id: "theme-sky", label: "Sky Breeze (#BCE8FF)", colorBg: "bg-[#BCE8FF]" },
-                        { id: "theme-ruby", label: "Ruby Burgundy (#911005)", colorBg: "bg-[#911005]" },
-                        { id: "theme-slate", label: "Slate Blue (#375572)", colorBg: "bg-[#375572]" },
+                        { id: "default", label: t("settings.theme.default"), colorBg: "bg-gradient-to-br from-white via-neutral-300 to-neutral-900" },
+                        { id: "theme-teal", label: t("settings.theme.tealModern"), colorBg: "bg-[#0AD1C1]" },
+                        { id: "theme-peach", label: t("settings.theme.softPeach"), colorBg: "bg-[#FFAAAA]" },
+                        { id: "theme-gold", label: t("settings.theme.goldenAmber"), colorBg: "bg-[#FFC06F]" },
+                        { id: "theme-sky", label: t("settings.theme.skyBreeze"), colorBg: "bg-[#BCE8FF]" },
+                        { id: "theme-ruby", label: t("settings.theme.rubyBurgundy"), colorBg: "bg-[#911005]" },
+                        { id: "settings.theme.slateBlue", label: t("settings.theme.slateBlue"), colorBg: "bg-[#375572]" },
                       ].map((item) => (
                         <button
                           key={item.id}
@@ -581,7 +582,7 @@ function ProfileContent() {
                           <div className={`w-10 h-10 rounded-full shrink-0 border border-surface-border ${item.colorBg}`} />
                           <div>
                             <span className="text-sm block">{item.label}</span>
-                            <span className="text-[11px] text-muted font-normal">Active Palette</span>
+                            <span className="text-[11px] text-muted font-normal">{t("settings.theme.activePalette")}</span>
                           </div>
                         </button>
                       ))}

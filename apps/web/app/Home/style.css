@@ -1,4 +1,5 @@
 .hello-gradient {
+    background-size: 200% 200%;
     animation: helloGradientMove 5s ease-in-out infinite alternate;
 }
 
