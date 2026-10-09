@@ -1,11 +1,8 @@
 # Infrastructure
 
-พื้นที่สำหรับ Docker Compose และ configuration ของ local/demo environment
+Decision (2026-10-09): **Docker and Docker Compose are not used**. Develop with Node.js 24.x locally, deploy Next.js Web and Express API to Vercel, and use hosted Supabase Auth and PostgreSQL/RLS.
 
-Service baseline:
+Local Web: `cd apps/web && npm ci && npm run dev` with `.env.local`.
+Local API: `cd services/api && npm ci && npm run dev` with `.env`.
 
-- `web`: Next.js
-- `api`: Node.js + Express.js + TypeScript
-- `db`: PostgreSQL พร้อม pgvector
-
-ห้าม commit secret ลงไฟล์ Compose ใช้ environment variables และ `.env.example` เป็นรายการค่าที่ต้องตั้งเท่านั้น
+Configure deployment variables in Vercel, Google login/redirects in Supabase Auth, and never commit real secrets. See `docs/authentication.md` and `docs/project-status-2026-10-09.md`.
