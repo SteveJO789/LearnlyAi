@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useLanguage } from "./lib/i18n/LanguageContext";
+import "./Home/style.css";
 
 export default function LandingPage() {
  const {t}=useLanguage(); const [step,setStep]=useState(0);
