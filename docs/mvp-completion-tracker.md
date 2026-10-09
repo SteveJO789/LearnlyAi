@@ -71,3 +71,24 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - ผล offline ใหม่แยกด้วย `--output`; ไม่แก้ historical P3/P3.1 live evidence
 - ข้อจำกัด: adaptive tests ตรวจ instruction/history/state ไม่พิสูจน์ model teaching quality; vector/assessment/upload ยังไม่ครบ
 - Fetch อีกครั้ง: develop ยัง e2ddfdd; งานถัดไป canonical Prisma write-policy/migration consistency สำหรับ Assessment/Profile/Input APIs จริง
+
+### Deployment policy ที่ยืนยันโดยผู้ใช้
+
+- **CD เฉพาะ branch develop เท่านั้น**; integration/feature branches ต้อง skip เพื่อรักษา quota
+- GitHub statuses ของ PR #74 เป็น success แต่ Vercel bot ระบุ Ignored/Skipped ซึ่งถูกต้องตาม policy ไม่ใช่ deployment proof
+- ไม่แก้ skip setting และไม่ auto-merge เพื่อให้ได้ preview; ทดสอบ local/CI ก่อน แล้วให้ทีม review/merge เข้า develop ก่อน deployed smoke test
+- Vercel connector ไม่มีสิทธิ์ scope webdev-bd06 (403); ไม่ retry unchanged และไม่เปลี่ยน access controls
+
+### Milestone 3 — canonical persistence ownership foundation
+
+- ย้าย manual SQL เดิมไป `services/api/scripts/historical-sql/` พร้อมเก็บเนื้อหาเดิม ไม่ให้ Prisma ตีความเป็น migration space
+- เพิ่ม canonical LearningSession INSERT/UPDATE และ Message INSERT ownership policies; regenerate contract ด้วย Prisma CLI
+- สร้าง migration `20261009T1032_session_ownership_contract` จาก tip c7b3938 ไป 909232e อย่างชัดเจน; มี grants ที่จำเป็นและ 3 policies
+- `migration plan` seed Supabase extension snapshot/head จาก descriptor จริง โดยไม่มี Auth schema migration operations; ไม่สร้างระบบ Auth เอง
+- Prisma unscoped `migration check --json`: **All checks passed**; API typecheck/compile และ tests **220/220** ผ่านกับ regenerated contract
+- ทดสอบ operations/grants ใหม่จริงใน schema แยก `learnly_mvp_ownership_verify` โดย clone เฉพาะโครงสร้าง User/LearningSession/Message ว่าง; เพิ่ม FK/RLS และตรวจ owner/cross-user/reassignment
+- ผลจริง: checks passed, ROLLBACK, `schema_removed=true`; ไม่อ่าน learner rows และไม่ ALTER public tables
+- ขอบเขตหลักฐาน: ตรวจ new migration operations กับ empty clones ไม่ใช่ replay historical baseline/data migrations ครบทั้ง graph และยังไม่ได้ apply migration ใหม่ลง public production schema
+- CLI default origin `db` ยังชี้ baseline เก่า d7a4d82; first generated plan จึง fork/มี placeholders — เก็บ draft ผิดไว้ใน ignored evidence แล้ว regenerate ด้วย `--from c7b3938` ไม่ apply draft
+- Release gate: inspect actual production migration history/marker before applying any package; ห้าม replay legacy destructive data cleanup อัตโนมัติ
+- งานถัดไป: Assessment question snapshot/scoring/owned persistence และ Learning Profile APIs/UI (#13/#16)

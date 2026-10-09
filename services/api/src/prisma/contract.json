@@ -1300,6 +1300,19 @@
               "tableName": "LearningProfile",
               "using": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningProfile\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
             },
+            "learning_session_insert_own": {
+              "kind": "policy",
+              "name": "learning_session_insert_own_2be3816c",
+              "namespaceId": "public",
+              "operation": "insert",
+              "permissive": true,
+              "prefix": "learning_session_insert_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "LearningSession",
+              "withCheck": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
             "learning_session_select_own": {
               "kind": "policy",
               "name": "learning_session_select_own_a34ec569",
@@ -1312,6 +1325,33 @@
               ],
               "tableName": "LearningSession",
               "using": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "learning_session_update_own": {
+              "kind": "policy",
+              "name": "learning_session_update_own_056e8007",
+              "namespaceId": "public",
+              "operation": "update",
+              "permissive": true,
+              "prefix": "learning_session_update_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "LearningSession",
+              "using": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+              "withCheck": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "message_insert_own": {
+              "kind": "policy",
+              "name": "message_insert_own_4f346578",
+              "namespaceId": "public",
+              "operation": "insert",
+              "permissive": true,
+              "prefix": "message_insert_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "Message",
+              "withCheck": "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
             },
             "message_select_own": {
               "kind": "policy",
@@ -2287,7 +2327,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "c7b3938544e5e74ca8b9f22476cc7dbb3d987938d552a6e2214b5edd941b8665"
+    "storageHash": "909232ef628ba8386f0750907474dc43f24d85090276eb3ea0f292b2672000ef"
   },
   "execution": {
     "executionHash": "1c5f64dbace57a6efe810d458509a690bf92acb20d8522d6bfb343791bdd4e83",
@@ -2423,7 +2463,15 @@
       "scalarList": true
     }
   },
-  "extensions": {},
+  "extensions": {
+    "supabase": {
+      "familyId": "sql",
+      "id": "supabase",
+      "kind": "extension",
+      "targetId": "postgres",
+      "version": "8.0.0-rc.12"
+    }
+  },
   "meta": {},
   "_generated": {
     "warning": "⚠️  GENERATED FILE - DO NOT EDIT",

@@ -101,6 +101,12 @@ Assessment, LearningProfile, and SourceMaterial contracts are defined but their 
 
 ## Migration Rule
 
+### Canonical ownership update (MVP completion branch)
+
+`20261009T1032_session_ownership_contract` adds the LearningSession INSERT/UPDATE and Message INSERT ownership policies missing from the canonical contract, plus their authenticated-role grants. Historical manual SQL is retained under `services/api/scripts/historical-sql/`, outside Prisma's migration-space layout. The CLI seeds the Supabase extension snapshot/head supplied by its installed descriptor; it ships no Auth schema migration operations.
+
+Plan from the explicit latest graph tip (`--from <hash>`), because the checked-in `db` ref historically points to an older baseline. Do not assume that ref proves production history. This change passed unscoped artifact/graph checks and real isolated-schema ownership tests with rollback. Applying it to public production tables and replaying the full historical data-migration chain remain separate release checks; never replay destructive legacy user cleanup automatically.
+
 - ใช้ Prisma 8 contract + repository migrations โดยตรวจ database migration state ก่อน deploy
 - Migration ต้อง rollback ได้เมื่อสมเหตุสมผล
 - Test database ต้องสร้างจาก migration เดียวกับ production ไม่ใช้ schema ที่เขียนแยก

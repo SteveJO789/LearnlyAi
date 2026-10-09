@@ -23,6 +23,10 @@ Offline core retrieval TP4/TN3/FP0/FN0; 13 records รวม follow-ups ตร�
 ผลใหม่: [retrieval evidence](evidence/mvp-milestone2-rag-offline.json)
 Draft PR https://github.com/SteveJO789/LearnlyAi/pull/74; ยังไม่ merge/ปิด issue
 
+Milestone 3: canonical session/message write policies + grants และ Supabase extension metadata generated จาก CLI; unscoped migration integrity check **ผ่านทั้งหมด** หลังแก้ findings เดิม
+API 220/220 กับ regenerated contract ผ่าน; new migration operations/grants ทดสอบจริงใน schema แยกที่มีแต่ empty clones/fixtures แล้ว rollback (`schema_removed=true`)
+ผลนี้ยังไม่ใช่ historical migration replay หรือการ apply ลง public production schema ดู [DB evidence](evidence/mvp-milestone3-ownership.json)
+
 ## Security
 
 อ่าน policies จาก Supabase catalog แล้ว: ownership SELECT และ LearningSession/Message write policies มีอยู่; ส่วนฟีเจอร์ assessment/material/profile ยังขาด write policies
@@ -34,6 +38,8 @@ Draft PR https://github.com/SteveJO789/LearnlyAi/pull/74; ยังไม่ mer
 
 Base SHA e2ddfdd: GitHub statuses Vercel Web/API failure และชี้ build-rate-limit (ตรวจ 2026-10-09)
 ไม่มี production release หรือ migration โดยงานนี้
+
+ผู้ใช้ยืนยัน CD เฉพาะ `develop`; feature/integration deploy ต้อง skip เพื่อรักษา quota ดังนั้น PR #74 green statuses + Ignored/Skipped **ไม่ใช่** successful preview deployment ไม่มีการแก้ CD policy หรือ auto-merge
 
 ## Limitations/blockers
 

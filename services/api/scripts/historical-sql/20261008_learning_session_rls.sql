@@ -1,3 +1,4 @@
+-- Historical manual patch, retained as evidence. New changes use canonical Prisma migrations.
 -- Apply with a privileged migration role, ONLY after the matching backend change
 -- passes CI. Never enable BYPASSRLS for the application login role.
 BEGIN;

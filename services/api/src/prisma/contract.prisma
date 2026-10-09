@@ -268,3 +268,22 @@ policy_update user_update_own {
   using = "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
   withCheck = "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
 }
+
+policy_insert learning_session_insert_own {
+  target = LearningSession
+  roles = [authenticated]
+  withCheck = "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+}
+
+policy_update learning_session_update_own {
+  target = LearningSession
+  roles = [authenticated]
+  using = "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+  withCheck = "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+}
+
+policy_insert message_insert_own {
+  target = Message
+  roles = [authenticated]
+  withCheck = "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+}
