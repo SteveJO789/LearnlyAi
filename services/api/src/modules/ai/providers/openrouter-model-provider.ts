@@ -261,6 +261,19 @@ function parseEnvelope(value: unknown): OpenRouterResponseEnvelope {
     throw invalidResponse("OpenRouter returned a malformed response envelope.");
   }
 
+  // Some providers exhaust the generation budget before producing visible text.
+  // Preserve only safe truncation diagnostics; never attach the response envelope.
+  if (firstChoice.finish_reason === "length"
+    && (typeof firstChoice.message.content !== "string" || !firstChoice.message.content.trim())) {
+    const tokenCount = (value: unknown): number | undefined => typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? value : undefined;
+    const usage = isRecord(value.usage) ? value.usage : {};
+    throw invalidResponse("OpenRouter exhausted the output budget before returning content.", {
+      subtype: "MODEL_OUTPUT_TRUNCATED", finishReason: "length",
+      outputCharacters: typeof firstChoice.message.content === "string" ? firstChoice.message.content.length : 0,
+      inputTokens: tokenCount(usage.prompt_tokens), outputTokens: tokenCount(usage.completion_tokens),
+    });
+  }
+
   if (
     typeof firstChoice.message.content !== "string" ||
     !firstChoice.message.content.trim()

@@ -1,0 +1,134 @@
+{
+  "schema_version": "1.0",
+  "concept_id": "physics.electricity.electric-circuits.ohms-law",
+  "authorship": "learnlyai",
+  "formula_asset_id": "ohms-law-formula",
+  "selections": [
+    {
+      "selection_id": "definition",
+      "kind": "definition",
+      "normalized_unit": "normalized/siyavula-physical-sciences-g10-g12-ccby/siyavula-physical-sciences-g11-en-ccby-3d893a4364f5/00740.json",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law"
+      },
+      "asset_ids": []
+    },
+    {
+      "selection_id": "formula",
+      "kind": "equation",
+      "normalized_unit": "normalized/siyavula-physical-sciences-g10-g12-ccby/siyavula-physical-sciences-g11-en-ccby-3d893a4364f5/00740.json",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law"
+      },
+      "asset_ids": [
+        "ohms-law-formula"
+      ]
+    },
+    {
+      "selection_id": "example-diagram",
+      "kind": "diagram",
+      "normalized_unit": "normalized/siyavula-physical-sciences-g10-g12-ccby/siyavula-physical-sciences-g11-en-ccby-3d893a4364f5/00755.json",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law"
+      },
+      "asset_ids": [
+        "ohms-example-diagram"
+      ]
+    },
+    {
+      "selection_id": "example-problem",
+      "kind": "worked_example",
+      "normalized_unit": "normalized/siyavula-physical-sciences-g10-g12-ccby/siyavula-physical-sciences-g11-en-ccby-3d893a4364f5/00755.json",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law"
+      },
+      "asset_ids": [
+        "ohms-example-diagram",
+        "ohms-example-resistance-part-1",
+        "ohms-example-resistance-part-2",
+        "ohms-example-current-part-1",
+        "ohms-example-current-part-2"
+      ]
+    },
+    {
+      "selection_id": "example-approach",
+      "kind": "worked_example",
+      "normalized_unit": "normalized/siyavula-physical-sciences-g10-g12-ccby/siyavula-physical-sciences-g11-en-ccby-3d893a4364f5/00756.json",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law > Determine how to approach the problem"
+      },
+      "asset_ids": [
+        "ohms-example-approach"
+      ]
+    },
+    {
+      "selection_id": "example-solution",
+      "kind": "worked_example",
+      "normalized_unit": "normalized/siyavula-physical-sciences-g10-g12-ccby/siyavula-physical-sciences-g11-en-ccby-3d893a4364f5/00757.json",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law > Solve the problem"
+      },
+      "asset_ids": [
+        "ohms-solution-quantity-1",
+        "ohms-solution-quantity-2",
+        "ohms-solution-quantity-3",
+        "ohms-example-solution"
+      ]
+    }
+  ],
+  "student_content": {
+    "concept": "กฎของโอห์มเชื่อมโยงความต่างศักย์ไฟฟ้า กระแสไฟฟ้า และความต้านทานของตัวนำที่มีพฤติกรรมโอห์มมิก",
+    "intuition": "เมื่อความต้านทานคงที่ การเพิ่มความต่างศักย์ทำให้กระแสเพิ่มตามสัดส่วน หากความต่างศักย์เท่าเดิมแต่ความต้านทานเพิ่ม กระแสจะลดลง",
+    "formal_definition": "สำหรับตัวนำโอห์มมิกที่อุณหภูมิและสภาพทางกายภาพคงที่ กระแสไฟฟ้าแปรผันตรงกับความต่างศักย์ระหว่างปลายตัวนำ อัตราส่วนความต่างศักย์ต่อกระแสจึงคงที่และเรียกว่าความต้านทาน",
+    "conditions": "ตรวจว่าอุปกรณ์อยู่ในช่วงโอห์มมิกและอุณหภูมิไม่เปลี่ยนอย่างมีนัยสำคัญ ใช้ค่าความต่างศักย์และกระแสของอุปกรณ์เดียวกัน ไม่ใช้ความต้านทานคงที่กับอุปกรณ์ทุกชนิดโดยอัตโนมัติ",
+    "sanity_check": "ตรวจหน่วยของคำตอบและแทนค่ากลับในความสัมพันธ์ที่ตรวจแล้ว เมื่อความต้านทานเท่าเดิม ความต่างศักย์ที่มากขึ้นควรให้กระแสมากขึ้น",
+    "common_mistakes": "- ใช้กระแสหน่วยมิลลิแอมแปร์ร่วมกับหน่วยเอสไอโดยไม่แปลง\n- นำความต่างศักย์กับกระแสจากคนละส่วนของวงจรมาใช้ร่วมกัน\n- ถือว่าความต้านทานคงที่แม้อุณหภูมิหรือช่วงการทำงานเปลี่ยน",
+    "retrieval_summary": "แนวคิดกฎของโอห์มสำหรับความสัมพันธ์ระหว่างความต่างศักย์ กระแส และความต้านทาน รวมถึงเงื่อนไขโอห์มมิก หน่วยเอสไอ และการตรวจคำตอบของวงจรไฟฟ้ากระแสตรงเบื้องต้น"
+  },
+  "worked_example": {
+    "problem_template_th": "พิจารณาตัวต้านทานในวงจรที่ระบุต้นฉบับไว้ในส่วน Detailed Provenance\n\nตัวต้านทานมีค่า {{asset:ohms-example-resistance-part-1.text}} {{asset:ohms-example-resistance-part-2.text}} และกระแสที่ผ่านตัวต้านทานมีค่า {{asset:ohms-example-current-part-1.text}} {{asset:ohms-example-current-part-2.text}} จงหาความต่างศักย์ระหว่างปลายตัวต้านทาน",
+    "solution_template_th": "เลือกความสัมพันธ์ที่ผ่านการตรวจจากต้นฉบับแล้ว\n\n\\[\n{{asset:ohms-example-approach.latex}}\n\\]\n\nแทนค่าความต้านทานและกระแส พร้อมตรวจหน่วยทุกขั้น\n\n\\[\n{{asset:ohms-example-solution.latex}}\n\\]",
+    "equation_asset_ids": [
+      "ohms-example-resistance-part-1",
+      "ohms-example-resistance-part-2",
+      "ohms-example-current-part-1",
+      "ohms-example-current-part-2",
+      "ohms-example-approach",
+      "ohms-solution-quantity-1",
+      "ohms-solution-quantity-2",
+      "ohms-solution-quantity-3",
+      "ohms-example-solution"
+    ],
+    "answer": {
+      "value": 40,
+      "unit": "V",
+      "quantity": "potential_difference",
+      "unit_required": true,
+      "asset_id": "ohms-example-solution"
+    }
+  }
+}

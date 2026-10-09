@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "concept_id": "physics.electricity.electric-circuits.ohms-law",
+  "performed_by": "Codex",
+  "performed_at": "2026-10-01T10:45:41Z",
+  "user_authorization": "review แล้ว ช่วยนำไปแทนฉบับเดิมและ build",
+  "review": {
+    "content_status": "reviewed",
+    "math_physics_reviewed": true,
+    "language_reviewed": true,
+    "reviewer": "Steve",
+    "reviewed_at": "2026-10-01"
+  },
+  "previous_version": "0.1.0",
+  "promoted_version": "0.2.0",
+  "target": "concepts/physics/electricity/ohms-law.md",
+  "archived_previous": "reviews/document-history/physics.electricity.electric-circuits.ohms-law/20261001T104541Z/previous.md",
+  "archived_approved_draft": "reviews/document-history/physics.electricity.electric-circuits.ohms-law/20261001T104541Z/approved-draft.md",
+  "sha256": {
+    "previous": "8cdc4af92e22850e268ee9fd7bc5afd78839f748336258dfb4019cb3b11a7a47",
+    "approved_draft": "45651066968e81b1aa62bc155a739778615dc88b77b862160dfc93af432570f1",
+    "promoted": "5a31af726815c9a1c154a19d615f7405a776f7fd567a4665c3bdec13618ee0eb"
+  },
+  "notes": "Preserved human-supplied review metadata and curation evidence. Archived the previous document and approved draft; removed draft-only review notes from the promoted document. No raw or normalized data changed."
+}

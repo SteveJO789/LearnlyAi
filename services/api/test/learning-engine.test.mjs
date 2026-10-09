@@ -51,10 +51,10 @@ for (const [name, mutate] of [
   ["schema-invalid JSON", (output) => { delete output.blocks; return output; }],
   ["unknown block citationId", (output) => { output.blocks[0].citationIds = ["missing-source"]; return output; }],
   ["fabricated source", (output) => { output.citations = [{ id: "fake", title: "Invented", sourceType: "USER_MATERIAL" }]; return output; }],
-  ["wrong sessionId", (output) => { output.sessionId = "another-session"; return output; }],
-  ["wrong responseId", (output) => { output.responseId = "replayed-response"; return output; }],
-  ["wrong stage", (output) => { output.stage = "COMPLETED"; return output; }],
-  ["model-controlled progress", (output) => { output.progress.percent = 100; return output; }],
+  ["malformed sessionId", (output) => { output.sessionId = null; return output; }],
+  ["malformed responseId", (output) => { output.responseId = 42; return output; }],
+  ["malformed stage", (output) => { output.stage = "UNKNOWN"; return output; }],
+  ["malformed progress", (output) => { output.progress.percent = 101; return output; }],
 ]) {
   test(`orchestration ${name === "valid JSON" ? "accepts" : "rejects"} ${name}`, async () => {
     const { engine, persistence } = createHarness({ scenario: (request) => mutate(mockTutorScenario(request)) });

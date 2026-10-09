@@ -25,12 +25,13 @@ export function createHarness(options = {}) {
     now: () => new Date("2026-09-27T00:00:00Z"),
     initialStage: options.initialStage,
     materials: options.materials,
+    knowledgeRetriever: options.knowledgeRetriever,
   });
   return { engine, persistence, requests };
 }
 
 export async function withTestServer(options, run) {
-  const server = createApp(options).listen(0, "127.0.0.1");
+  const server = createApp({ enableDevelopmentLearningRoute: true, ...options }).listen(0, "127.0.0.1");
   await once(server, "listening");
   const address = server.address();
   assert.ok(address && typeof address === "object");

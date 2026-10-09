@@ -1,0 +1,33 @@
+{
+  "name": "@learnlyai/knowledge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "knowledge:acquire": "npm run build --silent && node dist/cli.js acquire",
+    "knowledge:normalize": "npm run build --silent && node dist/cli.js normalize",
+    "knowledge:validate": "npm run build --silent && node dist/cli.js validate",
+    "knowledge:build": "npm run build --silent && node dist/cli.js build",
+    "knowledge:prepare-runtime": "npm run build --silent && node scripts/prepare-runtime.mjs",
+    "knowledge:review": "npm run build --silent && node dist/cli.js review",
+    "knowledge:curate": "npm run build --silent && node dist/cli.js curate",
+    "knowledge:pilot": "npm run build --silent && node dist/cli.js pilot",
+    "test": "npm run build && node --test --test-isolation=none test/*.test.mjs"
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "fast-xml-parser": "5.11.2",
+    "fflate": "0.8.3",
+    "parse5": "8.0.0",
+    "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "7.0.2"
+  }
+}

@@ -6,6 +6,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 
 import SiteHeader from "../../components/SiteHeader";
+import LearningSummary from "../../components/learning-summary";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
 import {
   getCurrentUserThemePreferences,
@@ -593,6 +594,7 @@ function ProfileContent() {
             </div>
           </section>
         </div>
+        <LearningSummary />
       </main>
     </div>
   );

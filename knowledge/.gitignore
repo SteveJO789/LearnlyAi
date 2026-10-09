@@ -1,0 +1,28 @@
+# Reproducible output and local tooling
+/build/
+/dist/
+node_modules/
+/.playwright-cli/
+/output/
+/test-results/
+/playwright-report/
+/.knowledge-build-*/
+/.knowledge-normalized-*/
+.cache/
+/tmp/
+/temp/
+*.log
+*.tmp
+*.tsbuildinfo
+
+# Evidence bytes live outside ordinary Git; keep their manifests/checksums tracked.
+# Restoration contract: ARTIFACTS.md and acquisition/evidence-inventory.json
+/raw/
+/normalized/
+
+# Local credentials and machine configuration
+.env
+.env.*
+.npmrc
+.DS_Store
+Thumbs.db

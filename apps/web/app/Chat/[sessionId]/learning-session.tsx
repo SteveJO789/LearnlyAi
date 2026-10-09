@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { respondToLearning, type LearningAction, type TutorOutput } from "./api";
 import { getLearningSession } from "../../../lib/learning-sessions";
+import { getAssessment } from "../../../lib/assessments";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
 import BlockView, { CitationList } from "./blocks";
 
@@ -40,6 +41,11 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
   const [hydrating, setHydrating] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sessionStage, setSessionStage] = useState("EXPLAIN");
+  const [restoredInput, setRestoredInput] = useState<string | undefined>();
+  const [loadRetry, setLoadRetry] = useState(0);
+  const [postSubmitted, setPostSubmitted] = useState(false);
+  const [pendingPre, setPendingPre] = useState(false);
 
   const lastRequest = useRef<PendingRequest | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -88,6 +94,17 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
         });
 
         setTurns(restored);
+        setSessionStage(session.stage);
+        if (session.state === "PRE_TEST" && session.stage === "EXPLAIN") {
+          setPendingPre(true);
+          void getAssessment(sessionId, "PRE").then(assessment => { if (active) setPendingPre(!assessment.submittedAt); })
+            .catch(() => { if (active) setPendingPre(true); });
+        } else setPendingPre(false);
+        if (session.stage === "ASSESS") {
+          void getAssessment(sessionId, "POST").then(assessment => { if (active) setPostSubmitted(Boolean(assessment.submittedAt)); })
+            .catch(() => { if (active) setPostSubmitted(false); });
+        }
+        setRestoredInput(session.materials?.find(material => material.type === "TEXT" && material.status === "READY")?.normalizedText);
         turnCounter.current = restored.length;
       })
       .catch((loadError) => {
@@ -105,7 +122,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
     return () => {
       active = false;
     };
-  }, [sessionId, t]);
+  }, [sessionId, t, loadRetry]);
 
   const lastTurn = turns[turns.length - 1];
   const lastTutorTurn = [...turns]
@@ -134,6 +151,8 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
         action: request.action,
       });
       setTurns((previous) => [...previous, { id: nextId(), role: "tutor", output }]);
+      setSessionStage(output.stage === "POST_TEST" ? "ASSESS" : output.stage === "COMPLETED" ? "REVIEW" :
+        output.stage === "PRE_TEST" ? "DIAGNOSE" : (output.progress?.percent ?? 0) >= 50 ? "PRACTICE" : "EXPLAIN");
     } catch (err) {
       setError(err instanceof Error ? err.message : t("chat.unknownError"));
     } finally {
@@ -143,7 +162,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
 
   function submit(text: string) {
     const input = text.trim();
-    if (!input || loading) return;
+    if (!input || loading || hydrating || pendingPre) return;
 
     setTurns((previous) => [...previous, { id: nextId(), role: "user", text: input }]);
     setDraft("");
@@ -153,21 +172,24 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
   // Only auto-send a Create-page question when this persisted session is empty.
   // This avoids duplicating the first message after a refresh.
   useEffect(() => {
-    if (hydrating || didAutoSend.current || turns.length > 0) return;
-    if (initialInput && initialInput.trim()) {
+    if (hydrating || pendingPre || didAutoSend.current || turns.length > 0) return;
+    const firstInput = restoredInput ?? initialInput;
+    if (firstInput && firstInput.trim()) {
       didAutoSend.current = true;
-      submit(initialInput);
+      submit(firstInput);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrating, initialInput, turns.length]);
+  }, [hydrating, pendingPre, initialInput, restoredInput, turns.length]);
 
   function advance() {
     if (loading) return;
-    void run({ action: "ADVANCE", input: "Continue" });
+    if (sessionStage === "ASSESS" && !postSubmitted) { router.push(`/Assessment/${sessionId}?phase=POST`); return; }
+    void run({ action: "ADVANCE", input: t("chat.continue") });
   }
 
   function retry() {
-    if (loading || !lastRequest.current) return;
+    if (loading) return;
+    if (!lastRequest.current) { setLoadRetry(value => value + 1); return; }
     void run(lastRequest.current);
   }
 
@@ -186,7 +208,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
         <div className="flex h-full w-72 flex-col gap-6 p-4">
           <div className="flex items-center justify-between">
             <Link href="/Home" className="text-lg font-medium tracking-wide">
-              LOGO
+              LearnlyAI
             </Link>
             <button
               type="button"
@@ -233,7 +255,8 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
                 <SidebarIcon />
               </button>
             )}
-            <h1 className="text-base font-medium text-muted">{t("chat.title")}</h1>
+            <div><h1 className="text-base font-medium text-muted">{t("chat.title")}</h1>
+              <p className="mt-1 text-xs text-muted">{t(`chat.stage.${sessionStage}`)}</p></div>
           </div>
 
           {percent !== null && (
@@ -270,6 +293,9 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
                 )}
               </div>
             )}
+
+            {pendingPre && !hydrating ? <Link href={`/Assessment/${sessionId}?phase=PRE`}
+              className="rounded-xl bg-primary px-5 py-3 text-center text-primary-foreground">{t("chat.preTest")}</Link> : null}
 
             {turns.map((turn) => {
               if (turn.role === "user") {
@@ -366,7 +392,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
             />
             <button
               type="submit"
-              disabled={loading || draft.trim().length === 0}
+              disabled={loading || pendingPre || draft.trim().length === 0}
               aria-label={t("chat.sendAriaLabel")}
               className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >

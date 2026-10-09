@@ -7,6 +7,7 @@ import "./style.css";
 
 import SiteHeader from "../components/SiteHeader";
 import { useLanguage } from "../lib/i18n/LanguageContext";
+import LearningSummary from "../components/learning-summary";
 import {
   getCurrentUserProfile,
   type AppUserProfile,
@@ -231,6 +232,7 @@ export default function HomePage() {
             <div className="absolute left-[21%] top-[8%] text-3xl text-amber-400">☀</div>
           </div>
         </section>
+        {profile ? <LearningSummary /> : null}
         <HomeFeatures t={t} />
         <HomeDemo t={t} />
       </main>

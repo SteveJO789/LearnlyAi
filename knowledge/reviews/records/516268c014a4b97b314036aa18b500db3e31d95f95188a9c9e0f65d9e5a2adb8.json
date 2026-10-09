@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "review_id": "516268c014a4b97b314036aa18b500db3e31d95f95188a9c9e0f65d9e5a2adb8",
+  "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+  "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+  "artifact_sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+  "normalized_unit": "normalized/siyavula-physical-sciences-g10-g12-ccby/siyavula-physical-sciences-g11-en-ccby-3d893a4364f5/00754.json",
+  "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+  "chapter": "Chapter 11: Electric circuits",
+  "section": "11.2 Ohm's Law > Using Ohm's Law",
+  "asset_locator": "OPS/xhtml/science11/equation/80989ddeab49bf024e2f9c2e41b7b470.png",
+  "asset_kind": "math_image",
+  "latex": "V",
+  "plain_text": "V",
+  "review_status": "verified",
+  "reviewer": "Steve",
+  "reviewed_at": "2026-10-01T10:07:59.311Z"
+}

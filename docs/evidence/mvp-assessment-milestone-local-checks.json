@@ -1,0 +1,220 @@
+{
+  "startedAt": "2026-10-09T16:03:19.303Z",
+  "commit": "7539cb8f8e8e6d2e44f497a56df898f01d422af7",
+  "node": "v24.21.0",
+  "results": [
+    {
+      "name": "knowledge-typecheck",
+      "cwd": "knowledge",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json",
+        "--noEmit"
+      ],
+      "exitCode": 0,
+      "seconds": 0.415,
+      "evidence": []
+    },
+    {
+      "name": "knowledge-build",
+      "cwd": "knowledge",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json"
+      ],
+      "exitCode": 0,
+      "seconds": 0.243,
+      "evidence": []
+    },
+    {
+      "name": "knowledge-tests",
+      "cwd": "knowledge",
+      "args": [
+        "--test",
+        "--test-isolation=none",
+        "test/*.test.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 13.563,
+      "evidence": [
+        "✔ invalid grade and curriculum role values fail schema validation (1.6551ms)",
+        "✔ incomplete formula and worked-example objects fail validation (2.3496ms)",
+        "✔ pilot cannot bypass human workflow by forcing reviewed even with explicit reviewer metadata (267.1152ms)",
+        "✔ missing EPUB image assets fail normalization (1.8962ms)",
+        "✔ raw modification and normalized records without provenance fail validation (197.8168ms)",
+        "ℹ tests 50",
+        "ℹ pass 50",
+        "ℹ fail 0"
+      ]
+    },
+    {
+      "name": "runtime-prepare",
+      "cwd": "knowledge",
+      "args": [
+        "scripts/prepare-runtime.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.282,
+      "evidence": [
+        "Prepared validated reviewed Ohm's Law 0.2.0: 9 files, 34346 bytes."
+      ]
+    },
+    {
+      "name": "api-typecheck",
+      "cwd": "services/api",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json",
+        "--noEmit"
+      ],
+      "exitCode": 0,
+      "seconds": 0.261,
+      "evidence": []
+    },
+    {
+      "name": "api-build",
+      "cwd": "services/api",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json"
+      ],
+      "exitCode": 0,
+      "seconds": 0.291,
+      "evidence": []
+    },
+    {
+      "name": "api-contract-copy",
+      "cwd": "services/api",
+      "args": [
+        "scripts/copy-contract.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.129,
+      "evidence": []
+    },
+    {
+      "name": "api-tests",
+      "cwd": "services/api",
+      "args": [
+        "--test",
+        "test/*.test.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 4.463,
+      "evidence": [
+        "✔ OpenRouterModelProvider does not retry non-transient client errors (2.455ms)",
+        "✔ OpenRouterModelProvider converts a transport timeout without real delays (0.7734ms)",
+        "✔ OpenRouterModelProvider retries a local transport timeout (1.0222ms)",
+        "✔ factory selects Mock without validating irrelevant OpenRouter configuration (0.39ms)",
+        "✔ factory selects OpenRouter and injects its fetch dependency (0.2202ms)",
+        "✔ configuration rejects missing OpenRouter API key (0.3756ms)",
+        "✔ configuration rejects missing OpenRouter model (0.2728ms)",
+        "✔ a citation from history cannot bypass the current-turn source allowlist (103.1811ms)",
+        "✔ OpenRouter transport remains generic with retrieved context and grounded structured output (106.9914ms)",
+        "✔ OpenRouter empty length output retains safe truncation diagnostics without retry or raw body (57.2533ms)",
+        "✔ all supported block discriminators pass validation (1.1234ms)",
+        "✔ blank required content and duplicate references fail (1.0145ms)",
+        "ℹ tests 230",
+        "ℹ pass 230",
+        "ℹ fail 0"
+      ]
+    },
+    {
+      "name": "persistent-rag-integration",
+      "cwd": "services/api",
+      "args": [
+        "--experimental-test-module-mocks",
+        "--test",
+        "test/persisted-rag.integration.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.646,
+      "evidence": [
+        "ℹ tests 9",
+        "ℹ pass 9",
+        "ℹ fail 0"
+      ]
+    },
+    {
+      "name": "rag-offline-evaluation",
+      "cwd": "services/api",
+      "args": [
+        "evaluation/rag/run-offline.mjs",
+        "--output",
+        "C:\\Learn\\Webdev\\LearnlyAi\\.verification\\mvp-completion\\.verification-results\\assessment-milestone\\rag-offline-summary.json"
+      ],
+      "exitCode": 0,
+      "seconds": 0.457,
+      "evidence": []
+    },
+    {
+      "name": "web-typecheck",
+      "cwd": "apps/web",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "exitCode": 0,
+      "seconds": 0.21,
+      "evidence": []
+    },
+    {
+      "name": "web-tests",
+      "cwd": "apps/web",
+      "args": [
+        "scripts/run-tests.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.476,
+      "evidence": [
+        "ℹ tests 12",
+        "ℹ pass 12",
+        "ℹ fail 0"
+      ]
+    },
+    {
+      "name": "web-production-build",
+      "cwd": "apps/web",
+      "args": [
+        "node_modules/next/dist/bin/next",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 5.129,
+      "evidence": [
+        "Route (app)"
+      ]
+    },
+    {
+      "name": "fresh-runtime",
+      "cwd": "services/api",
+      "args": [
+        "scripts/verify-fresh-runtime.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 145.891,
+      "evidence": [
+        "Deterministic: 9 files; identical paths, lengths, SHA-256 and bytes.",
+        "✔ assessment stage gates prevent pre-tests after learning and post-tests before assessment stage (13.6616ms)",
+        "✔ oversized or incomplete teaching passages fail instead of truncating formulas/examples (127.269ms)",
+        "✔ schema violations fail closed (71.58ms)",
+        "✔ oversized/non-string queries fail before artifact IO (0.3129ms)",
+        "✔ a citation from history cannot bypass the current-turn source allowlist (87.2981ms)",
+        "✔ all supported block discriminators pass validation (0.9051ms)",
+        "✔ blank required content and duplicate references fail (0.5653ms)",
+        "ℹ tests 230",
+        "ℹ pass 230",
+        "ℹ fail 0",
+        "ℹ tests 4",
+        "ℹ pass 4",
+        "ℹ fail 0",
+        "Fresh source-only export + relocated deployment runtime: PASS (no primary evidence paths or links)."
+      ]
+    }
+  ],
+  "finishedAt": "2026-10-09T16:06:11.811Z"
+}

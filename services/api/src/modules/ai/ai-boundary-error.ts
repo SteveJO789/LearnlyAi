@@ -10,15 +10,26 @@ const DEFINITIONS = {
 
 export type AIBoundaryErrorCode = keyof typeof DEFINITIONS;
 
+// Internal, bounded diagnostics only. Never include prompts, model content or credentials.
+export interface ModelOutputDiagnostics {
+  readonly subtype: "MODEL_OUTPUT_TRUNCATED" | "MODEL_OUTPUT_INVALID_JSON" | "MODEL_OUTPUT_SCHEMA_INVALID" | "MODEL_OUTPUT_CITATION_INVALID";
+  readonly finishReason?: "stop" | "length" | "content_filter" | "other";
+  readonly outputCharacters: number;
+  readonly inputTokens?: number;
+  readonly outputTokens?: number;
+}
+
 export class AIBoundaryError extends Error {
   readonly code: AIBoundaryErrorCode;
   readonly status: number;
+  readonly diagnostics?: ModelOutputDiagnostics;
 
-  constructor(code: AIBoundaryErrorCode, cause?: unknown) {
+  constructor(code: AIBoundaryErrorCode, cause?: unknown, diagnostics?: ModelOutputDiagnostics) {
     super(DEFINITIONS[code].message, { cause });
     this.name = "AIBoundaryError";
     this.code = code;
     this.status = DEFINITIONS[code].status;
+    this.diagnostics = diagnostics;
   }
 
   toJSON(): { code: AIBoundaryErrorCode; message: string } {
@@ -31,7 +42,17 @@ export function normalizeProviderFailure(error: unknown): AIBoundaryError {
   switch (error.code) {
     case "PROVIDER_TIMEOUT": return new AIBoundaryError("AI_TIMEOUT", error);
     case "PROVIDER_RATE_LIMITED": return new AIBoundaryError("AI_RATE_LIMITED", error);
-    case "PROVIDER_INVALID_RESPONSE": return new AIBoundaryError("AI_INVALID_OUTPUT", error);
+    case "PROVIDER_INVALID_RESPONSE": {
+      const cause = error.cause;
+      const safeCount = (value: unknown): number | undefined => typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? value : undefined;
+      if (cause && typeof cause === "object" && "subtype" in cause && cause.subtype === "MODEL_OUTPUT_TRUNCATED") {
+        const data = cause as Record<string, unknown>;
+        return new AIBoundaryError("AI_INVALID_OUTPUT", error, { subtype: "MODEL_OUTPUT_TRUNCATED", finishReason: "length",
+          outputCharacters: safeCount(data.outputCharacters) ?? 0,
+          inputTokens: safeCount(data.inputTokens), outputTokens: safeCount(data.outputTokens) });
+      }
+      return new AIBoundaryError("AI_INVALID_OUTPUT", error);
+    }
     case "PROVIDER_REQUEST_FAILED": return new AIBoundaryError("AI_REQUEST_FAILED", error);
     default: return new AIBoundaryError("AI_UNAVAILABLE", error);
   }

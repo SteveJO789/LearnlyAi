@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "artifacts": [
+    {
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "filename": "Gr11_PhysicalSciences_Learner_Eng_CC-BY.epub",
+      "raw_path": "raw/siyavula-physical-sciences-g10-g12-ccby/siyavula-physical-sciences-g11-en-ccby-3d893a4364f5/Gr11_PhysicalSciences_Learner_Eng_CC-BY.epub",
+      "sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+      "acquired_at": "2026-10-01T07:13:44.528Z",
+      "parser_version": "2.0.0",
+      "license_status": "allowed",
+      "license": "CC BY 4.0 for the verified Grade 11 English unbranded EPUB",
+      "source_url": "https://www.siyavula.com/downloads/books/science/Gr11_PhysicalSciences_Learner_Eng_CC-BY.epub"
+    },
+    {
+      "source_id": "siyavula-mathematics-g10-g12-ccby",
+      "artifact_id": "siyavula-mathematics-g10-en-unbranded-pilot",
+      "filename": "Gr10_Mathematics_Learner_Eng_CC-BY.epub",
+      "raw_path": "raw/siyavula-mathematics-g10-g12-ccby/siyavula-mathematics-g10-en-unbranded-pilot/Gr10_Mathematics_Learner_Eng_CC-BY.epub",
+      "sha256": "881f0968936e797a6f0fa4df305b92641c52add3812871ae39a791c2ee1e4a99",
+      "acquired_at": "2026-10-01T10:59:07.685Z",
+      "parser_version": "2.1.0",
+      "license_status": "allowed",
+      "license": "CC BY 4.0 for the verified Grade 10 English unbranded EPUB",
+      "source_url": "https://www.siyavula.com/downloads/books/maths/Gr10_Mathematics_Learner_Eng_CC-BY.epub"
+    },
+    {
+      "source_id": "open-logic-project",
+      "artifact_id": "open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107",
+      "filename": "OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107.zip",
+      "raw_path": "raw/open-logic-project/open-logic-source-1e960beff9ed7835bf3e3f1335e21af3439cd107/OpenLogic-1e960beff9ed7835bf3e3f1335e21af3439cd107.zip",
+      "sha256": "ac565ee57b35dda8ac043dcbbc10322b5b4002f12abcbc0b0c5c2ddbea426849",
+      "acquired_at": "2026-10-01T10:59:26.307Z",
+      "parser_version": "2.1.0",
+      "license_status": "allowed",
+      "license": "CC BY 4.0 unless otherwise noted",
+      "source_url": "https://github.com/OpenLogicProject/OpenLogic/archive/1e960beff9ed7835bf3e3f1335e21af3439cd107.zip"
+    }
+  ]
+}

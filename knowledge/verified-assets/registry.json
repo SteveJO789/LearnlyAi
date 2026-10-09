@@ -1,0 +1,236 @@
+{
+  "schema_version": "1.0",
+  "assets": [
+    {
+      "asset_id": "ohms-law-formula",
+      "kind": "equation",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law"
+      },
+      "original_asset_reference": "OPS/xhtml/science11/equation/958d8685992c1e383de8f53c8407b72d.png",
+      "transcription": null,
+      "latex": null,
+      "verification": {
+        "status": "pending",
+        "reviewer": null,
+        "verified_at": null,
+        "method": null
+      }
+    },
+    {
+      "asset_id": "ohms-example-diagram",
+      "kind": "diagram",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law"
+      },
+      "original_asset_reference": "OPS/xhtml/science11/pspicture/115f62b5cb3bc58df40566ac68b62ca5.png",
+      "transcription": null,
+      "latex": null,
+      "verification": {
+        "status": "pending",
+        "reviewer": null,
+        "verified_at": null,
+        "method": null
+      }
+    },
+    {
+      "asset_id": "ohms-example-resistance-part-1",
+      "kind": "equation",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law"
+      },
+      "original_asset_reference": "OPS/xhtml/science11/equation/8649b53cb58ca3be9d670ff659b49286.png",
+      "transcription": null,
+      "latex": null,
+      "verification": {
+        "status": "pending",
+        "reviewer": null,
+        "verified_at": null,
+        "method": null
+      }
+    },
+    {
+      "asset_id": "ohms-example-resistance-part-2",
+      "kind": "equation",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law"
+      },
+      "original_asset_reference": "OPS/xhtml/science11/equation/14779726770d4163b02b70dd770c4b29.png",
+      "transcription": null,
+      "latex": null,
+      "verification": {
+        "status": "pending",
+        "reviewer": null,
+        "verified_at": null,
+        "method": null
+      }
+    },
+    {
+      "asset_id": "ohms-example-current-part-1",
+      "kind": "equation",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law"
+      },
+      "original_asset_reference": "OPS/xhtml/science11/equation/74e86883bef0e0d41fcfaefc9fa34aa1.png",
+      "transcription": null,
+      "latex": null,
+      "verification": {
+        "status": "pending",
+        "reviewer": null,
+        "verified_at": null,
+        "method": null
+      }
+    },
+    {
+      "asset_id": "ohms-example-current-part-2",
+      "kind": "equation",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law"
+      },
+      "original_asset_reference": "OPS/xhtml/science11/equation/0fabba31c8038dc23878966c759da49b.png",
+      "transcription": null,
+      "latex": null,
+      "verification": {
+        "status": "pending",
+        "reviewer": null,
+        "verified_at": null,
+        "method": null
+      }
+    },
+    {
+      "asset_id": "ohms-example-approach",
+      "kind": "equation",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law > Determine how to approach the problem"
+      },
+      "original_asset_reference": "OPS/xhtml/science11/equation/9b2ed768b617f67e1221233cac9b8d1d.png",
+      "transcription": null,
+      "latex": null,
+      "verification": {
+        "status": "pending",
+        "reviewer": null,
+        "verified_at": null,
+        "method": null
+      }
+    },
+    {
+      "asset_id": "ohms-solution-quantity-1",
+      "kind": "equation",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law > Solve the problem"
+      },
+      "original_asset_reference": "OPS/xhtml/science11/equation/e1e1d3d40573127e9ee0480caf1283d6.png",
+      "transcription": null,
+      "latex": null,
+      "verification": {
+        "status": "pending",
+        "reviewer": null,
+        "verified_at": null,
+        "method": null
+      }
+    },
+    {
+      "asset_id": "ohms-solution-quantity-2",
+      "kind": "equation",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law > Solve the problem"
+      },
+      "original_asset_reference": "OPS/xhtml/science11/equation/dd7536794b63bf90eccfd37f9b147d7f.png",
+      "transcription": null,
+      "latex": null,
+      "verification": {
+        "status": "pending",
+        "reviewer": null,
+        "verified_at": null,
+        "method": null
+      }
+    },
+    {
+      "asset_id": "ohms-solution-quantity-3",
+      "kind": "equation",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law > Solve the problem"
+      },
+      "original_asset_reference": "OPS/xhtml/science11/equation/5206560a306a2e085a437fd258eb57ce.png",
+      "transcription": null,
+      "latex": null,
+      "verification": {
+        "status": "pending",
+        "reviewer": null,
+        "verified_at": null,
+        "method": null
+      }
+    },
+    {
+      "asset_id": "ohms-example-solution",
+      "kind": "equation",
+      "artifact_id": "siyavula-physical-sciences-g11-en-ccby-3d893a4364f5",
+      "source_id": "siyavula-physical-sciences-g10-g12-ccby",
+      "artifact_sha256": "3d893a4364f52efe1991360302cfccb06030e03ad67d725867fb48f0f177a0f9",
+      "source_document": "OPS/xhtml/science11/11-electric-circuits-01.cnxmlplus.html",
+      "locator": {
+        "chapter": "Chapter 11: Electric circuits",
+        "section": "11.2 Ohm's Law > Using Ohm's Law > Worked example 1: Ohm's Law > Solve the problem"
+      },
+      "original_asset_reference": "OPS/xhtml/science11/equation/f4fc9c4b2019001565f443a461414bc2.png",
+      "transcription": null,
+      "latex": null,
+      "verification": {
+        "status": "pending",
+        "reviewer": null,
+        "verified_at": null,
+        "method": null
+      }
+    }
+  ]
+}

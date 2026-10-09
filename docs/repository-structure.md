@@ -19,15 +19,13 @@ LearnlyAi/
 │       │   │   ├── ai-orchestrator/
 │       │   │   └── rag/
 │       │   └── shared/
-│       ├── prisma/
-│       │   ├── schema.prisma
-│       │   └── migrations/
+│       ├── src/prisma/contract.prisma
+│       ├── migrations/
 │       └── tests/
 ├── contracts/                     # JSON Schema และตัวอย่างที่ใช้ร่วมกัน
 ├── docs/                          # Architecture/API/Data decisions
-├── infra/                         # Docker Compose และ deployment config
+├── infra/                         # Vercel/Supabase deployment guidance (no Docker)
 ├── tests/e2e/                     # Cross-service smoke tests
-├── .env.example
 └── README.md
 ```
 

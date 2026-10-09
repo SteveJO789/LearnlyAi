@@ -66,10 +66,21 @@ jobs:
         with:
           node-version: 24.x
           cache: npm
-          cache-dependency-path: services/api/package-lock.json
+          cache-dependency-path: |
+            services/api/package-lock.json
+            knowledge/package-lock.json
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
+
+      - name: Install Knowledge build dependencies
+        run: npm --prefix ../../knowledge ci --no-audit --no-fund
+
+      - name: Prepare validated minimal runtime Knowledge
+        run: npm run knowledge:prepare-runtime
+
+      - name: Verify source-only runtime preparation and determinism
+        run: node --test ../../knowledge/test/runtime-knowledge.test.mjs
 
       - name: Type check
         run: npm run lint
@@ -79,3 +90,9 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Verify fresh source export and relocated API runtime
+        run: npm run knowledge:verify-fresh
+
+      - name: Verify authenticated persisted RAG flow with offline transports
+        run: npm run test:persistent

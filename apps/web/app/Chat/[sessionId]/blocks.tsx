@@ -1,5 +1,6 @@
 import type { Block, Citation } from "./api";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
+import InteractiveLesson from "../../components/interactive-lesson";
 
 type ChoiceOption = { key: string; label: string };
 
@@ -125,11 +126,7 @@ export default function BlockView({ block, interactive, onChoose }: BlockViewPro
     }
 
     case "interactive":
-      return (
-        <section className="rounded-2xl border border-dashed border-surface-border p-5 text-sm text-muted">
-          Interactive component “{block.component}” {t("chat.blocks.interactiveNotBuilt")}
-        </section>
-      );
+      return <InteractiveLesson component={block.component} props={block.props} enabled={interactive} />;
 
     default: {
       // A block type this page doesn't know yet: show its text if it has any.
