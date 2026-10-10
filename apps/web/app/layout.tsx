@@ -4,6 +4,7 @@ import { Fredoka } from "next/font/google";
 
 import "./globals.css";
 import { Providers } from "./providers"; // Import เพิ่มตรงนี้
+import ShootingStars from "./components/ShootingStars";
 
 const fredoka = Fredoka({
   subsets: ["latin"],
@@ -25,7 +26,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="th" suppressHydrationWarning>
       <body className={fredoka.variable}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <ShootingStars />
+          {children}
+        </Providers>
       </body>
     </html>
   );
