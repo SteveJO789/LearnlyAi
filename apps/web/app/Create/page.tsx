@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import SiteHeader from "../components/SiteHeader";
 import CuteLoadingPopup from "../components/CuteLoadingPopup";
+import CreateMagicCharacters from "./CreateMagicCharacters";
 import { useLanguage } from "../lib/i18n/LanguageContext";
 import { createLearningSession, createTextMaterial } from "../../lib/learning-sessions";
 import { getCurrentUserProfile, type AppUserProfile } from "../../lib/user-profile";
@@ -94,6 +95,7 @@ export default function CreatePage() {
   return (
     <div className="min-h-screen bg-background text-text relative">
       {isStarting && <CuteLoadingPopup message="กำลังสร้างบทเรียน..." detail="กำลังบันทึกข้อมูลและเตรียมห้องเรียนของคุณ 🚀" />}
+      <CreateMagicCharacters />
       {/* เลเยอร์ท้องฟ้าการ์ตูน: แสงฟุ้งและดาวลอย */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         {/* กลุ่มแสงฟุ้งเกรเดียนต์เบื้องหลัง */}
@@ -143,6 +145,17 @@ export default function CreatePage() {
           }}
         >
           {t("home.greeting")} <span className="inline-block max-w-full break-words">{profile?.displayName ?? "..."}</span>
+        </div>
+
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => router.push("/Lessons")}
+            className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-surface/80 px-4 py-2 text-sm font-medium text-primary shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
+          >
+            <span aria-hidden="true">←</span>
+            {t("nav.lessons")}
+          </button>
         </div>
 
         <div className="mx-auto mt-8 w-full max-w-3xl px-2 text-center sm:px-4">

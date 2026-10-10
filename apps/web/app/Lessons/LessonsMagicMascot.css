@@ -1,0 +1,199 @@
+.lessons-mascot-zone {
+  position: relative;
+  flex: 0 0 clamp(100px, 22vw, 190px);
+  height: 116px;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout paint;
+}
+.lessons-tiny-wizard {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  width: 88px;
+  height: 106px;
+  transform-origin: bottom center;
+  animation: lessons-wizard-walk 7.2s ease-in-out infinite;
+  filter: drop-shadow(0 7px 7px rgb(77 51 130 / .15));
+}
+.lessons-wizard-hat {
+  position: absolute;
+  z-index: 4;
+  left: 8px;
+  top: -7px;
+  width: 72px;
+  height: 52px;
+  background: linear-gradient(135deg,#ad9aff 5%,#7660d8 72%,#5140a8);
+  clip-path: polygon(50% 0, 67% 61%, 100% 82%, 3% 87%, 31% 67%);
+  filter: drop-shadow(2px 3px 2px rgb(54 39 117 / .2));
+}
+.lessons-wizard-hat i {
+  position: absolute;
+  left: 45px;
+  top: 29px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff0a6;
+  box-shadow: 0 0 7px #fff2b3;
+}
+.lessons-wizard-face {
+  position: absolute;
+  z-index: 3;
+  left: 22px;
+  top: 27px;
+  width: 45px;
+  height: 38px;
+  border-radius: 46% 46% 48% 48%;
+  background: linear-gradient(145deg,#ffe3c7,#f4b995);
+  box-shadow: inset -3px -3px 0 rgb(197 116 100 / .12);
+}
+.lessons-wizard-eye {
+  position: absolute;
+  top: 16px;
+  width: 4px;
+  height: 6px;
+  border-radius: 50%;
+  background: #49365d;
+}
+.lessons-eye-left { left: 12px; }
+.lessons-eye-right { right: 12px; }
+.lessons-wizard-blush {
+  position: absolute;
+  top: 23px;
+  width: 8px;
+  height: 4px;
+  border-radius: 50%;
+  background: #f28d9e;
+  opacity: .75;
+}
+.lessons-blush-left { left: 4px; }
+.lessons-blush-right { right: 4px; }
+.lessons-wizard-smile {
+  position: absolute;
+  left: 20px;
+  top: 23px;
+  width: 6px;
+  height: 4px;
+  border-bottom: 1.5px solid #9b5961;
+  border-radius: 0 0 8px 8px;
+}
+.lessons-wizard-beard {
+  position: absolute;
+  z-index: 4;
+  left: 31px;
+  top: 51px;
+  width: 28px;
+  height: 25px;
+  background: linear-gradient(145deg,#fff8ed,#d9d0e9);
+  clip-path: polygon(0 0,100% 0,80% 65%,50% 100%,20% 65%);
+  border-radius: 6px;
+}
+.lessons-wizard-body {
+  position: absolute;
+  z-index: 2;
+  left: 17px;
+  top: 58px;
+  width: 55px;
+  height: 40px;
+  border-radius: 22px 22px 15px 15px;
+  background: linear-gradient(120deg,#b0a0ff,#7964dc 72%,#5a48b7);
+  box-shadow: inset 5px 2px 0 rgb(255 255 255 / .18), inset -4px -3px 0 rgb(54 38 124 / .12);
+  text-align: center;
+  padding-top: 10px;
+}
+.lessons-wizard-body i {
+  color: #ffe99b;
+  font-size: 11px;
+  font-style: normal;
+  text-shadow: 0 0 7px #fff2b0;
+}
+.lessons-wizard-wand {
+  position: absolute;
+  z-index: 5;
+  right: 1px;
+  top: 40px;
+  width: 4px;
+  height: 31px;
+  border-radius: 5px;
+  background: linear-gradient(90deg,#bd8c54,#ffe2a0);
+  transform: rotate(25deg);
+  transform-origin: bottom center;
+  animation: lessons-wand-wave 2.4s ease-in-out infinite;
+}
+.lessons-wizard-wand i {
+  position: absolute;
+  top: -6px;
+  left: -4px;
+  width: 12px;
+  height: 12px;
+  background: #fff0a8;
+  clip-path: polygon(50% 0,62% 35%,100% 50%,62% 65%,50% 100%,38% 65%,0 50%,38% 35%);
+  filter: drop-shadow(0 0 5px #ffe99b);
+}
+.lessons-wizard-feet {
+  position: absolute;
+  z-index: 3;
+  left: 22px;
+  bottom: 5px;
+  display: flex;
+  gap: 14px;
+}
+.lessons-wizard-feet i {
+  width: 17px;
+  height: 9px;
+  border-radius: 50%;
+  background: linear-gradient(180deg,#e7b18e,#bc7e77);
+  animation: lessons-feet-step .42s ease-in-out infinite alternate;
+}
+.lessons-wizard-feet i:last-child { animation-delay: .21s; }
+.lessons-wizard-shadow {
+  position: absolute;
+  bottom: 0;
+  left: 13%;
+  width: 75%;
+  height: 7px;
+  border-radius: 50%;
+  background: rgb(78 61 130 / .15);
+  filter: blur(3px);
+}
+.lessons-mascot-spark {
+  position: absolute;
+  z-index: 1;
+  color: #e7b954;
+  text-shadow: 0 0 8px rgb(255 224 140 / .75);
+  animation: lessons-sparkle 2.5s ease-in-out infinite;
+}
+.lessons-mascot-spark-one { left: 5px; top: 15px; font-size: 15px; }
+.lessons-mascot-spark-two { left: 48%; top: 9px; font-size: 18px; animation-delay: .8s; }
+.lessons-mascot-spark-three { right: 8px; top: 45px; font-size: 13px; animation-delay: 1.4s; }
+@keyframes lessons-wizard-walk {
+  0%, 8%, 23%, 38%, 53%, 68%, 83%, 100% { transform: translateX(0) rotate(0); }
+  13%, 18%, 43%, 48%, 73%, 78% { transform: translateX(24px) rotate(3deg); }
+  28%, 33%, 58%, 63%, 88%, 93% { transform: translateX(8px) rotate(-2deg); }
+}
+@keyframes lessons-wand-wave {
+  0%, 100% { transform: rotate(25deg); }
+  50% { transform: rotate(43deg); }
+}
+@keyframes lessons-feet-step {
+  from { transform: translateY(0) rotate(-5deg); }
+  to { transform: translateY(-3px) rotate(8deg); }
+}
+@keyframes lessons-sparkle {
+  0%, 100% { opacity: .4; transform: scale(.8) rotate(0); }
+  50% { opacity: 1; transform: scale(1.12) rotate(18deg); }
+}
+@media (max-width: 520px) {
+  .lessons-mascot-zone { flex-basis: 92px; height: 92px; }
+  .lessons-tiny-wizard { transform: scale(.78); transform-origin: bottom left; animation-name: lessons-wizard-walk-mobile; }
+  .lessons-mascot-spark-two { left: 43%; }
+}
+@keyframes lessons-wizard-walk-mobile {
+  0%, 8%, 23%, 38%, 53%, 68%, 83%, 100% { translate: 0 0; rotate: 0deg; }
+  13%, 18%, 43%, 48%, 73%, 78% { translate: 5px 0; rotate: 2deg; }
+  28%, 33%, 58%, 63%, 88%, 93% { translate: 1px 0; rotate: -2deg; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lessons-tiny-wizard, .lessons-wizard-wand, .lessons-wizard-feet i, .lessons-mascot-spark { animation: none; }
+}
