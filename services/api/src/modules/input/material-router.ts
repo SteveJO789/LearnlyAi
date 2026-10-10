@@ -3,6 +3,7 @@ import { requireSupabaseUser, type AuthenticatedRequest } from "../auth/supabase
 import { authenticatedDb, verifiedUser } from "../../shared/authenticated-context.js";
 import { ApiError } from "../../shared/api-error.js";
 import { PrismaTextMaterials, normalizeTextMaterial } from "./text-materials.js";
+import { appUserIdForAuthUser } from "../../shared/app-user.js";
 
 export function createMaterialRouter() {
   const router = Router({ mergeParams: true });
@@ -18,7 +19,8 @@ export function createMaterialRouter() {
       const sessionId = request.params.sessionId;
       if (typeof sessionId !== "string" || !sessionId.trim() || sessionId.length > 128) throw new ApiError("VALIDATION_ERROR", 400, "A valid session id is required.");
       const text = normalizeTextMaterial(body.text);
-      const store = new PrismaTextMaterials(await authenticatedDb(request), verifiedUser(request).id);
+      const client = await authenticatedDb(request);
+      const store = new PrismaTextMaterials(client, await appUserIdForAuthUser(client, verifiedUser(request).id));
       response.status(201).json({ data: await store.create(sessionId, text) });
     } catch (error) { next(error); }
   });

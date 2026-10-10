@@ -15,7 +15,9 @@ function runFixture({price='0.0000003',maxCalls=13}={}) {
       globalThis.fetch=async(url,init)=>{
         if(url==='https://openrouter.ai/api/v1/models') return Response.json({data:[{id:'fixture/model',pricing:{prompt:${JSON.stringify(price)},completion:${JSON.stringify(price)}}}]});
         if(url!=='https://openrouter.ai/api/v1/chat/completions') throw new Error('Unexpected external URL');
-        const body=JSON.parse(init.body); const output=mockTutorScenario({messages:body.messages});
+        const body=JSON.parse(init.body);
+        if(body.provider?.allow_fallbacks!==false || body.provider?.max_price?.prompt!==Number(${JSON.stringify(price)})*1000000 || body.provider?.max_price?.completion!==Number(${JSON.stringify(price)})*1000000) throw new Error('Native price ceiling is missing');
+        const output=mockTutorScenario({messages:body.messages});
         return Response.json({model:'fixture/model',choices:[{message:{content:JSON.stringify(output)},finish_reason:'stop'}],usage:{prompt_tokens:100,completion_tokens:100,cost:0.0001}});
       };`);
     const result=spawnSync(process.execPath,['--import',pathToFileURL(loader).href,'evaluation/rag/run-adaptive-live.mjs','--budget-usd=1',`--max-calls=${maxCalls}`,`--ledger=${ledger}`,`--output=${output}`],

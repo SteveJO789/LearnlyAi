@@ -28,14 +28,15 @@ let store;
 function reset() { store = { User: [], LearningSession: [], Message: [], writes: 0, boundUsers: [] }; }
 const clone = x => x === undefined ? undefined : structuredClone(x);
 function dbClient(userId) {
-  const visible = (table, row) => table === 'User' ? row.id === userId : table === 'LearningSession' ? row.userId === userId : store.LearningSession.some(s => s.id === row.learningSessionId && s.userId === userId);
+  const appId = () => store.User.find(row => row.authUserId === userId)?.id ?? userId;
+  const visible = (table, row) => table === 'User' ? row.authUserId === userId : table === 'LearningSession' ? row.userId === appId() : store.LearningSession.some(s => s.id === row.learningSessionId && s.userId === appId());
   function tableApi(table, filters = {}) {
     const rows = () => store[table].filter(row => visible(table, row) && Object.entries(filters).every(([key,value]) => row[key] === value));
     return {
       where: more => tableApi(table, { ...filters, ...more }), select: () => tableApi(table, filters),
       orderBy: () => tableApi(table, filters), first: async () => clone(rows()[0] ?? null), all: async () => clone(rows()),
       update: async values => { const row = rows()[0]; if (!row) return 0; Object.assign(row, clone(values)); store.writes++; return 1; },
-      create: async row => { assert.ok(visible(table,row)); store[table].push(clone(row)); store.writes++; return clone(row); },
+      create: async row => { assert.ok(visible(table,row)); if (table === 'User') assert.ok(!store.User.some(user => user.authUserId === row.authUserId), 'authUserId must remain unique'); store[table].push(clone(row)); store.writes++; return clone(row); },
     };
   }
   const sql = (strings, ...values) => {
@@ -60,14 +61,14 @@ function dbClient(userId) {
         assert.ok(apiWrite, 'Server-managed writes require the transaction-local API context');
         if (/SET "lifecycleState" = 'ACTIVE'/.test(plan.text)) {
           const [updatedAt, id, owner, expected] = plan.values;
-          const row = store.LearningSession.find(s => s.id === id && s.userId === owner && owner === userId && s.lifecycleState === 'FAILED' && s.version === expected);
+          const row = store.LearningSession.find(s => s.id === id && s.userId === owner && owner === appId() && s.lifecycleState === 'FAILED' && s.version === expected);
           if (!row) return { affectedRows: 0 };
           row.lifecycleState = 'ACTIVE'; row.version++; row.updatedAt = updatedAt; store.writes++;
           return { affectedRows: 1 };
         }
         if (/INSERT INTO public\."LearningSession"/.test(plan.text)) {
           const [id, owner, title, goal, subject, state, lifecycleState, stage, progressPercent, version, createdAt, updatedAt] = plan.values;
-          assert.equal(owner, userId);
+          assert.equal(owner, appId());
           if (store.LearningSession.some(row => row.id === id)) return { affectedRows: 0 };
           store.LearningSession.push({ id, userId: owner, title, learningGoal: goal || null, subject: subject || null,
             state, lifecycleState, stage, progressPercent, version, createdAt, updatedAt, completedAt: null });
@@ -75,7 +76,7 @@ function dbClient(userId) {
         }
         if (/UPDATE public\."LearningSession"/.test(plan.text)) {
           const [goal,subject,state,lifecycleState,stage,progressPercent,version,updatedAt,id,owner,expected] = plan.values;
-          const row = store.LearningSession.find(s => s.id === id && s.userId === owner && s.userId === userId && s.version === expected);
+          const row = store.LearningSession.find(s => s.id === id && s.userId === owner && s.userId === appId() && s.version === expected);
           if (!row) return { affectedRows: 0 };
           Object.assign(row, { learningGoal: goal || null, subject: subject || null, state,lifecycleState,stage,progressPercent,version,updatedAt });
           store.writes++; return { affectedRows: 1 };
@@ -85,7 +86,7 @@ function dbClient(userId) {
         const role = /'SYSTEM'/.test(plan.text) ? 'SYSTEM' : roleOrContent;
         const contentJson = role === 'SYSTEM' ? roleOrContent : contentOrAt;
         const createdAt = role === 'SYSTEM' ? contentOrAt : maybeAt;
-        assert.ok(store.LearningSession.some(s => s.id === learningSessionId && s.userId === userId));
+        assert.ok(store.LearningSession.some(s => s.id === learningSessionId && s.userId === appId()));
         store.Message.push({ id,learningSessionId,role,content: JSON.parse(contentJson),createdAt });
         store.writes++; return { affectedRows: 1 };
       }}); } catch(error) { store = snapshot; throw error; }
@@ -124,6 +125,30 @@ test('creating another learning session preserves the user-selected profile avat
     store.User[0].avatarUrl = 'https://example.invalid/custom-avatar.png';
     await session(call);
     assert.equal(store.User[0].avatarUrl, 'https://example.invalid/custom-avatar.png');
+  });
+});
+test('a legacy owned application user retains identity, profile and session history across create/learn/recovery', async () => {
+  let fail = false;
+  await withApp(request => fail ? '{invalid' : mockTutorScenario(request), async ({ call }) => {
+    store.User.push({ id: 'legacy-app-user', authUserId: 'synthetic-user-a', email: 'synthetic-user-a@example.invalid',
+      displayName: 'Existing custom name', avatarUrl: 'https://example.invalid/selected-avatar.png' });
+    const id = await session(call);
+    assert.equal(store.User.length, 1);
+    assert.equal(store.LearningSession[0].userId, 'legacy-app-user');
+    assert.equal(store.User[0].displayName, 'Existing custom name');
+    assert.equal(store.User[0].avatarUrl, 'https://example.invalid/selected-avatar.png');
+    assert.equal((await call('')).body.data.length, 1);
+    assert.equal((await call(`/${id}`)).status, 200);
+    assert.equal((await call(`/${id}`, { token: 'test-token-b' })).status, 404);
+    assert.equal((await call(`/${id}/interactions`, { method:'POST',body:{input:"Explain Ohm's law"} })).status, 200);
+    fail = true;
+    assert.equal((await call(`/${id}/interactions`, { method:'POST',body:{input:"I don't understand"} })).status, 502);
+    assert.equal((await call(`/${id}/recovery`, { token:'test-token-b',method:'POST',body:{} })).status, 404);
+    assert.equal((await call(`/${id}/recovery`, { method:'POST',body:{} })).status, 200);
+    fail = false;
+    assert.equal((await call(`/${id}/interactions`, { method:'POST',body:{input:"I don't understand"} })).status, 200);
+    assert.equal((await call(`/${id}`)).body.data.messages.filter(message=>message.role==='TUTOR').length, 2);
+    assert.equal(store.User[0].id, 'legacy-app-user');
   });
 });
 test('authenticated persisted route retrieves reviewed Knowledge, restores citations and uses history with engine-owned metadata', async () => {

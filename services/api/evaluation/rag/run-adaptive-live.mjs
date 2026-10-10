@@ -45,7 +45,10 @@ try {
     ledger.entries.push(entry);writeFileSync(ledgerPath,JSON.stringify(ledger,null,2));calls++;
     // Keep conservative reservations even if actual cost is lower or response is ambiguous.
     try {
-      const response=await fetch(url,{...init,redirect:'error',body:JSON.stringify({...body,usage:{include:true}})});
+      // Model-list prices may be a minimum across endpoints. Enforce the same
+      // ceiling at routing in USD per million tokens, with no provider fallback.
+      const response=await fetch(url,{...init,redirect:'error',body:JSON.stringify({...body,usage:{include:true},
+        provider:{max_price:{prompt:inputPrice*1000000,completion:outputPrice*1000000},allow_fallbacks:false}})});
       const payload=await response.clone().json().catch(()=>null);
       const cost=payload?.usage?.cost;
       if(typeof cost==='number'&&Number.isFinite(cost)&&cost>=0) entry.reportedCostUSD=cost;

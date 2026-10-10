@@ -16,6 +16,7 @@ import { LearningError } from "./learning-errors.js";
 import { PrismaLearningPersistence } from "./prisma-learning-persistence.js";
 import { readPersistedMessages, type PersistedMessage } from "./persisted-messages.js";
 import { logSessionLoadFailure } from "../../shared/safe-diagnostics.js";
+import { appUserIdForAuthUser } from "../../shared/app-user.js";
 
 type SessionRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["LearningSession"]["first"]>>>;
 
@@ -66,15 +67,14 @@ function readOptionalText(
   return value.trim();
 }
 
-async function ensureAppUser(client: UserDb, user: AuthenticatedUser): Promise<void> {
-  const existing = await client.orm.public.User.where({ id: user.id }).select("id").first();
+async function ensureAppUser(client: UserDb, user: AuthenticatedUser): Promise<string> {
+  const existing = await client.orm.public.User.where({ authUserId: user.id }).select("id").first();
   if (existing) {
-    await client.orm.public.User.where({ id: user.id }).update({
-      authUserId: user.id,
+    await client.orm.public.User.where({ id: existing.id }).update({
       email: user.email,
       updatedAt: new Date().toISOString(),
     });
-    return;
+    return existing.id;
   }
 
   await client.orm.public.User.create({
@@ -86,6 +86,7 @@ async function ensureAppUser(client: UserDb, user: AuthenticatedUser): Promise<v
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
+  return user.id;
 }
 
 function requireUser(request: AuthenticatedRequest): AuthenticatedUser {
@@ -142,13 +143,13 @@ export function createLearningSessionsRouter(
         (subject ? `${subject} learning session` : "New learning session");
 
       const client = await requestDb(request);
-      await ensureAppUser(client, user);
+      const appUserId = await ensureAppUser(client, user);
 
       const now = new Date().toISOString();
       const id = randomUUID();
       const row = {
         id,
-        userId: user.id,
+        userId: appUserId,
         title,
         learningGoal: learningGoal ?? null,
         subject: subject ?? null,
@@ -183,8 +184,9 @@ export function createLearningSessionsRouter(
     try {
       const user = requireUser(request);
       const client = await requestDb(request);
+      const appUserId = await appUserIdForAuthUser(client, user.id);
       const rows = await client.orm.public.LearningSession
-        .where({ userId: user.id })
+        .where({ userId: appUserId })
         .orderBy((session) => session.updatedAt.desc())
         .all();
 
@@ -202,9 +204,10 @@ export function createLearningSessionsRouter(
       const user = requireUser(request);
       const sessionId = readSessionId(request);
       const client = await requestDb(request);
+      const appUserId = await appUserIdForAuthUser(client, user.id);
       phase = "session";
       const session = await client.orm.public.LearningSession
-        .where({ id: sessionId, userId: user.id })
+        .where({ id: sessionId, userId: appUserId })
         .first();
 
       if (!session) {
@@ -221,7 +224,7 @@ export function createLearningSessionsRouter(
 
       phase = "messages";
       const messages = await readPersistedMessages(client, session.id);
-      const materials = await new PrismaTextMaterials(client, user.id).list(session.id);
+      const materials = await new PrismaTextMaterials(client, appUserId).list(session.id);
 
       phase = "response";
       response.status(200).json({
@@ -260,13 +263,14 @@ export function createLearningSessionsRouter(
           throw new LearningError("VALIDATION_ERROR", [{ path: "/", message: "Use an empty JSON object for explicit recovery." }]);
         }
         const client = await requestDb(request);
-        const row = await client.orm.public.LearningSession.where({ id: sessionId, userId: user.id }).first();
+        const appUserId = await appUserIdForAuthUser(client, user.id);
+        const row = await client.orm.public.LearningSession.where({ id: sessionId, userId: appUserId }).first();
         if (!row) { response.status(404).json({ error: { code: "NOT_FOUND", message: "Learning session was not found.", requestId: response.locals.requestId, details: [] } }); return; }
         if (row.lifecycleState !== "FAILED") throw new LearningError("SESSION_INACTIVE", [{ path: "/sessionId", message: "Only a failed session can be recovered." }]);
         const at = new Date().toISOString();
         const restored = await withApiWrite(client, async tx => {
           const update = client.raw.sql`UPDATE public."LearningSession" SET "lifecycleState" = 'ACTIVE', "version" = "version" + 1, "updatedAt" = ${at}::timestamptz
-            WHERE "id" = ${sessionId} AND "userId" = ${user.id} AND "lifecycleState" = 'FAILED' AND "version" = ${row.version}`.affectedCount().build();
+            WHERE "id" = ${sessionId} AND "userId" = ${appUserId} AND "lifecycleState" = 'FAILED' AND "version" = ${row.version}`.affectedCount().build();
           if ((await tx.execute(update)).affectedRows !== 1) return false;
           const event = JSON.stringify({ event: "SESSION_RECOVERED", previousLifecycleState: "FAILED", at });
           await tx.execute(client.raw.sql`INSERT INTO public."Message" ("id", "learningSessionId", "role", "content", "createdAt")
@@ -298,8 +302,9 @@ export function createLearningSessionsRouter(
 
         const sessionId = readSessionId(request);
         const client = await requestDb(request);
+        const appUserId = await appUserIdForAuthUser(client, user.id);
       const session = await client.orm.public.LearningSession
-          .where({ id: sessionId, userId: user.id })
+          .where({ id: sessionId, userId: appUserId })
           .first();
 
         if (!session) {
@@ -329,21 +334,21 @@ export function createLearningSessionsRouter(
         }
 
         if (action === "ADVANCE" && session.stage === "ASSESS") {
-          const assessment = await new PrismaAssessmentStore(client, user.id).getAssessment(session.id, "POST");
+          const assessment = await new PrismaAssessmentStore(client, appUserId).getAssessment(session.id, "POST");
           if (!assessment?.submittedAt) throw new LearningError("INVALID_STAGE_TRANSITION", [
             { path: "/action", message: "Submit the post-test before completing the learning session." },
           ]);
         }
 
         if (session.state === "PRE_TEST" && session.stage === "EXPLAIN") {
-          const assessment = await new PrismaAssessmentStore(client, user.id).getAssessment(session.id, "PRE");
+          const assessment = await new PrismaAssessmentStore(client, appUserId).getAssessment(session.id, "PRE");
           if (!assessment?.submittedAt) throw new LearningError("INVALID_STAGE_TRANSITION", [
             { path: "/action", message: "Submit the pre-test before starting this learning session." },
           ]);
         }
 
         const persistence = new PrismaLearningPersistence({
-          userId: user.id,
+          userId: appUserId,
           client,
           titleForSession: () => session.title,
         });
@@ -352,7 +357,7 @@ export function createLearningSessionsRouter(
           modelProvider: options.modelProvider,
           knowledgeRetriever: options.knowledgeRetriever,
           knowledgeRoot: options.knowledgeRoot,
-          materials: new PrismaTextMaterials(client, user.id),
+          materials: new PrismaTextMaterials(client, appUserId),
         });
 
         const result = await engine.process({

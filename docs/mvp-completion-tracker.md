@@ -155,3 +155,23 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - develop 5022c28: Vercel Web status success, API failure; connector 403 และ browser initialization ล้มเหลว ยังไม่มี build log/cause ที่ยืนยัน จึงไม่เดาสาเหตุหรือ redeploy เพื่อเผา quota
 - อ่าน public catalog ซ้ำ: Assessment ยังไม่มี topic/snapshot/submissionHash; Assessment/Answer/Profile/SourceMaterial มี SELECT policies เท่านั้น ยังไม่มี API-write policies ใหม่ ไม่มี public migration โดย agent
 - กำลังรอคำตอบเรื่องซ่อม npm ส่วนกลางและข้อความ Vercel build error; ทำ historical migration verification และส่วนที่ไม่ต้องติดตั้ง dependency ต่อได้
+
+### Milestone 8 — Fresh database baseline / ตรวจพบข้อบกพร่อง historical replay
+
+- PR #78 เปิดและ CI run162 ผ่านสำหรับ remote 6fd9d8b: https://github.com/SteveJO789/LearnlyAi/actions/runs/38020135720 . ยังไม่ใช่ proof ของ milestones หลังจาก head นี้
+- main ถูกทีม merge develop ผ่าน PR #77 เป็น 0602e0c; agent ไม่ merge/main/deploy และยังคง CD เฉพาะ develop
+- Legacy 8-migration SQL replay ล้มเหลวที่ policy drop precheck: snapshot 075d335 อ้าง policies 10 ตัว แต่ migration ก่อนหน้าไม่สร้าง policies เหล่านั้น; graph integrity PASS ไม่พิสูจน์ replay ได้ เก็บผล failed และ rollback แล้ว fixture_removed=true
+- สร้างทางเลือก baseline ใหม่จาก @empty→d17a8bc ด้วย Prisma CLI โดยไม่แก้ historical hashes: current tables/FKs/indexes/RLS + explicit app table grants, ไม่มี legacy Auth tables/data cleanup หรือ global role mutation
+- Actual PostgreSQL rollback test: **68 SQL steps / 126 canonical pre/post checks PASS**, owner legacy identity อ่านได้/foreign user อ่านไม่ได้; fixture_removed=true
+- Read-only db migrate --show เลือก fresh app baseline + existing Supabase descriptor record; ยังไม่ execute Prisma marker/history หรือ public production migration
+- [หลักฐาน](evidence/mvp-fresh-baseline-verification.json); existing DB ต้องใช้ verified current marker ไม่ replay fresh baseline
+- เพิ่ม routing max_price/no provider fallback ใน paid evaluation runner เพื่อให้ราคา endpoint ไม่เกินราคาใช้คำนวณ reservation; offline budget tests 3/3 ผ่าน ไม่เรียก paid model เพิ่ม
+
+### Milestone 9 — รักษา ownership/history ของข้อมูลบัญชีเก่า
+
+- Aggregate audit พบ User.id ≠ authUserId 1 แถว โดยไม่อ่าน/แสดงตัวตนหรือข้อมูล learner; historical backfill รองรับกรณีนี้ แต่ API/Profile lookup เดิมสมมติ id=Auth UID
+- Backend resolve owned application User.id ผ่าน authUserId ภายใต้ JWT-bound Prisma/RLS เดิม ก่อนใช้ FK filters สำหรับ sessions/recovery/materials/assessments/profile; ไม่เปลี่ยน verified Auth identity หรือข้อมูลจริง
+- Browser profile sync/read/edit/theme lookup ใช้ authUserId; คง primary key, ชื่อและ custom avatar ของบัญชีเก่า และคง convention ของบัญชีใหม่
+- Simulated persistent integration **11/11**, frontend **16/16**, API **239/239**, API/Web typechecks/compile และ Web production build PASS
+- Fresh source-only export + relocated runtime PASS: API239/239 และ runtime4/4; snapshot ก่อนเพิ่ม native routing price guard ซึ่งมี budget tests3/3 แยก ไม่อ้างว่า export ตรวจ price guard ใหม่แล้ว
+- ยังไม่ใช่ actual OAuth/browser E2E หรือ live deployed repair; production schema/API deploy และ npm repair approvals/log access ยังเป็น blockers

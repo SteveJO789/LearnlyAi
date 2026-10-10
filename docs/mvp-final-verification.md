@@ -68,6 +68,14 @@ Canonical migrations ถูกเตรียมแล้วและ unscoped m
 
 ## รายการก่อน release
 
+อัปเดตหลังเปิด [PR #78](https://github.com/SteveJO789/LearnlyAi/pull/78): CI run162 ผ่านสำหรับ head 6fd9d8b ก่อนงานต่อไปนี้ Latest local เพิ่มเป็น API239/239, persistent integration11/11 และ frontend16/16; builds/typechecks ผ่าน และ fresh source export239/239 + relocated runtime4/4 ผ่าน
+
+พบ historical SQL replay failure จริง แม้ graph integrity ผ่าน: migration อ้าง policies ที่ predecessor ไม่สร้าง เก็บ migration เก่าไว้และเพิ่ม fresh baseline จาก @empty แทน การตรวจจริงใน rollback schema ผ่าน68SQLsteps/126canonicalchecks พร้อม RLS isolation และ cleanup [หลักฐาน](evidence/mvp-fresh-baseline-verification.json) ยังไม่ใช่ Prisma executor/marker verification; ฐานข้อมูลเดิมต้องเดินต่อจาก verified current marker ไม่ replay baseline
+
+แก้ legacy User.id/authUserId mismatch ที่ตรวจพบแบบ aggregate1แถว: resolve application primary key จาก verified Auth UID โดยรักษา RLS และข้อมูลเก่า Profile sync/history/new sessions/recovery มี regression evidence; บัญชีใหม่ยังใช้ convention เดิม ไม่เปลี่ยนข้อมูล production หรือกระบวนการ Supabase Auth
+
+เพิ่ม native OpenRouter routing price ceiling/no fallback ให้ paid runner และ offline tests ผ่าน ไม่เสียเงินเพิ่ม หลังจากสอง live runs เดิมยังใช้ reportedUS$0.0214265/reservedUS$0.31889835
+
 - [ ] ทุก applicable issue criterion มี working feature และหลักฐาน
 - [ ] PDF/image/OCR/private Storage และ pgvector ingestion/Top-K ครบ
 - [ ] Login→Create→Input/Upload→Learn→Assess→History→Profile ผ่าน real browser/mobile/keyboard E2E

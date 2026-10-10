@@ -6,6 +6,7 @@ import { AssessmentService } from "./assessment-service.js";
 import { PrismaAssessmentStore } from "./prisma-assessment-store.js";
 import type { AssessmentStore } from "./domain.js";
 import type { AssessmentPhase } from "./scoring.js";
+import { appUserIdForAuthUser } from "../../shared/app-user.js";
 
 export interface AssessmentRouterOptions {
   authenticate?: RequestHandler;
@@ -32,7 +33,9 @@ function body(request: AuthenticatedRequest, fields: readonly string[]) {
 
 export async function requestAssessmentStore(request: AuthenticatedRequest, options: AssessmentRouterOptions = {}) {
   verifiedUser(request);
-  return options.storeFactory ? options.storeFactory(request) : new PrismaAssessmentStore(await authenticatedDb(request), verifiedUser(request).id);
+  if (options.storeFactory) return options.storeFactory(request);
+  const client = await authenticatedDb(request);
+  return new PrismaAssessmentStore(client, await appUserIdForAuthUser(client, verifiedUser(request).id));
 }
 
 export function createAssessmentRouter(options: AssessmentRouterOptions = {}) {
