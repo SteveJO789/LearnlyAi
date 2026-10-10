@@ -274,6 +274,7 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - API **288/288**, file/Storage **26/26**, simulated persistent **11/11**, compile/migration integrity PASS Actual SQL/canonical RLS ผ่าน durable intent/failed-finalize retention/cancellation/guards/cross-user/FK/state checks; fresh3packages **89steps/167checks**, fixtures removed และ read-onlyตรวจpublic.FileUploadยังไม่สร้าง [หลักฐาน](evidence/mvp-durable-file-upload-verification.json)
 - Source-only snapshotก่อนfinal cleanup helper/last assertionผ่าน API287/relocated4; copied dependencies ไม่ใช่current-head/OCR install proof Frontendยังไม่เปลี่ยนจากMilestone16 ไม่มี paid calls/CD changes
 - ยังไม่มี real decoder/OCR, actual Storage/Auth/concurrent Prisma proof, endpoints/UI/intent retention UX หรือproductionapply งานถัดไปคือเชื่อมreal runtimeเมื่อ npm repair approval พร้อม ไม่claim #15 หรือMVPครบ
+- Code head9a1f2b6 (treeตรงlocalbb60b34) มี [CI205 PASS](https://github.com/SteveJO789/LearnlyAi/actions/runs/38049322385): Web/API install/typecheck/test/build, fresh export/relocated runtime และpersistent offline integration executedทั้งหมด PR78ยังdraft/open ไม่มีauto-mergeหรือdeploy
 
 - เพิ่ม header/MIME/size/hash/filename checks และ PNG dimension cap; ไม่อ้างว่าตรวจ full file content/extraction แล้ว
 - เพิ่ม real user-JWT private Storage transport (HTTPS/no redirect/no upsert, owned prefix, immutable verified bytes, safe errors); runtime ยังไม่ wired และ private bucket/RLS ยังไม่ created/verified

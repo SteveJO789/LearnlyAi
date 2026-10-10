@@ -10,7 +10,7 @@
 
 หลักฐานใหม่หลังรายงานฐานเดิม: API**272/272**/compile และpersistent simulated11/11 PASS Actual OpenRouter embeddings1536 + pgvectorTEMP query ผ่าน8regressioncasesหลังพบnative-model mismatch/role42501/falsepositive2casesและแก้จากหลักฐานจริง ปรับembeddinginputให้มีreviewed title/topicและexactinputhash Newembeddingrequests6calls รวมเดิม54calls reportedUS$0.02963331572/reservedUS$0.6515484 จากUS$1 ไม่มีbudgetreset/retry/fallback [รายละเอียดและlimits](evidence/mvp-live-embedding-verification.json) Canonicalpersistentindex/runtimeและPDF/OCRยังไม่ครบ
 
-PrivateStorage milestoneล่าสุด: **API274/274**, integration11/11/compile/migrationintegrityPASS currentcanonicaltip**8626880** เพิ่มnullableSourceMaterial.storageBucketและpreparedprivatebucket8policies Actualrollbackfixture20checks/RLS casesและfreshbaseline+delta**78steps/146checksPASS**, fixture_removed=true Productionauditยัง0bucket/0policies ไม่มีactualStorageHTTP/productionapply [หลักฐาน](evidence/mvp-private-storage-verification.json) ไม่เพิ่มpaidcallsและไม่เปลี่ยนCDpolicy
+PrivateStorage milestoneเดิม: **API274/274**, integration11/11/compile/migrationintegrityPASS canonicaltipเมื่อบันทึก**8626880** เพิ่มnullableSourceMaterial.storageBucketและpreparedprivatebucket8policies Actualrollbackfixture20checks/RLS casesและfreshbaseline+delta**78steps/146checksPASS**, fixture_removed=true Productionauditตอนนั้น0bucket/0policies ไม่มีactualStorageHTTP/productionapply [หลักฐาน](evidence/mvp-private-storage-verification.json) ไม่เพิ่มpaidcallsและไม่เปลี่ยนCDpolicy
 
 ## ฟีเจอร์และ issue evidence
 
@@ -54,7 +54,7 @@ File serviceไม่มี default/Mock extractorถูก wire เข้า ru
 | Persistent integration | **11/11 PASS**; simulated Auth/DB harness ไม่ใช่ real OAuth |
 | Frontend | **20/20**, typecheck/Web production build PASSหลังรวม develop875575f; ยังไม่มี browser/mobile/keyboard QA |
 | Fresh source-only export | Durable snapshotก่อนfinal cleanup helper/last assertion: **API287/287 + relocated Knowledge4/4 PASS**, deterministic9files; copied dependencies ไม่ใช่current-head/freshnpm/OCR proof |
-| CI | ก่อนdurable journal: [CI204 PASS](https://github.com/SteveJO789/LearnlyAi/actions/runs/38047457016) ที่be58ae0; latest checksดู [PR78](https://github.com/SteveJO789/LearnlyAi/pull/78) ไม่ใช้runเก่าเป็นproofของcodeใหม่ |
+| CI | [CI205 PASS](https://github.com/SteveJO789/LearnlyAi/actions/runs/38049322385) ที่code9a1f2b6: API/Web install/typecheck/tests/build และfresh runtime/persistent integrationทำจริง ไม่ใช่skipped deployment; later docs-only changesไม่ขยายruntime coverage |
 
 จาก `services/api`:
 
