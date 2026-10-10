@@ -464,7 +464,7 @@ function SettingContent() {
                           }, 550);
                         }}
                         disabled={mascotTapPending}
-                        className="rounded-xl bg-danger px-6 py-2.5 text-sm font-medium text-white hover:opacity-90 transition-all cursor-pointer disabled:cursor-wait"
+                        className={`rounded-xl bg-danger px-6 py-2.5 text-sm font-medium text-white hover:opacity-90 transition-all cursor-pointer disabled:cursor-wait ${mascotPrankActive ? "opacity-0" : "opacity-100"}`}
                       >
                         {t("settings.deleteAccount.button")}
                       </button>
