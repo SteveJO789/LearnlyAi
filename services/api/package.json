@@ -12,6 +12,8 @@
     "knowledge:prepare-runtime": "npm --prefix ../../knowledge run knowledge:prepare-runtime",
     "knowledge:verify-runtime": "node --test test/runtime-knowledge.test.mjs",
     "knowledge:verify-fresh": "node scripts/verify-fresh-runtime.mjs",
+    "ocr:prepare-models": "node scripts/prepare-ocr-models.mjs",
+    "ocr:prepare-models:download": "node scripts/prepare-ocr-models.mjs --download",
     "start": "node dist/server.js",
     "start:env": "node --env-file-if-exists=.env dist/server.js",
     "lint": "tsc --noEmit",

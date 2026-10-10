@@ -217,7 +217,16 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - Confirmed upload + failed DB จะ compensate delete; failed cleanup มี explicit controlled error/operator material ID โดยไม่ expose storage key/private data Ambiguous upload timeout ยังต้อง durable reconciliation
 - File orchestration7/7 และ compile PASS; injected extractor/storage/DB ใช้เฉพาะ tests ไม่มี default/Mock extractor/runtime wiring จึงไม่ใช่ real PDF/OCR หรือ actual file persistence proof
 - Full offline API **262/262** PASS หลัง coordinator; vector head64a7b6f มี Linux CI176 PASS ก่อน file changes รอบนี้ [หลักฐาน file milestone](evidence/mvp-file-ingestion-verification.json)
+- Real file persistence SQL ตรวจพบ bug42704 (nonexistent enum cast) ที่ CI177/unit testsไม่จับ: contract/live columnใช้text แก้ bound parameterแล้ว API262/262/compile PASS. Fixture assertionเคยfailjson=jsonb แก้เฉพาะตัว verifierและเก็บfailure evidence. Actual SQL/canonical fixture RLSผ่าน legacy owner/direct API guard/metadata/PRE gate/atomic failed update/cross-user/FK และ fixture_removed=true [หลักฐาน](evidence/mvp-file-persistence-rls-verification.json); ไม่ใช่ actual Auth→Prisma/decoder/Storage proof
 - ยังรอ npm repair approval ก่อนติดตั้ง decoder/OCR/pgvector extension pack; ไม่ bypass NVM trust gate และไม่สร้าง bucket/แก้ production tables
+
+### OCR language assets — เตรียมไฟล์จริงแล้ว ยังไม่ใช่ recognition
+
+- ดาวน์โหลด official pinned eng/tha traineddata และ LICENSE รวม5,197,046bytes ตรวจsize/SHA256จริง และ offline cache verificationผ่าน; runtime verifierไม่มี CDN fallback
+- แก้ downloader หลัง actual LICENSE gzip Content-Length mismatch: ตรวจ decoded byte length/hash และ bounded streaming; tests4/4 และ current API**266/266**/compile PASS [หลักฐาน](evidence/mvp-ocr-model-packaging-verification.json)
+- Generated runtime-ocr files ignored ไม่ commit models binary ยังไม่ wire build/Vercel/runtime extractor ไม่มีการอ้าง actualOCRaccuracy/worker/deploy proof
+- npm.exe wrapperยังNVM4306; prepared repair scriptปรับให้ใช้wrapperที่มีจริงตรวจNode24.21.0/npm11.19.0/official archive identityก่อนglobalmutation parse syntaxผ่านแต่ไม่ได้รัน รอคำตอบอนุมัติที่ส่งไว้
+- งานถัดไป: dependency installation→real PDF/image/OCR adapter→model packaging in build→owned file endpoints/UI→actualStorage/RLS/runtimevector integration ไม่รีเซ็ตงบUS$1
 
 - เพิ่ม header/MIME/size/hash/filename checks และ PNG dimension cap; ไม่อ้างว่าตรวจ full file content/extraction แล้ว
 - เพิ่ม real user-JWT private Storage transport (HTTPS/no redirect/no upsert, owned prefix, immutable verified bytes, safe errors); runtime ยังไม่ wired และ private bucket/RLS ยังไม่ created/verified

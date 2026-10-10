@@ -10,6 +10,10 @@ File coordinator milestone เพิ่ม ownership-before-extraction, bounded 
 
 Current offline API **262/262** PASS; vector head64a7b6f ผ่าน Linux CI176 ก่อน file coordinator changes นี้ [หลักฐาน](evidence/mvp-file-ingestion-verification.json). Source-only export ล่าสุด255/255 + relocated runtime4/4 เป็น vector milestone ก่อน file coordinator ไม่อ้างว่าได้ fresh-export file code ใหม่แล้ว
 
+File coordinator head e4fb73e ผ่าน CI177 แต่ real PostgreSQL verification พบ nonexistent enum cast42704 ที่ unit/CIไม่จับ แก้ให้ตรง canonical pg/textแล้ว compile/API262/262 PASS; actual adapter SQL + planned canonical RLS ใน rollback fixture ผ่าน legacy ownership, guarded insert, file/page metadata, PRE gate, atomic failure, cross-user/FK และ fixture_removed=true [หลักฐานและ failure history](evidence/mvp-file-persistence-rls-verification.json). ไม่มีการแก้ production tables/policies และยังไม่ใช่ actual Auth→Prisma/PDF/OCR/Storage proof
+
+OCR model packaging: official pinned eng/tha/LICENSE5,197,046bytes actual download/size/hash และ offline verification PASS; integrity/downloader tests4/4 และ current API**266/266**/compile PASS [หลักฐาน](evidence/mvp-ocr-model-packaging-verification.json). ไม่ใช่ OCR recognition/Thai math quality หรือ deployment proof โมเดลอยู่ignored runtime directory ยังไม่ wire build/Vercel/extractor; npm repair approvalยังpending [คำสั่งและงานต่อ](ocr-model-packaging.md)
+
 ## ฟีเจอร์และหลักฐาน
 
 | ฟีเจอร์ / issue | สิ่งที่ทำงานแล้ว | สิ่งที่ยังขาด |
