@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-10",
+  "status": "PARTIAL_IMPLEMENTATION_VERIFIED",
+  "apiCompile": "PASS",
+  "offlineApi": {"passed": 255, "failed": 0},
+  "vectorUnit": {"passed": 6, "failed": 0},
+  "persistentIntegration": {"passed": 11, "failed": 0, "authAndDatabaseTransport": "simulated"},
+  "realPostgres": {
+    "project": "LearnlyAI",
+    "transaction": "BEGIN/ROLLBACK",
+    "schema": "learnly_vector_verify",
+    "vectors": "synthetic 3-dimensional test vectors",
+    "assertions": ["Top-K and deterministic equal-distance ordering", "cosine threshold and model/subject/language filters", "hostile model string remains a literal", "RLS excludes unapproved fixture row", "authenticated reader lacks INSERT and UPDATE privileges"],
+    "adapterQuery": "rendered by executing compiled PrismaVectorSearch with a capturing SQL builder; SQL executed by Supabase MCP, not Prisma runtime",
+    "result": "PASS: no assertion exception and final fixture_removed=true",
+    "fixtureRemoved": true,
+    "publicSchemaOrLearnerDataChanged": false
+  },
+  "ciBeforeThisChange": {"run": 175, "head": "9c587f285e608de1a0f939a16ca66920afa9413a", "conclusion": "success", "url": "https://github.com/SteveJO789/LearnlyAi/actions/runs/38028066188"},
+  "additionalPaidCalls": 0,
+  "notVerified": ["canonical vector contract/migration", "reviewed ingestion and stored live embeddings", "actual Auth/Prisma vector execution", "calibrated semantic relevance", "runtime wiring and deployed smoke", "PDF/OCR integration"]
+}

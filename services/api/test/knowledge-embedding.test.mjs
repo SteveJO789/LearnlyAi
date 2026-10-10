@@ -26,7 +26,8 @@ test('real embedding adapter sends bounded requests and restores indexed result 
   await assert.rejects(provider.embed(['x'.repeat(8001)]), /limits/);
 });
 test('embedding transport rejects malformed vectors, mismatched identities, duplicate indices and raw errors', async () => {
-  for (const embedding of [[0,0],[1],[NaN,1],[Infinity,1],['1',0]]) assert.throws(() => validateEmbedding(embedding,2));
+  for (const embedding of [[0,0],[1],[NaN,1],[Infinity,1],['1',0],[1,,]]) assert.throws(() => validateEmbedding(embedding,2));
+  assert.throws(() => validateEmbedding([1],0));
   const model='openai/text-embedding-3-small';
   for (const payload of [{model:'wrong',data:[{index:0,embedding:[1,0]}]}, {model,data:[{index:1,embedding:[1,0]}]},
     {model,data:[{index:0,embedding:[0,0]}]}, {model,data:[{index:0,embedding:[1,0]},{index:0,embedding:[0,1]}]}]) {

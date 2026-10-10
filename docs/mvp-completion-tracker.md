@@ -199,6 +199,18 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - CI164 ของ History head6a4ff2c ผ่านก่อน numeric milestone: https://github.com/SteveJO789/LearnlyAi/actions/runs/38025240138
 - Read-only db migrate --show จาก actual c7b3938 ไป d17a8bc เลือก 3 app deltas + Supabase descriptor; ไม่เลือก fresh baseline ไม่ apply/sign production
 
+### Milestone 12 — vector retrieval และการตรวจฐานข้อมูลจริง
+
+- Resume ตามคำสั่งผู้ใช้; งานต่อจาก file foundation แล้วเข้าสู่ PDF/OCR และ vector retrieval โดยรักษาขอบเขต MVP เดิม
+- เพิ่ม bounded conversation-aware semantic retrieval และ JWT-bound Prisma Top-K query โดย filter model/dimensions/subject/language และ cosine threshold; database candidate ไม่มีอำนาจสร้าง trusted citations
+- Re-read reviewed source หลัง external IO และเทียบ chunk/passage/content/provenance hashes รวม exact source URLs/licenses; ปฏิเสธ stale/revoked/forged results และคืน teaching passage เต็ม
+- Compile เคย fail เพราะใช้ raw scalar returns แทน returnsRow; แก้แล้วผ่าน Architecture test เคย fail เพราะวาง Prisma adapter ใน Knowledge boundary; ย้ายไป prisma โดยไม่ลดข้อกำหนดการทดสอบ
+- API **255/255**, vector-specific **6/6**, persistent simulated integration **11/11** และ compile PASS
+- Actual PostgreSQL/pgvector SQL assertions ผ่าน Top-K/ties/filters/threshold/hostile model string/RLS/read-only privileges ใน BEGIN/ROLLBACK; `fixture_removed=true` ไม่แก้ public tables/ข้อมูล learner ไม่ใช่ actual Auth→Prisma vector execution หรือ live embedding quality
+- CI175 ของ previous file head9c587f PASS; ไม่ใช่ CI proof ของ milestone ใหม่ [หลักฐาน](evidence/mvp-vector-search-verification.json)
+- Canonical pgvector contract/ingestion/runtime wiring และ PDF/OCR ยังไม่ครบ npm repair approval ยัง pending; ไม่มี paid calls เพิ่ม ไม่ reset งบ US$1
+- งานถัดไป: real file extraction/OCR และ canonical vector persistence หลัง dependency installation ใช้ได้; เอกสารรายละเอียด [vector integration](vector-retrieval-integration.md)
+
 ### File foundation (ยังไม่ complete input pipeline)
 
 - เพิ่ม header/MIME/size/hash/filename checks และ PNG dimension cap; ไม่อ้างว่าตรวจ full file content/extraction แล้ว

@@ -2,6 +2,8 @@
 
 สถานะล่าสุด 2026-10-10: **กำลังทำ — ยังไม่ IMPLEMENTATION COMPLETE และยังไม่ RELEASED**
 
+Resume รอบล่าสุด: เพิ่ม semantic retrieval/provenance gate และ Prisma pgvector Top-K query; API255/255 และ persistent simulated integration11/11 PASS. Actual PostgreSQL SQL assertions ใน rollback fixture ผ่านและ fixture_removed=true ไม่มี public data changes. Canonical vector contract/ingestion/runtime wiring และ PDF/OCR ยังไม่ครบ ดู [หลักฐานล่าสุด](evidence/mvp-vector-search-verification.json) และ [งานต่อที่ต้องทำ](vector-retrieval-integration.md). CI175 ผ่านสำหรับ head9c587f ก่อน milestone นี้ จึงไม่ใช่ CI proof ของ code ใหม่
+
 PR #74 และ design PR #76 ถูก merge โดยทีมแล้ว งานใหม่อยู่บน `integration/university-mvp-followup-20261009` จาก develop `5022c28` งานเดิมใน primary checkout/stash ยังอยู่ครบ
 
 ## ฟีเจอร์และหลักฐาน

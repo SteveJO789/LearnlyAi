@@ -28,6 +28,27 @@ function followUp(input: string): boolean {
   return /^(?:what if|what about|how about|then|why|can you (?:explain|show|give)|i (?:don't|do not) understand|i(?:'m| am) confused|(?:a |another )?hint|explain (?:it|that)|make (?:it|that) simpler|ไม่เข้าใจ|ทำไม|ถ้า|ขอ(?:คำใบ้|ตัวอย่าง)|อธิบาย.*ง่าย)/u.test(text);
 }
 
+/** Reuse learner context only for an explicit short follow-up; never send tutor/system turns. */
+export function knowledgeSearchText(query: KnowledgeQuery): string | null {
+  if (typeof query.studentInput !== "string" || query.studentInput.length > 8000) {
+    throw new RangeError("Knowledge studentInput must be a string of at most 8000 characters.");
+  }
+  const history = query.previousStudentInputs ?? [];
+  if (!Array.isArray(history) || history.length > 4 || history.some(input => typeof input !== "string" || input.length > 8000)) {
+    throw new RangeError("Knowledge history must contain at most four bounded learner turns.");
+  }
+  const current = query.studentInput.trim();
+  if (!current || acknowledgement(current)) return null;
+  if (followUp(current)) {
+    for (const input of [...history].reverse()) {
+      if (!input.trim() || acknowledgement(input) || followUp(input)) continue;
+      const suffix = `\nFollow-up: ${current}`;
+      return input.slice(0, 8000 - suffix.length) + suffix;
+    }
+  }
+  return current;
+}
+
 /** One-concept lexical pilot; never falls back to the first available document. */
 export class LocalKnowledgeRetriever implements KnowledgeRetriever {
   constructor(private readonly reader: ReviewedKnowledgeReader) {}
