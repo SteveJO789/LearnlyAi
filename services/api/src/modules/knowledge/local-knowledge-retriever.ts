@@ -2,14 +2,15 @@ import type { KnowledgeQuery, KnowledgeRetriever, RetrievedKnowledge } from "./k
 import type { ReviewedKnowledgeReader } from "./reviewed-knowledge-reader.js";
 import { isNumericMathReply } from "./numeric-math-reply.js";
 
-function matchesOhmsLaw(input: string): boolean {
+/** Intent gate for the single reviewed pilot, distinct from vector ranking/score. */
+export function matchesOhmsLaw(input: string): boolean {
   const text = input.normalize("NFKC").toLowerCase();
   if (/\bohms?(?:['’]s)?\b/u.test(text) || text.includes("กฎของโอห์ม")) return true;
 
   // Preserve word boundaries around the equation, including when it is in a sentence.
   if (/(?:^|[^a-z])(?:v\s*=\s*i\s*[×*·]?\s*r|v\s*=\s*r\s*[×*·]?\s*i|i\s*=\s*v\s*\/\s*r|r\s*=\s*v\s*\/\s*i)(?=$|[^a-z])/u.test(text)) return true;
 
-  const voltage = /\bvoltage\b/u.test(text) || /ความต่างศักย์|แรงดันไฟฟ้า/u.test(text);
+  const voltage = /\bvoltage\b/u.test(text) || /ความต่างศักย์|แรงดัน/u.test(text);
   const current = /\bcurrent\b/u.test(text) || text.includes("กระแสไฟฟ้า");
   const resistance = /\b(?:resistance|resistor)\b/u.test(text) || /ความต้านทาน|ตัวต้านทาน|ω/u.test(text);
   // Voltage/current alone do not establish this concept (e.g. batteries/transformers).

@@ -229,6 +229,16 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - npm.exe wrapperยังNVM4306; prepared repair scriptปรับให้ใช้wrapperที่มีจริงตรวจNode24.21.0/npm11.19.0/official archive identityก่อนglobalmutation parse syntaxผ่านแต่ไม่ได้รัน รอคำตอบอนุมัติที่ส่งไว้
 - งานถัดไป: dependency installation→real PDF/image/OCR adapter→model packaging in build→owned file endpoints/UI→actualStorage/RLS/runtimevector integration ไม่รีเซ็ตงบUS$1
 
+### Milestone 13 — actual embeddings/pgvector และแก้ false-positive จากหลักฐานจริง
+
+- เพิ่มexplicit paid runnerที่ใช้shared US$1 ledger/lock/native price caps/no retry/no fallback มีoffline budget tests3/3 ไม่อยู่ในnormalCI paid path
+- Actual APIพบnative model name mismatch ทั้งที่vector1536ถูกต้อง: negative regressionก่อนแก้failจริง รองรับเฉพาะknown canonical/native pair และยังrejectwrong model/namespace/dimension; embedding tests5/5
+- Real PGแรกfail42501เพราะconnection roleไม่มีextensions USAGE แต่authenticatedมี ใช้existing SET LOCAL roleในTEMP fixture/FORCE RLSโดยไม่grantสิทธิ์ถาวร
+- Content-only vector thresholdเดิมผ่าน6/8และผิดtransformer/battery เก็บfailureแล้วเพิ่มpilot intent gate และtitle/topic-aware document input +exactembeddingInputHash; title-only changesinvalidateold index
+- Actual title-aware document vector+12actual query vectors/PG query: calibration4cases, subsequentregression8/8ทั้งraw vectorและintent/provenancegate ผ่าน unreviewedrowhidden/readerpublishdeny/fixture_removed=true ไม่มีAuth→Prisma/publicmigration/browserproof
+- API**272/272**, compile, persistent simulated11/11 ผ่าน Newpaidembeddings6calls; originalgoalรวม54calls reported**US$0.02963331572**/reserved**US$0.6515484** จากUS$1 [หลักฐาน](evidence/mvp-live-embedding-verification.json)
+- Actualproduction ingestion/contract/runtimewiring ยังpending pgvectorpack/npmrepair approval ไม่claimMVPcomplete; next implementationคือcanonical vector persistenceและrealPDF/OCRเมื่อdependenciesติดตั้งได้
+
 - เพิ่ม header/MIME/size/hash/filename checks และ PNG dimension cap; ไม่อ้างว่าตรวจ full file content/extraction แล้ว
 - เพิ่ม real user-JWT private Storage transport (HTTPS/no redirect/no upsert, owned prefix, immutable verified bytes, safe errors); runtime ยังไม่ wired และ private bucket/RLS ยังไม่ created/verified
 - Targeted tests5/5, API compile และ full offline API249/249 PASS; HTTP transport injected ไม่ใช่ actual Storage upload proof

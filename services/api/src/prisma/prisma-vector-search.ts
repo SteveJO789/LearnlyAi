@@ -14,7 +14,7 @@ export class PrismaVectorSearch implements ReviewedVectorSearchStore {
     const vector = JSON.stringify(validateEmbedding(query.vector, query.dimensions));
     // Qualify pgvector's operator: do not rely on an application/connection search_path.
     // Cast the parameter, never interpolate SQL literals or an identifier from student input.
-    const plan = this.client.raw.sql`SELECT "id" AS "chunkId", "passageId", "passageHash", "contentHash", "provenanceHash",
+    const plan = this.client.raw.sql`SELECT "id" AS "chunkId", "passageId", "passageHash", "contentHash", "embeddingInputHash", "provenanceHash",
       (1 - ("embedding" OPERATOR(extensions.<=>) ${vector}::extensions.vector))::float8 AS "similarity"
       FROM public."KnowledgeChunk"
       WHERE "embeddingModel" = ${query.model} AND "dimensions" = ${query.dimensions}
@@ -22,7 +22,7 @@ export class PrismaVectorSearch implements ReviewedVectorSearchStore {
         AND (1 - ("embedding" OPERATOR(extensions.<=>) ${vector}::extensions.vector)) >= ${query.minSimilarity}
       ORDER BY "embedding" OPERATOR(extensions.<=>) ${vector}::extensions.vector, "id"
       LIMIT ${query.topK}`.returnsRow({ chunkId: "pg/text@1", passageId: "pg/text@1", passageHash: "pg/text@1",
-        contentHash: "pg/text@1", provenanceHash: "pg/text@1", similarity: "pg/float8@1" }).build();
+        contentHash: "pg/text@1", embeddingInputHash: "pg/text@1", provenanceHash: "pg/text@1", similarity: "pg/float8@1" }).build();
     return this.client.query(plan).toArray();
   }
 }

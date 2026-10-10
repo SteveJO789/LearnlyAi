@@ -2,14 +2,15 @@ import type { KnowledgeQuery, KnowledgeRetriever, RetrievedKnowledge } from "./k
 import type { ReviewedKnowledgeReader } from "./reviewed-knowledge-reader.js";
 import type { EmbeddingProvider } from "./embedding-port.js";
 import { validateEmbedding } from "./embedding-port.js";
-import { chunkReviewedPassage, sha256 } from "./reviewed-chunks.js";
-import { knowledgeSearchText } from "./local-knowledge-retriever.js";
+import { chunkReviewedPassage, reviewedChunkEmbeddingInput, sha256 } from "./reviewed-chunks.js";
+import { knowledgeSearchText, matchesOhmsLaw } from "./local-knowledge-retriever.js";
 
 export interface VectorCandidate {
   readonly chunkId: string;
   readonly passageId: string;
   readonly passageHash: string;
   readonly contentHash: string;
+  readonly embeddingInputHash: string;
   readonly provenanceHash: string;
   readonly similarity: number;
 }
@@ -44,7 +45,9 @@ export class VectorKnowledgeRetriever implements KnowledgeRetriever {
 
   async retrieve(query: KnowledgeQuery): Promise<readonly RetrievedKnowledge[]> {
     const text = knowledgeSearchText(query);
-    if (!text) return Object.freeze([]);
+    // Cosine similarity alone ranks adjacent electrical topics above short Thai
+    // Ohm queries. The current one-concept corpus must abstain outside its intent.
+    if (!text || !matchesOhmsLaw(text)) return Object.freeze([]);
     // The current curated reader exposes one pilot; do not pretend unreviewed subjects are supported.
     const initial = await this.reader.readPilot();
     if (!initial || (query.subject !== undefined && query.subject.trim().toLowerCase() !== initial.subject) ||
@@ -64,7 +67,7 @@ export class VectorKnowledgeRetriever implements KnowledgeRetriever {
       if (!candidate || !Number.isFinite(candidate.similarity) || candidate.similarity < this.options.minSimilarity || candidate.similarity > 1) continue;
       const chunk = chunks.get(candidate.chunkId);
       if (chunk && candidate.passageId === chunk.passageId && candidate.passageHash === chunk.passageHash &&
-        candidate.contentHash === chunk.contentHash && candidate.provenanceHash === provenanceHash) {
+        candidate.contentHash === chunk.contentHash && candidate.embeddingInputHash === reviewedChunkEmbeddingInput(current, chunk).hash && candidate.provenanceHash === provenanceHash) {
         // Return the complete current passage/formulas and its exact citations, never DB-authored content.
         return Object.freeze([current]);
       }

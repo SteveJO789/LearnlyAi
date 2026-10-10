@@ -4,6 +4,12 @@
 
 กระบวนการค้นหา: ตรวจ input/history → อ่าน reviewed pilot ปัจจุบัน → สร้าง query embedding → ค้น Top-K ผ่าน JWT-bound Prisma/RLS → อ่าน reviewed source อีกครั้ง → เทียบ chunk ID, passage/content hash และ exact provenance hash → คืน passage เต็มพร้อม citations เดิม ไม่มีการนำข้อความ/source URLs จากแถว DB มาเป็น trusted teaching content
 
+อัปเดต actual embedding/PG verification: `openai/text-embedding-3-small` ส่ง native model nameกลับมา จึงเพิ่มเฉพาะ equivalenceกับ `text-embedding-3-small` ไม่ทำ generic prefix stripping และไม่ยอมรับ wrong model/dimensions พบรอบแรก vector-only thresholdค้น Ohmให้ transformer/batteryผิดเรื่อง2/8cases เก็บผลที่ไม่ผ่านแล้วเพิ่ม intent abstentionสำหรับone-concept pilot
+
+Index embedding inputใช้ชื่อบท/concept/subject/languageที่อ่านจากreviewed sourceบวกcomplete chunk text มี `embeddingInputHash` ต่างจากcontentHash Candidateต้องตรงhashของcurrent model inputด้วย Titleเปลี่ยนโดยcontentไม่เปลี่ยนทำให้old index rowไม่ถูกtrust Actual title-aware vector/PG cosine regression8/8ผ่านทั้งraw rankingและintent/review gates แต่เป็นชุดเล็กที่เคยดูแล้ว ไม่ใช่ independent curriculum-wide quality proof
+
+TEMP database verificationใช้existing authenticated roleก่อนใช้extensionsและFORCE RLSเพื่อไม่ใช้owner exemption ยืนยันunreviewed rowถูกซ่อนและauthenticated publicationถูกdeny Poolปิด/fixture_removed=true ไม่เพิ่มpermanent grantsหรือแก้public schema [หลักฐานและfailure history](evidence/mvp-live-embedding-verification.json)
+
 `PrismaVectorSearch` ใช้ cosine distance ของ pgvector, model/dimension/subject/language filters, จำนวนผล 1–8 และ threshold ที่ caller ต้องกำหนด ไม่มี default threshold ที่อ้างว่าผ่าน quality calibration แล้ว Parameters ถูก bind ผ่าน Prisma; operator/type ใช้ `extensions` แบบระบุ schema
 
 ข้อความ learner ไม่เกิน 8000 characters และ history ไม่เกิน 4 turns ใช้ history เฉพาะคำถามต่อเนื่องสั้น ๆ/คำตอบตัวเลข คำถามหัวข้อใหม่ไม่พ่วงประวัติเก่าและ acknowledgement ไม่เรียก embeddings ไม่ส่ง tutor/system turns ให้ embedding provider
@@ -24,5 +30,7 @@
 3. ตรวจ canonical migration/RLS ด้วย isolated fixture; production changes ต้อง review/อนุมัติตามขอบเขตที่เกี่ยวข้องก่อน apply
 4. Wire retrieval configuration, budget-aware live embedding evaluation และ relevance threshold จากชุดทดสอบภาษาไทย/อังกฤษที่มี positive/negative/follow-up cases; ใช้งบรวมเดิม US$1 ไม่รีเซ็ต ledger
 5. ทดสอบ deployed runtime และ citation validation โดยคง CD เฉพาะ develop
+
+คำสั่ง live evaluationต้องมี explicit --budget-usd=1/--max-calls/--model/--ledger/--output และใช้ledgerเดิม ไม่มีautomatic retry/fallback มีnative routing price ceilings Paid requestsใหม่6calls รวมทั้งหมด54calls reportedUS$0.02963331572/reservedUS$0.6515484 ไม่รีเซ็ตงบUS$1 การreuse actual query embeddingsไม่เสียเงินเพิ่ม Thresholdจาก12casesนี้ยังไม่wireเป็นproduction default
 
 เอกสารอ้างอิงที่ตรวจ: [Supabase vector columns](https://supabase.com/docs/guides/ai/vector-columns) และ local Prisma 8 contract/query references ของ dependency ที่ติดตั้งอยู่

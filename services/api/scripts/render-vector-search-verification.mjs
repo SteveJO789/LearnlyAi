@@ -21,18 +21,18 @@ DO $$ BEGIN IF to_regnamespace('${schema}') IS NOT NULL THEN RAISE EXCEPTION 'Fi
 CREATE SCHEMA ${schema};
 CREATE TABLE ${schema}."KnowledgeChunk" (
  "id" text PRIMARY KEY, "passageId" text NOT NULL, "passageHash" text NOT NULL, "contentHash" text NOT NULL,
- "provenanceHash" text NOT NULL, "embeddingModel" text NOT NULL, "dimensions" int NOT NULL,
+ "embeddingInputHash" text NOT NULL, "provenanceHash" text NOT NULL, "embeddingModel" text NOT NULL, "dimensions" int NOT NULL,
  "subject" text NOT NULL, "language" text NOT NULL, "embedding" extensions.vector(3) NOT NULL,
  "approved" boolean NOT NULL);
 INSERT INTO ${schema}."KnowledgeChunk" VALUES
- ('a','synthetic-passage','fixture','fixture','fixture','fixture/offline',3,'physics','th','[1,0,0]',true),
- ('b','synthetic-passage','fixture','fixture','fixture','fixture/offline',3,'physics','th','[1,0,0]',true),
- ('c','synthetic-passage','fixture','fixture','fixture','fixture/offline',3,'physics','th','[1,0,0]',true),
- ('distant','synthetic-passage','fixture','fixture','fixture','fixture/offline',3,'physics','th','[0,1,0]',true),
- ('wrong-model','synthetic-passage','fixture','fixture','fixture','another-model',3,'physics','th','[1,0,0]',true),
- ('wrong-language','synthetic-passage','fixture','fixture','fixture','fixture/offline',3,'physics','en','[1,0,0]',true),
- ('wrong-subject','synthetic-passage','fixture','fixture','fixture','fixture/offline',3,'mathematics','th','[1,0,0]',true),
- ('not-approved','synthetic-passage','fixture','fixture','fixture','fixture/offline',3,'physics','th','[1,0,0]',false);
+ ('a','synthetic-passage','fixture','fixture','fixture','fixture','fixture/offline',3,'physics','th','[1,0,0]',true),
+ ('b','synthetic-passage','fixture','fixture','fixture','fixture','fixture/offline',3,'physics','th','[1,0,0]',true),
+ ('c','synthetic-passage','fixture','fixture','fixture','fixture','fixture/offline',3,'physics','th','[1,0,0]',true),
+ ('distant','synthetic-passage','fixture','fixture','fixture','fixture','fixture/offline',3,'physics','th','[0,1,0]',true),
+ ('wrong-model','synthetic-passage','fixture','fixture','fixture','fixture','another-model',3,'physics','th','[1,0,0]',true),
+ ('wrong-language','synthetic-passage','fixture','fixture','fixture','fixture','fixture/offline',3,'physics','en','[1,0,0]',true),
+ ('wrong-subject','synthetic-passage','fixture','fixture','fixture','fixture','fixture/offline',3,'mathematics','th','[1,0,0]',true),
+ ('not-approved','synthetic-passage','fixture','fixture','fixture','fixture','fixture/offline',3,'physics','th','[1,0,0]',false);
 ALTER TABLE ${schema}."KnowledgeChunk" ENABLE ROW LEVEL SECURITY;
 CREATE POLICY approved_read ON ${schema}."KnowledgeChunk" FOR SELECT TO authenticated USING ("approved");
 GRANT USAGE ON SCHEMA ${schema} TO authenticated;

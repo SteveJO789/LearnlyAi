@@ -19,6 +19,15 @@ export interface ReviewedChunk {
 
 export const sha256 = (text: string): string => createHash("sha256").update(text, "utf8").digest("hex");
 
+/** Reviewed title/topic metadata is part of the embedding input, never learner-authored context. */
+export function reviewedChunkEmbeddingInput(passage: RetrievedKnowledge, chunk: ReviewedChunk): { text: string; hash: string } {
+  if (chunk.passageId !== passage.passageId || chunk.passageHash !== sha256(passage.content) ||
+    chunk.contentHash !== sha256(chunk.content) || !passage.title.trim() || passage.title.length > 200) throw new Error("Embedding chunk does not match reviewed passage.");
+  const text = `Title: ${passage.title.normalize("NFC")}\nConcept: ${passage.conceptId}\nSubject: ${passage.subject}\nLanguage: ${passage.language}\n\n${chunk.content}`;
+  if (text.length > 8000) throw new Error("Reviewed embedding input exceeds limits.");
+  return Object.freeze({ text, hash: sha256(text) });
+}
+
 /** Only accepts reader-validated reviewed passages. Keeps complete paragraphs/formulas. */
 export function chunkReviewedPassage(passage: RetrievedKnowledge, maxChars = 1800): readonly ReviewedChunk[] {
   if (!Number.isInteger(maxChars) || maxChars < 500 || maxChars > 4000) throw new RangeError("Invalid Knowledge chunk size.");

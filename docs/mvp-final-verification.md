@@ -4,6 +4,8 @@
 
 งาน follow-up อยู่ใน [Draft PR #78](https://github.com/SteveJO789/LearnlyAi/pull/78) จาก develop `5022c28` หลังทีม merge PR #74/#76 งานเดิมใน primary checkout/stash ยังอยู่ครบ ไม่มี auto-merge หรือ force push หลักฐาน local/fixture ด้านล่างไม่เท่ากับระบบที่ deploy จริง
 
+หลักฐานใหม่หลังรายงานฐานเดิม: API**272/272**/compile และpersistent simulated11/11 PASS Actual OpenRouter embeddings1536 + pgvectorTEMP query ผ่าน8regressioncasesหลังพบnative-model mismatch/role42501/falsepositive2casesและแก้จากหลักฐานจริง ปรับembeddinginputให้มีreviewed title/topicและexactinputhash Newembeddingrequests6calls รวมเดิม54calls reportedUS$0.02963331572/reservedUS$0.6515484 จากUS$1 ไม่มีbudgetreset/retry/fallback [รายละเอียดและlimits](evidence/mvp-live-embedding-verification.json) Canonicalpersistentindex/runtimeและPDF/OCRยังไม่ครบ
+
 ## ฟีเจอร์และ issue evidence
 
 | ฟีเจอร์ / issue | Implementation และหลักฐาน | สิ่งที่ยังขาด |
@@ -37,13 +39,13 @@ File serviceไม่มี default/Mock extractorถูก wire เข้า ru
 
 | การตรวจ | ผลล่าสุดและขอบเขต |
 |---|---|
-| API compile/offline suite | **266/266 PASS**; Mock/injected transports ไม่มี paid model callsในCI |
+| API compile/offline suite | **272/272 PASS**; Mock/injected transports ไม่มี paid model callsในCI |
 | File orchestration | **7/7 PASS**; injected extractor/Storage/DB ไม่ใช่ decoding/live upload proof |
-| Vector retrieval | **6/6 PASS**; review/hash/provenance/threshold gates และ parameter binding |
+| Vector retrieval | **8/8 PASS**; review/hash/embedding-input/provenance/intent gates และ parameter binding |
 | OCR artifact integrity | **4/4 PASS**; actual official download/offline verificationแยกจากunit tests |
 | Persistent integration | **11/11 PASS**; simulated Auth/DB harness ไม่ใช่ real OAuth |
 | Frontend | **20/20**, typecheck/Web production build PASSที่ History milestone; frontend codeไม่เปลี่ยนในfile/vector milestones |
-| Fresh source-only export | **API266/266 + relocated Knowledge runtime4/4 PASS**, 9Knowledge files deterministic; copied locked local dependencies ไม่ใช่ fresh npm installation proof |
+| Fresh source-only export | ก่อนliveembedding changes: **API266/266 + relocated Knowledge runtime4/4 PASS**, 9Knowledge files deterministic; copied locked local dependencies ไม่ใช่ fresh npm installation proof |
 | CI | CI177ผ่านhead e4fb73eก่อนenum fix/OCR assets; code head574e97fมีCI181 in progressเมื่อบันทึก ไม่ใช้CIเก่าเป็นcurrent-head proof |
 
 จาก `services/api`:
@@ -61,7 +63,7 @@ node scripts/prepare-ocr-models.mjs
 
 จาก `apps/web`: `node scripts/run-tests.mjs`, typecheckตามnpm script และ `node node_modules/next/dist/bin/next build` Build successไม่แทนbrowser/mobile/keyboard proof
 
-Live OpenRouterเดิมรวม48calls reported **US$0.02957363572**, conservative reservations **US$0.5915484** จากเพดานเดิมUS$1 เก็บledger/failed roundsแยก ไม่รีเซ็ตเมื่อresume รอบนี้ไม่มีpaid calls/live embeddingsเพิ่ม Structural/citation/state checksผ่าน ไม่อ้างว่าทุก teaching-quality criterionผ่าน Hintอาจสมมติโจทย์และ acknowledgementอาจrecap; raw historical evidenceไม่ถูกเขียนทับ
+Live OpenRouterรวม54calls (Tutor48/embeddings6) reported **US$0.02963331572**, conservative reservations **US$0.6515484** จากเพดานเดิมUS$1 เก็บledger/failed roundsแยก ไม่รีเซ็ตเมื่อresume Tutor structural/citation/state checksผ่าน ไม่อ้างว่าทุก teaching-quality criterionผ่าน Hintอาจสมมติโจทย์และ acknowledgementอาจrecap Embedding/PG8casesเป็นregressionที่เคยตรวจแล้ว ไม่ใช่independent broadercorpus proof; raw historical evidenceไม่ถูกเขียนทับ
 
 ## Database และ security verification
 
