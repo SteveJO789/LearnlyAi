@@ -152,7 +152,7 @@
 }
 
 
-/* Sparse galaxy shooting stars: varied paths, long quiet gaps, and darker lower tails. */
+/* Sparse, naturally clustered shooting stars. Bright head, fading darker tail. */
 .home-shooting-star {
   position: absolute;
   z-index: 0;
@@ -164,46 +164,48 @@
   opacity: 0;
   pointer-events: none;
   transform-origin: right center;
-  /* Bright head at the upper-right; trail fades darker toward the lower-left. */
+  /* Transparent/dark tail at the lower-left; bright pink-lilac head at upper-right. */
   background: linear-gradient(90deg,
-    rgb(37 32 66 / 0.04) 0%,
-    rgb(91 73 143 / 0.22) 36%,
-    rgb(139 125 202 / 0.58) 72%,
-    rgb(219 190 255 / 0.92) 100%);
-  box-shadow: 0 0 4px rgb(167 139 250 / 0.16);
-  animation: home-shooting-star-travel 44s linear infinite;
+    rgb(24 24 48 / 0) 0%,
+    rgb(51 45 88 / 0.10) 28%,
+    rgb(113 92 166 / 0.30) 58%,
+    rgb(190 157 246 / 0.72) 83%,
+    rgb(255 222 255 / 1) 100%);
+  box-shadow: 0 0 4px rgb(219 190 255 / 0.16);
+  animation: home-shooting-star-travel 30s linear infinite;
   will-change: transform, opacity;
 }
 .home-shooting-star-one {
   left: 56%;
   top: 7%;
-  animation-delay: 2.5s;
+  animation-delay: 0s;
 }
 .home-shooting-star-two {
   left: 91%;
   top: 28%;
   width: clamp(48px, 6vw, 78px);
-  animation-delay: 9s;
-  animation-duration: 53s;
+  animation-delay: 4.7s;
+  animation-duration: 37s;
 }
 .home-shooting-star-three {
   left: 34%;
   top: 46%;
   width: clamp(52px, 7vw, 88px);
-  animation-delay: 23s;
-  animation-duration: 61s;
+  animation-delay: 13.2s;
+  animation-duration: 43s;
 }
 .home-shooting-star-four {
   left: 72%;
   top: 68%;
   width: clamp(44px, 5.5vw, 72px);
-  animation-delay: 36s;
-  animation-duration: 71s;
+  animation-delay: 21.4s;
+  animation-duration: 34s;
 }
 @keyframes home-shooting-star-travel {
+  /* The visible streak lasts about 1.5 seconds; the rest is a randomized-feeling quiet gap. */
   0%, 1% { opacity: 0; transform: translate3d(0, 0, 0) rotate(-38deg); }
-  1.5% { opacity: .68; }
-  3.5% { opacity: .38; }
+  2% { opacity: .68; }
+  4% { opacity: .38; }
   5% { opacity: 0; transform: translate3d(-42vw, 58vh, 0) rotate(-38deg); }
   100% { opacity: 0; transform: translate3d(-42vw, 58vh, 0) rotate(-38deg); }
 }
