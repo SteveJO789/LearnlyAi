@@ -248,6 +248,15 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - FullAPI273/274failที่historical-tipguardครั้งแรก; updateverifierหลังreviewและStoragewrite-remappingแล้ว**274/274PASS**, integration11/11, compile/migrationintegrityPASS ไม่มีpaidcallsเพิ่ม
 - Next: realextractor/dependencies, authorizedprivatebucket/runtimewiring andrealAuthStorageE2E/reconciliation Canonicalcurrenttip8626880; actualproductionmarkerc7และAPIdeploy/npmrepair blockersยังคงอยู่
 
+### Milestone 15 — ป้องกันไฟล์หายเมื่อไม่รู้ผล COMMIT
+
+- พบว่า save อาจ COMMIT แล้วแต่ connection ส่ง error; compensation เดิมลบไฟล์ที่ใช้งานอยู่ได้ แก้ให้ตรวจ exact receipt หลัง parent-session lock ก่อนตัดสินใจ
+- Confirmed READY คืนสำเร็จโดยไม่เขียนซ้ำ; conclusive absence จึงลบ; UNKNOWN/timeout/hidden owner/conflict เก็บไฟล์และคืน controlled FILE_RECONCILIATION_REQUIRED พร้อม random material ID เท่านั้น
+- ตรวจ READ COMMITTED ก่อนเชื่อ absence, จำกัด lock/statement time และตรวจ completed owned session ได้ ไม่เปลี่ยน canonical schema/Auth/engine authority
+- Compile, full API **278/278**, file checks **11/11**, simulated persistent **11/11** PASS Actual adapter SQL/canonical RLS ผ่าน exact/absent/conflicting/completed/cross-user receipt ใน empty clones และ rollback หมด [หลักฐาน](evidence/mvp-file-receipt-verification.json)
+- ไม่มี real network-loss/concurrent Prisma/Storage proof และยังขาด durable upload/process-crash reconciliation, PDF/OCR, endpoints/UI ไม่มี paid calls เพิ่ม
+- Fetch พบ develop ใหม่ `875575f` (ทีมเพิ่ม auth/loading/mobile design และ Knowledge build hotfix); งานถัดไปคือรวมโดยรักษา UI ของทีม แล้ว rerun integration/build ก่อนกลับไป dependencies/runtime
+
 - เพิ่ม header/MIME/size/hash/filename checks และ PNG dimension cap; ไม่อ้างว่าตรวจ full file content/extraction แล้ว
 - เพิ่ม real user-JWT private Storage transport (HTTPS/no redirect/no upsert, owned prefix, immutable verified bytes, safe errors); runtime ยังไม่ wired และ private bucket/RLS ยังไม่ created/verified
 - Targeted tests5/5, API compile และ full offline API249/249 PASS; HTTP transport injected ไม่ใช่ actual Storage upload proof

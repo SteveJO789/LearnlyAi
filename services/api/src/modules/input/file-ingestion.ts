@@ -27,6 +27,8 @@ export interface FileMaterialStore {
   assertActiveOwnedSession(sessionId: string): Promise<void>;
   /** Recheck active ownership in the INSERT transaction; do not trust the earlier read. */
   save(sessionId: string, material: PreparedFileMaterial): Promise<void>;
+  /** Serialize with save before determining absence. An unreadable/mismatched receipt is UNKNOWN. */
+  resolveSave(sessionId: string, material: PreparedFileMaterial): Promise<"SAVED" | "NOT_SAVED" | "UNKNOWN">;
 }
 export interface FileObjectStorage {
   readonly bucketId: string;
@@ -86,17 +88,26 @@ export class FileIngestion {
     // Extraction must not change the original binary file that is to be stored.
     if (createHash("sha256").update(snapshot).digest("hex") !== file.contentHash) throw new ApiError("INVALID_FILE", 400, "File changed during extraction.");
     await this.storage.upload(storageKey, snapshot, file);
+    const material = Object.freeze({ id, storageKey, storageBucket: this.storage.bucketId, file, ...normalized });
     try {
-      await this.store.save(sessionId, Object.freeze({ id, storageKey, storageBucket: this.storage.bucketId, file, ...normalized }));
+      await this.store.save(sessionId, material);
     } catch (error) {
-      // Compensate only a confirmed successful upload. Ambiguous transport outcomes need reconciliation.
-      try { await this.storage.remove(storageKey); }
-      catch {
-        try { this.onCleanupFailure(id); } catch { /* Logging must not expose or replace a controlled failure. */ }
-        throw new ApiError("FILE_CLEANUP_REQUIRED", 503, "The file could not be saved. Please try again later.");
+      // A rejected COMMIT response does not prove rollback. Never delete a committed file.
+      let outcome: "SAVED" | "NOT_SAVED" | "UNKNOWN" = "UNKNOWN";
+      try { outcome = await this.store.resolveSave(sessionId, material); } catch { /* Keep the file on an unavailable receipt read. */ }
+      if (outcome !== "SAVED") {
+        if (outcome !== "NOT_SAVED") {
+          try { this.onCleanupFailure(id); } catch { /* Diagnostics must not replace the controlled failure. */ }
+          throw new ApiError("FILE_RECONCILIATION_REQUIRED", 503, "The file save result could not be confirmed. Please try again later.");
+        }
+        try { await this.storage.remove(storageKey); }
+        catch {
+          try { this.onCleanupFailure(id); } catch { /* Logging must not expose or replace a controlled failure. */ }
+          throw new ApiError("FILE_CLEANUP_REQUIRED", 503, "The file could not be saved. Please try again later.");
+        }
+        if (error instanceof ApiError) throw error;
+        throw new ApiError("MATERIAL_PERSISTENCE_UNAVAILABLE", 503, "The file could not be saved. Please try again later.");
       }
-      if (error instanceof ApiError) throw error;
-      throw new ApiError("MATERIAL_PERSISTENCE_UNAVAILABLE", 503, "The file could not be saved. Please try again later.");
     }
     return { id, materialId: id, type: file.type, status: "READY" as const, normalizedText: normalized.normalizedText,
       contentHash: file.contentHash, mimeType: file.mimeType, sizeBytes: file.sizeBytes };

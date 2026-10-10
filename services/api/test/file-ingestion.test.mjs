@@ -8,10 +8,13 @@ const authId='10000000-0000-0000-0000-000000000001';
 // Envelope-only fixture. Extractor injection tests orchestration, not a working PDF parser/OCR.
 const bytes=()=>Buffer.from('%PDF-1.7\nfixture\n%%EOF\n');
 const extraction={method:'PDF_TEXT',confidence:null,pages:[{page:1,text:'  สูตร x²\r\nV = IR  '},{page:2,text:''}]};
-function harness({ownerFailure,extractFailure,saveFailure,uploadFailure,removeFailure,mutateExtraction}={}) {
+function harness({ownerFailure,extractFailure,saveFailure,uploadFailure,removeFailure,mutateExtraction,
+  saveOutcome='NOT_SAVED',resolveFailure}={}) {
   const events=[],saved=[];
   const store={assertActiveOwnedSession:async()=>{events.push('owner');if(ownerFailure)throw ownerFailure;},
-    save:async(session,material)=>{events.push('save');saved.push({session,material});if(saveFailure)throw saveFailure;}};
+    save:async(session,material)=>{events.push('save');saved.push({session,material});if(saveFailure)throw saveFailure;},
+    resolveSave:async(session,material)=>{events.push('resolve');assert.equal(session,saved[0].session);
+      assert.equal(material,saved[0].material);if(resolveFailure)throw resolveFailure;return saveOutcome;}};
   const storage={bucketId:'learnly-materials',upload:async()=>{events.push('upload');if(uploadFailure)throw uploadFailure;},remove:async()=>{events.push('remove');if(removeFailure)throw removeFailure;}};
   const extractor={extract:async(snapshot,file,signal)=>{events.push('extract');assert.equal(file.type,'PDF');assert.ok(signal instanceof AbortSignal);if(extractFailure)throw extractFailure;if(mutateExtraction)snapshot[0]=0;return extraction;}};
   const cleanup=[];
@@ -40,13 +43,70 @@ test('failed decode and mutated extracted bytes never upload; raw decoder errors
   await assert.rejects(mutated.service.ingest('session',bytes(),'application/pdf','lesson.pdf'),error=>error.code==='INVALID_FILE');
   assert.deepEqual(mutated.events,['owner','extract']);
 });
-test('confirmed upload is compensated if persistence fails; cleanup failure is explicit and records only material ID',async()=>{
+test('confirmed upload is compensated only after persistence absence is verified; cleanup failure records only material ID',async()=>{
   const h=harness({saveFailure:Error('database credentials/private query')});
   await assert.rejects(h.service.ingest('session',bytes(),'application/pdf','lesson.pdf'),error=>error.code==='MATERIAL_PERSISTENCE_UNAVAILABLE'&&!error.message.includes('credentials'));
-  assert.deepEqual(h.events,['owner','extract','upload','save','remove']);
+  assert.deepEqual(h.events,['owner','extract','upload','save','resolve','remove']);
   const failed=harness({saveFailure:Error('database'),removeFailure:Error('storage secret')});
   await assert.rejects(failed.service.ingest('session',bytes(),'application/pdf','lesson.pdf'),error=>error.code==='FILE_CLEANUP_REQUIRED'&&!error.message.includes('secret'));
   assert.deepEqual(failed.cleanup,[failed.saved[0].material.id]);assert.ok(!failed.cleanup[0].includes('/'));
+});
+test('lost COMMIT response returns the confirmed READY receipt without deleting the committed file or retrying save',async()=>{
+  const h=harness({saveFailure:Error('socket closed after COMMIT with secret'),saveOutcome:'SAVED'});
+  const result=await h.service.ingest('session',bytes(),'application/pdf','lesson.pdf');
+  assert.equal(result.status,'READY');assert.equal(result.materialId,h.saved[0].material.id);
+  assert.deepEqual(h.events,['owner','extract','upload','save','resolve']);assert.deepEqual(h.cleanup,[]);
+});
+test('unavailable, hidden, conflicting or malformed receipts preserve the uploaded object and redact failure details',async()=>{
+  for(const options of [{saveOutcome:'UNKNOWN'},{resolveFailure:Error('private query or token')},{saveOutcome:null},
+    {saveOutcome:'unexpected'}]){
+    const h=harness({saveFailure:Error('database secret'),...options});
+    await assert.rejects(h.service.ingest('session',bytes(),'application/pdf','lesson.pdf'),error=>
+      error.code==='FILE_RECONCILIATION_REQUIRED'&&error.status===503&&!/private|token|secret/.test(error.message));
+    assert.ok(!h.events.includes('remove'));assert.deepEqual(h.cleanup,[h.saved[0].material.id]);
+  }
+});
+
+function receiptHarness({level='read committed',owned=true,rows=[{outcome:'SAVED'}],lockFailure}={}){
+  const plans=[];
+  const raw={sql:(strings,...values)=>({returnsRow:()=>({build:()=>({sql:strings.join('?'),values})}),
+    affectedCount:()=>({build:()=>({sql:strings.join('?'),values})})})};
+  const tx={execute:async plan=>{plans.push(plan);return {affectedRows:0};},query:plan=>{
+    plans.push(plan);return {toArray:async()=>{
+      if(plan.sql.includes('transaction_isolation'))return [{level}];
+      if(plan.sql.includes('FOR UPDATE')){if(lockFailure)throw lockFailure;return owned?[{id:'session'}]:[];}
+      return rows;
+    }};
+  }};
+  const client={raw,transaction:async work=>work(tx)};
+  const file=inspectFileEnvelope(bytes(),'application/pdf','lesson.pdf');
+  const material={id:'material',storageKey:authId+'/session/material.pdf',storageBucket:'learnly-materials',file,
+    ...normalizeFileExtraction(extraction,file)};
+  return {plans,material,store:new PrismaFileMaterials(client,'legacy-application-id')};
+}
+test('Prisma receipt resolution locks owner before a fresh exact receipt read, including closed sessions',async()=>{
+  const h=receiptHarness();assert.equal(await h.store.resolveSave('session',h.material),'SAVED');
+  const lock=h.plans.findIndex(p=>p.sql.includes('FOR UPDATE')),receipt=h.plans.findIndex(p=>p.sql.includes('CASE WHEN'));
+  assert.ok(lock>0&&receipt>lock);assert.ok(h.plans[lock].values.includes('legacy-application-id'));
+  assert.ok(!h.plans[lock].sql.includes("'ACTIVE'"));
+  const read=h.plans[receipt];
+  for(const value of [h.material.storageKey,h.material.storageBucket,h.material.file.contentHash,h.material.normalizedHash,
+    h.material.normalizedText,JSON.stringify(h.material.extraction),h.material.id,'session'])assert.ok(read.values.includes(value));
+  assert.ok(read.sql.includes("'LEARNER_INPUT'"));assert.ok(read.sql.includes("'READY'"));assert.ok(read.sql.includes("'false'"));
+  assert.ok(h.plans.some(p=>p.sql.includes("lock_timeout = '3s'")));
+  assert.ok(h.plans.some(p=>p.sql.includes("statement_timeout = '5s'")));
+  assert.ok(!h.plans.some(p=>/INSERT|DELETE|UPDATE public/.test(p.sql)));
+});
+test('Prisma cleanup requires conclusive absence; hidden ownership and stale snapshot never authorize deletion',async()=>{
+  const missing=receiptHarness({rows:[]});assert.equal(await missing.store.resolveSave('session',missing.material),'NOT_SAVED');
+  for(const options of [{owned:false},{level:'repeatable read'},{level:'serializable'},{rows:[{outcome:'UNKNOWN'}]},
+    {rows:[{outcome:'SAVED'},{outcome:'SAVED'}]}]){
+    const h=receiptHarness(options);assert.equal(await h.store.resolveSave('session',h.material),'UNKNOWN');
+    if(options.owned===false||options.level)assert.ok(!h.plans.some(p=>p.sql.includes('CASE WHEN')));
+  }
+  const busy=receiptHarness({lockFailure:Error('lock timeout')});
+  await assert.rejects(busy.store.resolveSave('session',busy.material),/lock timeout/);
+  assert.ok(!busy.plans.some(p=>p.sql.includes('CASE WHEN')));
 });
 test('ownership changed during persistence still compensates, ambiguous upload failure never saves or blindly deletes',async()=>{
   const h=harness({saveFailure:new ApiError('NOT_FOUND',404,'Session no longer active')});

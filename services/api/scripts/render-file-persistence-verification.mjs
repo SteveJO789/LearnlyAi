@@ -18,24 +18,38 @@ const rewrite=sql=>tables.reduce((text,table)=>text.replaceAll(`public.${q(table
   .replaceAll(`${q('public')}.${q(table)}`,`${q(schema)}.${q(table)}`),sql);
 let captured=[];
 const raw={sql:(strings,...values)=>({returnsRow:()=>({build:()=>({strings,values})}),affectedCount:()=>({build:()=>({strings,values})})})};
-const query=plan=>{captured.push(plan);return{toArray:async()=>[{id:'capture-only'}]};};
+const query=plan=>{captured.push(plan);return{toArray:async()=>plan.strings.join('').includes('transaction_isolation')?
+  [{level:'read committed'}]:[{id:'capture-only',outcome:'SAVED'}]};};
 const tx={query,execute:async plan=>{captured.push(plan);return{affectedRows:1};}};
 const client={raw,query,transaction:async work=>work(tx)};
 const render=plan=>rewrite(plan.strings.reduce((sql,part,index)=>sql+part+(index<plan.values.length?literal(plan.values[index]):''),''));
 const store=new PrismaFileMaterials(client,owner);
-async function saveQueries(sessionId,id,type){
-  captured=[];
+function preparedFile(sessionId,id,type){
   const bytes=Buffer.from('%PDF-1.7\nfixture-only\n%%EOF\n'),file=inspectFileEnvelope(bytes,'application/pdf','fixture.pdf');
   const actualFile=type==='PDF'?file:{...file,type:'IMAGE',mimeType:'image/png',extension:'png',filename:'fixture.png'};
   const extracted=normalizeFileExtraction(type==='PDF'?{method:'PDF_TEXT',confidence:null,pages:[{page:1,text:'สูตร x²\nV = IR'},{page:2,text:''}]}:
     {method:'OCR',confidence:85,pages:[{page:null,text:'โจทย์ x²'}]},actualFile);
-  await store.save(sessionId,{id,storageKey:`${auth}/${sessionId}/${id}.${actualFile.extension}`,storageBucket:'learnly-materials',file:actualFile,...extracted});
+  return {id,storageKey:`${auth}/${sessionId}/${id}.${actualFile.extension}`,storageBucket:'learnly-materials',file:actualFile,...extracted};
+}
+async function saveQueries(sessionId,id,type){
+  captured=[];
+  await store.save(sessionId,preparedFile(sessionId,id,type));
+  return captured.map(render);
+}
+async function receiptQueries(sessionId,id,changes={}){
+  captured=[];
+  await store.resolveSave(sessionId,{...preparedFile(sessionId,id,'PDF'),...changes});
   return captured.map(render);
 }
 await store.assertActiveOwnedSession('file-fixture');const activeQuery=render(captured[0]);
 captured=[];await store.assertActiveOwnedSession('closed-fixture');const closedQuery=render(captured[0]);
 const pdf=await saveQueries('file-fixture','pdf-material','PDF'),image=await saveQueries('file-fixture','image-material','IMAGE');
 const rollback=await saveQueries('rollback-fixture','rollback-material','PDF');
+const receipt=await receiptQueries('file-fixture','pdf-material');
+const conflict=await receiptQueries('file-fixture','pdf-material',{storageBucket:'different-private-bucket'});
+const absent=await receiptQueries('file-fixture','absent-material');
+const lock=receipt.find(sql=>sql.includes('FOR UPDATE'));
+const read=queries=>queries.find(sql=>sql.includes('CASE WHEN'));
 const sourceInsert=pdf.find(sql=>sql.startsWith('INSERT'));
 const statements=['BEGIN;',"SET LOCAL statement_timeout='10s';",
   `DO $$ BEGIN IF to_regnamespace('${schema}') IS NOT NULL THEN RAISE EXCEPTION 'Fixture already exists'; END IF; END $$;`,
@@ -76,6 +90,16 @@ DO $$ DECLARE n int; BEGIN
  EXCEPTION WHEN insufficient_privilege THEN NULL; END;
 END $$;`);
 for(const sql of [...pdf,...image])statements.push(sql+';');
+// Execute the captured bounded lock and exact receipt query after the stored fixture exists.
+for(const sql of receipt.filter(sql=>!sql.includes('CASE WHEN')))statements.push(sql+';');
+statements.push(`DO $$ DECLARE result text; n int; BEGIN
+ SELECT outcome INTO result FROM (${read(receipt)}) saved_receipt;
+ IF result IS DISTINCT FROM 'SAVED' THEN RAISE EXCEPTION 'Committed file receipt not matched'; END IF;
+ SELECT outcome INTO result FROM (${read(conflict)}) conflicting_receipt;
+ IF result IS DISTINCT FROM 'UNKNOWN' THEN RAISE EXCEPTION 'Conflicting bucket receipt authorized cleanup'; END IF;
+ SELECT count(*) INTO n FROM (${read(absent)}) absent_receipt;
+ IF n<>0 THEN RAISE EXCEPTION 'Absent receipt was fabricated'; END IF;
+END $$;`);
 statements.push(`DO $$ DECLARE n int; BEGIN
  SELECT count(*) INTO n FROM ${q(schema)}."SourceMaterial" WHERE status='READY' AND
    ((id='pdf-material' AND type='PDF' AND metadata->'extraction'->'pages'->1->>'page'='2') OR
@@ -93,12 +117,23 @@ statements.push(`DO $$ DECLARE n int; BEGIN
  SELECT count(*) INTO n FROM ${q(schema)}."LearningSession" WHERE id='rollback-fixture' AND state='INPUT';
  IF n<>1 THEN RAISE EXCEPTION 'Failed session gate changed state'; END IF;
 END $$;
+UPDATE ${q(schema)}."LearningSession" SET "lifecycleState"='COMPLETED' WHERE id='file-fixture';
+DO $$ DECLARE n int; result text; BEGIN
+ SELECT count(*) INTO n FROM (${lock}) completed_owned;
+ IF n<>1 THEN RAISE EXCEPTION 'Completed owner receipt lock missing'; END IF;
+ SELECT outcome INTO result FROM (${read(receipt)}) completed_receipt;
+ IF result IS DISTINCT FROM 'SAVED' THEN RAISE EXCEPTION 'Completed session lost committed file receipt'; END IF;
+END $$;
 SELECT set_config('request.jwt.claims','{"sub":"${peer}","role":"authenticated"}',true);
 DO $$ DECLARE n int; BEGIN
  SELECT count(*) INTO n FROM ${q(schema)}."SourceMaterial";
  IF n<>0 THEN RAISE EXCEPTION 'Cross-user file read allowed'; END IF;
  SELECT count(*) INTO n FROM (${activeQuery}) foreign_owned;
  IF n<>0 THEN RAISE EXCEPTION 'Cross-user active session visible'; END IF;
+ SELECT count(*) INTO n FROM (${lock}) hidden_owner;
+ IF n<>0 THEN RAISE EXCEPTION 'Cross-user receipt parent lock allowed'; END IF;
+ SELECT count(*) INTO n FROM (${read(receipt)}) hidden_receipt;
+ IF n<>0 THEN RAISE EXCEPTION 'Cross-user file receipt read allowed'; END IF;
  BEGIN ${sourceInsert.replaceAll("'pdf-material'","'foreign-material'")}; RAISE EXCEPTION 'Cross-user file write allowed' USING ERRCODE='XX000';
  EXCEPTION WHEN insufficient_privilege THEN NULL; END;
 END $$;
@@ -110,6 +145,6 @@ DO $$ BEGIN
 END $$;
 ROLLBACK;
 SELECT to_regnamespace('${schema}') IS NULL AS fixture_removed,
- 'PASS: adapter SQL, canonical RLS, legacy owner, file metadata, PRE gate, atomic failure and FK checks' AS verification;`);
+ 'PASS: adapter SQL, canonical RLS, legacy owner, file metadata, PRE gate, atomic failure, exact/absent/conflicting/closed/cross-user receipts and FK checks' AS verification;`);
 writeFileSync(output,statements.join('\n'),'utf8');
 process.stdout.write(JSON.stringify({schema,output,scope:'adapter SQL + canonical fixture policies; injected decoder/Storage; not actual Prisma runtime',transaction:'BEGIN/ROLLBACK'}));

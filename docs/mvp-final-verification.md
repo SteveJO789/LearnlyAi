@@ -10,6 +10,8 @@ PrivateStorage milestoneล่าสุด: **API274/274**, integration11/11/com
 
 ## ฟีเจอร์และ issue evidence
 
+File receipt milestone: แก้การลบไฟล์ผิดเมื่อ COMMIT สำเร็จแต่ connection ส่ง error ตรวจ exact receipt หลัง owned parent lock ก่อน compensation เก็บไฟล์เมื่อ UNKNOWN; **API278/278**, file11/11 และ simulated persistent11/11/compile PASS Actual empty-clone PostgreSQL receipt/ownership checks PASS และ rollback หมด ไม่ใช่ real network-loss/Storage/concurrent Prisma proof ไม่มี schema change/paid calls [หลักฐาน](evidence/mvp-file-receipt-verification.json) Durable upload receipt/process-crash reconciliation ยังขาด
+
 | ฟีเจอร์ / issue | Implementation และหลักฐาน | สิ่งที่ยังขาด |
 |---|---|---|
 | Auth / #5 #6 | รักษา Supabase Google/email/verification, callback→Home, verified Bearer/profile; auth regression ผ่าน | real login/browser journey รอบปัจจุบัน |
@@ -41,8 +43,8 @@ File serviceไม่มี default/Mock extractorถูก wire เข้า ru
 
 | การตรวจ | ผลล่าสุดและขอบเขต |
 |---|---|
-| API compile/offline suite | **274/274 PASS**; Mock/injected transports ไม่มี paid model callsในCI |
-| File orchestration | **7/7 PASS**; injected extractor/Storage/DB ไม่ใช่ decoding/live upload proof |
+| API compile/offline suite | **278/278 PASS**; Mock/injected transports ไม่มี paid model callsในCI |
+| File orchestration | **11/11 PASS**; injected extractor/Storage/DB รวม ambiguous COMMIT recovery ไม่ใช่ decoding/live upload proof |
 | Vector retrieval | **8/8 PASS**; review/hash/embedding-input/provenance/intent gates และ parameter binding |
 | OCR artifact integrity | **4/4 PASS**; actual official download/offline verificationแยกจากunit tests |
 | Persistent integration | **11/11 PASS**; simulated Auth/DB harness ไม่ใช่ real OAuth |
