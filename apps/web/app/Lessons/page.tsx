@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import SiteHeader from "../components/SiteHeader";
+import CuteLoadingPopup from "../components/CuteLoadingPopup";
 import {
   listLearningSessions,
   type LearningSessionSummary,
@@ -12,6 +13,7 @@ import { getCurrentUserProfile } from "../../lib/user-profile";
 
 export default function LessonsPage() {
   const [sessions, setSessions] = useState<LearningSessionSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [displayName, setDisplayName] = useState("...");
   const [error, setError] = useState<string | null>(null);
 
@@ -23,13 +25,15 @@ export default function LessonsPage() {
       })
       .catch((loadError) => {
         setError(loadError instanceof Error ? loadError.message : "Could not load lessons.");
-      });
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const recent = sessions.slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-background text-text">
+    <div className="min-h-screen bg-transparent text-text">
+      {isLoading && <CuteLoadingPopup message="กำลังโหลดบทเรียน..." detail="กำลังดึงบทเรียนล่าสุดของคุณมาแสดง 🌷" />}
       <SiteHeader
         links={[
           { labelKey: "nav.create", href: "/Create" },
