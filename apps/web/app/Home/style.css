@@ -43,16 +43,34 @@
 }
 .mascot-wave-hand {
   position: absolute;
-  z-index: 5;
-  top: 22%;
-  right: 14%;
-  font-size: clamp(1.35rem, 3vw, 2rem);
+  z-index: 8;
+  top: 2%;
+  right: -31%;
+  font-size: clamp(1.45rem, 3.2vw, 2.15rem);
+  line-height: 1;
   opacity: 0;
   transform: translate(0, 12px) rotate(-25deg) scale(.6);
   transform-origin: 20% 90%;
   pointer-events: none;
   filter: drop-shadow(0 5px 8px rgb(168 85 247 / .25));
   animation: mascot-greet 1.25s ease-in-out .35s 1 forwards;
+}
+.mascot-wave-hand::after {
+  content: "Hi!";
+  position: absolute;
+  right: -0.9em;
+  top: -1.35em;
+  white-space: nowrap;
+  font-family: ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif;
+  font-size: .62em;
+  font-weight: 900;
+  letter-spacing: -.04em;
+  background: linear-gradient(110deg, #ec4899 5%, #a855f7 52%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 5px rgb(168 85 247 / .18));
+  transform: rotate(12deg);
 }
 .mascot-sparkle {
   position: absolute;
