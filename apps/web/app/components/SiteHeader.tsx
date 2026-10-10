@@ -112,7 +112,7 @@ function AccountMenu() {
 
   return (
     <div className="relative">
-      <button type="button" onClick={() => setIsOpen((open) => !open)} className={NavButton}>
+      <button type="button" onClick={() => setIsOpen((open) => !open)} className={NavButton + " w-full text-center md:w-auto"}>
         {t("nav.account")}
       </button>
 
