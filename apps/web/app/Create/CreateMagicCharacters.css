@@ -15,13 +15,13 @@
   transform-origin: bottom center;
 }
 .wizard-hat {
-  position: absolute; z-index: 4; left: 19px; top: 0; width: 65px; height: 65px;
+  position: absolute; z-index: 4; left: 12px; top: -2px; width: 79px; height: 75px;
   background: linear-gradient(135deg,#9c85ff 5%,#6b55ce 70%,#4d3aab);
   clip-path: polygon(50% 0, 70% 62%, 100% 84%, 4% 88%, 30% 69%);
   border-radius: 15px;
   filter: drop-shadow(2px 4px 2px rgb(54 39 117 / .22));
 }
-.wizard-hat i { position:absolute; width:7px;height:7px;border-radius:50%;background:#ffe99b;left:40px;top:35px;box-shadow:0 0 8px #fff2b3; }
+.wizard-hat i { position:absolute; width:7px;height:7px;border-radius:50%;background:#ffe99b;left:49px;top:40px;box-shadow:0 0 8px #fff2b3; }
 .wizard-face {
   position:absolute;z-index:3;left:28px;top:39px;width:55px;height:49px;border-radius:46% 46% 48% 48%;
   background:linear-gradient(145deg,#ffe3c7,#f4b995);box-shadow:inset -4px -4px 0 rgb(197 116 100 / .12);
