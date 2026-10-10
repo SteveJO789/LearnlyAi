@@ -77,6 +77,11 @@ Canonical migrations ถูกเตรียมแล้วและ unscoped m
 เพิ่ม native OpenRouter routing price ceiling/no fallback ให้ paid runner และ offline tests ผ่าน ไม่เสียเงินเพิ่ม หลังจากสอง live runs เดิมยังใช้ reportedUS$0.0214265/reservedUS$0.31889835
 
 - [ ] ทุก applicable issue criterion มี working feature และหลักฐาน
+History milestone: actual owned PRE/POST results แทนรายการว่างใน prototype, default Chat list, RequireAuth, loading/error/retry และ responsive cards. Frontend20/20 + typecheck/final build PASS [หลักฐาน](evidence/mvp-history-verification.json); browser/mobile E2E ยัง pending. วันที่ใน card คือ session update ไม่ใช่ invented exam date.
+
+Production read-only Prisma verify ไม่ผ่าน: exit4, verificationOk=false, Hash mismatch; marker storageHash=c7b3938544e5e74ca8b9f22476cc7dbb3d987938d552a6e2214b5edd941b8665 ก่อน current d17a8bc. ไม่ sign marker/apply public migrations. CI163 ผ่านสำหรับ head24317df ก่อน History milestone ใหม่.
+
+- [ ] ทุก applicable issue criterion มี working feature และหลักฐาน
 - [ ] PDF/image/OCR/private Storage และ pgvector ingestion/Top-K ครบ
 - [ ] Login→Create→Input/Upload→Learn→Assess→History→Profile ผ่าน real browser/mobile/keyboard E2E
 - [ ] Historical migration replay และ ownership controls ตรวจใน safe environment

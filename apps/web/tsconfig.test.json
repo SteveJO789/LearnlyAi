@@ -13,6 +13,7 @@
     "next-env.d.ts",
     "app/components/assessment-view.tsx",
     "app/components/learning-summary.tsx",
+    "app/components/assessment-history.tsx",
     "app/Chat/[sessionId]/blocks.tsx",
     "lib/assessments.ts",
     "lib/user-profile.ts"

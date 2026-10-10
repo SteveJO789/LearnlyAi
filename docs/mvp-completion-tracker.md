@@ -175,3 +175,14 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - Simulated persistent integration **11/11**, frontend **16/16**, API **239/239**, API/Web typechecks/compile และ Web production build PASS
 - Fresh source-only export + relocated runtime PASS: API239/239 และ runtime4/4; snapshot ก่อนเพิ่ม native routing price guard ซึ่งมี budget tests3/3 แยก ไม่อ้างว่า export ตรวจ price guard ใหม่แล้ว
 - ยังไม่ใช่ actual OAuth/browser E2E หรือ live deployed repair; production schema/API deploy และ npm repair approvals/log access ยังเป็น blockers
+
+### Milestone 10 — History ใช้ผลสอบจริง
+
+- Goal ถูกพักตามคำสั่ง แล้วสถานะกลับมา ACTIVE ก่อนทำงานต่อ; เก็บงาน WIP เดิมและทำให้ครบ
+- แทน empty prototype testResults array ด้วย owned progress API comparisons; default History แสดง Chat จริงและอยู่หลัง RequireAuth
+- PRE/POST แสดง 0/null ต่างกัน, delta เป็นจุดเปอร์เซ็นต์, วันที่เป็น session updatedAt จริง ไม่ปลอมว่าเป็นวันสอบ; กรองวันที่และ links ใช้ session IDs ที่ encode
+- Sessions/results load แยกกัน มี loading/error/retry; คง Cake layout พร้อม responsive columns และ labels/ARIA
+- Frontend **20/20**, typecheck และ final production build PASS; [หลักฐาน](evidence/mvp-history-verification.json). ไม่อ้าง browser interaction/mobile visual proof
+- CI run163 ของ head24317df ผ่านก่อน milestone นี้: https://github.com/SteveJO789/LearnlyAi/actions/runs/38022572450
+- Read-only production Prisma verify: exit4 / verificationOk=false, Hash mismatch; marker storageHash=c7b3938 ก่อน 3 app deltas ไป d17a8bc ไม่มีการเปลี่ยน marker/schema/data
+- งานถัดไป:ตรวจ migration path จาก actual marker และ release preparation; PDF/OCR/pgvector dependencies ยังรอ npm repair approval และ Vercel API error log ยังไม่มีสิทธิ์อ่าน

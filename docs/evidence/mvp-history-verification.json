@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-10",
+  "feature": "Authenticated owned History and actual PRE/POST comparison cards",
+  "implementation": "getLearningProgress comparisons replace the empty prototype array; sessions and results load independently; default Chat tab; date filter uses actual session updatedAt and labels it accordingly",
+  "tests": { "frontend": { "passed": 20, "failed": 0 }, "typecheck": "PASS", "productionBuild": "PASS" },
+  "checks": ["zero scores remain visible", "missing scores/dates are not fabricated", "negative comparison delta", "safe encoded owned session links", "inclusive date filtering", "accessible progress bars"],
+  "limits": "Client/render/calculation tests and build, not browser lifecycle, mobile visual QA or real Supabase login E2E. Binary upload history remains pending. Backend unchanged from prior 239/239 and persistent 11/11 evidence."
+}

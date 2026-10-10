@@ -110,6 +110,14 @@ export const en: Dictionary = {
   "history.percentCompleted": "% Completed",
   "history.pretest": "Pretest:",
   "history.posttest": "Posttest:",
+  "history.loading": "Loading your history…",
+  "history.retry": "Retry",
+  "history.assessment": "Learning assessment",
+  "history.noScore": "No result recorded",
+  "history.change": "Change:",
+  "history.percentagePoints": "percentage points",
+  "history.sessionUpdated": "Session updated:",
+  "history.openLearning": "Open learning session",
 
   // --- Setting: Delete Account confirm modal ---
   "settings.deleteConfirm.title": "Confirm account deletion",
@@ -391,6 +399,14 @@ export const th: Dictionary = {
   "history.percentCompleted": "% เสร็จสมบูรณ์",
   "history.pretest": "ก่อนเรียน:",
   "history.posttest": "หลังเรียน:",
+  "history.loading": "กำลังโหลดประวัติของคุณ…",
+  "history.retry": "ลองอีกครั้ง",
+  "history.assessment": "แบบประเมินการเรียนรู้",
+  "history.noScore": "ยังไม่มีผลที่บันทึกไว้",
+  "history.change": "เปลี่ยนแปลง:",
+  "history.percentagePoints": "จุดเปอร์เซ็นต์",
+  "history.sessionUpdated": "อัปเดต session:",
+  "history.openLearning": "เปิดการเรียนรู้นี้",
 
   "settings.deleteConfirm.title": "ยืนยันการลบบัญชี",
   "settings.deleteConfirm.body":
