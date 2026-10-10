@@ -116,6 +116,17 @@ export default function CreatePage() {
           {t("home.greeting")} <span className="inline-block max-w-full break-words">{profile?.displayName ?? "..."}</span>
         </div>
 
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => router.push("/Lessons")}
+            className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-surface/80 px-4 py-2 text-sm font-medium text-primary shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
+          >
+            <span aria-hidden="true">←</span>
+            {t("nav.lessons")}
+          </button>
+        </div>
+
         <div className="mx-auto mt-8 w-full max-w-3xl px-2 text-center sm:px-4">
           <div className="flex justify-center w-full">
             <h1 
