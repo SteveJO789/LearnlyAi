@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "node --env-file-if-exists=.env --watch src/server.ts",
-    "build": "npm run knowledge:prepare-runtime && tsc -p tsconfig.json && node scripts/copy-contract.mjs",
+    "build": "npm run knowledge:prepare-runtime && tsc -p tsconfig.json && node scripts/copy-contract.mjs && npm run ocr:prepare-models:download && node scripts/copy-input-runtime.mjs",
     "knowledge:prepare-runtime": "npm --prefix ../../knowledge run knowledge:prepare-runtime",
     "knowledge:verify-runtime": "node scripts/verify-runtime-knowledge.mjs",
     "knowledge:verify-fresh": "node scripts/verify-fresh-runtime.mjs",
@@ -46,6 +46,7 @@
     "@types/express": "5.0.6",
     "@types/node": "^24.0.0",
     "@types/pg": "8.20.4",
+    "@types/pngjs": "6.0.5",
     "typescript": "7.0.2"
   }
 }

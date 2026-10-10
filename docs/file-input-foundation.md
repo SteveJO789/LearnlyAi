@@ -2,6 +2,8 @@
 
 ตอนนี้มี preliminary envelope checks, user-JWT Storage transport, ingestion coordinator และ Prisma persistence adapter ใน API module แล้ว แต่ **ยังไม่เชื่อม endpoint/UI, real decoder/PDF extraction/OCR หรือ private bucket/RLS จริง** จึงยังไม่ถือว่า #15 สำเร็จ
 
+ล่าสุด: realdecoder/PDFtext/tha+engOCRมีimplementationและactualtests10/10แล้ว พร้อมboundedworkers/modelpackaging [รายละเอียด](real-file-extraction.md) ข้อความด้านล่างเป็นmilestonesก่อนหน้า ยังขาดendpoint/UI/actualprivateStorage/Authjourney และไม่อ้างgeneralrecognitionaccuracy
+
 `inspectFileEnvelope` จำกัด 3 MiB, รองรับเฉพาะ PDF/PNG/JPEG, ตรวจ signature กับ MIME ที่ประกาศ, คำนวณ hash จาก bytes, ปฏิเสธ filename ที่เป็น path/control characters และป้องกัน PNG dimension เกิน 12 ล้าน pixels ชื่อ/นามสกุลไฟล์ไม่ใช่หลักฐานประเภทเนื้อหา
 
 การผ่าน envelope checks **ไม่พิสูจน์ว่าไฟล์สมบูรณ์** ตัวอย่างทดสอบ PDF เป็นเพียง header fixture ไม่ใช่เอกสารจริง ต้อง decode/extract ด้วย library จริง, ตรวจ JPEG/image pixels, จำกัดหน้า/text/time/memory และ reject malformed/encrypted/unsupported input ก่อนใช้ READY หรือส่งต่อ engine ไม่มี simulated OCR หรือข้อความตัวอย่างแทน extraction

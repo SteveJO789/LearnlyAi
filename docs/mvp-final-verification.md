@@ -2,6 +2,8 @@
 
 อัปเดต 2026-10-10: **กำลังทำ — ยังไม่ IMPLEMENTATION COMPLETE และยังไม่ RELEASED**
 
+ล่าสุดตัวอ่านไฟล์จริง: PDF.js text extraction, fullPNG/JPEG decode/CRC/inflatecaps/EXIFและtha+engTesseractOCR/workerabort ทำงานกับactualsyntheticfixtures **10/10** Actualnpmtest/build **API299/299**, simulatedpersistent11/11PASS Pinnedmodels/workersเตรียมในbuildแล้ว แต่fileendpoint/UI/actualAuthStoragejourneyและdeploymentmemory/sizeยังไม่verified [หลักฐาน](evidence/mvp-real-file-extraction-verification.json)
+
 งาน follow-up อยู่ใน [Draft PR #78](https://github.com/SteveJO789/LearnlyAi/pull/78) เริ่มจาก develop `5022c28` และรวมงานล่าสุดของทีม `875575f` แล้ว งานเดิมใน primary checkout/stash ยังอยู่ครบ ไม่มี auto-merge PR หรือ force push หลักฐาน local/fixture ด้านล่างไม่เท่ากับระบบที่ deploy จริง
 
 ล่าสุดหลังปลดnpm/ติดตั้งdependencies: actual `npm test` build/full API **289/289**, simulatedpersistent11/11 และmigrationintegrityPASS Canonical **076ce83** เพิ่มatomic FINALIZED + restrictive exact-PENDING Storage guard Actualclones47checks/metadata/replay/isolationcases และfresh4packages92steps/173checksPASS ทั้งหมดrollback ไม่มีproductionapply/actualStorageHTTPหรือrealPDF/OCR proof [หลักฐาน](evidence/mvp-storage-journal-gate-verification.json) Dependenciesพร้อมสำหรับimplementationแล้ว
@@ -27,7 +29,7 @@ File receipt milestone: แก้การลบไฟล์ผิดเมื�
 | Adaptive / #39 | 5 multi-turn offline scenarios; live5conversations/13turns ผ่าน structure/citation/engine gates; [numeric fixes](evidence/mvp-numeric-followup-verification.json) | educator review/broader topic-model coverage; generic hintsยังอาจสมมติโจทย์ |
 | Assessment / #13 | PRE/POST/TRANSFER, immutable snapshots, deterministic scoring/receipts, atomic answers/profile; [API→Prisma→DB6groups](evidence/mvp-assessment-db-verification.json) | broader exercise bank, public migrations และ real Auth/browser journey |
 | Profile/History / #16 | owned mastery/latest samples/paired scoresผ่านAPI; actual PRE/POST History; [frontend20/20/build](evidence/mvp-history-verification.json) | browser/mobile/keyboard QA |
-| Input / #15 | TEXT normalization/hash/persistence; file envelope/Storage/coordinator และ durable journal/resume/cancellation; [real journal SQL/RLS](evidence/mvp-durable-file-upload-verification.json) | actual PDF/image decoding/OCR, private Storage/Auth, endpoints/UI/retention และ real concurrent recovery |
+| Input / #15 | TEXT; realPDF/image/OCR/workerpackaging และdurablejournal/RLS; [extraction](evidence/mvp-real-file-extraction-verification.json) | privateStorage/Auth, endpoints/UI/userreview/retention และrealconcurrentrecovery/generalrecognitionaccuracy |
 | OCR assets / #15 | official pinned eng/tha/LICENSE5,197,046bytes download/hash/offline verification; [artifact tests4/4](evidence/mvp-ocr-model-packaging-verification.json) | recognition/accuracy, worker limits, OCR build/runtime bundle และ deployed smoke |
 | Learning UI / #9 | Create→PRE→Chat→POST, structured blocks, stage/progress และ3interactive widgets | complete browser E2E และ uploads |
 | Database / #2 #3 | canonical migrations/grants/RLS เตรียมแล้ว; [fresh baseline68SQLsteps/126checks](evidence/mvp-fresh-baseline-verification.json) และ isolated ownership/rollback tests | actual Prisma executor/marker verification และ compatible production schema |
@@ -49,7 +51,7 @@ File serviceไม่มี default/Mock extractorถูก wire เข้า ru
 
 | การตรวจ | ผลล่าสุดและขอบเขต |
 |---|---|
-| API compile/offline suite | **289/289 PASS**ผ่านactual npm test/build; Mock/injected transports ไม่มี paid model callsในCI |
+| API compile/offline suite | **299/299 PASS**ผ่านactual npm test/build; realPDF/OCR tests local/offline และMockAI ไม่มี paid model callsในCI |
 | File orchestration/Storage | **26/26 PASS**; injected extractor/Storage/DB + streamed HTTP fixtures รวม durable restart/byte-integrity/cancellation ไม่ใช่ decoding/live upload proof |
 | Vector retrieval | **8/8 PASS**; review/hash/embedding-input/provenance/intent gates และ parameter binding |
 | OCR artifact integrity | **4/4 PASS**; actual official download/offline verificationแยกจากunit tests |

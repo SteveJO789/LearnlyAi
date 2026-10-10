@@ -290,6 +290,14 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - `npm test` actual build/full suite **289/289**, simulated persistent **11/11**, migrationintegrityPASS Actual Storageclones **47canonicalchecks** + denial/metadata/isolationcases, fresh4packages **92steps/173checks**, filefinalizationatomicityPASS; fixturesremoved [หลักฐาน](evidence/mvp-storage-journal-gate-verification.json)
 - Library importsสำเร็จแต่PDFjsมีoptional nativeCanvas warnings ไม่อ้างว่าอ่านPDF/OCRจริงแล้ว Next: bounded real extraction workers + actual fixtures และcanonicalvector ingestion/runtime npmdependenciesพร้อมแล้ว ไม่มีpaidcalls/CDเพิ่ม
 
+### Milestone 19 — PDF/image/OCR จริงและruntime packaging
+
+- Implement RealFileTextExtractor/isolatedworkers: streamedPDF text/fullPNG-JPEG decode/CRCs/inflatecaps/EXIForientation/actualtha+engOCR ไม่มีMockหรือruntimeCDN จำกัดเวลา/หน้า/text/pixels/concurrencyและawaitthreadstop ปิดworkercredentials/rawdiagnostics
+- RealPDFหลายหน้าพร้อมหน้าว่าง, encryptedPDF, Thai/EnglishPNG/JPEG, rotatedJPEG, corruptimages, decompressionbomb, empty/overflow/missingmodels/abort/busy tests **10/10** Actualbuild/fullAPI **299/299**, simulatedpersistent **11/11** PASS [หลักฐานและfailedcases](evidence/mvp-real-file-extraction-verification.json)
+- Buildเตรียมpinnedmodels/copyworkersและVercelincludeFiles; source-onlycoldprepare+relocatedsnapshotก่อนfinalEXIF casesผ่านAPI297/extraction8/Knowledge4/cleanup ใช้copiedlockeddeps ไม่ใช่freshnpm/current-head/deployment proof
+- Originalbitmapอ่านสมการผิด, Windowsfontpathผิดslash, oversizePDFfixtureวาดoff-page และancillaryCRCไม่ถูกdecoderตรวจ ถูกวิเคราะห์จากไฟล์จริงแล้วแก้ ไม่fabricateOCRresults/teacher-reviewedstatus
+- ยังขาดfileAPIs/UI/liveAuthStoragePrismajourney/productionfunctionsize-memoryproof และbroaderrecognitionaccuracy ScannedPDFยังcontrolledNO_EXTRACTABLE_TEXT งานถัดไปคือauthenticatedupload/userreview/runtimevectorintegration ไม่มีpaidcallsหรือdeploymentเพิ่ม
+
 - เพิ่ม header/MIME/size/hash/filename checks และ PNG dimension cap; ไม่อ้างว่าตรวจ full file content/extraction แล้ว
 - เพิ่ม real user-JWT private Storage transport (HTTPS/no redirect/no upsert, owned prefix, immutable verified bytes, safe errors); runtime ยังไม่ wired และ private bucket/RLS ยังไม่ created/verified
 - Targeted tests5/5, API compile และ full offline API249/249 PASS; HTTP transport injected ไม่ใช่ actual Storage upload proof

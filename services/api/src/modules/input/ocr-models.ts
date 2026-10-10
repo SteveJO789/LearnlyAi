@@ -30,11 +30,12 @@ export async function readVerifiedOcrArtifact(response: Response, file: { bytes:
   if (length !== file.bytes || digest(bytes) !== file.sha256) throw new Error("OCR artifact integrity mismatch.");
   return bytes;
 }
-async function artifact(root: string, file: typeof manifest.files[number]): Promise<boolean> {
+async function artifact(root: string, file: typeof manifest.files[number], signal?: AbortSignal): Promise<boolean> {
   try {
+    signal?.throwIfAborted();
     const path = join(root, file.name), info = await lstat(path);
     if (!info.isFile() || info.isSymbolicLink() || info.size !== file.bytes) return false;
-    return digest(await readFile(path)) === file.sha256;
+    return digest(await readFile(path, { signal })) === file.sha256;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
     throw error;
@@ -46,9 +47,11 @@ async function assertDirectory(root: string): Promise<void> {
 }
 
 /** Runtime is offline: all pinned model bytes + licence must already be packaged. */
-export async function verifyOcrModels(root = defaultRoot) {
+export async function verifyOcrModels(root = defaultRoot, signal?: AbortSignal) {
+  signal?.throwIfAborted();
   await assertDirectory(root);
-  for (const file of manifest.files) if (!await artifact(root, file)) throw new Error("Packaged OCR models are missing or fail integrity validation.");
+  for (const file of manifest.files) if (!await artifact(root, file, signal)) throw new Error("Packaged OCR models are missing or fail integrity validation.");
+  signal?.throwIfAborted();
   return Object.freeze({ root, revision: manifest.revision, languages: "tha+eng", gzip: false, license: manifest.license });
 }
 

@@ -5,7 +5,8 @@
   "buildCommand": "npm run build && npm run knowledge:verify-runtime",
   "functions": {
     "src/**": {
-      "includeFiles": "{runtime-knowledge/**,src/contracts/**}"
+      "includeFiles": "{runtime-knowledge/**,runtime-ocr/**,runtime-workers/**,src/contracts/**,node_modules/tesseract.js/**,node_modules/tesseract.js-core/**,node_modules/pngjs/**,node_modules/jpeg-js/**,node_modules/pdfjs-dist/**,node_modules/bmp-js/**,node_modules/wasm-feature-detect/**,node_modules/is-url/**,node_modules/zlibjs/**,node_modules/regenerator-runtime/**,node_modules/idb-keyval/**}",
+      "excludeFiles": "**/*.map"
     }
   }
 }
