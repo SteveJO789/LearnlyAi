@@ -42,6 +42,12 @@ function SettingContent() {
   }, [tabParam]);
 
   const handleTabChange = (tab: SettingTabType) => {
+    if (tab !== "Delete Account") {
+      setMascotPrankActive(false);
+      setMascotCrying(false);
+      setMascotButtonStolen(false);
+      setMascotPrankPlayed(false);
+    }
     setActiveTab(tab);
     router.push(`/Account/Setting?tab=${encodeURIComponent(tab)}`, { scroll: false });
   };
@@ -101,22 +107,29 @@ function SettingContent() {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [mascotPrankActive, setMascotPrankActive] = useState(false);
   const [mascotCrying, setMascotCrying] = useState(false);
+  const [mascotButtonStolen, setMascotButtonStolen] = useState(false);
+  const [mascotPrankPlayed, setMascotPrankPlayed] = useState(false);
   const [mascotTapPending, setMascotTapPending] = useState(false);
   const [mascotStart, setMascotStart] = useState({ x: 0, y: 0, buttonWidth: 0 });
   const deleteButtonRef = useRef<HTMLButtonElement>(null);
 
   const triggerMascotPrank = () => {
-    if (mascotPrankActive) return;
+    if (mascotPrankActive || mascotPrankPlayed) return;
     const rect = deleteButtonRef.current?.getBoundingClientRect();
     if (rect) {
       setMascotStart({ x: rect.left, y: rect.top, buttonWidth: rect.width });
     }
     setMascotCrying(false);
+    setMascotButtonStolen(false);
+    setMascotPrankPlayed(true);
     setMascotPrankActive(true);
+    // The button disappears only when the wizard reaches it.
+    window.setTimeout(() => setMascotButtonStolen(true), 420);
     window.setTimeout(() => {
       setMascotPrankActive(false);
+      setMascotButtonStolen(false);
       setMascotCrying(true);
-    }, 7500);
+    }, 3800);
   };
 
   return (
@@ -472,10 +485,10 @@ function SettingContent() {
                             setMascotTapPending(false);
                           }, 550);
                         }}
-                        disabled={mascotTapPending || mascotPrankActive}
-                        aria-hidden={mascotPrankActive}
-                        tabIndex={mascotPrankActive ? -1 : 0}
-                        className={`rounded-xl bg-danger px-6 py-2.5 text-sm font-medium text-white transition-all cursor-pointer disabled:cursor-wait ${mascotPrankActive ? "invisible pointer-events-none" : "visible hover:opacity-90"}`}
+                        disabled={mascotTapPending || mascotButtonStolen}
+                        aria-hidden={mascotButtonStolen}
+                        tabIndex={mascotButtonStolen ? -1 : 0}
+                        className={`rounded-xl bg-danger px-6 py-2.5 text-sm font-medium text-white transition-all cursor-pointer disabled:cursor-wait ${mascotButtonStolen ? "invisible pointer-events-none" : "visible hover:opacity-90"}` }
                       >
                         {t("settings.deleteAccount.button")}
                       </button>
@@ -516,7 +529,7 @@ function SettingContent() {
                         align-items: center;
                         gap: 8px;
                         width: max-content;
-                        animation: fairy-lap 7.5s cubic-bezier(.35,.05,.3,1) both;
+                        animation: fairy-lap 3.8s linear both;
                         will-change: transform, opacity;
                       }
                       .fairy-runner::after {
@@ -585,36 +598,38 @@ function SettingContent() {
                       .wizard-feet { position:absolute; z-index:3; left:29px; bottom:7px; display:flex; gap:19px; }
                       .wizard-feet i { width:22px; height:12px; border-radius:50%; background:linear-gradient(180deg,#e7b18e,#bc7e77); }
                       .wizard-shadow { position:absolute; bottom:0; left:15%; width:70%; height:10px; border-radius:50%; background:rgb(78 61 130 / .13); filter:blur(4px); }
-                      .fairy-crying { position:absolute; display:flex; align-items:center; left:var(--cry-x); top:var(--cry-y); opacity:0; animation:fairy-cry 7.5s linear both; }
+                      .fairy-crying { position:absolute; display:flex; align-items:center; left:var(--cry-x); top:var(--cry-y); opacity:0; animation:fairy-cry .35s ease-out both; }
                       .tiny-wizard-crying { transform:scale(.45); transform-origin:top left; margin:0; }
                       @keyframes fairy-lap {
                         0% { transform:translate(calc(var(--start-x) - 150px), var(--start-y)) rotate(0); opacity:0; }
-                        5% { transform:translate(var(--return-x), var(--start-y)) rotate(-7deg); opacity:1; }
-                        16% { transform:translate(78vw, 8vh) rotate(12deg); }
-                        27% { transform:translate(87vw, 72vh) rotate(-10deg); }
-                        39% { transform:translate(52vw, 84vh) rotate(9deg); }
-                        51% { transform:translate(3vw, 72vh) rotate(-12deg); }
-                        63% { transform:translate(7vw, 12vh) rotate(10deg); }
-                        75% { transform:translate(76vw, 25vh) rotate(-8deg); }
-                        87% { transform:translate(56vw, 49vh) rotate(8deg); }
-                        94% { transform:translate(var(--return-x), var(--start-y)) rotate(-3deg); opacity:1; }
+                        2% { transform:translate(calc(var(--start-x) - 110px), var(--start-y)) rotate(-7deg); opacity:1; }
+                        8% { transform:translate(var(--return-x), var(--start-y)) rotate(0); opacity:1; }
+                        20% { transform:translate(78vw, 8vh) rotate(12deg); }
+                        32% { transform:translate(87vw, 72vh) rotate(-10deg); }
+                        44% { transform:translate(52vw, 84vh) rotate(9deg); }
+                        56% { transform:translate(3vw, 72vh) rotate(-12deg); }
+                        66% { transform:translate(7vw, 12vh) rotate(10deg); }
+                        76% { transform:translate(76vw, 25vh) rotate(-8deg); }
+                        84% { transform:translate(56vw, 49vh) rotate(8deg); }
+                        92% { transform:translate(var(--return-x), var(--start-y)) rotate(-3deg); opacity:1; }
                         96% { transform:translate(var(--return-x), calc(var(--start-y) - 12px)) rotate(0); opacity:1; }
                         98% { transform:translate(var(--return-x), var(--start-y)) rotate(0); opacity:1; }
                         100% { transform:translate(var(--return-x), var(--start-y)) rotate(0); opacity:0; }
                       }
                       @keyframes fairy-cry {
-                        0%, 91% { opacity:0; transform:translateY(10px); }
-                        96%, 100% { opacity:1; transform:translateY(0); }
+                        0% { opacity:0; transform:translateY(10px); }
+                        100% { opacity:1; transform:translateY(0); }
                       }
                       @media(max-width:767px) {
-                        .fairy-runner { animation:fairy-walk 3.5s ease-in-out both; }
+                        .fairy-runner { animation:fairy-walk 3.8s linear both; }
                         .fairy-runner .tiny-wizard { transform:scale(.42); }
                         .carried-delete-button { display:none; animation:none; }\n                        .fairy-runner::before, .fairy-runner::after { font-size:16px; }
                         @keyframes fairy-walk {
-                          0% { transform:translate(-150px, 45vh); opacity:0; }
-                          10% { transform:translate(3vw, 45vh); opacity:1; }
+                          0% { transform:translate(calc(var(--start-x) - 150px), var(--start-y)); opacity:0; }
+                          8% { transform:translate(var(--return-x), var(--start-y)); opacity:1; }
                           48% { transform:translate(43vw, 49vh); }
-                          85%,100% { transform:translate(var(--start-x), var(--start-y)); opacity:0; }
+                          90% { transform:translate(var(--return-x), var(--start-y)); opacity:1; }
+                          96%,100% { transform:translate(var(--return-x), var(--start-y)); opacity:0; }
                         }
                         .fairy-crying { left:var(--cry-x); top:var(--cry-y); }
                       }
