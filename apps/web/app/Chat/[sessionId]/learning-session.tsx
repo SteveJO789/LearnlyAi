@@ -9,6 +9,7 @@ import { getLearningSession } from "../../../lib/learning-sessions";
 import { getAssessment } from "../../../lib/assessments";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
 import BlockView, { CitationList } from "./blocks";
+import CuteLoadingPopup from "../../components/CuteLoadingPopup";
 
 type UserTurn = { id: string; role: "user"; text: string };
 type TutorTurn = { id: string; role: "tutor"; output: TutorOutput };
@@ -199,6 +200,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
 
   return (
     <div className="flex h-dvh bg-background text-text">
+      {hydrating && <CuteLoadingPopup message="กำลังเปิดห้องเรียน..." detail="กำลังโหลดประวัติและเตรียมแชทให้พร้อม 💫" />}
       <aside
         inert={!sidebarOpen}
         className={`fixed inset-y-0 left-0 z-20 shrink-0 overflow-hidden bg-surface transition-[width] duration-200 md:static ${
