@@ -73,7 +73,7 @@ export default function SigninForm() {
         </label>
         <div className="auth-form-meta">
           <label className="auth-remember"><input type="checkbox" name="remember" /> <span>Remember me</span></label>
-          <Link href="/forgot-password" className="auth-inline-link">Forgot password?</Link>
+          <span className="auth-inline-hint">Your next chapter awaits ✦</span>
         </div>
         {error && <p role="alert" className="auth-error">⚠ {error}</p>}
         <button type="submit" disabled={isLoading} className="auth-primary-button"><span>Sign In</span><span aria-hidden="true">➜</span></button>
