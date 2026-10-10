@@ -39,6 +39,7 @@ test('real storage transport keeps bearer/keys on the configured origin, never u
   await assert.rejects(storage.remove(`${other}/s/m.pdf`),error=>error.status===403);assert.equal(calls.length,2);
   const changed=Buffer.from(pdf);changed[10]=120;
   await assert.rejects(storage.upload(key,changed,file),error=>error.code==='INVALID_FILE');assert.equal(calls.length,2);
+  await assert.rejects(storage.upload(key,new Uint8Array(MAX_FILE_BYTES+1),file),error=>error.code==='INVALID_FILE');assert.equal(calls.length,2);
 });
 test('storage failures redact upstream content and invalid origins cannot receive credentials',async()=>{
   const options={bucket:'learnly-materials',publishableKey:'fixture-public-key',token:'fixture-token',authUserId:actor};

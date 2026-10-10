@@ -31,6 +31,9 @@ export class PrivateMaterialStorage {
   }
   async upload(key: string, bytes: Uint8Array, file: FileEnvelope): Promise<void> {
     this.ownedKey(key);
+    if (!(bytes instanceof Uint8Array) || bytes.byteLength === 0 || bytes.byteLength > MAX_FILE_BYTES) {
+      throw new ApiError("INVALID_FILE", 400, "File bytes exceed upload limits.");
+    }
     const body = Buffer.from(bytes);
     const mimeByExtension = { pdf: "application/pdf", png: "image/png", jpg: "image/jpeg" } as const;
     if (body.byteLength !== file.sizeBytes || body.byteLength > MAX_FILE_BYTES || !key.endsWith("."+file.extension) ||
