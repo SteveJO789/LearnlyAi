@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import SiteHeader from "../components/SiteHeader";
 import CuteLoadingPopup from "../components/CuteLoadingPopup";
+import CreateMagicCharacters from "./CreateMagicCharacters";
 import { useLanguage } from "../lib/i18n/LanguageContext";
 import { createLearningSession, createTextMaterial } from "../../lib/learning-sessions";
 import { getCurrentUserProfile, type AppUserProfile } from "../../lib/user-profile";
@@ -63,6 +64,7 @@ export default function CreatePage() {
   return (
     <div className="min-h-screen bg-background text-text relative">
       {isStarting && <CuteLoadingPopup message="กำลังสร้างบทเรียน..." detail="กำลังบันทึกข้อมูลและเตรียมห้องเรียนของคุณ 🚀" />}
+      <CreateMagicCharacters />
       {/* เลเยอร์ท้องฟ้าการ์ตูน: แสงฟุ้งและดาวลอย */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         {/* กลุ่มแสงฟุ้งเกรเดียนต์เบื้องหลัง */}
