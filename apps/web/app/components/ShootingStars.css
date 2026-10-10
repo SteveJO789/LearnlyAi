@@ -1,0 +1,40 @@
+.global-shooting-stars {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout paint;
+}
+.global-shooting-star {
+  position: absolute;
+  width: clamp(48px, 7vw, 92px);
+  height: 1.5px;
+  border-radius: 999px;
+  opacity: 0;
+  transform-origin: left center;
+  /* Bright leading head; tail fades darker and transparent behind it. */
+  background: linear-gradient(90deg,
+    rgb(255 225 255 / 1) 0%,
+    rgb(213 178 255 / .82) 18%,
+    rgb(144 121 198 / .42) 48%,
+    rgb(72 61 116 / .14) 76%,
+    rgb(24 24 48 / 0) 100%);
+  box-shadow: 0 0 4px rgb(219 190 255 / .18);
+  animation: global-shooting-star-flight 30s linear infinite;
+  will-change: transform, opacity;
+}
+.global-shooting-star-a { left: 58%; top: 12%; animation-delay: 1s; }
+.global-shooting-star-b { left: 89%; top: 35%; width: clamp(44px, 6vw, 76px); animation-delay: 5.6s; animation-duration: 37s; }
+.global-shooting-star-c { left: 32%; top: 52%; width: clamp(50px, 7vw, 86px); animation-delay: 13.1s; animation-duration: 43s; }
+.global-shooting-star-d { left: 73%; top: 72%; width: clamp(42px, 5.5vw, 70px); animation-delay: 20.8s; animation-duration: 34s; }
+@keyframes global-shooting-star-flight {
+  0%, 1% { opacity: 0; transform: translate3d(0, 0, 0) rotate(-38deg); }
+  2% { opacity: .62; }
+  4% { opacity: .34; }
+  5% { opacity: 0; transform: translate3d(-42vw, 58vh, 0) rotate(-38deg); }
+  100% { opacity: 0; transform: translate3d(-42vw, 58vh, 0) rotate(-38deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .global-shooting-star { animation: none !important; opacity: 0 !important; }
+}
