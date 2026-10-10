@@ -105,7 +105,7 @@ function HistoryContent() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-text relative transition-colors duration-200">
+    <div className="min-h-screen bg-transparent text-text relative transition-colors duration-200">
       {/* Modal เปิดดูไฟล์ */}
       {selectedFile && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6">
