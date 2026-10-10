@@ -101,7 +101,7 @@ function SettingContent() {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
   return (
-    <div className="min-h-screen bg-background text-text relative transition-colors duration-200">
+    <div className="min-h-screen bg-transparent text-text relative transition-colors duration-200">
       {/* Delete Account confirmation modal */}
       {deleteConfirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
