@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import SiteHeader from "../../components/SiteHeader";
+import CuteLoadingPopup from "../../components/CuteLoadingPopup";
 import {
   getLearningSession,
   type LearningSessionDetail,
@@ -25,7 +26,8 @@ export default function LearningPage() {
   }, [lessonId]);
 
   return (
-    <div className="min-h-screen bg-background text-text">
+    <div className="min-h-screen bg-transparent text-text">
+      {!error && !session && <CuteLoadingPopup message="กำลังเปิดบทเรียน..." detail="กำลังเตรียมรายละเอียดบทเรียนของคุณ 💖" />}
       <SiteHeader
         links={[
           { labelKey: "nav.lessons", href: "/Lessons" },
@@ -36,8 +38,6 @@ export default function LearningPage() {
 
       <main className="px-5 sm:px-12 lg:px-20 pb-24 max-w-3xl mx-auto">
         {error && <p className="mt-8 text-danger">{error}</p>}
-
-        {!error && !session && <p className="mt-8 text-muted">Loading lesson...</p>}
 
         {session && (
           <>
