@@ -445,14 +445,12 @@ function SettingContent() {
                       <button
                         type="button"
                         onMouseEnter={() => {
-                          if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-                            triggerMascotPrank();
-                          }
+                          if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) triggerMascotPrank();
                         }}
                         onClick={() => {
                           const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
                           if (canHover) {
-                            setDeleteConfirmOpen(true);
+                            if (!mascotPrankActive) setDeleteConfirmOpen(true);
                             return;
                           }
                           if (mascotTapPending) return;
@@ -463,63 +461,126 @@ function SettingContent() {
                             setMascotTapPending(false);
                           }, 550);
                         }}
-                        disabled={mascotTapPending}
-                        className={`rounded-xl bg-danger px-6 py-2.5 text-sm font-medium text-white hover:opacity-90 transition-all cursor-pointer disabled:cursor-wait ${mascotPrankActive ? "opacity-0" : "opacity-100"}`}
+                        disabled={mascotTapPending || mascotPrankActive}
+                        aria-hidden={mascotPrankActive}
+                        tabIndex={mascotPrankActive ? -1 : 0}
+                        className={`rounded-xl bg-danger px-6 py-2.5 text-sm font-medium text-white transition-all cursor-pointer disabled:cursor-wait ${mascotPrankActive ? "invisible pointer-events-none" : "visible hover:opacity-90"}`}
                       >
                         {t("settings.deleteAccount.button")}
                       </button>
-                      {mascotPrankActive && (
-                        <div
-                          aria-hidden="true"
-                          className="pointer-events-none absolute left-0 top-1/2 z-10 flex items-center gap-2 whitespace-nowrap"
-                          style={{ animation: "learnly-fairy-finish 5s linear both" }}
-                        >
-                          <div className="auth-mascot auth-mascot-small !m-0 !shrink-0">
-                            <span>✿</span><i>✦</i>
-                          </div>
-                          <span className="rounded-full bg-surface px-3 py-1 text-xs font-semibold text-text shadow-lg">😭</span>
-                        </div>
-                      )}
                     </div>
+
                     {mascotPrankActive && (
-                      <div
-                        aria-hidden="true"
-                        className="pointer-events-none fixed inset-0 z-[60] hidden md:block"
-                      >
-                        <div className="learnly-fairy-carry absolute flex items-center gap-1">
-                          <div className="auth-mascot auth-mascot-small !m-0 !shrink-0"><span>✿</span><i>✦</i></div>
-                          <span className="rounded-xl bg-danger px-6 py-2.5 text-sm font-medium text-white shadow-lg">{t("settings.deleteAccount.button")}</span>
+                      <div aria-hidden="true" className="fixed inset-0 z-[60] overflow-hidden pointer-events-none">
+                        <div className="fairy-runner">
+                          <div className="tiny-wizard">
+                            <div className="wizard-wand"><i /></div>
+                            <div className="wizard-hat"><i /></div>
+                            <div className="wizard-face"><i className="wizard-eye eye-left" /><i className="wizard-eye eye-right" /><i className="wizard-blush blush-left" /><i className="wizard-blush blush-right" /></div>
+                            <div className="wizard-beard" />
+                            <div className="wizard-body"><i className="wizard-star">✦</i></div>
+                            <div className="wizard-feet"><i /><i /></div>
+                            <div className="wizard-shadow" />
+                          </div>
+                          <span className="carried-delete-button">{t("settings.deleteAccount.button")}</span>
+                        </div>
+                        <div className="fairy-crying">
+                          <div className="tiny-wizard tiny-wizard-crying">
+                            <div className="wizard-hat"><i /></div>
+                            <div className="wizard-face"><i className="wizard-eye eye-left" /><i className="wizard-eye eye-right" /><i className="wizard-blush blush-left" /><i className="wizard-blush blush-right" /><span className="wizard-tears">••</span></div>
+                            <div className="wizard-beard" />
+                            <div className="wizard-body"><i className="wizard-star">✦</i></div>
+                            <div className="wizard-feet"><i /><i /></div>
+                          </div>
                         </div>
                       </div>
                     )}
+
                     <style jsx>{`
-                      .learnly-fairy-carry {
-                        left: max(1rem, calc((100vw - 1400px) / 2 + 340px));
-                        top: 42vh;
-                        animation: learnly-fairy-run 5s linear both;
+                      .fairy-runner {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        width: max-content;
+                        animation: fairy-lap 5s cubic-bezier(.35,.05,.3,1) both;
+                        will-change: transform, opacity;
                       }
-                      @keyframes learnly-fairy-run {
-                        0% { transform: translate(-80px, 0) rotate(0); opacity: 0; }
-                        5% { transform: translate(0, 0) rotate(-5deg); opacity: 1; }
-                        18% { transform: translate(22vw, -12vh) rotate(8deg); }
-                        34% { transform: translate(48vw, 9vh) rotate(-8deg); }
-                        51% { transform: translate(67vw, -15vh) rotate(8deg); }
-                        67% { transform: translate(43vw, 13vh) rotate(-8deg); }
-                        82% { transform: translate(18vw, 0) rotate(4deg); }
-                        94%, 100% { transform: translate(0, 0) rotate(0); opacity: 0; }
+                      .carried-delete-button {
+                        display: inline-flex;
+                        align-items: center;
+                        white-space: nowrap;
+                        border-radius: .75rem;
+                        background: var(--danger, #dc2626);
+                        color: white;
+                        padding: .625rem 1.5rem;
+                        font-size: .875rem;
+                        line-height: 1.25rem;
+                        font-weight: 500;
+                        box-sizing: border-box;
                       }
-                      @keyframes learnly-fairy-finish {
-                        0%, 88% { opacity: 0; transform: translateX(-85px) translateY(-50%); }
-                        94%, 100% { opacity: 1; transform: translateX(calc(100% + 8px)) translateY(-50%); }
+                      .tiny-wizard {
+                        position: relative;
+                        flex: 0 0 112px;
+                        width: 112px;
+                        height: 164px;
+                        transform: scale(.58);
+                        transform-origin: bottom center;
+                        filter: drop-shadow(0 8px 8px rgb(77 51 130 / .14));
+                        margin-bottom: -55px;
                       }
-                      @media (max-width: 767px) {
-                        .learnly-fairy-carry { display: none; }
+                      .wizard-hat { position:absolute; z-index:4; left:2px; top:-26px; width:100px; height:96px; background:linear-gradient(135deg,#9c85ff 5%,#6b55ce 70%,#4d3aab); clip-path:polygon(50% 0,70% 62%,100% 84%,4% 88%,30% 69%); border-radius:15px; filter:drop-shadow(2px 4px 2px rgb(54 39 117 / .22)); }
+                      .wizard-hat i { position:absolute; width:7px; height:7px; border-radius:50%; background:#ffe99b; left:62px; top:51px; box-shadow:0 0 8px #fff2b3; }
+                      .wizard-face { position:absolute; z-index:3; left:28px; top:39px; width:55px; height:49px; border-radius:46% 46% 48% 48%; background:linear-gradient(145deg,#ffe3c7,#f4b995); box-shadow:inset -4px -4px 0 rgb(197 116 100 / .12); }
+                      .wizard-eye { position:absolute; top:21px; width:5px; height:7px; background:#49365d; border-radius:50%; }
+                      .eye-left { left:15px; } .eye-right { right:15px; }
+                      .wizard-blush { position:absolute; top:29px; width:10px; height:5px; border-radius:50%; background:#f28d9e; opacity:.7; }
+                      .blush-left { left:6px; } .blush-right { right:6px; }
+                      .wizard-tears { position:absolute; color:#58b9ff; top:25px; left:12px; letter-spacing:13px; font-size:12px; }
+                      .wizard-beard { position:absolute; z-index:4; left:37px; top:68px; width:37px; height:34px; background:linear-gradient(145deg,#fff8ed,#d9d0e9); clip-path:polygon(0 0,100% 0,80% 65%,50% 100%,20% 65%); border-radius:8px; }
+                      .wizard-body { position:absolute; z-index:2; left:22px; top:79px; width:68px; height:65px; border-radius:27px 27px 20px 20px; background:linear-gradient(120deg,#a28bff,#7560d7 72%,#5a48b7); box-shadow:inset 7px 2px 0 rgb(255 255 255 / .18),inset -6px -4px 0 rgb(54 38 124 / .12); }
+                      .wizard-star { position:absolute; top:17px; left:27px; color:#ffe99b; font-style:normal; font-size:14px; }
+                      .wizard-wand { position:absolute; z-index:5; right:0; top:55px; width:5px; height:45px; border-radius:5px; background:linear-gradient(90deg,#bd8c54,#ffe2a0); transform:rotate(25deg); }
+                      .wizard-wand i { position:absolute; top:-8px; left:-5px; width:15px; height:15px; background:#fff0a8; clip-path:polygon(50% 0,62% 35%,100% 50%,62% 65%,50% 100%,38% 65%,0 50%,38% 35%); }
+                      .wizard-feet { position:absolute; z-index:3; left:29px; bottom:7px; display:flex; gap:19px; }
+                      .wizard-feet i { width:22px; height:12px; border-radius:50%; background:linear-gradient(180deg,#e7b18e,#bc7e77); }
+                      .wizard-shadow { position:absolute; bottom:0; left:15%; width:70%; height:10px; border-radius:50%; background:rgb(78 61 130 / .13); filter:blur(4px); }
+                      .fairy-crying { position:absolute; display:flex; align-items:center; left:calc(50% + 110px); top:calc(50% + 70px); opacity:0; animation:fairy-cry 5s linear both; }
+                      .tiny-wizard-crying { transform:scale(.45); transform-origin:top left; margin:0; }
+                      @keyframes fairy-lap {
+                        0% { transform:translate(-150px, 45vh) rotate(0); opacity:0; }
+                        5% { transform:translate(2vw, 45vh) rotate(-7deg); opacity:1; }
+                        16% { transform:translate(78vw, 8vh) rotate(12deg); }
+                        27% { transform:translate(87vw, 72vh) rotate(-10deg); }
+                        39% { transform:translate(52vw, 84vh) rotate(9deg); }
+                        51% { transform:translate(3vw, 72vh) rotate(-12deg); }
+                        63% { transform:translate(7vw, 12vh) rotate(10deg); }
+                        75% { transform:translate(76vw, 25vh) rotate(-8deg); }
+                        87% { transform:translate(56vw, 49vh) rotate(8deg); }
+                        94% { transform:translate(36vw, 47vh) rotate(-3deg); opacity:1; }
+                        100% { transform:translate(34vw, 48vh) rotate(0); opacity:0; }
                       }
-                      @media (prefers-reduced-motion: reduce) {
-                        .learnly-fairy-carry { animation-duration: 1ms; }
-                        @keyframes learnly-fairy-finish {
-                          0%, 100% { opacity: 1; transform: translateX(calc(100% + 8px)) translateY(-50%); }
+                      @keyframes fairy-cry {
+                        0%, 91% { opacity:0; transform:translateY(10px); }
+                        96%, 100% { opacity:1; transform:translateY(0); }
+                      }
+                      @media(max-width:767px) {
+                        .fairy-runner { animation:fairy-walk 5s ease-in-out both; }
+                        .fairy-runner .tiny-wizard { transform:scale(.42); }
+                        .carried-delete-button { display:none; }
+                        @keyframes fairy-walk {
+                          0% { transform:translate(-150px, 45vh); opacity:0; }
+                          10% { transform:translate(3vw, 45vh); opacity:1; }
+                          48% { transform:translate(43vw, 49vh); }
+                          85%,100% { transform:translate(calc(50vw + 110px), calc(50vh + 70px)); opacity:0; }
                         }
+                        .fairy-crying { left:calc(50% + 110px); top:calc(50% + 70px); }
+                      }
+                      @media(prefers-reduced-motion:reduce) {
+                        .fairy-runner { animation-duration:1ms; }
+                        .fairy-crying { animation-duration:1ms; opacity:1; }
                       }
                     `}</style>
                   </div>
