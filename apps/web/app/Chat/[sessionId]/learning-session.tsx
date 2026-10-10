@@ -9,6 +9,7 @@ import { getLearningSession } from "../../../lib/learning-sessions";
 import { getAssessment } from "../../../lib/assessments";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
 import BlockView, { CitationList } from "./blocks";
+import CuteLoadingPopup from "../../components/CuteLoadingPopup";
 
 type UserTurn = { id: string; role: "user"; text: string };
 type TutorTurn = { id: string; role: "tutor"; output: TutorOutput };
