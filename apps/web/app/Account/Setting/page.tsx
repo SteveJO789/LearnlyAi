@@ -100,6 +100,7 @@ function SettingContent() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [mascotPrankActive, setMascotPrankActive] = useState(false);
+  const [mascotCrying, setMascotCrying] = useState(false);
   const [mascotTapPending, setMascotTapPending] = useState(false);
   const [mascotStart, setMascotStart] = useState({ x: 0, y: 0, buttonWidth: 0 });
   const deleteButtonRef = useRef<HTMLButtonElement>(null);
@@ -110,8 +111,12 @@ function SettingContent() {
     if (rect) {
       setMascotStart({ x: rect.left, y: rect.top, buttonWidth: rect.width });
     }
+    setMascotCrying(false);
     setMascotPrankActive(true);
-    window.setTimeout(() => setMascotPrankActive(false), 7500);
+    window.setTimeout(() => {
+      setMascotPrankActive(false);
+      setMascotCrying(true);
+    }, 7500);
   };
 
   return (
@@ -600,7 +605,7 @@ function SettingContent() {
                         96%, 100% { opacity:1; transform:translateY(0); }
                       }
                       @media(max-width:767px) {
-                        .fairy-runner { animation:fairy-walk 7.5s ease-in-out both; }
+                        .fairy-runner { animation:fairy-walk 3.5s ease-in-out both; }
                         .fairy-runner .tiny-wizard { transform:scale(.42); }
                         .carried-delete-button { display:none; animation:none; }\n                        .fairy-runner::before, .fairy-runner::after { font-size:16px; }
                         @keyframes fairy-walk {
