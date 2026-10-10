@@ -132,13 +132,15 @@ function SettingContent() {
     setMascotButtonStolen(false);
     setMascotPrankPlayed(true);
     setMascotPrankActive(true);
-    // The button disappears only when the wizard reaches it.
-    window.setTimeout(() => setMascotButtonStolen(true), 420);
+    // Match the button swap to the moment the wizard reaches its original position.
+    const isTouch = !window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const duration = isTouch ? 1800 : 2600;
+    window.setTimeout(() => setMascotButtonStolen(true), duration * 0.08);
     window.setTimeout(() => {
       setMascotPrankActive(false);
       setMascotButtonStolen(false);
       setMascotCrying(true);
-    }, 3800);
+    }, duration);
   };
 
   return (
@@ -504,7 +506,7 @@ function SettingContent() {
                     </div>
 
                     {(mascotPrankActive || mascotCrying) && (
-                      <div aria-hidden="true" className="fixed inset-0 z-[60] overflow-hidden pointer-events-none" style={{ "--start-x": `${mascotStart.x}px`, "--start-y": `${mascotStart.y}px`, "--return-x": `${mascotStart.x - 120}px`, "--cry-x": `${mascotStart.x + mascotStart.buttonWidth + 10}px`, "--cry-y": `${mascotStart.y + 4}px` } as React.CSSProperties}>
+                      <div aria-hidden="true" className="fixed inset-0 z-[60] overflow-hidden pointer-events-none" style={{ "--start-x": `${mascotStart.x}px`, "--start-y": `${mascotStart.y}px`, "--return-x": `${mascotStart.x - 120}px`, "--cry-x": `${mascotStart.x + mascotStart.buttonWidth + 10}px`, "--cry-y": `${mascotStart.y + 4}px`, "--prank-duration": `${window.matchMedia("(hover: hover) and (pointer: fine)").matches ? 2600 : 1800}ms` } as React.CSSProperties}>
                         {mascotPrankActive && <div className="fairy-runner">
                           <div className="tiny-wizard">
                             <div className="wizard-wand"><i /></div>
@@ -538,7 +540,7 @@ function SettingContent() {
                         align-items: center;
                         gap: 8px;
                         width: max-content;
-                        animation: fairy-lap 3.8s linear both;
+                        animation: fairy-lap var(--prank-duration, 2600ms) linear both;
                         will-change: transform, opacity;
                       }
                       .fairy-runner::after {
@@ -580,6 +582,13 @@ function SettingContent() {
                         line-height: 1.25rem;
                         font-weight: 500;
                         box-sizing: border-box;
+                        opacity: 0;
+                        animation: carried-button var(--prank-duration, 2600ms) linear both;
+                      }
+                      @keyframes carried-button {
+                        0%, 7.9% { opacity: 0; }
+                        8%, 91.9% { opacity: 1; }
+                        92%, 100% { opacity: 0; }
                       }
                       .tiny-wizard {
                         position: relative;
@@ -630,7 +639,7 @@ function SettingContent() {
                         100% { opacity:1; transform:translateY(0); }
                       }
                       @media(max-width:767px) {
-                        .fairy-runner { animation:fairy-walk 3.8s linear both; }
+                        .fairy-runner { animation:fairy-walk var(--prank-duration, 1800ms) linear both; }
                         .fairy-runner .tiny-wizard { transform:scale(.42); }
                         .carried-delete-button { display:none; animation:none; }\n                        .fairy-runner::before, .fairy-runner::after { font-size:16px; }
                         @keyframes fairy-walk {
