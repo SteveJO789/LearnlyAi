@@ -1,6 +1,6 @@
 # ตัวติดตามการทำ MVP ให้ครบ
 
-สถานะล่าสุด 2026-10-11: canonical vector contract/publication และ protected persistent runtime implement แล้ว API308/308, simulatedpersistent14/14/build/typecheck/migrationintegrityPASS Actual rollback publication/search/RLS fixtures รวม reuse actual embedding และ fresh6packages103steps190checksPASS ไม่มีpaidcalls/productionapply ดู Milestone21 รายการเก่าด้านล่างเป็นผล ณ milestoneเดิม
+สถานะล่าสุด 2026-10-11: canonical vector contract/publication และ protected persistent runtime implement แล้ว API309/309, Web24/24, simulatedpersistent14/14/build/typecheck/migrationintegrityPASS รวมdevelop472086cแล้ว Actual rollback publication/search/RLS fixtures รวม reuse actual embedding และ fresh6packages103steps190checksPASS ไม่มีpaidcalls/productionapply ดู Milestone21 รายการเก่าด้านล่างเป็นผล ณ milestoneเดิม
 
 เริ่มตรวจ 2026-10-09 จาก `origin/develop` commit `e2ddfdd7788a5d20d66b496ee2917771b6ea3021` บน branch `integration/university-mvp-20261009` ใน worktree แยก งานเดิมและ stash ไม่ถูกแก้ไข เป้าหมายยัง ACTIVE; ยังไม่ IMPLEMENTATION COMPLETE หรือ RELEASED
 
@@ -321,4 +321,5 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - Persistent API เชื่อม actual PrismaVectorSearch/OpenRouter embeddings เมื่อเปิด vector mode ชัดเจน Model/threshold/Top-K มี limits; lexical defaultเดิม ไม่ fallbackเงียบ Candidateยังต้องตรงcurrent reviewed hashes/citations
 - API308/308, simulatedpersistent14/14, build/typecheck/migrationintegrityPASS Actual canonical publication/search/RLS ใช้ synthetic และ reuse actual1536embedding ผ่าน rollback fixtures Fresh6packages103SQLsteps190checksPASS [หลักฐาน](evidence/mvp-vector-publication-verification.json)
 - พบและแก้ boundary violation ของ composition และ brittle test count; ไม่ลด validators/grantsเพื่อให้ผ่าน ไม่มี production apply/paid call/CD เพิ่ม
-- Fetch developล่าสุด472086c: ทีมเพิ่ม Home/Create/Lessons decorative UI ต้อง integrateโดยรักษาfile-reviewflowก่อนตรวจWebซ้ำ งานถัดไป operator publication CLI, vector readiness และ integration/latest-head checks LiveAuth/browser/production migrationยังเป็นreleasegates
+- รวมdevelop472086cล่าสุดด้วยmerge a8ee1dd ไม่มีconflict รักษาHome/Create/Lessons decorative UI/ลดmotion/aria-hidden และfile-reviewflow Webbuild/24testsPASS Freshsource API308 + relocatedKnowledge4/extraction10PASS (ก่อนเพิ่มpackagingtestล่าสุด ไม่ใช่clean-npm/deploymentproof)
+- พบPRbot VercelincludeFilesยาวเกิน256 ย่อglobและตรวจactualassets/dependenciesผ่าน APIรวม309testsPASS เพิ่มgit.deploymentEnabled globstarfalse/developtrueในWeb/APIตามข้อกำหนดCD ไม่แก้CIworkflows ยังไม่มีplatformenforcement/trace-size/deployproof งานถัดไปoperator publicationCLI/vectorreadiness และliveAuth/browser/productionmigration releasegates

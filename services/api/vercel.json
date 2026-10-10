@@ -1,11 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "express",
+  "git": { "deploymentEnabled": { "**": false, "develop": true } },
   "installCommand": "npm ci --no-audit --no-fund && npm --prefix ../../knowledge ci --no-audit --no-fund",
   "buildCommand": "npm run build && npm run knowledge:verify-runtime",
   "functions": {
     "src/**": {
-      "includeFiles": "{runtime-knowledge/**,runtime-ocr/**,runtime-workers/**,src/contracts/**,node_modules/tesseract.js/**,node_modules/tesseract.js-core/**,node_modules/pngjs/**,node_modules/jpeg-js/**,node_modules/pdfjs-dist/**,node_modules/bmp-js/**,node_modules/wasm-feature-detect/**,node_modules/is-url/**,node_modules/zlibjs/**,node_modules/regenerator-runtime/**,node_modules/idb-keyval/**}",
+      "includeFiles": "{runtime-*/**,src/contracts/**,node_modules/{tesseract*,pngjs,jpeg-js,pdfjs-dist,bmp-js,wasm-feature-detect,is-url,zlibjs,regenerator-runtime,idb-keyval}/**}",
       "excludeFiles": "**/*.map"
     }
   }
