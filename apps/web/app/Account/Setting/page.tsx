@@ -111,7 +111,7 @@ function SettingContent() {
       setMascotStart({ x: rect.left, y: rect.top, buttonWidth: rect.width });
     }
     setMascotPrankActive(true);
-    window.setTimeout(() => setMascotPrankActive(false), 5000);
+    window.setTimeout(() => setMascotPrankActive(false), 7500);
   };
 
   return (
@@ -511,7 +511,7 @@ function SettingContent() {
                         align-items: center;
                         gap: 8px;
                         width: max-content;
-                        animation: fairy-lap 5s cubic-bezier(.35,.05,.3,1) both;
+                        animation: fairy-lap 7.5s cubic-bezier(.35,.05,.3,1) both;
                         will-change: transform, opacity;
                       }
                       .fairy-runner::after {
@@ -580,7 +580,7 @@ function SettingContent() {
                       .wizard-feet { position:absolute; z-index:3; left:29px; bottom:7px; display:flex; gap:19px; }
                       .wizard-feet i { width:22px; height:12px; border-radius:50%; background:linear-gradient(180deg,#e7b18e,#bc7e77); }
                       .wizard-shadow { position:absolute; bottom:0; left:15%; width:70%; height:10px; border-radius:50%; background:rgb(78 61 130 / .13); filter:blur(4px); }
-                      .fairy-crying { position:absolute; display:flex; align-items:center; left:var(--cry-x); top:var(--cry-y); opacity:0; animation:fairy-cry 5s linear both; }
+                      .fairy-crying { position:absolute; display:flex; align-items:center; left:var(--cry-x); top:var(--cry-y); opacity:0; animation:fairy-cry 7.5s linear both; }
                       .tiny-wizard-crying { transform:scale(.45); transform-origin:top left; margin:0; }
                       @keyframes fairy-lap {
                         0% { transform:translate(-150px, 45vh) rotate(0); opacity:0; }
@@ -600,9 +600,9 @@ function SettingContent() {
                         96%, 100% { opacity:1; transform:translateY(0); }
                       }
                       @media(max-width:767px) {
-                        .fairy-runner { animation:fairy-walk 5s ease-in-out both; }
+                        .fairy-runner { animation:fairy-walk 7.5s ease-in-out both; }
                         .fairy-runner .tiny-wizard { transform:scale(.42); }
-                        .carried-delete-button { display:none; }\n                        .fairy-runner::before, .fairy-runner::after { font-size:16px; }
+                        .carried-delete-button { display:none; animation:none; }\n                        .fairy-runner::before, .fairy-runner::after { font-size:16px; }
                         @keyframes fairy-walk {
                           0% { transform:translate(-150px, 45vh); opacity:0; }
                           10% { transform:translate(3vw, 45vh); opacity:1; }
