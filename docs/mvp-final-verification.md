@@ -2,7 +2,9 @@
 
 อัปเดต 2026-10-10: **กำลังทำ — ยังไม่ IMPLEMENTATION COMPLETE และยังไม่ RELEASED**
 
-งาน follow-up อยู่ใน [Draft PR #78](https://github.com/SteveJO789/LearnlyAi/pull/78) จาก develop `5022c28` หลังทีม merge PR #74/#76 งานเดิมใน primary checkout/stash ยังอยู่ครบ ไม่มี auto-merge หรือ force push หลักฐาน local/fixture ด้านล่างไม่เท่ากับระบบที่ deploy จริง
+งาน follow-up อยู่ใน [Draft PR #78](https://github.com/SteveJO789/LearnlyAi/pull/78) เริ่มจาก develop `5022c28` และรวมงานล่าสุดของทีม `875575f` แล้ว งานเดิมใน primary checkout/stash ยังอยู่ครบ ไม่มี auto-merge PR หรือ force push หลักฐาน local/fixture ด้านล่างไม่เท่ากับระบบที่ deploy จริง
+
+ล่าสุดหลัง integration: API **278/278**, Web **20/20**/typecheck/production build PASS, Knowledge hotfix under Vercel-like parent env **4/4** และ fresh source-only API **278/278** + relocated runtime **4/4** PASS รักษา auth/brand/loading/mobile UI ของทีม CD เฉพาะ develop ไม่มี workflow diff GitHub deploy checks ของdevelop875575f ผ่าน Web/API แต่ไม่มี real runtime/browser smoke หรือ integration deployment [หลักฐาน](evidence/mvp-develop-integration-verification.json)
 
 หลักฐานใหม่หลังรายงานฐานเดิม: API**272/272**/compile และpersistent simulated11/11 PASS Actual OpenRouter embeddings1536 + pgvectorTEMP query ผ่าน8regressioncasesหลังพบnative-model mismatch/role42501/falsepositive2casesและแก้จากหลักฐานจริง ปรับembeddinginputให้มีreviewed title/topicและexactinputhash Newembeddingrequests6calls รวมเดิม54calls reportedUS$0.02963331572/reservedUS$0.6515484 จากUS$1 ไม่มีbudgetreset/retry/fallback [รายละเอียดและlimits](evidence/mvp-live-embedding-verification.json) Canonicalpersistentindex/runtimeและPDF/OCRยังไม่ครบ
 
@@ -25,7 +27,7 @@ File receipt milestone: แก้การลบไฟล์ผิดเมื�
 | OCR assets / #15 | official pinned eng/tha/LICENSE5,197,046bytes download/hash/offline verification; [artifact tests4/4](evidence/mvp-ocr-model-packaging-verification.json) | recognition/accuracy, worker limits, OCR build/runtime bundle และ deployed smoke |
 | Learning UI / #9 | Create→PRE→Chat→POST, structured blocks, stage/progress และ3interactive widgets | complete browser E2E และ uploads |
 | Database / #2 #3 | canonical migrations/grants/RLS เตรียมแล้ว; [fresh baseline68SQLsteps/126checks](evidence/mvp-fresh-baseline-verification.json) และ isolated ownership/rollback tests | actual Prisma executor/marker verification และ compatible production schema |
-| Release / #14 | local API tests/build/source-only packagingผ่าน; CI scopeด้านล่าง | API deployment fix, production migration, real deployed E2E/smoke/security gate |
+| Release / #14 | local API tests/build/source-only packagingผ่าน; develop Web/API checksผ่าน | production migration, real deployed E2E/smoke/security gate และ integration-head CI |
 
 Acceptance criteria/dependencies รายข้ออยู่ใน [ตัวติดตามงาน](mvp-completion-tracker.md) Issue ที่ยังไม่ครบยังเปิดอยู่ ไม่มีการปิดเพียงเพราะเขียนโค้ด
 
@@ -48,9 +50,9 @@ File serviceไม่มี default/Mock extractorถูก wire เข้า ru
 | Vector retrieval | **8/8 PASS**; review/hash/embedding-input/provenance/intent gates และ parameter binding |
 | OCR artifact integrity | **4/4 PASS**; actual official download/offline verificationแยกจากunit tests |
 | Persistent integration | **11/11 PASS**; simulated Auth/DB harness ไม่ใช่ real OAuth |
-| Frontend | **20/20**, typecheck/Web production build PASSที่ History milestone; frontend codeไม่เปลี่ยนในfile/vector milestones |
-| Fresh source-only export | ก่อนliveembedding changes: **API266/266 + relocated Knowledge runtime4/4 PASS**, 9Knowledge files deterministic; copied locked local dependencies ไม่ใช่ fresh npm installation proof |
-| CI | CI177ผ่านhead e4fb73eก่อนenum fix/OCR assets; code head574e97fมีCI181 in progressเมื่อบันทึก ไม่ใช้CIเก่าเป็นcurrent-head proof |
+| Frontend | **20/20**, typecheck/Web production build PASSหลังรวม develop875575f; ยังไม่มี browser/mobile/keyboard QA |
+| Fresh source-only export | หลังintegration: **API278/278 + relocated Knowledge runtime4/4 PASS**, 9Knowledge files deterministic; copied locked local dependencies ไม่ใช่ fresh npm installation/OCR deployment proof |
+| CI | ก่อนreceipt/latest-develop integration: [CI197 PASS](https://github.com/SteveJO789/LearnlyAi/actions/runs/38038067281) ที่188f459; latest integration-head checksต้องดู [PR78](https://github.com/SteveJO789/LearnlyAi/pull/78) ไม่ใช้runเก่าเป็นproofของcodeใหม่ |
 
 จาก `services/api`:
 
@@ -83,7 +85,7 @@ Live OpenRouterรวม54calls (Tutor48/embeddings6) reported **US$0.0296333157
 
 1. **npm blocked:** actual npm.exeยังNVM4306 Official npm11.19.0 archiveผ่านregistry signature/hash แต่installed runtime filesบางส่วนต่าง เตรียมsame-version backup/repairและตรวจsyntaxแล้ว ยังไม่execute รอexplicit approvalเพราะเปลี่ยนsoftware/trust stateนอกrepository
 2. **Production DB incompatible:** public migrations/executor/marker verificationยังไม่สำเร็จ ไม่มีnon-production branchใช้ได้ Isolated fixture/cleanup approvalไม่เท่ากับอนุญาตdestructive live-data changes
-3. **Develop API deployment failed:** Web status successแต่API failure [deployment](https://vercel.com/webdev-bd06/learnly-ai/FHNjigF9xi5ye7V9Pp1WutiRaetQ) ไม่มีverified root cause; Vercel403/CLI unavailable/browser initialization failure รอredacted build log ไม่เดาสาเหตุ
+3. **Runtime/deployment verification:** develop875575f GitHub statuses ผ่านทั้ง Web/API หลังhotfixของทีม [API deployment](https://vercel.com/webdev-bd06/learnly-ai/7JdBtG2RzLR7Khseo6gTeQ5oh5kR) จึงไม่ใช้5022 API build failureเป็นcurrent blocker Vercel inspectionเรียกไม่ได้ (Unknown tool), real runtime/Auth/browser smokeและintegration deploymentยังไม่verified
 4. **Incomplete integrations:** real PDF/OCR, private Storage/reconciliation, canonical pgvector ingestion/runtime, real Auth/browser/mobile E2E และbroader reviewed corpus/educator review
 
 **CD เฉพาะ develop** ตามคำสั่งผู้ใช้ Feature/integration deploymentsต้องskip ไม่มีauto-merge/deployโดยagent Local/CI successไม่ใช่production success
@@ -97,6 +99,6 @@ Live OpenRouterรวม54calls (Tutor48/embeddings6) reported **US$0.0296333157
 - [ ] Prisma executor/migration graph/marker/ownership controlsverifiedในsafe environment
 - [ ] Public migrationผ่านreview/authorizationและproduction schema compatible
 - [ ] Current CI/typecheck/production builds/OCR/Knowledge bundlesผ่าน
-- [ ] API deploymentแก้จากverified logs และdeployed smokeผ่าน
+- [ ] Current Web/API deployed smoke และreal dependency readinessผ่าน
 - [ ] Environment/operations/API documentationตรงimplementation ไม่มีcritical/high release blocker
 - [ ] Authorized deployment + real production smokeสำเร็จ ก่อนใช้คำว่า RELEASED

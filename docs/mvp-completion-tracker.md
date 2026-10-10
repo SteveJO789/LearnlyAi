@@ -257,6 +257,15 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - ไม่มี real network-loss/concurrent Prisma/Storage proof และยังขาด durable upload/process-crash reconciliation, PDF/OCR, endpoints/UI ไม่มี paid calls เพิ่ม
 - Fetch พบ develop ใหม่ `875575f` (ทีมเพิ่ม auth/loading/mobile design และ Knowledge build hotfix); งานถัดไปคือรวมโดยรักษา UI ของทีม แล้ว rerun integration/build ก่อนกลับไป dependencies/runtime
 
+### Milestone 16 — รวม develop ล่าสุดและตรวจ build ใหม่
+
+- รวม develop `875575f` ใน integration ผ่าน merge `75ca453` โดยไม่มี conflict ตรวจ 3 auto-merged files ให้รักษา actual History/recovery และ UI/loading ของทีม ไม่ merge PR เข้า develop/main
+- API compile/**278/278**, frontend **20/20**/typecheck/production build PASS; Knowledge hotfix ผ่าน **4/4** เมื่อ parent environment ตั้ง VERCEL=1/NODE_ENV=production
+- Fresh source-only export API **278/278** + relocated runtime **4/4** PASS, deterministic Knowledge 9 files และ cleanup สำเร็จ ใช้ copied locked dependencies ไม่ใช่ fresh npm/OCR deployment proof
+- GitHub statuses ของ develop875575f ผ่านทั้ง Web/API หลัง hotfix ของทีม จึงไม่ใช้ API build failure ของ5022เป็น current blocker แล้ว; ยังไม่มี runtime smoke/real Auth proof และ Vercel inspection tool ใช้ไม่ได้
+- CD ยังเฉพาะ develop; workflow diff เทียบ develop ใหม่ว่าง ไม่มี paid calls/schema changes/deploymentเพิ่ม [หลักฐาน](evidence/mvp-develop-integration-verification.json)
+- Next: ติดตั้ง PDF/image/OCR/pgvector dependencies หลัง npm repair ที่รออนุมัติ, durable upload reconciliation, canonical vector ingestion/runtime และ actual file endpoint/UI/E2E
+
 - เพิ่ม header/MIME/size/hash/filename checks และ PNG dimension cap; ไม่อ้างว่าตรวจ full file content/extraction แล้ว
 - เพิ่ม real user-JWT private Storage transport (HTTPS/no redirect/no upsert, owned prefix, immutable verified bytes, safe errors); runtime ยังไม่ wired และ private bucket/RLS ยังไม่ created/verified
 - Targeted tests5/5, API compile และ full offline API249/249 PASS; HTTP transport injected ไม่ใช่ actual Storage upload proof
