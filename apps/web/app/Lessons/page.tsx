@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import SiteHeader from "../components/SiteHeader";
 import CuteLoadingPopup from "../components/CuteLoadingPopup";
+import LessonsMagicMascot from "./LessonsMagicMascot";
 import {
   listLearningSessions,
   type LearningSessionSummary,
@@ -43,16 +44,19 @@ export default function LessonsPage() {
       />
 
       <main className="px-5 sm:px-12 lg:px-20 pb-24">
-        <div
-          className="hello-gradient pointer-events-none bg-clip-text text-4xl font-medium tracking-tight text-transparent"
-          style={{
-            backgroundImage:
-              "radial-gradient(120% 140% at 15% 20%, #ffe89e 0%, transparent 45%), radial-gradient(120% 140% at 80% 30%, #8178ff 0%, transparent 55%), radial-gradient(140% 160% at 60% 90%, #ff0d9b 0%, transparent 60%), linear-gradient(135deg, #ff2fb0, #8178ff)",
-            backgroundSize: "180% 180%",
-            backgroundPosition: "0% 50%",
-          }}
-        >
-          Hello <span>{displayName}</span>
+        <div className="mt-2 flex items-center justify-between gap-2 sm:gap-5">
+          <div
+            className="hello-gradient pointer-events-none min-w-0 flex-1 break-words bg-clip-text text-3xl font-medium tracking-tight text-transparent sm:text-4xl"
+            style={{
+              backgroundImage:
+                "radial-gradient(120% 140% at 15% 20%, #ffe89e 0%, transparent 45%), radial-gradient(120% 140% at 80% 30%, #8178ff 0%, transparent 55%), radial-gradient(140% 160% at 60% 90%, #ff0d9b 0%, transparent 60%), linear-gradient(135deg, #ff2fb0, #8178ff)",
+              backgroundSize: "180% 180%",
+              backgroundPosition: "0% 50%",
+            }}
+          >
+            Hello <span>{displayName}</span>
+          </div>
+          <LessonsMagicMascot />
         </div>
 
         <Link
