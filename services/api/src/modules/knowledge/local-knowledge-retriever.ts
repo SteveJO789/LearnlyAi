@@ -1,5 +1,6 @@
 import type { KnowledgeQuery, KnowledgeRetriever, RetrievedKnowledge } from "./knowledge-retriever.js";
 import type { ReviewedKnowledgeReader } from "./reviewed-knowledge-reader.js";
+import { isNumericMathReply } from "./numeric-math-reply.js";
 
 function matchesOhmsLaw(input: string): boolean {
   const text = input.normalize("NFKC").toLowerCase();
@@ -23,6 +24,7 @@ function followUp(input: string): boolean {
   const text = input.normalize("NFKC").replace(/\u0e4d\u0e32/gu, "\u0e33").toLowerCase().trim();
   // Short, referential questions/confusion only. A new explicit topic resets context.
   if (text.length > 250 || /transformer|battery|photosynthesis|antibiotic|project|หม้อแปลง|แบตเตอรี่|สังเคราะห์แสง/u.test(text)) return false;
+  if (isNumericMathReply(input)) return true;
   return /^(?:what if|what about|how about|then|why|can you (?:explain|show|give)|i (?:don't|do not) understand|i(?:'m| am) confused|(?:a |another )?hint|explain (?:it|that)|make (?:it|that) simpler|ไม่เข้าใจ|ทำไม|ถ้า|ขอ(?:คำใบ้|ตัวอย่าง)|อธิบาย.*ง่าย)/u.test(text);
 }
 

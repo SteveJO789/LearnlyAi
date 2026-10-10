@@ -83,6 +83,9 @@ Production read-only Prisma verify ไม่ผ่าน: exit4, verificationOk=
 
 - [ ] ทุก applicable issue criterion มี working feature และหลักฐาน
 - [ ] PDF/image/OCR/private Storage และ pgvector ingestion/Top-K ครบ
+Numeric follow-up milestone: API244/244 + persistent11/11 + source-only244/244/relocated4/4 PASS. Live current five conversations13/13ผ่าน structural/grounding/state gates และ numeric ไทย3turnรอบสุดท้ายรักษาภาษาและไม่อ้าง method ที่ learner ไม่แสดง [หลักฐาน](evidence/mvp-numeric-followup-verification.json). Generic hint ยังอาจสมมติเป้าหมายโจทย์ และ acknowledgement อาจ recap; educator review/broader qualityยังpending. Goal reportedUS$0.02957363572/reservedUS$0.5915484 หลัง48calls ไม่ใช่ค่าใช้จ่าย production ของผู้เรียน.
+
+- [ ] PDF/image/OCR/private Storage และ pgvector ingestion/Top-K ครบ
 - [ ] Login→Create→Input/Upload→Learn→Assess→History→Profile ผ่าน real browser/mobile/keyboard E2E
 - [ ] Historical migration replay และ ownership controls ตรวจใน safe environment
 - [ ] Public migration ผ่าน review/authorization และ production schema compatible

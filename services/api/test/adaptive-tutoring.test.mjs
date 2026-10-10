@@ -38,6 +38,7 @@ for (const scenario of scenarios) test(scenario.name, async () => {
     assert.equal(request.messages.length - 2, index * 2);
     assert.match(request.messages[0].content, new RegExp(`Adaptive teaching mode: ${mode}`));
     assert.match(request.messages[0].content, new RegExp(`Current response language: ${language}`));
+    assert.deepEqual(task.teachingPolicy, { language: language === 'Thai' ? 'th' : 'en', mode });
     assert.equal(task.sourceMaterials.length, referenceCount);
     assert.equal(task.stage, action === 'ADVANCE' ? 'PRACTICE' : 'EXPLAIN');
     assert.equal(output.progress.percent, action === 'ADVANCE' ? 50 : 25);
@@ -46,6 +47,7 @@ for (const scenario of scenarios) test(scenario.name, async () => {
     if (mode === 'HINT') assert.match(request.messages[0].content, /Do not reveal the full solution or final numeric answer/);
     if (mode === 'HINT') assert.match(request.messages[0].content, /A reference worked example is not the learner's problem/);
     if (mode === 'GUIDE') assert.match(request.messages[0].content, /A numeric match to a reference example does not establish correctness/);
+    if (mode === 'GUIDE') assert.match(request.messages[0].content, /do not claim their method\/reasoning was demonstrated/);
     if (mode === 'SIMPLIFY') assert.match(request.messages[0].content, /one check-understanding question/);
   }
 });

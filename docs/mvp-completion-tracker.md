@@ -186,3 +186,15 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - CI run163 ของ head24317df ผ่านก่อน milestone นี้: https://github.com/SteveJO789/LearnlyAi/actions/runs/38022572450
 - Read-only production Prisma verify: exit4 / verificationOk=false, Hash mismatch; marker storageHash=c7b3938 ก่อน 3 app deltas ไป d17a8bc ไม่มีการเปลี่ยน marker/schema/data
 - งานถัดไป:ตรวจ migration path จาก actual marker และ release preparation; PDF/OCR/pgvector dependencies ยังรอ npm repair approval และ Vercel API error log ยังไม่มีสิทธิ์อ่าน
+
+### Milestone 11 — คำตอบตัวเลขไม่หลุดภาษา/บริบท
+
+- เขียน regressions ก่อนแก้ พบ 2 failures จริง: “40 V” หลังบทสนทนาไทยเลือก English/STANDARD และไม่ retrieve reviewed context เดิม
+- เพิ่ม bounded numeric reply recognition (ไม่คำนวณ/ให้คะแนน), ใช้ล่าสุดของ learner เพื่อเลือกภาษา, GUIDE feedback และ context anchor ที่ยังต้อง reread review eligibility; topic reset/explicit English/Thanks ยังชนะ history
+- เพิ่ม server-selected teachingPolicy ใน task prompt; ไม่เปลี่ยน Tutor Output schema/engine authority และไม่ซ่อม model-authored blocks/citations
+- Live numeric 3 rounds/9 calls: พบ language drift แล้วแก้; พบ method confirmation ที่ไม่ทราบ reasoning แล้วแก้ รอบสุดท้ายตอบไทยกับ numeric และ English acknowledgement ได้ แต่ยังมี recap เล็กน้อย
+- Current full live regression 5 conversations/13 turns: schema/citation/engine binding/retrieval expectation 13/13; generic hint ยังสมมติว่าปัญหาต้องหา V จาก I/R ทั้งที่ learner ไม่ให้โจทย์ จึงไม่อ้าง all teaching quality PASS
+- Goal รวม 48 paid calls reported **US$0.02957363572**, conservative reservations **US$0.5915484** จาก US$1; [หลักฐาน](evidence/mvp-numeric-followup-verification.json). No retry/native price ceiling, CI offline
+- API **244/244**, persistent integration **11/11**, compile/typecheck และ fresh source export244/244 + relocated runtime4/4 PASS; Web20/20/build เดิมไม่มี frontend code changes รอบนี้
+- CI164 ของ History head6a4ff2c ผ่านก่อน numeric milestone: https://github.com/SteveJO789/LearnlyAi/actions/runs/38025240138
+- Read-only db migrate --show จาก actual c7b3938 ไป d17a8bc เลือก 3 app deltas + Supabase descriptor; ไม่เลือก fresh baseline ไม่ apply/sign production

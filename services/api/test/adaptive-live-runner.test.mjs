@@ -6,7 +6,7 @@ import { dirname,join,resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { test } from 'node:test';
 
-function runFixture({price='0.0000003',maxCalls=13}={}) {
+function runFixture({price='0.0000003',maxCalls=13,numericOnly=false}={}) {
   const root=mkdtempSync(join(tmpdir(),'learnly-live-budget-test-'));
   try {
     const loader=join(root,'fake-transport.mjs'),output=join(root,'output.json'),ledger=join(root,'ledger.json');
@@ -20,7 +20,7 @@ function runFixture({price='0.0000003',maxCalls=13}={}) {
         const output=mockTutorScenario({messages:body.messages});
         return Response.json({model:'fixture/model',choices:[{message:{content:JSON.stringify(output)},finish_reason:'stop'}],usage:{prompt_tokens:100,completion_tokens:100,cost:0.0001}});
       };`);
-    const result=spawnSync(process.execPath,['--import',pathToFileURL(loader).href,'evaluation/rag/run-adaptive-live.mjs','--budget-usd=1',`--max-calls=${maxCalls}`,`--ledger=${ledger}`,`--output=${output}`],
+    const result=spawnSync(process.execPath,['--import',pathToFileURL(loader).href,'evaluation/rag/run-adaptive-live.mjs','--budget-usd=1',`--max-calls=${maxCalls}`,`--ledger=${ledger}`,`--output=${output}`,...(numericOnly?['--numeric-only']:[])],
       {cwd:new URL('../',import.meta.url),encoding:'utf8',timeout:20000,env:{...process.env,AI_PROVIDER:'openrouter',OPENROUTER_API_KEY:'offline-fixture-key',OPENROUTER_MODEL:'fixture/model',OPENROUTER_BASE_URL:'https://openrouter.ai/api/v1'}});
     assert.equal(result.status,0,result.stderr);assert.equal(existsSync(ledger+'.lock'),false);
     return {report:JSON.parse(readFileSync(output,'utf8')),ledger:existsSync(ledger)?JSON.parse(readFileSync(ledger,'utf8')):null};
@@ -45,4 +45,9 @@ test('all five live scenarios execute against an explicitly injected offline tra
   assert.equal(report.records.length,13);assert.equal(report.calls,13);assert.equal(ledger.entries.length,13);
   assert.ok(report.records.every(record=>record.status==='ACCEPTED'&&record.engineBinding&&record.retrievalMatches));
   assert.ok(report.budget.reservedUSD<=1);assert.equal(new Set(report.records.map(record=>record.scenario)).size,5);
+});
+test('numeric-only live evaluation executes exactly three explicit offline fixture turns with current grounding',()=>{
+  const {report,ledger}=runFixture({maxCalls:3,numericOnly:true});
+  assert.equal(report.calls,3);assert.equal(ledger.entries.length,3);assert.equal(report.records.length,3);
+  assert.ok(report.records.every(record=>record.status==='ACCEPTED'&&record.engineBinding&&record.retrievalMatches));
 });

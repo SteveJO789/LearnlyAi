@@ -57,7 +57,9 @@ try {
     } catch {entry.status='AMBIGUOUS_TRANSPORT_FAILURE';throw new Error('Evaluation transport failed.');}
     finally {writeFileSync(ledgerPath,JSON.stringify(ledger,null,2));}
   }});
-  const scenarios=[
+  const scenarios=process.argv.includes('--numeric-only') ? [
+    {id:'thai-numeric-follow-up',turns:[['ขอคำใบ้เป็นภาษาไทย: I = 2 A, R = 20 Ω ต้องหาความต่างศักย์ V',1],['40 V',1],['Thanks.',0]]},
+  ] : [
     {id:'english-confusion',turns:[['Explain Ohm\'s law',1],['I don\'t understand',1]]},
     {id:'thai-hint',turns:[['Explain Ohm\'s law',1],['ขอคำใบ้',1]]},
     {id:'follow-up-acknowledgement',turns:[['Explain Ohm\'s law',1],['What if resistance doubles?',1],['Thanks.',0]]},
