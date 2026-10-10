@@ -225,6 +225,7 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - ดาวน์โหลด official pinned eng/tha traineddata และ LICENSE รวม5,197,046bytes ตรวจsize/SHA256จริง และ offline cache verificationผ่าน; runtime verifierไม่มี CDN fallback
 - แก้ downloader หลัง actual LICENSE gzip Content-Length mismatch: ตรวจ decoded byte length/hash และ bounded streaming; tests4/4 และ current API**266/266**/compile PASS [หลักฐาน](evidence/mvp-ocr-model-packaging-verification.json)
 - Generated runtime-ocr files ignored ไม่ commit models binary ยังไม่ wire build/Vercel/runtime extractor ไม่มีการอ้าง actualOCRaccuracy/worker/deploy proof
+- Current fresh source-only export **API266/266 + relocated Knowledge runtime4/4 PASS**, deterministic9files; copied locked dependencies ไม่ใช่ freshnpm install และไม่รวม OCR assets จึงไม่ใช่ OCRdeployment proof
 - npm.exe wrapperยังNVM4306; prepared repair scriptปรับให้ใช้wrapperที่มีจริงตรวจNode24.21.0/npm11.19.0/official archive identityก่อนglobalmutation parse syntaxผ่านแต่ไม่ได้รัน รอคำตอบอนุมัติที่ส่งไว้
 - งานถัดไป: dependency installation→real PDF/image/OCR adapter→model packaging in build→owned file endpoints/UI→actualStorage/RLS/runtimevector integration ไม่รีเซ็ตงบUS$1
 

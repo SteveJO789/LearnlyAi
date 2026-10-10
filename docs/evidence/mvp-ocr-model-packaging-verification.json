@@ -11,6 +11,7 @@
   "packageDirectory": "services/api/runtime-ocr (ignored generated output)",
   "initialPreparationFailure": "LICENSE served compressed; Content-Length described gzip bytes rather than Node fetch decompressed bytes. Fixed header handling while retaining exact decoded length/SHA checks and bounded stream cancellation.",
   "tests": {"modelAssetIntegrity": {"passed": 4, "failed": 0}, "offlineApi": {"passed": 266, "failed": 0}, "apiCompile": "PASS"},
+  "freshSourceExport": {"apiPassed": 266, "apiFailed": 0, "relocatedKnowledgeRuntimePassed": 4, "deterministicKnowledgeFiles": 9, "dependencies": "copied locked local installations", "ocrModelBundleVerified": false},
   "notVerified": ["actual OCR recognition or Thai/math accuracy", "Tesseract/image/PDF library installation", "OCR worker resource/abort lifecycle", "build/Vercel OCR asset packaging", "endpoint/UI/private Storage wiring", "deployed OCR smoke"],
   "additionalPaidCalls": 0,
   "npmRepair": "Pending explicit authorization. NVM4306 confirmed through actual npm.exe wrapper; prepared repair script corrected to verify npm.exe and exact active Node/archive/version before any system mutation. Script syntax parsed but repair not executed."
