@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense, FormEvent } from "react";
+import { useState, useEffect, useRef, Suspense, FormEvent } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import AccountSidebar from "../components/AccountSidebar";
@@ -101,9 +101,15 @@ function SettingContent() {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [mascotPrankActive, setMascotPrankActive] = useState(false);
   const [mascotTapPending, setMascotTapPending] = useState(false);
+  const [mascotStart, setMascotStart] = useState({ x: 0, y: 0, buttonWidth: 0 });
+  const deleteButtonRef = useRef<HTMLButtonElement>(null);
 
   const triggerMascotPrank = () => {
     if (mascotPrankActive) return;
+    const rect = deleteButtonRef.current?.getBoundingClientRect();
+    if (rect) {
+      setMascotStart({ x: rect.left, y: rect.top, buttonWidth: rect.width });
+    }
     setMascotPrankActive(true);
     window.setTimeout(() => setMascotPrankActive(false), 5000);
   };
@@ -471,7 +477,7 @@ function SettingContent() {
                     </div>
 
                     {mascotPrankActive && (
-                      <div aria-hidden="true" className="fixed inset-0 z-[60] overflow-hidden pointer-events-none">
+                      <div aria-hidden="true" className="fixed inset-0 z-[60] overflow-hidden pointer-events-none" style={{ "--start-x": `${mascotStart.x}px`, "--start-y": `${mascotStart.y}px`, "--cry-x": `${mascotStart.x + mascotStart.buttonWidth + 10}px`, "--cry-y": `${mascotStart.y + 4}px` } as React.CSSProperties}>
                         <div className="fairy-runner">
                           <div className="tiny-wizard">
                             <div className="wizard-wand"><i /></div>
@@ -507,6 +513,33 @@ function SettingContent() {
                         width: max-content;
                         animation: fairy-lap 5s cubic-bezier(.35,.05,.3,1) both;
                         will-change: transform, opacity;
+                      }
+                      .fairy-runner::after {
+                        content: "✦ ･ﾟ✧ ･ﾟ✦";
+                        position: absolute;
+                        left: -34px;
+                        top: 30px;
+                        color: #ffe99b;
+                        font-size: 22px;
+                        letter-spacing: 5px;
+                        text-shadow: 0 0 8px #fff2b3, 0 0 16px #c5b5ff;
+                        pointer-events: none;
+                        animation: sparkle-trail .42s ease-out infinite;
+                      }
+                      .fairy-runner::before {
+                        content: "✧ ･ﾟ";
+                        position: absolute;
+                        left: -52px;
+                        top: 62px;
+                        color: #d8ceff;
+                        font-size: 18px;
+                        text-shadow: 0 0 10px #fff;
+                        animation: sparkle-trail .65s ease-out infinite .15s;
+                      }
+                      @keyframes sparkle-trail {
+                        0% { opacity: 0; transform: translateX(12px) scale(.5); }
+                        35% { opacity: 1; }
+                        100% { opacity: 0; transform: translateX(-18px) scale(1.25); }
                       }
                       .carried-delete-button {
                         display: inline-flex;
@@ -547,7 +580,7 @@ function SettingContent() {
                       .wizard-feet { position:absolute; z-index:3; left:29px; bottom:7px; display:flex; gap:19px; }
                       .wizard-feet i { width:22px; height:12px; border-radius:50%; background:linear-gradient(180deg,#e7b18e,#bc7e77); }
                       .wizard-shadow { position:absolute; bottom:0; left:15%; width:70%; height:10px; border-radius:50%; background:rgb(78 61 130 / .13); filter:blur(4px); }
-                      .fairy-crying { position:absolute; display:flex; align-items:center; left:calc(50% + 110px); top:calc(50% + 70px); opacity:0; animation:fairy-cry 5s linear both; }
+                      .fairy-crying { position:absolute; display:flex; align-items:center; left:var(--cry-x); top:var(--cry-y); opacity:0; animation:fairy-cry 5s linear both; }
                       .tiny-wizard-crying { transform:scale(.45); transform-origin:top left; margin:0; }
                       @keyframes fairy-lap {
                         0% { transform:translate(-150px, 45vh) rotate(0); opacity:0; }
@@ -569,14 +602,14 @@ function SettingContent() {
                       @media(max-width:767px) {
                         .fairy-runner { animation:fairy-walk 5s ease-in-out both; }
                         .fairy-runner .tiny-wizard { transform:scale(.42); }
-                        .carried-delete-button { display:none; }
+                        .carried-delete-button { display:none; }\n                        .fairy-runner::before, .fairy-runner::after { font-size:16px; }
                         @keyframes fairy-walk {
                           0% { transform:translate(-150px, 45vh); opacity:0; }
                           10% { transform:translate(3vw, 45vh); opacity:1; }
                           48% { transform:translate(43vw, 49vh); }
-                          85%,100% { transform:translate(calc(50vw + 110px), calc(50vh + 70px)); opacity:0; }
+                          85%,100% { transform:translate(var(--start-x), var(--start-y)); opacity:0; }
                         }
-                        .fairy-crying { left:calc(50% + 110px); top:calc(50% + 70px); }
+                        .fairy-crying { left:var(--cry-x); top:var(--cry-y); }
                       }
                       @media(prefers-reduced-motion:reduce) {
                         .fairy-runner { animation-duration:1ms; }
