@@ -131,3 +131,11 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - npm 11.19.0 registry signature/integrity ผ่าน แต่ installed runtime บางไฟล์ต่างจาก official archive; เตรียม same-version repair/backup ใน ignored `.verification/npm-repair/` และขออนุมัติ เพราะเป็น software/trust state นอก repository
 - Supabase pgvector 0.8.2 ติดตั้งใน extensions schema แล้ว (read-only inventory); ยังไม่สร้าง production Knowledge tables หรือเรียก paid embeddings
 - งานถัดไป: embedding/chunking และ Top-K integration; PDF/image/OCR รอ npm repair approval. Live budget ใช้ US$0 จาก US$1
+
+### Retrieval foundation (กำลังทำ ยังไม่ครบ pipeline)
+
+- เพิ่ม deterministic reviewed-passage chunking: NFC/LF, paragraph/formula ไม่ถูกตัด, content/passsage hashes, document/version/source metadata และ page=null เมื่อไม่มีข้อมูลหน้า
+- เพิ่ม real OpenRouter embedding adapter: จำกัด input/batch/timeout/response bytes, ตรวจ model/index/dimension/finite nonzero vector และปิดบัง raw provider errors; ไม่มี Mock fallback ใน runtime
+- Tests 4/4 และ API compile PASS โดย injected transport ไม่ใช่ paid live embedding evidence
+- Prisma 8 PSL เวอร์ชันที่ติดตั้งไม่รองรับ `Unsupported("extensions.vector")` (ตรวจใน ignored scratch contract เท่านั้น); ต้องใช้ pgvector extension pack ตาม public Prisma contract API ไม่สร้างตารางแยกนอก canonical migration
+- Storage/Top-K/runtime wiring และ live quality ยังไม่ implemented/verified; รอ dependency installation หลัง npm repair approval ก่อนเพิ่ม extension pack/PDF/OCR libraries
