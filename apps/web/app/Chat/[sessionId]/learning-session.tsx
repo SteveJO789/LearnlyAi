@@ -200,6 +200,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
 
   return (
     <div className="flex h-dvh bg-background text-text">
+      {hydrating && <CuteLoadingPopup message="กำลังเปิดห้องเรียน..." detail="กำลังโหลดประวัติและเตรียมแชทให้พร้อม 💫" />}
       <aside
         inert={!sidebarOpen}
         className={`fixed inset-y-0 left-0 z-20 shrink-0 overflow-hidden bg-surface transition-[width] duration-200 md:static ${
