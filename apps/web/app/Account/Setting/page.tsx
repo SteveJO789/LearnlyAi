@@ -113,6 +113,15 @@ function SettingContent() {
   const [mascotStart, setMascotStart] = useState({ x: 0, y: 0, buttonWidth: 0 });
   const deleteButtonRef = useRef<HTMLButtonElement>(null);
 
+  useEffect(() => {
+    if (activeTab !== "Delete Account") {
+      setMascotPrankActive(false);
+      setMascotCrying(false);
+      setMascotButtonStolen(false);
+      setMascotPrankPlayed(false);
+    }
+  }, [activeTab]);
+
   const triggerMascotPrank = () => {
     if (mascotPrankActive || mascotPrankPlayed) return;
     const rect = deleteButtonRef.current?.getBoundingClientRect();
