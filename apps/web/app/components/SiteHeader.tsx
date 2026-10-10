@@ -40,23 +40,54 @@ export default function SiteHeader({
   showAccountMenu = false,
 }: SiteHeaderProps) {
   const { t } = useLanguage();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="flex w-full items-center justify-between px-5 py-6 sm:px-12 lg:px-20">
+    <header className="relative z-30 flex w-full flex-wrap items-center justify-between gap-y-3 px-4 py-4 sm:px-12 sm:py-6 lg:px-20">
       <Link href={logoHref} aria-label="LearnlyAI home" className="auth-brand inline-flex items-center gap-3">
         <span aria-hidden="true" className="auth-brand-mark">✿</span>
         <span className="auth-brand-word">LearnlyAI</span>
       </Link>
 
-      <div className="flex items-center gap-3">
+      <nav aria-label="Main navigation" className="hidden items-center gap-3 md:flex">
         {links.map((link) => (
           <Link key={link.href} href={link.href} className={NavButton}>
             {t(link.labelKey)}
           </Link>
         ))}
-
         {showAccountMenu && <AccountMenu />}
-      </div>
+      </nav>
+
+      <button
+        type="button"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-surface-border bg-surface text-2xl text-text shadow-sm md:hidden"
+        aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+        aria-expanded={isMobileMenuOpen}
+        aria-controls="mobile-site-navigation"
+        onClick={() => setIsMobileMenuOpen((open) => !open)}
+      >
+        <span aria-hidden="true">{isMobileMenuOpen ? "×" : "☰"}</span>
+      </button>
+
+      {isMobileMenuOpen && (
+        <nav
+          id="mobile-site-navigation"
+          aria-label="Mobile navigation"
+          className="flex w-full flex-col gap-2 rounded-2xl border border-surface-border bg-background/95 p-3 shadow-lg backdrop-blur-md md:hidden"
+        >
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={NavButton + " w-full text-center"}
+            >
+              {t(link.labelKey)}
+            </Link>
+          ))}
+          {showAccountMenu && <div className="w-full"><AccountMenu /></div>}
+        </nav>
+      )}
     </header>
   );
 }

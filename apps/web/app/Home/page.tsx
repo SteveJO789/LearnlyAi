@@ -138,7 +138,7 @@ export default function HomePage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-background text-text relative">
+    <div className="relative isolate min-h-screen w-full max-w-full overflow-x-clip bg-background text-text">
       {/* เลเยอร์ท้องฟ้าการ์ตูน: แสงฟุ้งและดาวลอย (สโลว์โมชันแบบหน้า Create - อยู่หลังสุด z-0) */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden min-h-full">
         {/* กลุ่มแสงฟุ้งเกรเดียนต์เบื้องหลัง */}
