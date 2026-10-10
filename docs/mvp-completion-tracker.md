@@ -298,6 +298,14 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - Originalbitmapอ่านสมการผิด, Windowsfontpathผิดslash, oversizePDFfixtureวาดoff-page และancillaryCRCไม่ถูกdecoderตรวจ ถูกวิเคราะห์จากไฟล์จริงแล้วแก้ ไม่fabricateOCRresults/teacher-reviewedstatus
 - ยังขาดfileAPIs/UI/liveAuthStoragePrismajourney/productionfunctionsize-memoryproof และbroaderrecognitionaccuracy ScannedPDFยังcontrolledNO_EXTRACTABLE_TEXT งานถัดไปคือauthenticatedupload/userreview/runtimevectorintegration ไม่มีpaidcallsหรือdeploymentเพิ่ม
 
+### Milestone 20 — protected file APIs และCreate→review→PRE
+
+- เชื่อมrealdefault Auth/Prisma/privateStorage/extractor: rawupload, ownedlist/journalresume, reviewและhash-verifieddownload ไม่แทนด้วยruntimeMock TEXTcompositionlazyไม่พึ่งbucket
+- Createรักษาdesignเดิม: filevalidation/read/edit-confirm/PRE, reusedraftหลังerrorและตรวจexistinguploadก่อนส่งซ้ำ cancelonunmount/accessiblelabel-alert ยังไม่มีbrowserproof
+- Reviewเก็บmetadata.learningText/hash/learnerconfirmationเท่านั้น ไม่เปลี่ยนoriginalextraction/contenthash/receiptและreviewed=false Unconfirmedbinaryไม่เข้าAIcontext ทั้งคู่ยังUSER_MATERIAL Canonical076→0039047 adds metadata-column-only grant/ownerinitialsession/API-contextRLS ไม่applyproduction
+- API **303/303**, frontend **23/23**/typecheck/Webbuild, simulatedpersistent **11/11** PASS ActualHTTP+realextractor journeyใช้injectedAuth/DB/Storageตามชัดเจน ActualSQLreview/isolation/immutabilityclonesและfresh5packages **95steps/178checksPASS**, rollbackหมด [หลักฐาน](evidence/mvp-file-journey-verification.json)
+- ยังขาดrealAuthStoragePrisma/browser/mobile/keyboard, file-historyUI/retention UX และcanonicalvectorruntime Productionmarker/migration/privatebucketยังเป็นreleasegates ไม่มีpaidcalls/auto-merge/deployและCDONLYdevelop
+
 - เพิ่ม header/MIME/size/hash/filename checks และ PNG dimension cap; ไม่อ้างว่าตรวจ full file content/extraction แล้ว
 - เพิ่ม real user-JWT private Storage transport (HTTPS/no redirect/no upsert, owned prefix, immutable verified bytes, safe errors); runtime ยังไม่ wired และ private bucket/RLS ยังไม่ created/verified
 - Targeted tests5/5, API compile และ full offline API249/249 PASS; HTTP transport injected ไม่ใช่ actual Storage upload proof

@@ -2,6 +2,8 @@ import type { UserDb } from "../../prisma/db.js";
 import { withApiWrite, type ApiTransaction } from "../../prisma/api-write.js";
 import { ApiError } from "../../shared/api-error.js";
 import type { FileMaterialStore, PreparedFileMaterial } from "./file-ingestion.js";
+import { normalizeTextMaterial } from "./text-materials.js";
+import { createHash } from "node:crypto";
 
 export class PrismaFileMaterials implements FileMaterialStore {
   constructor(private readonly client: UserDb, private readonly appUserId: string) {}
@@ -28,6 +30,46 @@ export class PrismaFileMaterials implements FileMaterialStore {
     if (!row) throw new ApiError("NOT_FOUND", 404, "The upload was not found.");
     if (rows.length !== 1 || !["PENDING", "FINALIZED", "CANCELLED"].includes(row.state)) throw new ApiError("INVALID_UPLOAD_RECEIPT", 503, "The upload receipt could not be verified.");
     return { state: row.state as "PENDING" | "FINALIZED" | "CANCELLED", material: row.material as unknown as PreparedFileMaterial };
+  }
+  async listUploads(sessionId: string) {
+    const owned = this.client.raw.sql`SELECT "id" FROM public."LearningSession" WHERE "id" = ${sessionId} AND "userId" = ${this.appUserId}`.returnsRow({ id: "pg/text@1" }).build();
+    if (!(await this.client.query(owned).toArray()).length) throw new ApiError("NOT_FOUND", 404, "Learning session was not found.");
+    const plan = this.client.raw.sql`SELECT f."id", f."state", f."material"->'file'->>'type' AS "type",
+      f."material"->'file'->>'filename' AS "filename", f."createdAt" FROM public."FileUpload" f
+      JOIN public."LearningSession" s ON s.id = f."learningSessionId"
+      WHERE f."learningSessionId" = ${sessionId} AND s."userId" = ${this.appUserId}
+      ORDER BY f."createdAt" DESC, f.id DESC LIMIT 20`
+      .returnsRow({ id: "pg/text@1", state: "pg/text@1", type: "pg/text@1", filename: "pg/text@1", createdAt: "pg/timestamptz-string@1" }).build();
+    return this.client.query(plan).toArray();
+  }
+  async getFile(sessionId: string, id: string) {
+    const plan = this.client.raw.sql`SELECT m."id", m."type", m."storageBucket", m."storageKey", m."contentHash", m."mimeType", m."sizeBytes",
+      COALESCE(m.metadata->'extraction'->>'confidence', '') AS "confidence",
+      COALESCE(m.metadata->>'filename', '') AS "filename"
+      FROM public."SourceMaterial" m JOIN public."LearningSession" s ON s.id = m."learningSessionId"
+      WHERE m.id = ${id} AND m."learningSessionId" = ${sessionId} AND s."userId" = ${this.appUserId}
+        AND m.status = 'READY' AND m.type IN ('PDF', 'IMAGE') AND m."storageBucket" IS NOT NULL AND m."storageKey" IS NOT NULL`
+      .returnsRow({ id: "pg/text@1", type: "pg/text@1", storageBucket: "pg/text@1", storageKey: "pg/text@1", contentHash: "pg/text@1",
+        mimeType: "pg/text@1", sizeBytes: "pg/int4@1", filename: "pg/text@1", confidence: "pg/text@1" }).build();
+    const rows = await this.client.query(plan).toArray();
+    if (rows.length !== 1) throw new ApiError("NOT_FOUND", 404, "Stored file was not found.");
+    return rows[0]!;
+  }
+  async review(sessionId: string, id: string, value: unknown) {
+    const learningText = normalizeTextMaterial(value), hash = createHash("sha256").update(learningText, "utf8").digest("hex");
+    await withApiWrite(this.client, async tx => {
+      await tx.execute(this.client.raw.sql`SET LOCAL lock_timeout = '3s'`.affectedCount().build());
+      await tx.execute(this.client.raw.sql`SET LOCAL statement_timeout = '5s'`.affectedCount().build());
+      const session = this.client.raw.sql`SELECT id FROM public."LearningSession" WHERE id = ${sessionId} AND "userId" = ${this.appUserId}
+        AND "lifecycleState" = 'ACTIVE' AND stage = 'EXPLAIN' AND version = 0 AND state IN ('INPUT', 'PRE_TEST') FOR UPDATE`
+        .returnsRow({ id: "pg/text@1" }).build();
+      if (!(await tx.query(session).toArray()).length) throw new ApiError("MATERIAL_REVIEW_CLOSED", 409, "Material review is available only before learning starts.");
+      const updated = await tx.execute(this.client.raw.sql`UPDATE public."SourceMaterial"
+        SET metadata = (COALESCE(metadata, '{}'::json)::jsonb || ${JSON.stringify({ learningText, learningTextHash: hash, reviewedByLearner: true })}::jsonb)::json
+        WHERE id = ${id} AND "learningSessionId" = ${sessionId} AND status = 'READY' AND type IN ('PDF', 'IMAGE')`.affectedCount().build());
+      if (updated.affectedRows !== 1) throw new ApiError("NOT_FOUND", 404, "File material was not found.");
+    });
+    return { materialId: id, status: "READY" as const, normalizedText: learningText };
   }
   private async lockSession(tx: ApiTransaction, sessionId: string, active: boolean) {
     await tx.execute(this.client.raw.sql`SET LOCAL lock_timeout = '3s'`.affectedCount().build());

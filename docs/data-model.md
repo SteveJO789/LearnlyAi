@@ -59,6 +59,7 @@ erDiagram
 - `normalized_text` nullable
 - `content_hash`, `mime_type`, `size_bytes`
 - `metadata` JSON; origin/review flags, normalization hash and real extraction page metadata
+- Binary learner review stores `learningText`/`learningTextHash`/`reviewedByLearner` only in metadata. Original extracted normalizedText/binary hash/extraction and trusted `reviewed=false` remain unchanged. Unconfirmed binary content is not sent to the tutor. Column-specific UPDATE(metadata) plus initial-session owner/API-context RLS protects edits.
 
 ### `FileUpload` — durable binary upload intent
 

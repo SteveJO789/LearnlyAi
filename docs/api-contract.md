@@ -189,6 +189,23 @@ See [Learning Engine Core](learning-engine-core.md) for the complete sample resp
 Learning profile returns `mastery` keyed by topic: `{percent,assessmentId,sampleQuestions,assessedAt}`, `strengths`, `weakPoints`, `updatedAt`. Empty profile: `{mastery:{},strengths:[],weakPoints:[],updatedAt:null}`. Latest submitted POST/TRANSFER sample per topic is used; >=80% is a strong result, <50% needs practice. These are small assessment samples, not a calibrated global mastery estimate.
 Progress returns `sessionCount`, `completedSessionCount`, `averageProgressPercent` and up to 100 comparison rows `{sessionId,topic,prePercent,postPercent,deltaPercent}`. Missing paired phases use null, never invented zero scores. Web forwards these via `/api/users/me/...` with the Supabase Bearer token.
 
+## File materials (verified Bearer required)
+
+Base `/api/v1/learning-sessions/{sessionId}/materials`; Web same-origin rewrite `/api/learning-sessions/{sessionId}/materials` forwards the verified user token. Private Storage uses publishable key + user JWT, never service-role.
+
+| Method | Suffix | Request / response |
+|---|---|---|
+| GET | `/` | Owned bounded material list, including effective normalized learning text; unknown/foreign rows are not visible |
+| POST | `/files` | Raw PDF/PNG/JPEG bytes, max3MiB, declared Content-Type and URL-encoded `x-file-name`;201 READY with `{id,materialId,type,status,normalizedText,contentHash,mimeType,sizeBytes}` |
+| GET | `/uploads` | Up to20 owned journal summaries `{id,state,type,filename,createdAt}`; no private keys/buckets returned |
+| POST | `/uploads/{materialId}/resume` | Exactly `{}`; verify stored original bytes before READY recovery or retry CANCELLED cleanup; no re-upload |
+| PATCH | `/{materialId}/review` | Exactly `{text}`; up to8000 normalized characters; own active initial session only, stageEXPLAIN/version0/stateINPUT orPRE_TEST |
+| GET | `/{materialId}/file` | Owned READY binary download after MIME/size/SHA256 verification; private/no-store, attachment, nosniff |
+
+OCR/read text must be reviewed before binary material enters tutor context. Review writes only `metadata.learningText`, `learningTextHash`, `reviewedByLearner`; it preserves original extraction/normalizedText/hash and `reviewed=false`. Trusted curated Knowledge review is distinct from learner confirmation. Unknown review fields, scores, ownership and storage keys are rejected. SourceMaterial UPDATE permission is metadata-only with canonical owner/API-context RLS. Review after learning starts returns409 MATERIAL_REVIEW_CLOSED.
+
+Upload uses real bounded PDF/OCR. Wrong MIME/compressed body/oversize return415/413 before writes, corrupted/encrypted/empty input controlled422, busy/dependency errors503, processing deadline504. Ambiguous upload/save remains in journal; explicitly list/resume before sending another copy. No raw upstream/file/credential errors are exposed. Current tests use synthetic Auth/Storage/DB transports plus real decoders; production schema/Storage/browser journey is a separate verification gate.
+
 ## Health
 
 | Method | Endpoint | Purpose |

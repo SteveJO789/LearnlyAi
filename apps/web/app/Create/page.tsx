@@ -8,56 +8,87 @@ import CuteLoadingPopup from "../components/CuteLoadingPopup";
 import { useLanguage } from "../lib/i18n/LanguageContext";
 import { createLearningSession, createTextMaterial } from "../../lib/learning-sessions";
 import { getCurrentUserProfile, type AppUserProfile } from "../../lib/user-profile";
+import { uploadFileMaterial, reviewFileMaterial, listUploadReceipts, resumeFileUpload, validateSelectedFile, type FileMaterialDto, type UploadReceiptDto } from "../../lib/file-materials";
 
 export default function CreatePage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadController = useRef<AbortController | null>(null);
 
   const [question, setQuestion] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [isStarting, setIsStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<AppUserProfile | null>(null);
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const [material, setMaterial] = useState<FileMaterialDto | null>(null);
+  const [receipts, setReceipts] = useState<UploadReceiptDto[]>([]);
+  const [fileError, setFileError] = useState(false);
+  const label = (th: string, en: string) => language === "th" ? th : en;
 
-  const canStart = question.trim().length > 0 || file !== null;
+  const canStart = (question.trim().length > 0 || file !== null) && question.length <= 8000;
 
   useEffect(() => {
     getCurrentUserProfile()
-      .then(setProfile)
+      .then((user) => { if (!user) router.replace("/SignIn"); else setProfile(user); })
       .catch(() => router.replace("/SignIn"));
   }, [router]);
+  useEffect(() => () => uploadController.current?.abort(), []);
 
   async function handleStart() {
     if (!canStart || isStarting) return;
 
-    if (file) {
-      setError(
-        "File upload persistence is not connected yet. Remove the file and start with text for now.",
-      );
-      return;
-    }
-
     const input = question.trim();
-    if (!input) return;
+    if (!input && !file) return;
 
     setError(null);
     setIsStarting(true);
 
     try {
-      const session = await createLearningSession({
-        title: input.replace(/\s+/g, " ").slice(0, 120),
-      });
-      await createTextMaterial(session.id, input);
-      router.push(`/Assessment/${session.id}?phase=PRE`);
+      let id = draftId;
+      if (!id) {
+        id = (await createLearningSession({ title: (input || file?.name || "Lesson").replace(/\s+/g, " ").slice(0, 120) })).id;
+        setDraftId(id);
+      }
+      if (file && !material) {
+        const controller = new AbortController(); uploadController.current = controller;
+        const extracted = await uploadFileMaterial(id, file, controller.signal);
+        setMaterial(extracted); setReceipts([]); setFileError(false);
+        setQuestion(extracted.normalizedText + (input ? "\n\n" + input : ""));
+        return;
+      }
+      if (material) await reviewFileMaterial(id, material.id, input);
+      else await createTextMaterial(id, input);
+      router.push(`/Assessment/${id}?phase=PRE`);
     } catch (startError) {
       setError(
         startError instanceof Error
           ? startError.message
           : "Could not start a learning session.",
       );
-      setIsStarting(false);
-    }
+      if (file && !material) setFileError(true);
+    } finally { uploadController.current = null; setIsStarting(false); }
+  }
+
+  async function checkUploads() {
+    if (!draftId || isStarting) return;
+    setIsStarting(true); setError(null);
+    try {
+      const uploads = await listUploadReceipts(draftId); setReceipts(uploads);
+      if (!uploads.length) { setFileError(false); setError(label("ยังไม่พบไฟล์ที่ส่ง ลองอ่านไฟล์อีกครั้งได้", "No upload was found. You can try reading the file again.")); }
+    } catch (e) { setError(e instanceof Error ? e.message : label("ตรวจไฟล์ไม่สำเร็จ", "Could not check uploads.")); }
+    finally { setIsStarting(false); }
+  }
+  async function restoreUpload(id: string) {
+    if (!draftId || isStarting) return;
+    setIsStarting(true); setError(null);
+    try {
+      const restored = await resumeFileUpload(draftId, id);
+      if (restored.status === "CANCELLED") { setFileError(false); setReceipts([]); setError(label("รายการนี้ถูกยกเลิกแล้ว เลือกไฟล์แล้วอ่านใหม่ได้", "This upload was cancelled. Select a file to read again.")); }
+      else { setMaterial(restored); setQuestion(restored.normalizedText); setFileError(false); setReceipts([]); }
+    } catch (e) { setError(e instanceof Error ? e.message : label("กู้คืนไฟล์ไม่สำเร็จ", "Could not restore the upload.")); }
+    finally { setIsStarting(false); }
   }
 
   return (
@@ -128,14 +159,19 @@ export default function CreatePage() {
 
         <div id="learning-input" className="mt-10 max-w-xl mx-auto flex scroll-mt-8 flex-col items-center gap-5">
           <div className="w-full">
-            <p className="mb-1.5 text-xs font-semibold text-muted">{t("create.textAreaLabel")}</p>
+            <label htmlFor="learning-question" className="mb-1.5 block text-xs font-semibold text-muted">{material ? label("ตรวจข้อความจากไฟล์และแก้สมการ/หน่วยให้ถูกต้อง", "Review extracted text and correct equations or units") : t("create.textAreaLabel")}</label>
             <textarea
+              id="learning-question"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               rows={6}
+              maxLength={8000}
+              disabled={isStarting}
               placeholder={t("create.placeholder")}
               className="w-full resize-none rounded-2xl border border-surface-border bg-surface p-5 text-sm outline-none focus:border-primary placeholder:text-muted"
             />
+            {material && <p role="status" className="mt-2 text-xs text-muted">{label("อ่านไฟล์แล้ว ตรวจข้อความก่อนกดเริ่มเรียน", "File read. Review the text before starting.")}</p>}
+            {question.length > 8000 && <p role="alert" className="text-xs text-danger">{label("ข้อความรวมเกิน 8000 ตัวอักษร กรุณาแก้ให้สั้นลง", "Combined text exceeds 8000 characters. Please shorten it.")}</p>}
           </div>
 
           <span className="text-sm text-muted">{t("create.or")}</span>
@@ -143,16 +179,21 @@ export default function CreatePage() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="w-full rounded-full border border-surface-border bg-surface py-4 text-sm text-muted hover:border-primary transition-colors cursor-pointer"
+            disabled={isStarting || !!material}
+            className="w-full break-all rounded-full border border-surface-border bg-surface px-4 py-4 text-sm text-muted hover:border-primary transition-colors cursor-pointer disabled:opacity-60"
           >
             {file ? `📎 ${file.name}` : t("create.uploadPlaceholder")}
           </button>
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*,application/pdf"
+            accept="image/png,image/jpeg,application/pdf"
             className="hidden"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            onChange={(e) => {
+              const selected = e.target.files?.[0] ?? null;
+              try { if (selected) validateSelectedFile(selected); setFile(selected); setError(null); setFileError(false); setReceipts([]); }
+              catch (error) { setFile(null); setError(error instanceof Error ? error.message : label("ไฟล์ไม่รองรับ", "Unsupported file.")); }
+            }}
           />
           {file && (
             <>
@@ -160,20 +201,29 @@ export default function CreatePage() {
                 type="button"
                 onClick={() => {
                   setFile(null);
+                  setMaterial(null); setDraftId(null); setReceipts([]); setFileError(false);
                   setError(null);
                 }}
                 className="-mt-3 text-xs text-muted hover:text-danger self-end"
+                disabled={isStarting}
               >
                 {t("create.removeFile")}
               </button>
               <p className="text-xs text-muted">
-                File upload is visible in the UI but is not persisted yet.
+                {label("PDF, PNG หรือ JPEG ไม่เกิน 3 MiB", "PDF, PNG or JPEG up to 3 MiB")}
               </p>
             </>
           )}
+          {fileError && <div className="w-full rounded-xl border border-surface-border p-3 text-sm">
+            <p>{label("หากการเชื่อมต่อหลุด ตรวจไฟล์ที่ส่งไว้ก่อนส่งซ้ำ", "If the connection failed, check existing uploads before sending again.")}</p>
+            <button type="button" disabled={isStarting} onClick={checkUploads} className="mt-2 text-primary underline">{label("ตรวจไฟล์ที่ส่งแล้ว", "Check existing uploads")}</button>
+            {receipts.map(receipt => <button key={receipt.id} type="button" disabled={isStarting} onClick={() => restoreUpload(receipt.id)} className="mt-2 block text-primary underline">
+              {label("ตรวจ/กู้คืน", "Check/restore")} {receipt.filename}
+            </button>)}
+          </div>}
 
           {error && (
-            <p className="w-full rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
+            <p role="alert" className="w-full rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
               {error}
             </p>
           )}
@@ -181,10 +231,10 @@ export default function CreatePage() {
           <button
             type="button"
             onClick={handleStart}
-            disabled={!canStart || isStarting}
+            disabled={!canStart || isStarting || fileError}
             className={`w-full rounded-full bg-primary py-3.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40 transition-all cursor-pointer ${canStart && !isStarting ? "motion-safe:animate-bounce shadow-lg shadow-primary/25 ring-2 ring-primary/20" : ""}`}
           >
-            {isStarting ? t("create.starting") : t("create.start")}
+            {isStarting ? t("create.starting") : file && !material ? label("อ่านไฟล์", "Read file") : t("create.start")}
           </button>
         </div>
       </main>

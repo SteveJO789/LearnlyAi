@@ -1698,6 +1698,34 @@
               "tableName": "SourceMaterial",
               "withCheck": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
             },
+            "source_material_review_update_guard": {
+              "kind": "policy",
+              "name": "source_material_review_update_guard_cd84f83e",
+              "namespaceId": "public",
+              "operation": "update",
+              "permissive": false,
+              "prefix": "source_material_review_update_guard",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "SourceMaterial",
+              "using": "(current_setting('learnly.api_write', true) = '1')",
+              "withCheck": "(current_setting('learnly.api_write', true) = '1')"
+            },
+            "source_material_review_update_own": {
+              "kind": "policy",
+              "name": "source_material_review_update_own_c072fcc3",
+              "namespaceId": "public",
+              "operation": "update",
+              "permissive": true,
+              "prefix": "source_material_review_update_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "SourceMaterial",
+              "using": "(\"status\" = 'READY' AND \"type\" IN ('PDF', 'IMAGE') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text AND s.\"lifecycleState\" = 'ACTIVE' AND s.\"stage\" = 'EXPLAIN' AND s.\"version\" = 0 AND s.\"state\" IN ('INPUT', 'PRE_TEST')))",
+              "withCheck": "(\"status\" = 'READY' AND \"type\" IN ('PDF', 'IMAGE') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text AND s.\"lifecycleState\" = 'ACTIVE' AND s.\"stage\" = 'EXPLAIN' AND s.\"version\" = 0 AND s.\"state\" IN ('INPUT', 'PRE_TEST')))"
+            },
             "source_material_select_own": {
               "kind": "policy",
               "name": "source_material_select_own_f7e3ac0e",
@@ -2788,7 +2816,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "076ce8306edb1f37c9956a00b70b92978b153db404524f05d4d39a9e13b04ce8"
+    "storageHash": "0039047422dff2448bd0223d8c5b74d4ef5beca41b455f665d5168bf03759620"
   },
   "execution": {
     "executionHash": "1c5f64dbace57a6efe810d458509a690bf92acb20d8522d6bfb343791bdd4e83",

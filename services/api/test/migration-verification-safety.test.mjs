@@ -8,6 +8,6 @@ for(const mode of ['legacy','fresh']) test(`${mode} migration verifier keeps all
   assert.ok(sql.startsWith('BEGIN;'));assert.match(sql,/Scratch schema already exists; no changes permitted/);
   assert.match(sql,/RESET ROLE;\s*ROLLBACK;/);assert.match(sql,/fixture_removed/);
   assert.doesNotMatch(sql,/"public"\.|\bauth\.users|"auth"\."users"|\b(?:CREATE|ALTER|DROP)\s+ROLE\b|\bGRANT\s+authenticated\s+TO\b|(?:ON|INTO|UPDATE|ALTER TABLE)\s+storage\.(?:objects|buckets)/iu);
-  if(mode==='fresh') {assert.match(sql,/92 AS executed_app_sql_steps/);assert.match(sql,/173 AS canonical_checks/);assert.doesNotMatch(sql,/DELETE FROM|"AppSession"\s*\(/);assert.match(sql,/FixtureStorageObjects/);assert.match(sql,/pending_intent_guard/);}
+  if(mode==='fresh') {assert.match(sql,/95 AS executed_app_sql_steps/);assert.match(sql,/178 AS canonical_checks/);assert.doesNotMatch(sql,/DELETE FROM|"AppSession"\s*\(/);assert.match(sql,/FixtureStorageObjects/);assert.match(sql,/pending_intent_guard/);assert.match(sql,/UPDATE \(metadata\)/);}
   else {assert.match(sql,/FixtureAuthUsers/);assert.match(sql,/Existing API role dependency unavailable/);}
 });

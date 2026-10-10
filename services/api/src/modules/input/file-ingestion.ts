@@ -98,14 +98,14 @@ export class FileIngestion {
     private readonly extractor: FileTextExtractor, private readonly authUserId: string,
     private readonly onCleanupFailure: (materialId: string) => void = () => {}) {}
 
-  async ingest(sessionId: string, bytes: Uint8Array, mimeType: string, filename: string) {
+  async ingest(sessionId: string, bytes: Uint8Array, mimeType: string, filename: string, incomingSignal?: AbortSignal) {
     const file = inspectFileEnvelope(bytes, mimeType, filename);
     await this.store.assertActiveOwnedSession(sessionId);
     // Keep a request-owned byte snapshot; transport rechecks the original hash before upload.
     const snapshot = Buffer.from(bytes);
     if (createHash("sha256").update(snapshot).digest("hex") !== file.contentHash) throw new ApiError("INVALID_FILE", 400, "File changed before extraction.");
     const id = randomUUID(), storageKey = materialStorageKey(this.authUserId, sessionId, id, file.extension);
-    const signal = AbortSignal.timeout(15000);
+    const signal = incomingSignal ? AbortSignal.any([incomingSignal, AbortSignal.timeout(15000)]) : AbortSignal.timeout(15000);
     let result: ExtractedFileText;
     try { result = await this.extractor.extract(snapshot, file, signal); }
     catch (error) {

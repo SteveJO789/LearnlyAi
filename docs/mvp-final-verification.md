@@ -2,6 +2,8 @@
 
 อัปเดต 2026-10-10: **กำลังทำ — ยังไม่ IMPLEMENTATION COMPLETE และยังไม่ RELEASED**
 
+2026-10-11: protectedfileupload/list/resume/review/hash-verifieddownloadและCreate→editableconfirmation→PRE implementแล้ว Metadatareviewไม่เปลี่ยนoriginalextract/hashหรือtrustedstatus; unconfirmedbinaryไม่เข้าAI API303/303, frontend23/23/typecheck/Webbuild, simulatedpersistent11/11PASS ActualcanonicalreviewSQL/RLSclones+fresh95steps/178checksPASS/rollback ไม่มีliveAuthStorage/browser/deploymentproof [หลักฐาน](evidence/mvp-file-journey-verification.json)
+
 ล่าสุดตัวอ่านไฟล์จริง: PDF.js text extraction, fullPNG/JPEG decode/CRC/inflatecaps/EXIFและtha+engTesseractOCR/workerabort ทำงานกับactualsyntheticfixtures **10/10** Actualnpmtest/build **API299/299**, simulatedpersistent11/11PASS Pinnedmodels/workersเตรียมในbuildแล้ว แต่fileendpoint/UI/actualAuthStoragejourneyและdeploymentmemory/sizeยังไม่verified [หลักฐาน](evidence/mvp-real-file-extraction-verification.json)
 
 งาน follow-up อยู่ใน [Draft PR #78](https://github.com/SteveJO789/LearnlyAi/pull/78) เริ่มจาก develop `5022c28` และรวมงานล่าสุดของทีม `875575f` แล้ว งานเดิมใน primary checkout/stash ยังอยู่ครบ ไม่มี auto-merge PR หรือ force push หลักฐาน local/fixture ด้านล่างไม่เท่ากับระบบที่ deploy จริง

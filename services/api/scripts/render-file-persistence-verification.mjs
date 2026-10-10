@@ -9,6 +9,7 @@ import materialOps from '../migrations/app/20261009T1524_text_material_pipeline/
 import storageOps from '../migrations/app/20261010T0752_private_material_storage/ops.json' with {type:'json'};
 import uploadOps from '../migrations/app/20261010T1119_durable_file_uploads/ops.json' with {type:'json'};
 import gateOps from '../migrations/app/20261010T1154_journal_storage_gate/ops.json' with {type:'json'};
+import reviewOps from '../migrations/app/20261010T1653_file_material_review/ops.json' with {type:'json'};
 const output=process.argv.find(value=>value.startsWith('--output='))?.slice(9);
 if(!output)throw Error('Explicit --output= is required; this command only renders SQL.');
 const schema='learnly_file_material_verify',tables=['User','LearningSession','SourceMaterial','FileUpload'];
@@ -51,6 +52,8 @@ await store.assertActiveOwnedSession('file-fixture');const activeQuery=render(ca
 captured=[];await store.assertActiveOwnedSession('closed-fixture');const closedQuery=render(captured[0]);
 const pdf=await saveQueries('file-fixture','pdf-material','PDF'),image=await saveQueries('file-fixture','image-material','IMAGE');
 const rollback=await saveQueries('rollback-fixture','rollback-material','PDF');
+captured=[];await store.review('file-fixture','pdf-material','ผู้เรียนตรวจแล้ว x² + 2');
+const review=captured.map(render),reviewUpdate=review.find(sql=>sql.startsWith('UPDATE'));
 const reservationEnd=rollback.findIndex(sql=>sql.startsWith('INSERT INTO')&&sql.includes('"FileUpload"'))+1;
 if(!reservationEnd)throw Error('Durable reservation SQL not captured');
 captured=[];await store.reserve('file-fixture',preparedFile('file-fixture','cancel-material','PDF'));
@@ -71,7 +74,7 @@ for(const op of storageOps.filter(op=>op.id==='column.public.SourceMaterial.stor
 statements.push(`ALTER TABLE ${q(schema)}."LearningSession" ADD FOREIGN KEY ("userId") REFERENCES ${q(schema)}."User"("id");`,
   `ALTER TABLE ${q(schema)}."SourceMaterial" ADD FOREIGN KEY ("learningSessionId") REFERENCES ${q(schema)}."LearningSession"("id");`,
   `GRANT UPDATE ON ${q(schema)}."LearningSession" TO authenticated;`);
-const addedPolicies=new Set(materialOps.filter(op=>op.target?.details?.objectType==='rlsPolicy').map(op=>op.target.details.name));
+const addedPolicies=new Set([...materialOps,...reviewOps].filter(op=>op.target?.details?.objectType==='rlsPolicy').map(op=>op.target.details.name));
 for(const policy of Object.values(contract.storage.namespaces.public.entries.policy)){
   if(!tables.includes(policy.tableName)||policy.tableName==='FileUpload'||addedPolicies.has(policy.name))continue;
   statements.push(`CREATE POLICY ${q(policy.name)} ON ${q(schema)}.${q(policy.tableName)} AS ${policy.permissive?'PERMISSIVE':'RESTRICTIVE'} FOR ${policy.operation.toUpperCase()} TO ${policy.roles.map(q).join(', ')}${policy.using?` USING (${policy.using})`:''}${policy.withCheck?` WITH CHECK (${policy.withCheck})`:''};`);
@@ -83,6 +86,10 @@ for(const operation of materialOps){
 for(const operation of uploadOps){
   if(operation.operationClass!=='additive')throw Error('Unexpected upload migration operation');
   for(const step of operation.execute){if(step.params?.length)throw Error('Unexpected upload parameter');statements.push(rewrite(step.sql)+';');}
+}
+for(const operation of reviewOps){
+  if(operation.operationClass!=='additive')throw Error('Unexpected review migration');
+  for(const step of operation.execute){if(step.params?.length)throw Error('Unexpected review parameter');statements.push(rewrite(step.sql)+';');}
 }
 // Only the reviewed enum-check replacement belongs in this app-only fixture; Storage is verified separately.
 for(const operation of gateOps.filter(op=>op.target?.details?.table==='FileUpload')){
@@ -139,6 +146,23 @@ statements.push(`DO $$ DECLARE result text; n int; BEGIN
  SELECT count(*) INTO n FROM (${read(absent)}) absent_receipt;
  IF n<>0 THEN RAISE EXCEPTION 'Absent receipt was fabricated'; END IF;
 END $$;`);
+statements.push(`SELECT set_config('learnly.api_write','0',true);
+DO $$ DECLARE n int; BEGIN
+ UPDATE ${q(schema)}."SourceMaterial" SET metadata='{"learningText":"forged"}'::json WHERE id='pdf-material';
+ GET DIAGNOSTICS n=ROW_COUNT; IF n<>0 THEN RAISE EXCEPTION 'Direct browser review allowed'; END IF;
+END $$;`);
+for(const sql of review)statements.push(sql+';');
+statements.push(`DO $$ DECLARE n int; result text; BEGIN
+ SELECT count(*) INTO n FROM ${q(schema)}."SourceMaterial" WHERE id='pdf-material'
+ AND metadata->>'learningText'='ผู้เรียนตรวจแล้ว x² + 2' AND metadata->>'reviewedByLearner'='true'
+ AND metadata->>'reviewed'='false' AND metadata->'extraction'->'pages'->1->>'page'='2'
+ AND "normalizedText"='สูตร x²\nV = IR' AND "storageKey"='${auth}/file-fixture/pdf-material.pdf';
+ IF n<>1 THEN RAISE EXCEPTION 'Review changed immutable extraction or trusted review provenance'; END IF;
+ SELECT outcome INTO result FROM (${read(receipt)}) reviewed_receipt;
+ IF result IS DISTINCT FROM 'SAVED' THEN RAISE EXCEPTION 'Review broke immutable file receipt identity'; END IF;
+ BEGIN UPDATE ${q(schema)}."SourceMaterial" SET "normalizedText"='tampered' WHERE id='pdf-material';
+ RAISE EXCEPTION 'Immutable normalized extraction column was writable' USING ERRCODE='XX000'; EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+END $$;`);
 statements.push(`DO $$ DECLARE n int; BEGIN
  SELECT count(*) INTO n FROM ${q(schema)}."SourceMaterial" WHERE status='READY' AND
    ((id='pdf-material' AND type='PDF' AND metadata->'extraction'->'pages'->1->>'page'='2') OR
@@ -160,6 +184,8 @@ statements.push(`DO $$ DECLARE n int; BEGIN
 END $$;
 UPDATE ${q(schema)}."LearningSession" SET "lifecycleState"='COMPLETED' WHERE id='file-fixture';
 DO $$ DECLARE n int; result text; BEGIN
+ ${reviewUpdate}; GET DIAGNOSTICS n=ROW_COUNT;
+ IF n<>0 THEN RAISE EXCEPTION 'Closed session review allowed'; END IF;
  SELECT count(*) INTO n FROM (${lock}) completed_owned;
  IF n<>1 THEN RAISE EXCEPTION 'Completed owner receipt lock missing'; END IF;
  SELECT outcome INTO result FROM (${read(receipt)}) completed_receipt;
@@ -167,6 +193,8 @@ DO $$ DECLARE n int; result text; BEGIN
 END $$;
 SELECT set_config('request.jwt.claims','{"sub":"${peer}","role":"authenticated"}',true);
 DO $$ DECLARE n int; BEGIN
+ ${reviewUpdate}; GET DIAGNOSTICS n=ROW_COUNT;
+ IF n<>0 THEN RAISE EXCEPTION 'Cross-user review allowed'; END IF;
  SELECT count(*) INTO n FROM ${q(schema)}."SourceMaterial";
  IF n<>0 THEN RAISE EXCEPTION 'Cross-user file read allowed'; END IF;
  SELECT count(*) INTO n FROM (${activeQuery}) foreign_owned;

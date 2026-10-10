@@ -405,3 +405,18 @@ policy_update file_upload_update_guard {
   using = "(current_setting('learnly.api_write', true) = '1')"
   withCheck = "(current_setting('learnly.api_write', true) = '1')"
 }
+
+policy_update source_material_review_update_own {
+  target = SourceMaterial
+  roles = [authenticated]
+  using = "(\"status\" = 'READY' AND \"type\" IN ('PDF', 'IMAGE') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text AND s.\"lifecycleState\" = 'ACTIVE' AND s.\"stage\" = 'EXPLAIN' AND s.\"version\" = 0 AND s.\"state\" IN ('INPUT', 'PRE_TEST')))"
+  withCheck = "(\"status\" = 'READY' AND \"type\" IN ('PDF', 'IMAGE') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text AND s.\"lifecycleState\" = 'ACTIVE' AND s.\"stage\" = 'EXPLAIN' AND s.\"version\" = 0 AND s.\"state\" IN ('INPUT', 'PRE_TEST')))"
+}
+
+policy_update source_material_review_update_guard {
+  target = SourceMaterial
+  roles = [authenticated]
+  permissive = false
+  using = "(current_setting('learnly.api_write', true) = '1')"
+  withCheck = "(current_setting('learnly.api_write', true) = '1')"
+}

@@ -52,6 +52,12 @@ export class PrivateMaterialStorage {
   }
   /** Authenticated download, streamed and hashed without retaining educational/file bytes. */
   async verify(key: string, file: FileEnvelope): Promise<void> {
+    await this.readVerified(key, file, false);
+  }
+  async download(key: string, file: FileEnvelope): Promise<Buffer> {
+    return this.readVerified(key, file, true);
+  }
+  private async readVerified(key: string, file: FileEnvelope, retain: boolean): Promise<Buffer> {
     this.ownedKey(key);
     if (!Number.isInteger(file.sizeBytes) || file.sizeBytes < 1 || file.sizeBytes > MAX_FILE_BYTES || !/^[a-f0-9]{64}$/u.test(file.contentHash)) {
       throw new ApiError("INVALID_UPLOAD_RECEIPT", 503, "The upload receipt could not be verified.");
@@ -68,6 +74,7 @@ export class PrivateMaterialStorage {
       }
       const reader = response.body.getReader(), hash = createHash("sha256");
       let length = 0;
+      const chunks: Uint8Array[] = [];
       try {
         for (;;) {
           const chunk = await reader.read();
@@ -77,11 +84,13 @@ export class PrivateMaterialStorage {
             throw new ApiError("FILE_INTEGRITY_ERROR", 422, "The stored file does not match its upload receipt.");
           }
           hash.update(chunk.value);
+          if (retain) chunks.push(chunk.value);
         }
       } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
       if (signal.aborted || length !== file.sizeBytes || hash.digest("hex") !== file.contentHash) {
         throw new ApiError("FILE_INTEGRITY_ERROR", 422, "The stored file does not match its upload receipt.");
       }
+      return retain ? Buffer.concat(chunks, length) : Buffer.alloc(0);
     } catch (error) {
       if (error instanceof ApiError) throw error;
       throw new ApiError("STORAGE_UNAVAILABLE", 503, "The stored file could not be verified. Please try again later.");
