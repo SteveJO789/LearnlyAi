@@ -17,7 +17,7 @@ export default function LoginPage() {
       </header>
 
       <main className="flex flex-1 flex-col items-center justify-center px-5 pb-24 pt-8">
-        <h1 className="mb-8 text-center text-xl font-normal text-neutral-500">
+        <h1 className="mb-8 text-center text-xl font-semibold text-neutral-500 [font-family:var(--font-fredoka)]">
           Log in
         </h1>
         <br></br>
