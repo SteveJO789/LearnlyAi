@@ -12,7 +12,7 @@ function harness({ownerFailure,extractFailure,saveFailure,uploadFailure,removeFa
   const events=[],saved=[];
   const store={assertActiveOwnedSession:async()=>{events.push('owner');if(ownerFailure)throw ownerFailure;},
     save:async(session,material)=>{events.push('save');saved.push({session,material});if(saveFailure)throw saveFailure;}};
-  const storage={upload:async()=>{events.push('upload');if(uploadFailure)throw uploadFailure;},remove:async()=>{events.push('remove');if(removeFailure)throw removeFailure;}};
+  const storage={bucketId:'learnly-materials',upload:async()=>{events.push('upload');if(uploadFailure)throw uploadFailure;},remove:async()=>{events.push('remove');if(removeFailure)throw removeFailure;}};
   const extractor={extract:async(snapshot,file,signal)=>{events.push('extract');assert.equal(file.type,'PDF');assert.ok(signal instanceof AbortSignal);if(extractFailure)throw extractFailure;if(mutateExtraction)snapshot[0]=0;return extraction;}};
   const cleanup=[];
   return {events,saved,cleanup,service:new FileIngestion(store,storage,extractor,authId,id=>cleanup.push(id))};
@@ -24,6 +24,7 @@ test('owned file orchestration preserves exact binary hash and actual page metad
   assert.equal(saved.normalizedText,'สูตร x²\nV = IR');assert.equal(saved.extraction.pages[1].page,2);assert.equal(saved.extraction.pages[1].text,'');
   assert.equal(saved.file.contentHash,inspectFileEnvelope(original,'application/pdf','lesson.pdf').contentHash);
   assert.ok(saved.storageKey.startsWith(authId+'/session/'));assert.ok(!('storageKey' in result));
+  assert.equal(saved.storageBucket,'learnly-materials');assert.ok(!('storageBucket' in result));
   assert.notEqual(saved.normalizedHash,saved.file.contentHash);
 });
 test('cross-user/closed session denial occurs before extraction, storage and persistence',async()=>{
@@ -75,12 +76,12 @@ test('Prisma file persistence binds application owner, locks active session and 
   const store=new PrismaFileMaterials(client,'legacy-application-id');
   await store.assertActiveOwnedSession('session');assert.ok(plans[0].values.includes('legacy-application-id'));
   const file=inspectFileEnvelope(bytes(),'application/pdf','lesson.pdf');
-  await store.save('session',{id:'material',storageKey:authId+'/session/material.pdf',file,...normalizeFileExtraction(extraction,file)});
+  await store.save('session',{id:'material',storageKey:authId+'/session/material.pdf',storageBucket:'learnly-materials',file,...normalizeFileExtraction(extraction,file)});
   const insert=plans.find(plan=>plan.sql.includes('INSERT INTO public."SourceMaterial"'));
   const metadata=JSON.parse(insert.values.at(-1));assert.equal(metadata.origin,'LEARNER_INPUT');assert.equal(metadata.reviewed,false);
   assert.equal(metadata.extraction.pages[1].page,2);assert.ok(plans.some(plan=>plan.sql.includes('FOR UPDATE')));
   assert.ok(plans.some(plan=>plan.sql.includes("set_config('learnly.api_write'")));assert.deepEqual(events,['begin','commit']);
   plans.length=0;owned=false;
-  await assert.rejects(store.save('session',{id:'material',storageKey:'key',file,...normalizeFileExtraction(extraction,file)}),error=>error.code==='NOT_FOUND');
+  await assert.rejects(store.save('session',{id:'material',storageKey:'key',storageBucket:'learnly-materials',file,...normalizeFileExtraction(extraction,file)}),error=>error.code==='NOT_FOUND');
   assert.ok(!plans.some(plan=>plan.sql.includes('INSERT')));assert.equal(events.at(-1),'rollback');
 });

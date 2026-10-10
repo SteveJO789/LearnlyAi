@@ -21,8 +21,8 @@ export class PrismaFileMaterials implements FileMaterialStore {
         .returnsRow({ id: "pg/text@1" }).build();
       if (!(await tx.query(session).toArray()).length) throw new ApiError("NOT_FOUND", 404, "Active learning session was not found.");
       await tx.execute(this.client.raw.sql`INSERT INTO public."SourceMaterial"
-        ("id", "learningSessionId", "type", "status", "storageKey", "normalizedText", "contentHash", "mimeType", "sizeBytes", "metadata")
-        VALUES (${material.id}, ${sessionId}, ${material.file.type}, 'READY', ${material.storageKey},
+        ("id", "learningSessionId", "type", "status", "storageKey", "storageBucket", "normalizedText", "contentHash", "mimeType", "sizeBytes", "metadata")
+        VALUES (${material.id}, ${sessionId}, ${material.file.type}, 'READY', ${material.storageKey}, ${material.storageBucket},
           ${material.normalizedText}, ${material.file.contentHash}, ${material.file.mimeType}, ${material.file.sizeBytes}, ${metadata}::jsonb)`
         .affectedCount().build());
       await tx.execute(this.client.raw.sql`UPDATE public."LearningSession" SET "state" = 'PRE_TEST'

@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-10",
+  "status": "CANONICAL_PRIVATE_STORAGE_MIGRATION_VERIFIED_NOT_APPLIED",
+  "contract": {"from": "d17a8bc493eb8d240a7a2d0c664b00ec49f5823963634f78f5385a01bd26b397", "to": "8626880030fb102dc56e134c700a5361c4189fc778f9fa79a0f825dd9c677bc8", "change": "Nullable SourceMaterial.storageBucket; preserve TEXT/legacy rows"},
+  "migration": "20261010T0752_private_material_storage",
+  "bucketProposal": {"name": "learnly-materials", "public": false, "maxBytes": 3145728, "mimeTypes": ["application/pdf", "image/png", "image/jpeg"], "policyCount": 8},
+  "graphIntegrity": "PASS; supported generated package/custom rawSql/self-emission",
+  "readOnlyProductionPath": "c7b3938 -> ownership -> assessment -> text -> private_storage8626880; no fresh baseline replay; no execution/signing",
+  "realStorageFixture": {"schema": "learnly_storage_policy_verify", "canonicalChecks": 20, "scope": "Empty LIKE table clones + synthetic identities, BEGIN/ROLLBACK; no Storage HTTP", "checks": ["private bucket/MIME/size metadata", "legacy app ID/auth UID ownership", "owner upload/read/delete", "immutable update/upsert denied", "foreign session/prefix and malformed key/extension denied", "anonymous/cross-user read-write-delete isolation even with broad true policies", "completed session read/compensation delete allowed; new upload denied", "other bucket policies preserved"], "result": "PASS", "fixtureRemoved": true},
+  "freshBaselinePlusStorage": {"migrations": 2, "sqlSteps": 78, "canonicalChecks": 146, "result": "PASS", "fixtureRemoved": true, "actualPrismaExecutorVerified": false},
+  "filePersistenceWithBucket": {"adapterSql": "PASS in separate rollback clone; bucket persisted with original key/hash/page metadata", "fixtureRemoved": true, "authPrismaTransport": "not actual"},
+  "failuresPreserved": ["Same-hash scaffold not selected by db migrate --show; replaced with real additive metadata edge", "Explicit emitted target hash not yet in graph; use documented emitted-contract destination", "Verifier parameter schema mapping omitted public; fixed without production writes", "Anonymous shared guard evaluated joins without app-table SELECT rights (42501); split anonymous ALL guard without joins", "Historical verifier tip safety gate rejected new migration; reviewed tip and remapped Storage clones before current fresh-chain execution"],
+  "postAudit": {"productionBucketCount": 0, "productionStoragePolicyCount": 0, "storageFixtureRemoved": true, "fileFixtureRemoved": true},
+  "notVerified": ["Actual private bucket/policies created", "Storage REST MIME/size enforcement", "Actual upload/download/delete/JWT isolation", "PDF/image decoding/OCR", "Durable ambiguous-upload reconciliation", "Prisma production executor/marker and deployment"],
+  "additionalPaidCalls": 0
+}

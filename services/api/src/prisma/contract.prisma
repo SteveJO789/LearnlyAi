@@ -85,6 +85,7 @@ model SourceMaterial {
   type              SourceMaterialType
   status            SourceMaterialStatus
   storageKey        String?
+  storageBucket     String?
   normalizedText    String?
   contentHash       String
   mimeType          String

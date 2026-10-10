@@ -16,6 +16,7 @@ export class PrivateMaterialStorage {
   private readonly headers: Record<string,string>;
   private readonly authUserId: string;
   private readonly fetchImpl: typeof fetch;
+  get bucketId(): string { return this.bucket; }
   constructor(options: { url: string; bucket: string; publishableKey: string; token: string; authUserId: string; fetchImpl?: typeof fetch }) {
     const url = new URL(options.url);
     if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash || url.pathname !== "/" ||

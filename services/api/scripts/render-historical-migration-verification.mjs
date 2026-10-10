@@ -4,11 +4,11 @@ import { resolve } from 'node:path';
 const schema='learnly_history_verify';
 const quoteSchema='"'+schema+'"';
 const root=new URL('../migrations/app/',import.meta.url);
-const tip='d17a8bc493eb8d240a7a2d0c664b00ec49f5823963634f78f5385a01bd26b397';
+const tip='8626880030fb102dc56e134c700a5361c4189fc778f9fa79a0f825dd9c677bc8';
 const mode=process.argv.find(arg=>arg.startsWith('--path='))?.slice(7)??'legacy';
 if(!['legacy','fresh'].includes(mode)) throw new Error('Choose legacy or fresh explicitly.');
 const migrations=readdirSync(root).filter(name=>!['refs','snapshots'].includes(name)&&
-  (mode==='fresh'?name==='20261010T0331_fresh_supabase_mvp_baseline':!name.endsWith('_fresh_supabase_mvp_baseline'))).sort().map(name=>({name,
+  (mode==='fresh'?['20261010T0331_fresh_supabase_mvp_baseline','20261010T0752_private_material_storage'].includes(name):!name.endsWith('_fresh_supabase_mvp_baseline'))).sort().map(name=>({name,
   manifest:JSON.parse(readFileSync(new URL(name+'/migration.json',root),'utf8')),
   operations:JSON.parse(readFileSync(new URL(name+'/ops.json',root),'utf8'))}));
 let previous=null;
@@ -20,13 +20,14 @@ if(previous!==tip) throw new Error('Review the new migration tip before updating
 const literal=value=>value===null?'NULL':typeof value==='boolean'?(value?'TRUE':'FALSE'):
   typeof value==='number'&&Number.isFinite(value)?String(value):typeof value==='string'?"'"+value.replaceAll("'","''")+"'":(()=>{throw new Error('Unexpected migration parameter');})();
 function scoped(step){
-  let sql=step.sql.replaceAll('"auth"."users"',quoteSchema+'."FixtureAuthUsers"').replaceAll('"public"',quoteSchema).replace(/\bpublic\./gu,quoteSchema+'.');
+  let sql=step.sql.replaceAll('"auth"."users"',quoteSchema+'."FixtureAuthUsers"').replaceAll('"public"',quoteSchema).replace(/\bpublic\./gu,quoteSchema+'.')
+    .replaceAll('storage.objects',quoteSchema+'."FixtureStorageObjects"').replaceAll('storage.buckets',quoteSchema+'."FixtureStorageBuckets"');
   sql=sql.replace(/\$(\d+)/g,(_,number)=>{
     const index=Number(number)-1;if(!step.params||index>=step.params.length) throw new Error('Missing SQL parameter');
     const value=step.params[index];
-    return literal(value==='public'?schema:typeof value==='string'?value.replaceAll('"public"',quoteSchema).replaceAll('"auth"."users"',quoteSchema+'."FixtureAuthUsers"'):value);
+    return literal(['public','storage'].includes(value)?schema:value==='objects'?'FixtureStorageObjects':value==='buckets'?'FixtureStorageBuckets':typeof value==='string'?value.replaceAll('"public"',quoteSchema).replaceAll('"auth"."users"',quoteSchema+'."FixtureAuthUsers"'):value);
   });
-  if(/(?:"public"\.|\bpublic\.|"auth"\."users"|\bauth\.users|\b(?:CREATE|ALTER|DROP)\s+ROLE\b|\bGRANT\s+authenticated\s+TO\b)/iu.test(sql)) throw new Error('Unscoped migration statement: '+sql.slice(0,200));
+  if(/(?:"public"\.|\bpublic\.|"auth"\."users"|\bauth\.users|\bstorage\.(?:objects|buckets)|\b(?:CREATE|ALTER|DROP)\s+ROLE\b|\bGRANT\s+authenticated\s+TO\b)/iu.test(sql)) throw new Error('Unscoped migration statement: '+sql.slice(0,200));
   return sql.trim().replace(/;$/u,'');
 }
 function assertion(query,label){
@@ -37,6 +38,10 @@ const out=['BEGIN;',"SET LOCAL statement_timeout='10s';",assertion(`SELECT to_re
 let steps=0,checks=0,externalRoleDependencies=0;
 for(const migration of migrations){
   out.push('-- '+migration.name);
+  if(migration.name==='20261010T0752_private_material_storage') out.push(`
+CREATE TABLE ${quoteSchema}."FixtureStorageBuckets" (LIKE storage.buckets INCLUDING ALL);
+CREATE TABLE ${quoteSchema}."FixtureStorageObjects" (LIKE storage.objects INCLUDING ALL);
+ALTER TABLE ${quoteSchema}."FixtureStorageObjects" ENABLE ROW LEVEL SECURITY;`);
   if(migration.name==='20261007T0529_auth_user_foundation') out.push(`
 CREATE TABLE ${quoteSchema}."FixtureAuthUsers" (id uuid PRIMARY KEY,email text);
 INSERT INTO ${quoteSchema}."FixtureAuthUsers" VALUES

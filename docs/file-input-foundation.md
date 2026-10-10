@@ -10,6 +10,8 @@
 
 ก่อนเชื่อม runtime ต้องมี private bucket กับ MIME/size limits และ Storage RLS ที่ผูก bucket + Auth UID prefix + session ownership ผ่าน User.authUserId ให้ SELECT/INSERT/DELETE ตามจริง ไม่ให้ UPDATE/upsert ต้องทดสอบ cross-user read/write/delete จริง ขณะนี้ยังไม่ได้สร้าง bucket/policies หรืออัปโหลดข้อมูลใน production
 
+เตรียมcanonicalmigrationสำหรับprivatebucket/policiesและnullableSourceMaterial.storageBucketแล้ว ทดสอบactualrollbackclonesผ่าน20canonicalchecks/ownership/anon/cross-user/immutability/cleanup/other-bucketcases พร้อมfreshbaseline+delta78steps/146checks ไม่มีactualbucket/policiesสร้างหรือStorageHTTPupload [รายละเอียด](private-material-storage.md) ข้อมูลfileใหม่persistbucketคู่keyเพื่อไม่เสียlinkเมื่อconfigurationเปลี่ยน; TEXT/legacyยังnullable
+
 `FileIngestion` ตรวจ owned active session ก่อน extraction, ใช้ byte snapshot/hash, รับผลจาก extractor port ที่ต้อง decode จริงและ honor deadline, normalize NFC/LF ไม่ตัดข้อความที่เกิน 8000 characters, จำกัด 10 หน้า PDF มี page numbers จริงตามลำดับ และ IMAGE ใช้ page=null การผ่าน header fixture ไม่มีสิทธิ์ทำ READY หาก real extractor ยังไม่ทำงาน ไม่มี default/Mock extractor ใน service
 
 `PrismaFileMaterials` ผูก application User primary key ที่ resolve จาก verified Auth UID, ใช้ transaction-local API-write context และล็อก owned active session ก่อน insert SourceMaterial READY/metadata/text/private storage key และ PRE_TEST gate ใน transaction เดียว ทุกไฟล์เป็น LEARNER_INPUT/reviewed=false; binary content hash แยกจาก normalized-text hash

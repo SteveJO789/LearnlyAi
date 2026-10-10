@@ -239,6 +239,15 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - API**272/272**, compile, persistent simulated11/11 ผ่าน Newpaidembeddings6calls; originalgoalรวม54calls reported**US$0.02963331572**/reserved**US$0.6515484** จากUS$1 [หลักฐาน](evidence/mvp-live-embedding-verification.json)
 - Actualproduction ingestion/contract/runtimewiring ยังpending pgvectorpack/npmrepair approval ไม่claimMVPcomplete; next implementationคือcanonical vector persistenceและrealPDF/OCRเมื่อdependenciesติดตั้งได้
 
+### Milestone 14 — canonicalprivateStorage policiesและfilebucketmetadata
+
+- Read-only auditพบactualbucket/policiesยัง0 เตรียมprivatelearnly-materials3MiB/PDF-PNG-JPEGและ8RLS policiesจากPrisma-generatedd17→8626880 additive edge เพิ่มnullableSourceMaterial.storageBucket; same-hashcustomedgeไม่ถูกเลือกจึงไม่ใช้
+- Persistbucketคู่keyในfilePrisma transaction, internalfieldsไม่ออกresponse ExistingTEXT/legacynullableไม่ถูกrewrite ยังไม่applypublic/storageจริง
+- Actualemptyclones/rollbackผ่าน20canonicalchecks + ownership/anon/cross-user/update/upsert/key/closed-sessioncleanup/other-bucketcases แม้มีbroadtruepolicies เก็บ42501anon-joinfailureแล้วแก้เป็นseparateguardไม่grantapptablesให้anon
+- Freshbaseline+storage packageผ่าน**78SQLsteps/146canonicalchecks**, filebucketSQLfixtureผ่าน fixture_removed=trueทั้งหมด Productionpost-auditยัง0bucket/0policies ไม่ใช่actualStorageHTTP/Prismaexecutor/PDFOCRproof [หลักฐาน](evidence/mvp-private-storage-verification.json)
+- FullAPI273/274failที่historical-tipguardครั้งแรก; updateverifierหลังreviewและStoragewrite-remappingแล้ว**274/274PASS**, integration11/11, compile/migrationintegrityPASS ไม่มีpaidcallsเพิ่ม
+- Next: realextractor/dependencies, authorizedprivatebucket/runtimewiring andrealAuthStorageE2E/reconciliation Canonicalcurrenttip8626880; actualproductionmarkerc7และAPIdeploy/npmrepair blockersยังคงอยู่
+
 - เพิ่ม header/MIME/size/hash/filename checks และ PNG dimension cap; ไม่อ้างว่าตรวจ full file content/extraction แล้ว
 - เพิ่ม real user-JWT private Storage transport (HTTPS/no redirect/no upsert, owned prefix, immutable verified bytes, safe errors); runtime ยังไม่ wired และ private bucket/RLS ยังไม่ created/verified
 - Targeted tests5/5, API compile และ full offline API249/249 PASS; HTTP transport injected ไม่ใช่ actual Storage upload proof

@@ -6,6 +6,8 @@
 
 หลักฐานใหม่หลังรายงานฐานเดิม: API**272/272**/compile และpersistent simulated11/11 PASS Actual OpenRouter embeddings1536 + pgvectorTEMP query ผ่าน8regressioncasesหลังพบnative-model mismatch/role42501/falsepositive2casesและแก้จากหลักฐานจริง ปรับembeddinginputให้มีreviewed title/topicและexactinputhash Newembeddingrequests6calls รวมเดิม54calls reportedUS$0.02963331572/reservedUS$0.6515484 จากUS$1 ไม่มีbudgetreset/retry/fallback [รายละเอียดและlimits](evidence/mvp-live-embedding-verification.json) Canonicalpersistentindex/runtimeและPDF/OCRยังไม่ครบ
 
+PrivateStorage milestoneล่าสุด: **API274/274**, integration11/11/compile/migrationintegrityPASS currentcanonicaltip**8626880** เพิ่มnullableSourceMaterial.storageBucketและpreparedprivatebucket8policies Actualrollbackfixture20checks/RLS casesและfreshbaseline+delta**78steps/146checksPASS**, fixture_removed=true Productionauditยัง0bucket/0policies ไม่มีactualStorageHTTP/productionapply [หลักฐาน](evidence/mvp-private-storage-verification.json) ไม่เพิ่มpaidcallsและไม่เปลี่ยนCDpolicy
+
 ## ฟีเจอร์และ issue evidence
 
 | ฟีเจอร์ / issue | Implementation และหลักฐาน | สิ่งที่ยังขาด |
@@ -39,7 +41,7 @@ File serviceไม่มี default/Mock extractorถูก wire เข้า ru
 
 | การตรวจ | ผลล่าสุดและขอบเขต |
 |---|---|
-| API compile/offline suite | **272/272 PASS**; Mock/injected transports ไม่มี paid model callsในCI |
+| API compile/offline suite | **274/274 PASS**; Mock/injected transports ไม่มี paid model callsในCI |
 | File orchestration | **7/7 PASS**; injected extractor/Storage/DB ไม่ใช่ decoding/live upload proof |
 | Vector retrieval | **8/8 PASS**; review/hash/embedding-input/provenance/intent gates และ parameter binding |
 | OCR artifact integrity | **4/4 PASS**; actual official download/offline verificationแยกจากunit tests |
@@ -71,7 +73,7 @@ Live OpenRouterรวม54calls (Tutor48/embeddings6) reported **US$0.0296333157
 - Ownership/material/recovery/vector/file SQLตรวจในempty clones/BEGIN-ROLLBACK, fixture_removed=true ไม่copy/แก้production learner rows File/vector SQLมาจากcompiled adaptersแต่executeผ่านSupabase MCP ไม่ใช่actual Auth→Prisma transport proof
 - Real file SQLพบnonexistent enum cast42704ที่compile/unit/CIไม่จับ: canonical SourceMaterial type/statusเก็บpg/text แก้bound parameterแล้ว SQL/RLS/metadata/legacy owner/PRE gate/failed-update atomic rollback/cross-user/FKผ่าน อีกfailureเป็นverifier json=jsonb mismatch เก็บทั้งสองไว้ในevidence
 - Historical graph integrityไม่เท่ากับphysical replay พบmissing-policy failureจริง เก็บold hashesและเพิ่มfresh @empty baseline ผ่าน68steps/126checks Databaseเดิมต้องเดินจากverified actual marker ไม่replay baseline/old destructive cleanup
-- Production read-only Prisma verifyไม่ผ่าน: exit4/verificationOk=false/hash mismatch, marker storageHash=c7b3938544e5e74ca8b9f22476cc7dbb3d987938d552a6e2214b5edd941b8665 ก่อนcurrentd17a8bc Assessmentยังขาดtopic/snapshot/submissionHash/write-policy deltas ไม่apply/sign public production schema
+- Production read-only Prisma verifyไม่ผ่าน: exit4/verificationOk=false/hash mismatch, marker storageHash=c7b3938544e5e74ca8b9f22476cc7dbb3d987938d552a6e2214b5edd941b8665 ก่อนcurrent8626880 Assessmentยังขาดtopic/snapshot/submissionHash/write-policy deltasและprivateStorage packageยังไม่apply ไม่sign public production schema
 - Default/deployed devAI routesปิด, Auth/readinessมีbounded deadlines, loggingใช้safe request ID/phase และJWT ownership/RLS/API-write guards ReadinessตรวจDB SELECT1/reviewed Knowledge/Auth configurationเท่านั้น ไม่ตรวจschema migration/OAuth/model availability
 - Actual Storage RLS/cross-user upload-download-delete, full file decoding/worker bounds และfull browser security journeyยังไม่verified จึงยังไม่ผ่านrelease security gate
 

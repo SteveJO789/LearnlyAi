@@ -17,6 +17,7 @@ export interface FileTextExtractor {
 export interface PreparedFileMaterial {
   readonly id: string;
   readonly storageKey: string;
+  readonly storageBucket: string;
   readonly file: FileEnvelope;
   readonly normalizedText: string;
   readonly normalizedHash: string;
@@ -28,6 +29,7 @@ export interface FileMaterialStore {
   save(sessionId: string, material: PreparedFileMaterial): Promise<void>;
 }
 export interface FileObjectStorage {
+  readonly bucketId: string;
   upload(key: string, bytes: Uint8Array, file: FileEnvelope): Promise<void>;
   remove(key: string): Promise<void>;
 }
@@ -85,7 +87,7 @@ export class FileIngestion {
     if (createHash("sha256").update(snapshot).digest("hex") !== file.contentHash) throw new ApiError("INVALID_FILE", 400, "File changed during extraction.");
     await this.storage.upload(storageKey, snapshot, file);
     try {
-      await this.store.save(sessionId, Object.freeze({ id, storageKey, file, ...normalized }));
+      await this.store.save(sessionId, Object.freeze({ id, storageKey, storageBucket: this.storage.bucketId, file, ...normalized }));
     } catch (error) {
       // Compensate only a confirmed successful upload. Ambiguous transport outcomes need reconciliation.
       try { await this.storage.remove(storageKey); }

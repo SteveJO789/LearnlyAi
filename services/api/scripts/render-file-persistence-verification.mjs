@@ -6,6 +6,7 @@ import { normalizeFileExtraction } from '../dist/modules/input/file-ingestion.js
 import { inspectFileEnvelope } from '../dist/modules/input/file-envelope.js';
 import contract from '../src/prisma/contract.json' with {type:'json'};
 import materialOps from '../migrations/app/20261009T1524_text_material_pipeline/ops.json' with {type:'json'};
+import storageOps from '../migrations/app/20261010T0752_private_material_storage/ops.json' with {type:'json'};
 const output=process.argv.find(value=>value.startsWith('--output='))?.slice(9);
 if(!output)throw Error('Explicit --output= is required; this command only renders SQL.');
 const schema='learnly_file_material_verify',tables=['User','LearningSession','SourceMaterial'];
@@ -28,7 +29,7 @@ async function saveQueries(sessionId,id,type){
   const actualFile=type==='PDF'?file:{...file,type:'IMAGE',mimeType:'image/png',extension:'png',filename:'fixture.png'};
   const extracted=normalizeFileExtraction(type==='PDF'?{method:'PDF_TEXT',confidence:null,pages:[{page:1,text:'สูตร x²\nV = IR'},{page:2,text:''}]}:
     {method:'OCR',confidence:85,pages:[{page:null,text:'โจทย์ x²'}]},actualFile);
-  await store.save(sessionId,{id,storageKey:`${auth}/${sessionId}/${id}.${actualFile.extension}`,file:actualFile,...extracted});
+  await store.save(sessionId,{id,storageKey:`${auth}/${sessionId}/${id}.${actualFile.extension}`,storageBucket:'learnly-materials',file:actualFile,...extracted});
   return captured.map(render);
 }
 await store.assertActiveOwnedSession('file-fixture');const activeQuery=render(captured[0]);
@@ -41,6 +42,7 @@ const statements=['BEGIN;',"SET LOCAL statement_timeout='10s';",
   `CREATE SCHEMA ${q(schema)};`,`SET LOCAL search_path=${q(schema)},public;`,`GRANT USAGE ON SCHEMA ${q(schema)} TO authenticated;`];
 for(const table of tables)statements.push(`CREATE TABLE ${q(schema)}.${q(table)} (LIKE public.${q(table)} INCLUDING ALL);`,
   `ALTER TABLE ${q(schema)}.${q(table)} ENABLE ROW LEVEL SECURITY;`,`GRANT SELECT ON ${q(schema)}.${q(table)} TO authenticated;`);
+for(const op of storageOps.filter(op=>op.id==='column.public.SourceMaterial.storageBucket'))for(const step of op.execute)statements.push(rewrite(step.sql)+';');
 statements.push(`ALTER TABLE ${q(schema)}."LearningSession" ADD FOREIGN KEY ("userId") REFERENCES ${q(schema)}."User"("id");`,
   `ALTER TABLE ${q(schema)}."SourceMaterial" ADD FOREIGN KEY ("learningSessionId") REFERENCES ${q(schema)}."LearningSession"("id");`,
   `GRANT UPDATE ON ${q(schema)}."LearningSession" TO authenticated;`);
@@ -79,7 +81,7 @@ statements.push(`DO $$ DECLARE n int; BEGIN
    ((id='pdf-material' AND type='PDF' AND metadata->'extraction'->'pages'->1->>'page'='2') OR
     (id='image-material' AND type='IMAGE' AND (metadata->'extraction'->'pages'->0->'page')::jsonb='null'::jsonb))
    AND metadata->>'origin'='LEARNER_INPUT' AND metadata->>'reviewed'='false'
-   AND "storageKey" LIKE '${auth}/file-fixture/%' AND "contentHash"<>metadata->>'normalizedHash';
+   AND "storageKey" LIKE '${auth}/file-fixture/%' AND "storageBucket"='learnly-materials' AND "contentHash"<>metadata->>'normalizedHash';
  IF n<>2 THEN RAISE EXCEPTION 'Binary/normalized hash or page/type/provenance metadata failed'; END IF;
  SELECT count(*) INTO n FROM ${q(schema)}."LearningSession" WHERE id='file-fixture' AND state='PRE_TEST' AND stage='EXPLAIN' AND version=0 AND "progressPercent"=0;
  IF n<>1 THEN RAISE EXCEPTION 'PRE gate changed engine-owned progress'; END IF;
