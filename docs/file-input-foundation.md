@@ -18,6 +18,8 @@
 
 ใหม่: orchestration/Prisma SQL-binding tests 7/7, compile PASS ใช้ injected extraction/storage/database ใน CI พิสูจน์ลำดับ ownership, mutation/error redaction, page/text limits, transaction lock และ compensation เท่านั้น ไม่ใช่ PDF/OCR/live Storage/PostgreSQL file persistence proof
 
+ตรวจฐานข้อมูลจริงเพิ่มเติม: พบ enum cast ที่ compile/unit tests ไม่จับ เพราะ Prisma enum ใช้ pg/text และไม่มี public.SourceMaterialType จริง แก้เป็น bound text parameter ตาม canonical contract โดยไม่แก้ฐานข้อมูล Actual adapter SQL + canonical RLS ใน empty clones ภายใน BEGIN/ROLLBACK ผ่าน legacy ownership, direct API-context guard, PDF/IMAGE metadata, PRE gate, failed-update atomic rollback, cross-user isolation และ FK; fixture_removed=true [หลักฐาน](evidence/mvp-file-persistence-rls-verification.json). ใช้ synthetic claims และ injected decoder/Storage จึงไม่ใช่ real Auth→Prisma/file decoding/Storage proof
+
 งานถัดไป: real extraction/OCR หลังซ่อม npm ได้, private Storage setup ที่ผ่าน review, ทดสอบ actual SourceMaterial persistence/compensation/RLS, reconciliation, authenticated upload/download APIs และ frontend input/history ไม่มีการเริ่ม daemon หรือบริการเพิ่ม
 
 หลักฐานล่าสุด: targeted checks/transport tests 5/5 และ API compile ผ่าน ใช้ injected HTTP response ใน CI จึงไม่แทน live Storage/RLS proof ดู [upload behavior](https://supabase.com/docs/guides/storage/uploads/standard-uploads) และ [access control](https://supabase.com/docs/guides/storage/security/access-control) ที่ตรวจล่าสุด 2026-10-10

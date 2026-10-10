@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-10",
+  "status": "ADAPTER_SQL_AND_CANONICAL_FIXTURE_RLS_VERIFIED",
+  "originalFailure": {"code": "42704", "cause": "PrismaFileMaterials cast to nonexistent public.SourceMaterialType", "evidence": "Real SQL execution failed before file insert; generated contract and read-only information_schema inspection both show type/status use pg/text storage", "fixedBy": "Bind material.file.type directly to the existing text column; no enum cast or database schema change"},
+  "verificationScriptFailure": {"code": "42883", "cause": "Fixture metadata comparison used json = jsonb", "fixedBy": "Cast the compared JSON page value to jsonb only in verification assertion"},
+  "apiCompile": "PASS",
+  "offlineApi": {"passed": 262, "failed": 0},
+  "realPostgres": {
+    "project": "LearnlyAI",
+    "schema": "learnly_file_material_verify",
+    "transaction": "BEGIN/ROLLBACK; 10 second per-statement timeout; collision assertion",
+    "tables": "Empty LIKE public clones of User, LearningSession and SourceMaterial; no production rows copied",
+    "policies": "Canonical contract SELECT/UPDATE and restrictive API-write guards plus source_material migration operations",
+    "identities": "Two synthetic JWT claims; legacy application owner ID differs from Auth UID; no real Auth accounts created",
+    "assertions": ["legacy owned active session is visible; completed session is not active", "direct file insert without API-write context is denied", "PDF and IMAGE file rows preserve private key, binary/normalized hashes and page/provenance metadata", "PRE_TEST gate leaves engine stage/version/progress unchanged", "injected failed session update atomically rolls back material insert", "cross-user read/active-session lookup/insert denied", "missing session rejected by fixture foreign key"],
+    "result": "PASS",
+    "fixtureRemoved": true,
+    "publicSchemaOrUserDataChanged": false
+  },
+  "queryScope": "SQL captured by executing compiled PrismaFileMaterials with an injected SQL builder, then run by Supabase MCP. Actual Prisma transport/JWT verification was not executed in this fixture.",
+  "ciBeforeFix": {"run": 177, "head": "e4fb73e359def14b799f52e1f6780e821421cdf0", "conclusion": "success", "url": "https://github.com/SteveJO789/LearnlyAi/actions/runs/38029551750"},
+  "notVerified": ["actual PDF decoder/OCR", "actual Storage upload/RLS/compensation", "actual Auth-to-Prisma file persistence", "production material policies/migration", "file UI/browser journey", "durable ambiguous-upload reconciliation"],
+  "additionalPaidCalls": 0
+}
