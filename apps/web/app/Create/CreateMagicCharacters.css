@@ -15,7 +15,7 @@
   transform-origin: bottom center;
 }
 .wizard-hat {
-  position: absolute; z-index: 4; left: 2px; top: -18px; width: 100px; height: 96px;
+  position: absolute; z-index: 4; left: 2px; top: -34px; width: 100px; height: 96px;
   background: linear-gradient(135deg,#9c85ff 5%,#6b55ce 70%,#4d3aab);
   clip-path: polygon(50% 0, 70% 62%, 100% 84%, 4% 88%, 30% 69%);
   border-radius: 15px;
