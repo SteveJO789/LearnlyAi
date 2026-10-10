@@ -38,7 +38,7 @@ function HomeFeatures({ t }: { t: (key: string) => string }) {
           ))}
         </div>
       </section>
-      <section className="mb-8 rounded-3xl hello-gradient bg-gradient-to-r from-pink-500 via-violet-500 to-sky-500 px-6 py-10 text-white sm:px-12 sm:py-14 shadow-xl">
+      <section className="mt-12 mb-8 rounded-3xl hello-gradient bg-gradient-to-r from-pink-500 via-violet-500 to-sky-500 px-6 py-10 text-white sm:px-12 sm:py-14 shadow-xl">
         <h2 className="text-3xl font-bold sm:text-4xl">{t("home.ctaTitle")}</h2>
         <p className="mt-3 max-w-2xl leading-relaxed text-white/90">{t("home.ctaBody")}</p>
         <Link href="/Create" className="mt-6 inline-flex rounded-xl bg-white px-6 py-4 font-semibold text-slate-900 transition hover:opacity-90">{t("home.start")} →</Link>
