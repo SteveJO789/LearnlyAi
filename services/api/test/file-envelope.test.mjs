@@ -47,3 +47,33 @@ test('storage failures redact upstream content and invalid origins cannot receiv
   const storage=new PrivateMaterialStorage({...options,url:'https://fixture.supabase.co',fetchImpl:async()=>Response.json({error:'fixture-token personal data'},{status:403})});
   await assert.rejects(storage.remove(materialStorageKey(actor,'s','m','pdf')),error=>error.code==='STORAGE_UNAVAILABLE'&&!error.message.includes('fixture-token'));
 });
+
+test('recovery streams authenticated original bytes and checks exact MIME, size and SHA256 before accepting a stored object',async()=>{
+  const calls=[],file=inspectFileEnvelope(pdf,'application/pdf','x.pdf'),key=materialStorageKey(actor,'s','m','pdf');
+  const options={url:'https://fixture.supabase.co',bucket:'learnly-materials',publishableKey:'public',token:'fixture-token',authUserId:actor};
+  const storage=new PrivateMaterialStorage({...options,fetchImpl:async(url,init)=>{calls.push({url,init});
+    return new Response(pdf,{headers:{'content-type':'application/pdf; charset=binary'}});}});
+  await storage.verify(key,file);
+  assert.equal(calls[0].url,`https://fixture.supabase.co/storage/v1/object/authenticated/learnly-materials/${key}`);
+  assert.equal(calls[0].init.method,'GET');assert.equal(calls[0].init.headers.Authorization,'Bearer fixture-token');
+  assert.equal(calls[0].init.redirect,'error');assert.ok(calls[0].init.signal instanceof AbortSignal);
+  const changed=Buffer.from(pdf);changed[10]^=1;
+  for(const body of [changed,pdf.subarray(0,pdf.length-1),Buffer.concat([pdf,Buffer.from('extra')])]){
+    const bad=new PrivateMaterialStorage({...options,fetchImpl:async()=>new Response(body,{headers:{'content-type':'application/pdf'}})});
+    await assert.rejects(bad.verify(key,file),e=>e.code==='FILE_INTEGRITY_ERROR');
+  }
+  const wrongMime=new PrivateMaterialStorage({...options,fetchImpl:async()=>new Response(pdf,{headers:{'content-type':'image/png'}})});
+  await assert.rejects(wrongMime.verify(key,file),e=>e.code==='FILE_INTEGRITY_ERROR');
+  const hidden=new PrivateMaterialStorage({...options,fetchImpl:async()=>new Response('private token filename',{status:404})});
+  await assert.rejects(hidden.verify(key,file),e=>e.code==='STORAGE_UNAVAILABLE'&&!/token|filename/.test(e.message));
+  await assert.rejects(storage.verify(`${other}/s/m.pdf`,file),e=>e.status===403);assert.equal(calls.length,1);
+});
+
+test('oversized stored stream is stopped and released without buffering the rest of the file',async()=>{
+  let cancelled=false;
+  const stream=new ReadableStream({start(controller){controller.enqueue(new Uint8Array(MAX_FILE_BYTES+1));},cancel(){cancelled=true;}});
+  const storage=new PrivateMaterialStorage({url:'https://fixture.supabase.co',bucket:'learnly-materials',publishableKey:'public',token:'token',authUserId:actor,
+    fetchImpl:async()=>new Response(stream,{headers:{'content-type':'application/pdf'}})});
+  await assert.rejects(storage.verify(materialStorageKey(actor,'s','m','pdf'),inspectFileEnvelope(pdf,'application/pdf','x.pdf')),e=>e.code==='FILE_INTEGRITY_ERROR');
+  assert.equal(cancelled,true);
+});

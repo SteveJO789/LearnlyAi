@@ -166,6 +166,24 @@ model AssessmentAnswer {
   @@rls
 }
 
+enum FileUploadState {
+  PENDING
+  CANCELLED
+}
+
+// Durable upload intent; never a READY learning material or reviewed Knowledge.
+model FileUpload {
+  id                String          @id
+  learningSessionId String
+  state             FileUploadState
+  material          Json
+  createdAt         TimestamptzString @default(now())
+
+  learningSession LearningSession @relation(fields: [learningSessionId], references: [id])
+  @@index([learningSessionId, createdAt])
+  @@rls
+}
+
 model LearningProfile {
   userId     String @id
   mastery    Json
@@ -351,4 +369,38 @@ policy_insert source_material_insert_api_own {
   target = SourceMaterial
   roles = [authenticated]
   withCheck = "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+}
+
+policy_select file_upload_select_own {
+  target = FileUpload
+  roles = [authenticated]
+  using = "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+}
+
+policy_insert file_upload_insert_api_own {
+  target = FileUpload
+  roles = [authenticated]
+  withCheck = "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND s.\"lifecycleState\" = 'ACTIVE' AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+}
+
+policy_update file_upload_update_api_own {
+  target = FileUpload
+  roles = [authenticated]
+  using = "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+  withCheck = "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+}
+
+policy_insert file_upload_insert_guard {
+  target = FileUpload
+  roles = [authenticated]
+  permissive = false
+  withCheck = "(current_setting('learnly.api_write', true) = '1')"
+}
+
+policy_update file_upload_update_guard {
+  target = FileUpload
+  roles = [authenticated]
+  permissive = false
+  using = "(current_setting('learnly.api_write', true) = '1')"
+  withCheck = "(current_setting('learnly.api_write', true) = '1')"
 }

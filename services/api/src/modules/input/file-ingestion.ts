@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { ApiError } from "../../shared/api-error.js";
-import { inspectFileEnvelope, type FileEnvelope } from "./file-envelope.js";
+import { inspectFileEnvelope, MAX_FILE_BYTES, type FileEnvelope } from "./file-envelope.js";
 import { materialStorageKey } from "./private-material-storage.js";
 import { normalizeTextMaterial } from "./text-materials.js";
 
@@ -25,6 +25,10 @@ export interface PreparedFileMaterial {
 }
 export interface FileMaterialStore {
   assertActiveOwnedSession(sessionId: string): Promise<void>;
+  reserve(sessionId: string, material: PreparedFileMaterial): Promise<void>;
+  load(sessionId: string, materialId: string): Promise<{ state: "PENDING" | "CANCELLED"; material: PreparedFileMaterial }>;
+  /** Commit cancellation under the same parent lock used by save. Never cancel a READY receipt. */
+  cancel(sessionId: string, material: PreparedFileMaterial): Promise<"CANCELLED" | "SAVED" | "UNKNOWN">;
   /** Recheck active ownership in the INSERT transaction; do not trust the earlier read. */
   save(sessionId: string, material: PreparedFileMaterial): Promise<void>;
   /** Serialize with save before determining absence. An unreadable/mismatched receipt is UNKNOWN. */
@@ -34,6 +38,31 @@ export interface FileObjectStorage {
   readonly bucketId: string;
   upload(key: string, bytes: Uint8Array, file: FileEnvelope): Promise<void>;
   remove(key: string): Promise<void>;
+  verify(key: string, file: FileEnvelope): Promise<void>;
+}
+
+/** A durable intent is internal input, never a trusted teaching source. Validate before network access. */
+export function validatePreparedFileMaterial(value: PreparedFileMaterial, sessionId: string, id: string, authUserId: string, bucket: string) {
+  const file = value?.file;
+  const mime = { pdf: "application/pdf", png: "image/png", jpg: "image/jpeg" } as const;
+  if (!file || !["pdf", "png", "jpg"].includes(file.extension) || mime[file.extension] !== file.mimeType ||
+    file.type !== (file.extension === "pdf" ? "PDF" : "IMAGE") || !Number.isInteger(file.sizeBytes) ||
+    file.sizeBytes < 1 || file.sizeBytes > MAX_FILE_BYTES || !/^[a-f0-9]{64}$/u.test(file.contentHash) ||
+    typeof file.filename !== "string" || !file.filename.trim() || file.filename.length > 128 || /[\u0000-\u001f\u007f/\\]/u.test(file.filename) ||
+    value.id !== id || value.storageBucket !== bucket || value.storageKey !== materialStorageKey(authUserId, sessionId, id, file.extension)) {
+    throw new ApiError("INVALID_UPLOAD_RECEIPT", 503, "The upload receipt could not be verified.");
+  }
+  const normalized = normalizeFileExtraction(value.extraction, file);
+  if (normalized.normalizedHash !== value.normalizedHash || normalized.normalizedText !== value.normalizedText) {
+    throw new ApiError("INVALID_UPLOAD_RECEIPT", 503, "The upload receipt could not be verified.");
+  }
+  return Object.freeze({ id, storageKey: value.storageKey, storageBucket: bucket, file: Object.freeze({ ...file }), ...normalized });
+}
+
+function readyResult(material: PreparedFileMaterial) {
+  return { id: material.id, materialId: material.id, type: material.file.type, status: "READY" as const,
+    normalizedText: material.normalizedText, contentHash: material.file.contentHash,
+    mimeType: material.file.mimeType, sizeBytes: material.file.sizeBytes };
 }
 
 export function normalizeFileExtraction(value: ExtractedFileText, file: FileEnvelope) {
@@ -84,11 +113,54 @@ export class FileIngestion {
       if (signal.aborted) throw new ApiError("FILE_PROCESSING_TIMEOUT", 504, "File processing took too long.");
       throw new ApiError("INVALID_FILE", 422, "The file could not be decoded or read.");
     }
+    if (signal.aborted) throw new ApiError("FILE_PROCESSING_TIMEOUT", 504, "File processing took too long.");
     const normalized = normalizeFileExtraction(result, file);
     // Extraction must not change the original binary file that is to be stored.
     if (createHash("sha256").update(snapshot).digest("hex") !== file.contentHash) throw new ApiError("INVALID_FILE", 400, "File changed during extraction.");
-    await this.storage.upload(storageKey, snapshot, file);
     const material = Object.freeze({ id, storageKey, storageBucket: this.storage.bucketId, file, ...normalized });
+    // No Storage mutation before a confirmed durable intent. A lost reservation response
+    // can leave an unused intent, but cannot leave an untracked object.
+    try { await this.store.reserve(sessionId, material); }
+    catch {
+      this.notify(id);
+      throw new ApiError("FILE_RECONCILIATION_REQUIRED", 503, "The upload preparation could not be confirmed. Please try again later.");
+    }
+    try { await this.storage.upload(storageKey, snapshot, file); }
+    catch (error) {
+      this.notify(id); // Keep the intent for a later exact-byte verification; never re-upload or blindly delete.
+      if (error instanceof ApiError) throw error;
+      throw new ApiError("STORAGE_UNAVAILABLE", 503, "Private file storage is temporarily unavailable.");
+    }
+    return this.persist(sessionId, material);
+  }
+
+  /** Explicit owner-triggered recovery, no background worker or automatic upload retry. */
+  async resume(sessionId: string, id: string) {
+    const receipt = await this.store.load(sessionId, id);
+    const material = validatePreparedFileMaterial(receipt.material, sessionId, id, this.authUserId, this.storage.bucketId);
+    if (receipt.state === "CANCELLED") {
+      await this.cleanup(material);
+      return { id, materialId: id, status: "CANCELLED" as const };
+    }
+    if (receipt.state !== "PENDING") throw new ApiError("INVALID_UPLOAD_RECEIPT", 503, "The upload receipt could not be verified.");
+    // A successful HTTP upload response is not required after restart. Exact bytes are.
+    await this.storage.verify(material.storageKey, material.file);
+    return this.persist(sessionId, material);
+  }
+
+  private notify(id: string) {
+    try { this.onCleanupFailure(id); } catch { /* Diagnostics must not disclose or replace the controlled error. */ }
+  }
+  private async cleanup(material: PreparedFileMaterial) {
+    try { await this.storage.remove(material.storageKey); }
+    catch {
+      this.notify(material.id);
+      throw new ApiError("FILE_CLEANUP_REQUIRED", 503, "The file could not be saved. Please try again later.");
+    }
+  }
+
+  private async persist(sessionId: string, material: PreparedFileMaterial) {
+    const { id } = material;
     try {
       await this.store.save(sessionId, material);
     } catch (error) {
@@ -97,19 +169,23 @@ export class FileIngestion {
       try { outcome = await this.store.resolveSave(sessionId, material); } catch { /* Keep the file on an unavailable receipt read. */ }
       if (outcome !== "SAVED") {
         if (outcome !== "NOT_SAVED") {
-          try { this.onCleanupFailure(id); } catch { /* Diagnostics must not replace the controlled failure. */ }
+          this.notify(id);
           throw new ApiError("FILE_RECONCILIATION_REQUIRED", 503, "The file save result could not be confirmed. Please try again later.");
         }
-        try { await this.storage.remove(storageKey); }
-        catch {
-          try { this.onCleanupFailure(id); } catch { /* Logging must not expose or replace a controlled failure. */ }
-          throw new ApiError("FILE_CLEANUP_REQUIRED", 503, "The file could not be saved. Please try again later.");
+        // Persist cancellation BEFORE deleting. Other resumers must observe cancellation
+        // under the parent lock, preventing a finalize-versus-delete race.
+        let cancelled: "CANCELLED" | "SAVED" | "UNKNOWN" = "UNKNOWN";
+        try { cancelled = await this.store.cancel(sessionId, material); } catch { /* A lost cancellation response is ambiguous. */ }
+        if (cancelled === "SAVED") return readyResult(material);
+        if (cancelled !== "CANCELLED") {
+          this.notify(id);
+          throw new ApiError("FILE_RECONCILIATION_REQUIRED", 503, "The file save result could not be confirmed. Please try again later.");
         }
+        await this.cleanup(material);
         if (error instanceof ApiError) throw error;
         throw new ApiError("MATERIAL_PERSISTENCE_UNAVAILABLE", 503, "The file could not be saved. Please try again later.");
       }
     }
-    return { id, materialId: id, type: file.type, status: "READY" as const, normalizedText: normalized.normalizedText,
-      contentHash: file.contentHash, mimeType: file.mimeType, sizeBytes: file.sizeBytes };
+    return readyResult(material);
   }
 }

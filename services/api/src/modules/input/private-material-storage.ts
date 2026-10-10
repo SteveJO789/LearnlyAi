@@ -50,6 +50,43 @@ export class PrivateMaterialStorage {
     this.ownedKey(key);
     await this.request(this.bucket, { method: "DELETE", headers: { ...this.headers, "content-type": "application/json" }, body: JSON.stringify({ prefixes: [key] }) });
   }
+  /** Authenticated download, streamed and hashed without retaining educational/file bytes. */
+  async verify(key: string, file: FileEnvelope): Promise<void> {
+    this.ownedKey(key);
+    if (!Number.isInteger(file.sizeBytes) || file.sizeBytes < 1 || file.sizeBytes > MAX_FILE_BYTES || !/^[a-f0-9]{64}$/u.test(file.contentHash)) {
+      throw new ApiError("INVALID_UPLOAD_RECEIPT", 503, "The upload receipt could not be verified.");
+    }
+    let response: Response | undefined;
+    const signal = AbortSignal.timeout(10000);
+    try {
+      response = await this.fetchImpl(this.base + "authenticated/" + this.bucket + "/" + key.split("/").map(encodeURIComponent).join("/"), {
+        method: "GET", headers: { ...this.headers, "cache-control": "no-cache" }, redirect: "error", signal,
+      });
+      if (!response.ok || !response.body) throw new Error("Storage receipt unavailable");
+      if (response.headers.get("content-type")?.split(";", 1)[0]?.trim().toLowerCase() !== file.mimeType) {
+        throw new ApiError("FILE_INTEGRITY_ERROR", 422, "The stored file does not match its upload receipt.");
+      }
+      const reader = response.body.getReader(), hash = createHash("sha256");
+      let length = 0;
+      try {
+        for (;;) {
+          const chunk = await reader.read();
+          if (chunk.done) break;
+          length += chunk.value.byteLength;
+          if (length > file.sizeBytes || length > MAX_FILE_BYTES || signal.aborted) {
+            throw new ApiError("FILE_INTEGRITY_ERROR", 422, "The stored file does not match its upload receipt.");
+          }
+          hash.update(chunk.value);
+        }
+      } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
+      if (signal.aborted || length !== file.sizeBytes || hash.digest("hex") !== file.contentHash) {
+        throw new ApiError("FILE_INTEGRITY_ERROR", 422, "The stored file does not match its upload receipt.");
+      }
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError("STORAGE_UNAVAILABLE", 503, "The stored file could not be verified. Please try again later.");
+    } finally { await response?.body?.cancel().catch(() => {}); }
+  }
   private async request(path: string, init: RequestInit): Promise<void> {
     try {
       const response = await this.fetchImpl(this.base + path, { ...init, redirect: "error", signal: AbortSignal.timeout(10000) });

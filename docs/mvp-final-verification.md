@@ -4,6 +4,8 @@
 
 งาน follow-up อยู่ใน [Draft PR #78](https://github.com/SteveJO789/LearnlyAi/pull/78) เริ่มจาก develop `5022c28` และรวมงานล่าสุดของทีม `875575f` แล้ว งานเดิมใน primary checkout/stash ยังอยู่ครบ ไม่มี auto-merge PR หรือ force push หลักฐาน local/fixture ด้านล่างไม่เท่ากับระบบที่ deploy จริง
 
+ล่าสุด: เพิ่ม durable FileUpload ก่อนส่ง bytesและexplicit resume หลังตรวจ authenticated stored bytes/hash Cancellation commitก่อนdeleteและsaveรับexactPENDINGเพื่อกันresurrection/race API **288/288**, file/Storage **26/26**, simulated persistent11/11/compile/migrationintegrityPASS Canonicaltip **26370da**, actual empty-clone journal/RLS/FK/state checksและfresh3packages **89steps/167checksPASS**, rollbackหมด Production FileUploadยังไม่สร้าง ไม่มี real PDF/OCR/Storage/Auth→Prisma/endpoint/UI proof [หลักฐาน](evidence/mvp-durable-file-upload-verification.json)
+
 ล่าสุดหลัง integration: API **278/278**, Web **20/20**/typecheck/production build PASS, Knowledge hotfix under Vercel-like parent env **4/4** และ fresh source-only API **278/278** + relocated runtime **4/4** PASS รักษา auth/brand/loading/mobile UI ของทีม CD เฉพาะ develop ไม่มี workflow diff GitHub deploy checks ของdevelop875575f ผ่าน Web/API แต่ไม่มี real runtime/browser smoke หรือ integration deployment [หลักฐาน](evidence/mvp-develop-integration-verification.json)
 
 หลักฐานใหม่หลังรายงานฐานเดิม: API**272/272**/compile และpersistent simulated11/11 PASS Actual OpenRouter embeddings1536 + pgvectorTEMP query ผ่าน8regressioncasesหลังพบnative-model mismatch/role42501/falsepositive2casesและแก้จากหลักฐานจริง ปรับembeddinginputให้มีreviewed title/topicและexactinputhash Newembeddingrequests6calls รวมเดิม54calls reportedUS$0.02963331572/reservedUS$0.6515484 จากUS$1 ไม่มีbudgetreset/retry/fallback [รายละเอียดและlimits](evidence/mvp-live-embedding-verification.json) Canonicalpersistentindex/runtimeและPDF/OCRยังไม่ครบ
@@ -23,7 +25,7 @@ File receipt milestone: แก้การลบไฟล์ผิดเมื�
 | Adaptive / #39 | 5 multi-turn offline scenarios; live5conversations/13turns ผ่าน structure/citation/engine gates; [numeric fixes](evidence/mvp-numeric-followup-verification.json) | educator review/broader topic-model coverage; generic hintsยังอาจสมมติโจทย์ |
 | Assessment / #13 | PRE/POST/TRANSFER, immutable snapshots, deterministic scoring/receipts, atomic answers/profile; [API→Prisma→DB6groups](evidence/mvp-assessment-db-verification.json) | broader exercise bank, public migrations และ real Auth/browser journey |
 | Profile/History / #16 | owned mastery/latest samples/paired scoresผ่านAPI; actual PRE/POST History; [frontend20/20/build](evidence/mvp-history-verification.json) | browser/mobile/keyboard QA |
-| Input / #15 | TEXT normalization/hash/persistence; file envelope/storage/coordinator/Prisma adapters; [real file SQL/RLS](evidence/mvp-file-persistence-rls-verification.json) | actual PDF/image decoding/OCR, private Storage/RLS, endpoints/UI, durable reconciliation |
+| Input / #15 | TEXT normalization/hash/persistence; file envelope/Storage/coordinator และ durable journal/resume/cancellation; [real journal SQL/RLS](evidence/mvp-durable-file-upload-verification.json) | actual PDF/image decoding/OCR, private Storage/Auth, endpoints/UI/retention และ real concurrent recovery |
 | OCR assets / #15 | official pinned eng/tha/LICENSE5,197,046bytes download/hash/offline verification; [artifact tests4/4](evidence/mvp-ocr-model-packaging-verification.json) | recognition/accuracy, worker limits, OCR build/runtime bundle และ deployed smoke |
 | Learning UI / #9 | Create→PRE→Chat→POST, structured blocks, stage/progress และ3interactive widgets | complete browser E2E และ uploads |
 | Database / #2 #3 | canonical migrations/grants/RLS เตรียมแล้ว; [fresh baseline68SQLsteps/126checks](evidence/mvp-fresh-baseline-verification.json) และ isolated ownership/rollback tests | actual Prisma executor/marker verification และ compatible production schema |
@@ -45,14 +47,14 @@ File serviceไม่มี default/Mock extractorถูก wire เข้า ru
 
 | การตรวจ | ผลล่าสุดและขอบเขต |
 |---|---|
-| API compile/offline suite | **278/278 PASS**; Mock/injected transports ไม่มี paid model callsในCI |
-| File orchestration | **11/11 PASS**; injected extractor/Storage/DB รวม ambiguous COMMIT recovery ไม่ใช่ decoding/live upload proof |
+| API compile/offline suite | **288/288 PASS**; Mock/injected transports ไม่มี paid model callsในCI |
+| File orchestration/Storage | **26/26 PASS**; injected extractor/Storage/DB + streamed HTTP fixtures รวม durable restart/byte-integrity/cancellation ไม่ใช่ decoding/live upload proof |
 | Vector retrieval | **8/8 PASS**; review/hash/embedding-input/provenance/intent gates และ parameter binding |
 | OCR artifact integrity | **4/4 PASS**; actual official download/offline verificationแยกจากunit tests |
 | Persistent integration | **11/11 PASS**; simulated Auth/DB harness ไม่ใช่ real OAuth |
 | Frontend | **20/20**, typecheck/Web production build PASSหลังรวม develop875575f; ยังไม่มี browser/mobile/keyboard QA |
-| Fresh source-only export | หลังintegration: **API278/278 + relocated Knowledge runtime4/4 PASS**, 9Knowledge files deterministic; copied locked local dependencies ไม่ใช่ fresh npm installation/OCR deployment proof |
-| CI | ก่อนreceipt/latest-develop integration: [CI197 PASS](https://github.com/SteveJO789/LearnlyAi/actions/runs/38038067281) ที่188f459; latest integration-head checksต้องดู [PR78](https://github.com/SteveJO789/LearnlyAi/pull/78) ไม่ใช้runเก่าเป็นproofของcodeใหม่ |
+| Fresh source-only export | Durable snapshotก่อนfinal cleanup helper/last assertion: **API287/287 + relocated Knowledge4/4 PASS**, deterministic9files; copied dependencies ไม่ใช่current-head/freshnpm/OCR proof |
+| CI | ก่อนdurable journal: [CI204 PASS](https://github.com/SteveJO789/LearnlyAi/actions/runs/38047457016) ที่be58ae0; latest checksดู [PR78](https://github.com/SteveJO789/LearnlyAi/pull/78) ไม่ใช้runเก่าเป็นproofของcodeใหม่ |
 
 จาก `services/api`:
 
@@ -86,7 +88,7 @@ Live OpenRouterรวม54calls (Tutor48/embeddings6) reported **US$0.0296333157
 1. **npm blocked:** actual npm.exeยังNVM4306 Official npm11.19.0 archiveผ่านregistry signature/hash แต่installed runtime filesบางส่วนต่าง เตรียมsame-version backup/repairและตรวจsyntaxแล้ว ยังไม่execute รอexplicit approvalเพราะเปลี่ยนsoftware/trust stateนอกrepository
 2. **Production DB incompatible:** public migrations/executor/marker verificationยังไม่สำเร็จ ไม่มีnon-production branchใช้ได้ Isolated fixture/cleanup approvalไม่เท่ากับอนุญาตdestructive live-data changes
 3. **Runtime/deployment verification:** develop875575f GitHub statuses ผ่านทั้ง Web/API หลังhotfixของทีม [API deployment](https://vercel.com/webdev-bd06/learnly-ai/7JdBtG2RzLR7Khseo6gTeQ5oh5kR) จึงไม่ใช้5022 API build failureเป็นcurrent blocker Vercel inspectionเรียกไม่ได้ (Unknown tool), real runtime/Auth/browser smokeและintegration deploymentยังไม่verified
-4. **Incomplete integrations:** real PDF/OCR, private Storage/reconciliation, canonical pgvector ingestion/runtime, real Auth/browser/mobile E2E และbroader reviewed corpus/educator review
+4. **Incomplete integrations:** real PDF/OCR, private Storage/upload-list-resume UI/retention UX, canonical pgvector ingestion/runtime, real Auth/browser/mobile E2E และbroader reviewed corpus/educator review
 
 **CD เฉพาะ develop** ตามคำสั่งผู้ใช้ Feature/integration deploymentsต้องskip ไม่มีauto-merge/deployโดยagent Local/CI successไม่ใช่production success
 

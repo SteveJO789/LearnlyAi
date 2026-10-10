@@ -16,6 +16,10 @@
       "model": "AssessmentAnswer",
       "namespace": "public"
     },
+    "FileUpload": {
+      "model": "FileUpload",
+      "namespace": "public"
+    },
     "LearningProfile": {
       "model": "LearningProfile",
       "namespace": "public"
@@ -72,6 +76,19 @@
               {
                 "name": "TRANSFER",
                 "value": "TRANSFER"
+              }
+            ]
+          },
+          "FileUploadState": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "PENDING",
+                "value": "PENDING"
+              },
+              {
+                "name": "CANCELLED",
+                "value": "CANCELLED"
               }
             ]
           },
@@ -606,6 +623,90 @@
               },
               "namespaceId": "public",
               "table": "AssessmentAnswer"
+            }
+          },
+          "FileUpload": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "learningSessionId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "material": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/json@1",
+                  "kind": "scalar"
+                }
+              },
+              "state": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "FileUploadState",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              }
+            },
+            "relations": {
+              "learningSession": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "learningSessionId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "LearningSession",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "learningSessionId": {
+                  "column": "learningSessionId"
+                },
+                "material": {
+                  "column": "material"
+                },
+                "state": {
+                  "column": "state"
+                }
+              },
+              "namespaceId": "public",
+              "table": "FileUpload"
             }
           },
           "LearningProfile": {
@@ -1367,6 +1468,73 @@
               "using": "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"Assessment\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))",
               "withCheck": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"Assessment\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
             },
+            "file_upload_insert_api_own": {
+              "kind": "policy",
+              "name": "file_upload_insert_api_own_d6a3a6ba",
+              "namespaceId": "public",
+              "operation": "insert",
+              "permissive": true,
+              "prefix": "file_upload_insert_api_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "FileUpload",
+              "withCheck": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND s.\"lifecycleState\" = 'ACTIVE' AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+            },
+            "file_upload_insert_guard": {
+              "kind": "policy",
+              "name": "file_upload_insert_guard_649e1632",
+              "namespaceId": "public",
+              "operation": "insert",
+              "permissive": false,
+              "prefix": "file_upload_insert_guard",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "FileUpload",
+              "withCheck": "(current_setting('learnly.api_write', true) = '1')"
+            },
+            "file_upload_select_own": {
+              "kind": "policy",
+              "name": "file_upload_select_own_5472d21c",
+              "namespaceId": "public",
+              "operation": "select",
+              "permissive": true,
+              "prefix": "file_upload_select_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "FileUpload",
+              "using": "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+            },
+            "file_upload_update_api_own": {
+              "kind": "policy",
+              "name": "file_upload_update_api_own_e13f9bb0",
+              "namespaceId": "public",
+              "operation": "update",
+              "permissive": true,
+              "prefix": "file_upload_update_api_own",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "FileUpload",
+              "using": "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+              "withCheck": "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+            },
+            "file_upload_update_guard": {
+              "kind": "policy",
+              "name": "file_upload_update_guard_cd84f83e",
+              "namespaceId": "public",
+              "operation": "update",
+              "permissive": false,
+              "prefix": "file_upload_update_guard",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "FileUpload",
+              "using": "(current_setting('learnly.api_write', true) = '1')",
+              "withCheck": "(current_setting('learnly.api_write', true) = '1')"
+            },
             "learning_profile_insert_api_own": {
               "kind": "policy",
               "name": "learning_profile_insert_api_own_62b5c283",
@@ -1595,6 +1763,11 @@
               "kind": "rls",
               "namespaceId": "public",
               "tableName": "AssessmentAnswer"
+            },
+            "FileUpload": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "FileUpload"
             },
             "LearningProfile": {
               "kind": "rls",
@@ -1940,6 +2113,95 @@
                   ]
                 }
               ]
+            },
+            "FileUpload": {
+              "checks": [
+                {
+                  "expression": "\"state\" IN ('PENDING', 'CANCELLED')",
+                  "name": "FileUpload_state_check_2cdd5b3d",
+                  "prefix": "FileUpload_state_check"
+                }
+              ],
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "learningSessionId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "material": {
+                  "codecId": "pg/json@1",
+                  "nativeType": "json",
+                  "nullable": false
+                },
+                "state": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "FileUploadState",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "learningSessionId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "FileUpload"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "LearningSession"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "learningSessionId",
+                    "createdAt"
+                  ],
+                  "name": "FileUpload_learningSessionId_createdAt_idx_bdaff9b7",
+                  "prefix": "FileUpload_learningSessionId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "learningSessionId"
+                  ],
+                  "name": "FileUpload_learningSessionId_idx_3c4d5acd",
+                  "prefix": "FileUpload_learningSessionId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
             },
             "LearningProfile": {
               "columns": {
@@ -2453,6 +2715,13 @@
                 "TRANSFER"
               ]
             },
+            "FileUploadState": {
+              "kind": "valueSet",
+              "values": [
+                "PENDING",
+                "CANCELLED"
+              ]
+            },
             "LearningSessionLifecycleState": {
               "kind": "valueSet",
               "values": [
@@ -2514,7 +2783,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "8626880030fb102dc56e134c700a5361c4189fc778f9fa79a0f825dd9c677bc8"
+    "storageHash": "26370da7801afacb9339a0042e2e9a52e649a78266738c309f99ea103867fa0a"
   },
   "execution": {
     "executionHash": "1c5f64dbace57a6efe810d458509a690bf92acb20d8522d6bfb343791bdd4e83",

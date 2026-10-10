@@ -266,6 +266,15 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - CD ยังเฉพาะ develop; workflow diff เทียบ develop ใหม่ว่าง ไม่มี paid calls/schema changes/deploymentเพิ่ม [หลักฐาน](evidence/mvp-develop-integration-verification.json)
 - Next: ติดตั้ง PDF/image/OCR/pgvector dependencies หลัง npm repair ที่รออนุมัติ, durable upload reconciliation, canonical vector ingestion/runtime และ actual file endpoint/UI/E2E
 
+### Milestone 17 — durable upload journal และ explicit resume
+
+- เพิ่ม canonical FileUpload intent ก่อนส่ง bytes: PENDING/CANCELLED, session FK, prepared metadata และ API-only RLS/grants Migration862→26370da additive/generated/self-emitted ไม่ apply production
+- Resume อ่าน intent ของเจ้าของและตรวจ authenticated original bytes/MIME/size/hash; save รับ exact PENDING เท่านั้น Cancellation commit ก่อน delete ภายใต้ parent lockเดียวกับsave/READY receipt กัน finalize/delete race และ retry cancelled cleanup ได้
+- ถ้า reservation/upload/cancel ไม่รู้ผลเก็บ journal ไม่เดาว่า rollback ไม่ re-upload และไม่เผย private key/filename/text/token Operatorได้เฉพาะ random ID Deadlineที่extractorกลับช้ายัง rejectก่อนสร้างintent
+- API **288/288**, file/Storage **26/26**, simulated persistent **11/11**, compile/migration integrity PASS Actual SQL/canonical RLS ผ่าน durable intent/failed-finalize retention/cancellation/guards/cross-user/FK/state checks; fresh3packages **89steps/167checks**, fixtures removed และ read-onlyตรวจpublic.FileUploadยังไม่สร้าง [หลักฐาน](evidence/mvp-durable-file-upload-verification.json)
+- Source-only snapshotก่อนfinal cleanup helper/last assertionผ่าน API287/relocated4; copied dependencies ไม่ใช่current-head/OCR install proof Frontendยังไม่เปลี่ยนจากMilestone16 ไม่มี paid calls/CD changes
+- ยังไม่มี real decoder/OCR, actual Storage/Auth/concurrent Prisma proof, endpoints/UI/intent retention UX หรือproductionapply งานถัดไปคือเชื่อมreal runtimeเมื่อ npm repair approval พร้อม ไม่claim #15 หรือMVPครบ
+
 - เพิ่ม header/MIME/size/hash/filename checks และ PNG dimension cap; ไม่อ้างว่าตรวจ full file content/extraction แล้ว
 - เพิ่ม real user-JWT private Storage transport (HTTPS/no redirect/no upsert, owned prefix, immutable verified bytes, safe errors); runtime ยังไม่ wired และ private bucket/RLS ยังไม่ created/verified
 - Targeted tests5/5, API compile และ full offline API249/249 PASS; HTTP transport injected ไม่ใช่ actual Storage upload proof
