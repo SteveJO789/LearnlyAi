@@ -45,3 +45,15 @@ test('embedding provider cancels oversize streamed bodies and non-success respon
   assert.equal(canceled,true);
   await assert.rejects(new OpenRouterEmbeddingProvider({...options,fetchImpl:async()=>Response.json({error:'private provider details'},{status:429})}).embed(['one']), /Knowledge embedding request failed/);
 });
+test('OpenRouter native OpenAI embedding name denotes the requested model, with no generic alias or dimension bypass',async()=>{
+  const request='openai/text-embedding-3-small';
+  const provider=new OpenRouterEmbeddingProvider({apiKey:'fixture-secret',model:request,dimensions:2,
+    fetchImpl:async()=>Response.json({model:'text-embedding-3-small',data:[{index:0,embedding:[1,0]}]})});
+  assert.deepEqual(await provider.embed(['one']),[[1,0]]);assert.equal(provider.model,request);
+  for(const [model,responseModel,embedding] of [[request,'text-embedding-3-large',[1,0]],['different/text-embedding-3-small','text-embedding-3-small',[1,0]],
+    [request,'text-embedding-3-small',[1]]]){
+    const invalid=new OpenRouterEmbeddingProvider({apiKey:'fixture-secret',model,dimensions:2,
+      fetchImpl:async()=>Response.json({model:responseModel,data:[{index:0,embedding}]})});
+    await assert.rejects(invalid.embed(['one']),/Knowledge embedding request failed/);
+  }
+});

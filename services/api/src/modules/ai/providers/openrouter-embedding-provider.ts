@@ -1,5 +1,11 @@
 import { validateEmbedding, type EmbeddingProvider } from "../../knowledge/embedding-port.js";
 
+function matchesRequestedModel(value: unknown, requested: string): boolean {
+  // OpenRouter's live OpenAI response uses the native model name. This one
+  // explicit equivalence preserves identity; other namespaces/models stay exact.
+  return value === requested || (requested === "openai/text-embedding-3-small" && value === "text-embedding-3-small");
+}
+
 /** Real OpenRouter embeddings transport. No Mock fallback, retry or credential logging. */
 export class OpenRouterEmbeddingProvider implements EmbeddingProvider {
   readonly model: string;
@@ -46,7 +52,7 @@ export class OpenRouterEmbeddingProvider implements EmbeddingProvider {
       } finally { reader.releaseLock(); }
       const payload: unknown = JSON.parse(Buffer.concat(chunks).toString("utf8"));
       if (!payload || typeof payload !== "object" || !("data" in payload) || !Array.isArray(payload.data) ||
-        payload.data.length !== inputs.length || !("model" in payload) || payload.model !== this.model) throw new Error("Embedding response is invalid.");
+        payload.data.length !== inputs.length || !("model" in payload) || !matchesRequestedModel(payload.model, this.model)) throw new Error("Embedding response is invalid.");
       const rows = payload.data as unknown[];
       const output: (readonly number[])[] = [];
       for (const row of rows) {
