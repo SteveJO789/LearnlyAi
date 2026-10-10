@@ -26,7 +26,7 @@ export interface PreparedFileMaterial {
 export interface FileMaterialStore {
   assertActiveOwnedSession(sessionId: string): Promise<void>;
   reserve(sessionId: string, material: PreparedFileMaterial): Promise<void>;
-  load(sessionId: string, materialId: string): Promise<{ state: "PENDING" | "CANCELLED"; material: PreparedFileMaterial }>;
+  load(sessionId: string, materialId: string): Promise<{ state: "PENDING" | "FINALIZED" | "CANCELLED"; material: PreparedFileMaterial }>;
   /** Commit cancellation under the same parent lock used by save. Never cancel a READY receipt. */
   cancel(sessionId: string, material: PreparedFileMaterial): Promise<"CANCELLED" | "SAVED" | "UNKNOWN">;
   /** Recheck active ownership in the INSERT transaction; do not trust the earlier read. */
@@ -142,7 +142,7 @@ export class FileIngestion {
       await this.cleanup(material);
       return { id, materialId: id, status: "CANCELLED" as const };
     }
-    if (receipt.state !== "PENDING") throw new ApiError("INVALID_UPLOAD_RECEIPT", 503, "The upload receipt could not be verified.");
+    if (!["PENDING", "FINALIZED"].includes(receipt.state)) throw new ApiError("INVALID_UPLOAD_RECEIPT", 503, "The upload receipt could not be verified.");
     // A successful HTTP upload response is not required after restart. Exact bytes are.
     await this.storage.verify(material.storageKey, material.file);
     return this.persist(sessionId, material);

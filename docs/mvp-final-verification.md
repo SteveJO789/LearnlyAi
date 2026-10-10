@@ -4,6 +4,8 @@
 
 งาน follow-up อยู่ใน [Draft PR #78](https://github.com/SteveJO789/LearnlyAi/pull/78) เริ่มจาก develop `5022c28` และรวมงานล่าสุดของทีม `875575f` แล้ว งานเดิมใน primary checkout/stash ยังอยู่ครบ ไม่มี auto-merge PR หรือ force push หลักฐาน local/fixture ด้านล่างไม่เท่ากับระบบที่ deploy จริง
 
+ล่าสุดหลังปลดnpm/ติดตั้งdependencies: actual `npm test` build/full API **289/289**, simulatedpersistent11/11 และmigrationintegrityPASS Canonical **076ce83** เพิ่มatomic FINALIZED + restrictive exact-PENDING Storage guard Actualclones47checks/metadata/replay/isolationcases และfresh4packages92steps/173checksPASS ทั้งหมดrollback ไม่มีproductionapply/actualStorageHTTPหรือrealPDF/OCR proof [หลักฐาน](evidence/mvp-storage-journal-gate-verification.json) Dependenciesพร้อมสำหรับimplementationแล้ว
+
 ล่าสุด: เพิ่ม durable FileUpload ก่อนส่ง bytesและexplicit resume หลังตรวจ authenticated stored bytes/hash Cancellation commitก่อนdeleteและsaveรับexactPENDINGเพื่อกันresurrection/race API **288/288**, file/Storage **26/26**, simulated persistent11/11/compile/migrationintegrityPASS Canonicaltip **26370da**, actual empty-clone journal/RLS/FK/state checksและfresh3packages **89steps/167checksPASS**, rollbackหมด Production FileUploadยังไม่สร้าง ไม่มี real PDF/OCR/Storage/Auth→Prisma/endpoint/UI proof [หลักฐาน](evidence/mvp-durable-file-upload-verification.json)
 
 ล่าสุดหลัง integration: API **278/278**, Web **20/20**/typecheck/production build PASS, Knowledge hotfix under Vercel-like parent env **4/4** และ fresh source-only API **278/278** + relocated runtime **4/4** PASS รักษา auth/brand/loading/mobile UI ของทีม CD เฉพาะ develop ไม่มี workflow diff GitHub deploy checks ของdevelop875575f ผ่าน Web/API แต่ไม่มี real runtime/browser smoke หรือ integration deployment [หลักฐาน](evidence/mvp-develop-integration-verification.json)
@@ -47,7 +49,7 @@ File serviceไม่มี default/Mock extractorถูก wire เข้า ru
 
 | การตรวจ | ผลล่าสุดและขอบเขต |
 |---|---|
-| API compile/offline suite | **288/288 PASS**; Mock/injected transports ไม่มี paid model callsในCI |
+| API compile/offline suite | **289/289 PASS**ผ่านactual npm test/build; Mock/injected transports ไม่มี paid model callsในCI |
 | File orchestration/Storage | **26/26 PASS**; injected extractor/Storage/DB + streamed HTTP fixtures รวม durable restart/byte-integrity/cancellation ไม่ใช่ decoding/live upload proof |
 | Vector retrieval | **8/8 PASS**; review/hash/embedding-input/provenance/intent gates และ parameter binding |
 | OCR artifact integrity | **4/4 PASS**; actual official download/offline verificationแยกจากunit tests |

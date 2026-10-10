@@ -4,11 +4,11 @@ import { resolve } from 'node:path';
 const schema='learnly_history_verify';
 const quoteSchema='"'+schema+'"';
 const root=new URL('../migrations/app/',import.meta.url);
-const tip='26370da7801afacb9339a0042e2e9a52e649a78266738c309f99ea103867fa0a';
+const tip='076ce8306edb1f37c9956a00b70b92978b153db404524f05d4d39a9e13b04ce8';
 const mode=process.argv.find(arg=>arg.startsWith('--path='))?.slice(7)??'legacy';
 if(!['legacy','fresh'].includes(mode)) throw new Error('Choose legacy or fresh explicitly.');
 const migrations=readdirSync(root).filter(name=>!['refs','snapshots'].includes(name)&&
-  (mode==='fresh'?['20261010T0331_fresh_supabase_mvp_baseline','20261010T0752_private_material_storage','20261010T1119_durable_file_uploads'].includes(name):!name.endsWith('_fresh_supabase_mvp_baseline'))).sort().map(name=>({name,
+  (mode==='fresh'?['20261010T0331_fresh_supabase_mvp_baseline','20261010T0752_private_material_storage','20261010T1119_durable_file_uploads','20261010T1154_journal_storage_gate'].includes(name):!name.endsWith('_fresh_supabase_mvp_baseline'))).sort().map(name=>({name,
   manifest:JSON.parse(readFileSync(new URL(name+'/migration.json',root),'utf8')),
   operations:JSON.parse(readFileSync(new URL(name+'/ops.json',root),'utf8'))}));
 let previous=null;

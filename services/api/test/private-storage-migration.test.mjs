@@ -30,6 +30,8 @@ test('canonical storage verifier remaps every write to empty clones and always r
   assert.ok(!/ALTER TABLE\s+"?public|INSERT INTO storage\.|ON storage\.objects/u.test(sql));
   assert.ok(sql.includes('Fixture already exists'));assert.ok(sql.includes('Migration postcheck failed:'));
   assert.ok(sql.includes('Anonymous upload allowed'));assert.ok(sql.includes('Cross-user file delete allowed'));assert.ok(sql.includes('Post-completion compensation delete denied'));
+  assert.ok(sql.includes('Untracked upload allowed'));assert.ok(sql.includes('Finalized intent replay allowed'));
+  assert.ok(sql.includes('Malformed intent bad-size allowed'));assert.ok(sql.includes('Legacy pending journal replay of saved material allowed'));
  }finally{
   assert.equal(dirname(resolve(root)),resolve(tmpdir()));assert.ok(root.startsWith(join(tmpdir(),'learnly-storage-sql-')));rmSync(root,{recursive:true,force:true});
  }

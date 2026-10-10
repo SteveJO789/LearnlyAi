@@ -87,6 +87,10 @@
                 "value": "PENDING"
               },
               {
+                "name": "FINALIZED",
+                "value": "FINALIZED"
+              },
+              {
                 "name": "CANCELLED",
                 "value": "CANCELLED"
               }
@@ -2117,8 +2121,8 @@
             "FileUpload": {
               "checks": [
                 {
-                  "expression": "\"state\" IN ('PENDING', 'CANCELLED')",
-                  "name": "FileUpload_state_check_2cdd5b3d",
+                  "expression": "\"state\" IN ('PENDING', 'FINALIZED', 'CANCELLED')",
+                  "name": "FileUpload_state_check_d8fae83c",
                   "prefix": "FileUpload_state_check"
                 }
               ],
@@ -2719,6 +2723,7 @@
               "kind": "valueSet",
               "values": [
                 "PENDING",
+                "FINALIZED",
                 "CANCELLED"
               ]
             },
@@ -2783,7 +2788,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "26370da7801afacb9339a0042e2e9a52e649a78266738c309f99ea103867fa0a"
+    "storageHash": "076ce8306edb1f37c9956a00b70b92978b153db404524f05d4d39a9e13b04ce8"
   },
   "execution": {
     "executionHash": "1c5f64dbace57a6efe810d458509a690bf92acb20d8522d6bfb343791bdd4e83",

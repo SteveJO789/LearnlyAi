@@ -168,6 +168,7 @@ model AssessmentAnswer {
 
 enum FileUploadState {
   PENDING
+  FINALIZED
   CANCELLED
 }
 

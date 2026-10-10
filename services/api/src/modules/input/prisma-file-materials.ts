@@ -26,8 +26,8 @@ export class PrismaFileMaterials implements FileMaterialStore {
       .returnsRow({ state: "pg/text@1", material: "pg/json@1" }).build();
     const rows = await this.client.query(plan).toArray(), row = rows[0];
     if (!row) throw new ApiError("NOT_FOUND", 404, "The upload was not found.");
-    if (rows.length !== 1 || !["PENDING", "CANCELLED"].includes(row.state)) throw new ApiError("INVALID_UPLOAD_RECEIPT", 503, "The upload receipt could not be verified.");
-    return { state: row.state as "PENDING" | "CANCELLED", material: row.material as unknown as PreparedFileMaterial };
+    if (rows.length !== 1 || !["PENDING", "FINALIZED", "CANCELLED"].includes(row.state)) throw new ApiError("INVALID_UPLOAD_RECEIPT", 503, "The upload receipt could not be verified.");
+    return { state: row.state as "PENDING" | "FINALIZED" | "CANCELLED", material: row.material as unknown as PreparedFileMaterial };
   }
   private async lockSession(tx: ApiTransaction, sessionId: string, active: boolean) {
     await tx.execute(this.client.raw.sql`SET LOCAL lock_timeout = '3s'`.affectedCount().build());
@@ -79,6 +79,9 @@ export class PrismaFileMaterials implements FileMaterialStore {
           ${material.normalizedText}, ${material.file.contentHash}, ${material.file.mimeType}, ${material.file.sizeBytes}, ${metadata}::jsonb)`
         .affectedCount().build());
       if (inserted.affectedRows !== 1) throw new ApiError("FILE_STATE_CONFLICT", 409, "The file could not be finalized.");
+      const finalized = await tx.execute(this.client.raw.sql`UPDATE public."FileUpload" SET "state" = 'FINALIZED'
+        WHERE "id" = ${material.id} AND "learningSessionId" = ${sessionId} AND "state" = 'PENDING'`.affectedCount().build());
+      if (finalized.affectedRows !== 1) throw new ApiError("FILE_STATE_CONFLICT", 409, "The upload state could not be finalized.");
       await tx.execute(this.client.raw.sql`UPDATE public."LearningSession" SET "state" = 'PRE_TEST'
         WHERE "id" = ${sessionId} AND "userId" = ${this.appUserId} AND "stage" = 'EXPLAIN' AND "version" = 0`.affectedCount().build());
     });

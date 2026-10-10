@@ -55,6 +55,15 @@ test('a restarted coordinator resumes an ambiguous upload using durable intent a
   assert.equal(result.status,'READY');assert.equal(result.materialId,intent.id);
   assert.deepEqual(h.events,['load','verify','save']);assert.ok(!('storageKey' in result));
 });
+test('finalized journal recovery still verifies bytes and returns the exact committed READY receipt without upload or cancellation',async()=>{
+  const h=harness({loadState:'FINALIZED',saveFailure:Error('already finalized'),saveOutcome:'SAVED'});
+  // Preserve an intent from an interrupted upload; the fixture then represents a later finalized commit.
+  h.storage.upload=async()=>{throw new ApiError('STORAGE_UNAVAILABLE',503,'fixture upload response missing');};
+  await assert.rejects(h.service.ingest('session',bytes(),'application/pdf','lesson.pdf'),ApiError);
+  h.events.length=0;
+  const result=await h.service.resume('session',h.reserved[0].material.id);
+  assert.equal(result.status,'READY');assert.deepEqual(h.events,['load','verify','save','resolve']);
+});
 test('missing/corrupt stored bytes never finalize; cancelled intent retries cleanup without resurrection',async()=>{
   const corrupt=harness({verifyFailure:new ApiError('FILE_INTEGRITY_ERROR',422,'Stored file mismatch')});
   await corrupt.service.ingest('session',bytes(),'application/pdf','lesson.pdf');corrupt.events.length=0;corrupt.saved.length=0;
@@ -218,6 +227,9 @@ test('Prisma file persistence binds application owner, locks active session and 
   const metadata=JSON.parse(insert.values.at(-1));assert.equal(metadata.origin,'LEARNER_INPUT');assert.equal(metadata.reviewed,false);
   assert.equal(metadata.extraction.pages[1].page,2);assert.ok(plans.some(plan=>plan.sql.includes('FOR UPDATE')));
   assert.ok(plans.some(plan=>plan.sql.includes("set_config('learnly.api_write'")));assert.deepEqual(events,['begin','commit']);
+  const finalized=plans.find(plan=>plan.sql.includes('UPDATE public."FileUpload"'));
+  assert.ok(finalized.sql.includes("'FINALIZED'"));assert.ok(finalized.sql.includes("'PENDING'"));
+  assert.ok(plans.indexOf(finalized)>plans.indexOf(insert));
   plans.length=0;owned=false;
   await assert.rejects(store.save('session',{id:'material',storageKey:'key',storageBucket:'learnly-materials',file,...normalizeFileExtraction(extraction,file)}),error=>error.code==='NOT_FOUND');
   assert.ok(!plans.some(plan=>plan.sql.includes('INSERT')));assert.equal(events.at(-1),'rollback');

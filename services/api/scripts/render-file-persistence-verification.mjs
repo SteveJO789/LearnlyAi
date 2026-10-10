@@ -8,6 +8,7 @@ import contract from '../src/prisma/contract.json' with {type:'json'};
 import materialOps from '../migrations/app/20261009T1524_text_material_pipeline/ops.json' with {type:'json'};
 import storageOps from '../migrations/app/20261010T0752_private_material_storage/ops.json' with {type:'json'};
 import uploadOps from '../migrations/app/20261010T1119_durable_file_uploads/ops.json' with {type:'json'};
+import gateOps from '../migrations/app/20261010T1154_journal_storage_gate/ops.json' with {type:'json'};
 const output=process.argv.find(value=>value.startsWith('--output='))?.slice(9);
 if(!output)throw Error('Explicit --output= is required; this command only renders SQL.');
 const schema='learnly_file_material_verify',tables=['User','LearningSession','SourceMaterial','FileUpload'];
@@ -83,6 +84,10 @@ for(const operation of uploadOps){
   if(operation.operationClass!=='additive')throw Error('Unexpected upload migration operation');
   for(const step of operation.execute){if(step.params?.length)throw Error('Unexpected upload parameter');statements.push(rewrite(step.sql)+';');}
 }
+// Only the reviewed enum-check replacement belongs in this app-only fixture; Storage is verified separately.
+for(const operation of gateOps.filter(op=>op.target?.details?.table==='FileUpload')){
+  for(const step of operation.execute){if(step.params?.length)throw Error('Unexpected gate parameter');statements.push(rewrite(step.sql)+';');}
+}
 statements.push(`INSERT INTO ${q(schema)}."User" (id,"authUserId","displayName","updatedAt") VALUES
 ('${owner}','${auth}','Synthetic learner',now()),('peer-fixture-owner','${peer}','Synthetic learner',now());
 INSERT INTO ${q(schema)}."LearningSession" (id,"userId",title,state,"lifecycleState",stage,"progressPercent",version,"createdAt","updatedAt") VALUES
@@ -111,7 +116,7 @@ for(const sql of [...cancelIntent,...cancel])statements.push(sql+';');
 statements.push(`DO $$ DECLARE n int; BEGIN
  SELECT count(*) INTO n FROM ${q(schema)}."FileUpload" WHERE id='cancel-material' AND state='CANCELLED';
  IF n<>1 THEN RAISE EXCEPTION 'Durable cancellation missing'; END IF;
- SELECT count(*) INTO n FROM ${q(schema)}."FileUpload" WHERE id='pdf-material' AND state='PENDING'
+ SELECT count(*) INTO n FROM ${q(schema)}."FileUpload" WHERE id='pdf-material' AND state='FINALIZED'
    AND material->>'normalizedHash' IS NOT NULL AND material->>'storageBucket'='learnly-materials';
  IF n<>1 THEN RAISE EXCEPTION 'Durable intent metadata missing'; END IF;
  SELECT count(*) INTO n FROM (${pdf.find(sql=>sql.includes('FROM')&&sql.includes('"FileUpload"'))?.replaceAll("'pdf-material'","'cancel-material'")}) cancelled_finalize;

@@ -282,6 +282,14 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - ติดตั้ง actual pinned PDF/OCR/image/pgvector dependenciesสำเร็จ14packagesใน services/api: pdfjs6.4.299, Tesseract7, pngjs7, jpeg-js0.4.4, Prisma pgvectorrc.12 ไม่มีinstall scripts/paid model calls `npm run lint` และ `npm ls` PASS
 - **npmไม่เป็น blocker ของ implementation แล้ว** Next: finish journal Storage gate tests แล้ว implement real PDF/image/OCR workers และcanonical pgvector persistence/runtime Libraries installedไม่เท่ากับfeaturesเสร็จ [หลักฐาน](evidence/mvp-npm-repair-verification.json)
 
+### Milestone 18 — Storage รับเฉพาะ journal ที่ตรวจแล้ว
+
+- พิสูจน์ original policyในSQLfixtureว่าowned active raw uploadข้ามjournalได้ เพิ่มrestrictive INSERT guardรับexact PENDING intent/owner/session/bucket/key/metadataและไม่มีSourceMaterialเดิม
+- FINALIZED journal/state commitพร้อมREADY/PREgate; finalized/cancelled/missing intentและlegacy PENDINGที่มีsaved SourceMaterialแล้วอัปโหลดซ้ำไม่ได้ Read/delete/history/other bucketsยังคงสิทธิ์เดิม
+- Generated migration263→076ce83แทนtwo-state CHECKด้วยthree-state CHECK; CLIจัดDROPconstraintเป็นdestructive เตรียม/ทดสอบภายในrollbacktransactionเท่านั้น ไม่มีproductionapply/table/data delete/historicalhashrewrite
+- `npm test` actual build/full suite **289/289**, simulated persistent **11/11**, migrationintegrityPASS Actual Storageclones **47canonicalchecks** + denial/metadata/isolationcases, fresh4packages **92steps/173checks**, filefinalizationatomicityPASS; fixturesremoved [หลักฐาน](evidence/mvp-storage-journal-gate-verification.json)
+- Library importsสำเร็จแต่PDFjsมีoptional nativeCanvas warnings ไม่อ้างว่าอ่านPDF/OCRจริงแล้ว Next: bounded real extraction workers + actual fixtures และcanonicalvector ingestion/runtime npmdependenciesพร้อมแล้ว ไม่มีpaidcalls/CDเพิ่ม
+
 - เพิ่ม header/MIME/size/hash/filename checks และ PNG dimension cap; ไม่อ้างว่าตรวจ full file content/extraction แล้ว
 - เพิ่ม real user-JWT private Storage transport (HTTPS/no redirect/no upsert, owned prefix, immutable verified bytes, safe errors); runtime ยังไม่ wired และ private bucket/RLS ยังไม่ created/verified
 - Targeted tests5/5, API compile และ full offline API249/249 PASS; HTTP transport injected ไม่ใช่ actual Storage upload proof

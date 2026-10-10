@@ -63,11 +63,11 @@ erDiagram
 ### `FileUpload` — durable binary upload intent
 
 - `id`: material UUID string/text PK; `learningSessionId`: owned session FK
-- `state`: `PENDING` / `CANCELLED` with database check constraint
+- `state`: `PENDING` / `FINALIZED` / `CANCELLED` with database check constraint
 - `material`: internal prepared file/normalized-text/extraction/hash/bucket/key JSON; `createdAt`
 - Reserve before Storage mutation; save accepts exact PENDING only. Cancellation and finalization serialize on owned parent session lock; READY SourceMaterial wins over cancellation.
 - Owned SELECT, trusted API-context INSERT/UPDATE, no anonymous policy. Journal does not enter the Learning Engine.
-- Prepared migration `20261010T1119_durable_file_uploads`, canonical26370da; actual empty rollback fixtures passed, no production apply. Endpoints/UI/live Storage/OCR remain pending.
+- Prepared migrations `20261010T1119_durable_file_uploads` + `20261010T1154_journal_storage_gate`, canonical076ce83. FINALIZED commits with READY; restrictive Storage INSERT needs exact owned active PENDING and excludes existing material. Empty rollback fixtures passed; no production apply. Endpoints/UI/live Storage/OCR remain pending.
 
 ### `messages`
 

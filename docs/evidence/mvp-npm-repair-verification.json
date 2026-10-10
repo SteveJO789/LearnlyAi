@@ -2,7 +2,7 @@
   "date": "2026-10-10",
   "status": "NPM_REPAIRED_DEPENDENCIES_INSTALLED",
   "authorization": "User explicitly requested unblocking npm during the active MVP goal",
-  "repair": {"nodeVersion": "v24.21.0", "npmVersion": "11.19.0", "archiveSha256": "31e9770f7dc71119a58509353b27917557aaf0ac9b5ef1a0465ee7d8ec67ae75", "archiveVerification": "Previously verified registry signature/integrity; fixed archive hash and every prepared/installed file checked before supported nvm reshim", "backupRetained": true, "nodeCorepackCodexFilesReplaced": false, "codexVersionAfter": "0.160.0"},
+  "repair": {"nodeVersion": "v24.21.0", "npmVersion": "11.19.0", "archiveSha256": "31e9770f7dc71119a58509353b27917557aaf0ac9b5ef1a0465ee7d8ec67ae75", "archiveVerification": "Previously verified registry signature/integrity; fixed archive hash and every prepared/installed file checked before supported nvm reshim", "backupRetained": true, "nodeCorepackCodexPackageFilesReplaced": false, "codexShimRefreshedBySupportedReshim": true, "codexVersionAfter": "0.160.0"},
   "executionContext": "New shell with full user permissions: npm --version exits0 and npm view/install/run lint/ls succeed. Restricted tool sandbox still returns NVM4306; use authorized full-permission execution without bypassing NVM or running blocked npm-cli.js indirectly.",
   "networkRevalidation": "Independent Node-fetch registry revalidation timed out; do not claim a new online signature check. Local signed-archive identity and copied-byte verification are the repair evidence.",
   "installedExactVersions": {"pdfjs-dist": "6.4.299", "tesseract.js": "7.0.0", "pngjs": "7.0.0", "jpeg-js": "0.4.4", "@prisma/orm-extension-pgvector": "8.0.0-rc.12"},

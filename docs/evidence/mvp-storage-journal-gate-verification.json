@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-10",
+  "status": "JOURNAL_STORAGE_GATE_VERIFIED_NOT_APPLIED",
+  "originalGap": "Original canonical Storage fixture proved an owned active upload was allowed without a FileUpload intent. Source persistence remained protected, but raw object uploads could bypass tracking.",
+  "contract": {"from": "26370da7801afacb9339a0042e2e9a52e649a78266738c309f99ea103867fa0a", "to": "076ce8306edb1f37c9956a00b70b92978b153db404524f05d4d39a9e13b04ce8", "migration": "20261010T1154_journal_storage_gate"},
+  "implemented": ["FINALIZED journal state is committed atomically with READY SourceMaterial/PRE gate", "restrictive authenticated INSERT guard requires exact owned active PENDING intent", "match journal/material/session IDs, bucket, key, type/MIME/extension, hash format and bounded size", "exclude existing SourceMaterial so legacy PENDING cannot replay a saved key", "other buckets, owned read/delete history, anonymous denial and immutable no-upsert policies preserved", "finalized recovery still verifies stored bytes and exact READY receipt"],
+  "migrationReview": "Prisma labels removal of the old two-value check constraint destructive; the immediately following replacement widens it to PENDING/FINALIZED/CANCELLED. Verified together in rollback clones; no table/data deletion or production execution. Historical migrations/hashes unchanged.",
+  "apiBuildAndTests": {"command": "npm test in authorized full-permission context", "passed": 289, "failed": 0, "scope": "Actual npm build/runtime Knowledge preparation + offline suite"},
+  "persistentIntegration": {"passed": 11, "failed": 0, "scope": "Simulated Auth/DB"},
+  "migrationIntegrity": "PASS",
+  "realStoragePolicyFixture": {"canonicalAssertions": 47, "result": "PASS", "scope": "Empty LIKE clones/synthetic identities; no Storage HTTP", "cases": ["original untracked upload allowed before guard", "exact pending upload allowed after guard", "missing/cancelled/finalized intent denied", "legacy pending plus existing READY replay denied", "forged bucket/key/material ID/MIME/hash and oversized nonnumeric size denied without unsafe cast", "legacy ownership/cross-user/anon/isolation/immutability/cleanup/other buckets"], "fixtureRemoved": true},
+  "freshBaseline": {"migrations": 4, "sqlSteps": 92, "canonicalChecks": 173, "result": "PASS", "fixtureRemoved": true},
+  "fileFinalizationFixture": "PASS: FINALIZED state/PRE gate/READY atomicity, cancelled exclusion, failed transaction keeps prior PENDING intent; rollback removed",
+  "libraryImportSmoke": "PDF getDocument, OCR createWorker and pgvector pack imports succeed. PDF.js warns optional native Canvas binding/DOMMatrix/Path2D unavailable; actual extraction still requires verification, no working-parser claim.",
+  "notVerified": ["Actual private bucket/policy deployment", "Real Auth-to-Prisma-to-Storage upload", "Concurrent Storage service/network-loss behavior", "Actual PDF/image/OCR extraction", "File endpoints/UI", "Canonical pgvector persistence/runtime"],
+  "additionalPaidCalls": 0,
+  "productionSchemaOrUserDataChanged": false,
+  "cdPolicy": "ONLY develop"
+}

@@ -1,5 +1,7 @@
 # Private material Storage — เตรียม migration แล้ว ยังไม่สร้าง bucket จริง
 
+ล่าสุดเพิ่ม `20261010T1154_journal_storage_gate` (263→076ce83): ninth restrictive authenticated INSERT policyรับเฉพาะowned active exact PENDING FileUploadตรงmaterial/session/bucket/key/type/MIME/extension/hash/size และไม่มีSourceMaterialเดิม ป้องกันuntracked uploadsและreplayของCANCELLED/FINALIZED/legacy PENDINGที่บันทึกREADYแล้ว FINALIZED commitพร้อมREADYในtransactionเดิม Actual originalfixtureยืนยันช่องว่างก่อนแก้; newrollbackfixture47checks/metadata/isolationcasesและfresh92steps/173checksPASS ไม่มีStorageHTTPหรือproductionapply [หลักฐาน](evidence/mvp-storage-journal-gate-verification.json)
+
 ตรวจ LearnlyAI project 2026-10-10 แบบ read-only: storage.buckets และ storage.objects policies ยังว่าง เตรียม bucket `learnly-materials` แบบ private จำกัด3MiBและPDF/PNG/JPEG พร้อม8application-owned policies บน Supabase-owned objects ไม่เปลี่ยนAuth/session infrastructureหรือใช้service-role bypassในruntime
 
 Prisma-generated migration `20261010T0752_private_material_storage` เดินจาก d17a8bc→8626880 เพิ่ม nullable `SourceMaterial.storageBucket` และcustom bucket/policy operationsผ่านsupported rawSql/self-emission Metadata bucketถูกpersistคู่storageKey ไม่แสดงinternal bucket/keyในAPI response TEXT/legacy rowsยังnullable ไม่มีการbackfillหรือแก้live data
