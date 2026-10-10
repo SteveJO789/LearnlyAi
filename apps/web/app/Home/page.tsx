@@ -143,6 +143,8 @@ export default function HomePage() {
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden min-h-full">
         <span className="home-shooting-star home-shooting-star-one" aria-hidden="true" />
         <span className="home-shooting-star home-shooting-star-two" aria-hidden="true" />
+        <span className="home-shooting-star home-shooting-star-three" aria-hidden="true" />
+        <span className="home-shooting-star home-shooting-star-four" aria-hidden="true" />
         {/* กลุ่มแสงฟุ้งเกรเดียนต์เบื้องหลัง */}
         <div className="absolute left-[5%] top-[5%] h-96 w-96 rounded-full bg-pink-400/15 blur-[120px] animate-roam-1" />
         <div className="absolute right-[10%] top-[20%] h-[420px] w-[420px] rounded-full bg-violet-400/15 blur-[120px] animate-roam-2" />
