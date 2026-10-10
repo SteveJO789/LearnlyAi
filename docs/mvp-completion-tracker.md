@@ -213,6 +213,12 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 
 ### File foundation (ยังไม่ complete input pipeline)
 
+- Resume รอบ file coordinator: เพิ่ม owned-session-before-extraction, immutable byte hash checks, normalized extraction/page bounds และ Prisma file save ที่ lock/recheck active ownership พร้อม API-write context/metadata/PRE gate ใน transaction
+- Confirmed upload + failed DB จะ compensate delete; failed cleanup มี explicit controlled error/operator material ID โดยไม่ expose storage key/private data Ambiguous upload timeout ยังต้อง durable reconciliation
+- File orchestration7/7 และ compile PASS; injected extractor/storage/DB ใช้เฉพาะ tests ไม่มี default/Mock extractor/runtime wiring จึงไม่ใช่ real PDF/OCR หรือ actual file persistence proof
+- Full offline API **262/262** PASS หลัง coordinator; vector head64a7b6f มี Linux CI176 PASS ก่อน file changes รอบนี้ [หลักฐาน file milestone](evidence/mvp-file-ingestion-verification.json)
+- ยังรอ npm repair approval ก่อนติดตั้ง decoder/OCR/pgvector extension pack; ไม่ bypass NVM trust gate และไม่สร้าง bucket/แก้ production tables
+
 - เพิ่ม header/MIME/size/hash/filename checks และ PNG dimension cap; ไม่อ้างว่าตรวจ full file content/extraction แล้ว
 - เพิ่ม real user-JWT private Storage transport (HTTPS/no redirect/no upsert, owned prefix, immutable verified bytes, safe errors); runtime ยังไม่ wired และ private bucket/RLS ยังไม่ created/verified
 - Targeted tests5/5, API compile และ full offline API249/249 PASS; HTTP transport injected ไม่ใช่ actual Storage upload proof

@@ -6,6 +6,10 @@ Resume รอบล่าสุด: เพิ่ม semantic retrieval/provenanc
 
 PR #74 และ design PR #76 ถูก merge โดยทีมแล้ว งานใหม่อยู่บน `integration/university-mvp-followup-20261009` จาก develop `5022c28` งานเดิมใน primary checkout/stash ยังอยู่ครบ
 
+File coordinator milestone เพิ่ม ownership-before-extraction, bounded page/text normalization, real Prisma transactional save adapter และ compensation หลัง confirmed upload. Tests7/7/compile PASS ด้วย injected extractor/storage/DB; ไม่ใช่หลักฐาน actual PDF/OCR หรือ live file upload/persistence. ดู [ขอบเขต file pipeline](file-input-foundation.md) รวม ambiguous-upload reconciliation ที่ยังต้องทำ
+
+Current offline API **262/262** PASS; vector head64a7b6f ผ่าน Linux CI176 ก่อน file coordinator changes นี้ [หลักฐาน](evidence/mvp-file-ingestion-verification.json). Source-only export ล่าสุด255/255 + relocated runtime4/4 เป็น vector milestone ก่อน file coordinator ไม่อ้างว่าได้ fresh-export file code ใหม่แล้ว
+
 ## ฟีเจอร์และหลักฐาน
 
 | ฟีเจอร์ / issue | สิ่งที่ทำงานแล้ว | สิ่งที่ยังขาด |
