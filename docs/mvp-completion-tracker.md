@@ -276,6 +276,12 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - ยังไม่มี real decoder/OCR, actual Storage/Auth/concurrent Prisma proof, endpoints/UI/intent retention UX หรือproductionapply งานถัดไปคือเชื่อมreal runtimeเมื่อ npm repair approval พร้อม ไม่claim #15 หรือMVPครบ
 - Code head9a1f2b6 (treeตรงlocalbb60b34) มี [CI205 PASS](https://github.com/SteveJO789/LearnlyAi/actions/runs/38049322385): Web/API install/typecheck/test/build, fresh export/relocated runtime และpersistent offline integration executedทั้งหมด PR78ยังdraft/open ไม่มีauto-mergeหรือdeploy
 
+### Dependency blocker resolved — ผู้ใช้ขอปลด npm
+
+- ซ่อม npm11.19.0 รุ่นเดิมด้วย signed official archive/hash และตรวจไฟล์ทุกไฟล์ก่อน nvm reshim สำรอง npmเดิมไว้ ไม่ replace Node/corepack/Codex npmในshellสิทธิ์ครบทำงานจริง ส่วนrestricted tool sandboxยังNVM4306 จึงใช้authorized full-permission commands
+- ติดตั้ง actual pinned PDF/OCR/image/pgvector dependenciesสำเร็จ14packagesใน services/api: pdfjs6.4.299, Tesseract7, pngjs7, jpeg-js0.4.4, Prisma pgvectorrc.12 ไม่มีinstall scripts/paid model calls `npm run lint` และ `npm ls` PASS
+- **npmไม่เป็น blocker ของ implementation แล้ว** Next: finish journal Storage gate tests แล้ว implement real PDF/image/OCR workers และcanonical pgvector persistence/runtime Libraries installedไม่เท่ากับfeaturesเสร็จ [หลักฐาน](evidence/mvp-npm-repair-verification.json)
+
 - เพิ่ม header/MIME/size/hash/filename checks และ PNG dimension cap; ไม่อ้างว่าตรวจ full file content/extraction แล้ว
 - เพิ่ม real user-JWT private Storage transport (HTTPS/no redirect/no upsert, owned prefix, immutable verified bytes, safe errors); runtime ยังไม่ wired และ private bucket/RLS ยังไม่ created/verified
 - Targeted tests5/5, API compile และ full offline API249/249 PASS; HTTP transport injected ไม่ใช่ actual Storage upload proof

@@ -85,7 +85,7 @@ Live OpenRouterรวม54calls (Tutor48/embeddings6) reported **US$0.0296333157
 
 ## Deployment และ blockers
 
-1. **npm blocked:** actual npm.exeยังNVM4306 Official npm11.19.0 archiveผ่านregistry signature/hash แต่installed runtime filesบางส่วนต่าง เตรียมsame-version backup/repairและตรวจsyntaxแล้ว ยังไม่execute รอexplicit approvalเพราะเปลี่ยนsoftware/trust stateนอกrepository
+1. **npm resolved:** ผู้ใช้ขอปลดบล็อกแล้ว ซ่อมnpm11.19.0จากverified official archive/hashพร้อมbackupและsupported nvm reshim `npm --version`, install pinned PDF/OCR/image/pgvector deps14packages, lint/ls PASSในshellสิทธิ์ครบ Restricted tool sandboxยังNVM4306; ใช้authorized context ไม่bypass blocked scripts Actual extraction/OCR/vector runtimeยังpending [หลักฐาน](evidence/mvp-npm-repair-verification.json)
 2. **Production DB incompatible:** public migrations/executor/marker verificationยังไม่สำเร็จ ไม่มีnon-production branchใช้ได้ Isolated fixture/cleanup approvalไม่เท่ากับอนุญาตdestructive live-data changes
 3. **Runtime/deployment verification:** develop875575f GitHub statuses ผ่านทั้ง Web/API หลังhotfixของทีม [API deployment](https://vercel.com/webdev-bd06/learnly-ai/7JdBtG2RzLR7Khseo6gTeQ5oh5kR) จึงไม่ใช้5022 API build failureเป็นcurrent blocker Vercel inspectionเรียกไม่ได้ (Unknown tool), real runtime/Auth/browser smokeและintegration deploymentยังไม่verified
 4. **Incomplete integrations:** real PDF/OCR, private Storage/upload-list-resume UI/retention UX, canonical pgvector ingestion/runtime, real Auth/browser/mobile E2E และbroader reviewed corpus/educator review
