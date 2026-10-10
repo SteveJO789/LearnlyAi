@@ -198,3 +198,11 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - API **244/244**, persistent integration **11/11**, compile/typecheck และ fresh source export244/244 + relocated runtime4/4 PASS; Web20/20/build เดิมไม่มี frontend code changes รอบนี้
 - CI164 ของ History head6a4ff2c ผ่านก่อน numeric milestone: https://github.com/SteveJO789/LearnlyAi/actions/runs/38025240138
 - Read-only db migrate --show จาก actual c7b3938 ไป d17a8bc เลือก 3 app deltas + Supabase descriptor; ไม่เลือก fresh baseline ไม่ apply/sign production
+
+### File foundation (ยังไม่ complete input pipeline)
+
+- เพิ่ม header/MIME/size/hash/filename checks และ PNG dimension cap; ไม่อ้างว่าตรวจ full file content/extraction แล้ว
+- เพิ่ม real user-JWT private Storage transport (HTTPS/no redirect/no upsert, owned prefix, immutable verified bytes, safe errors); runtime ยังไม่ wired และ private bucket/RLS ยังไม่ created/verified
+- Targeted tests5/5, API compile และ full offline API249/249 PASS; HTTP transport injected ไม่ใช่ actual Storage upload proof
+- [ขอบเขตและงานที่ขาด](file-input-foundation.md); PDF/image decoder/OCR/pgvector dependencies ยังติด npm repair approval ไม่ bypass trust gate
+- CI171 ของ numeric heade14722c ผ่านก่อน file foundation: https://github.com/SteveJO789/LearnlyAi/actions/runs/38027199110
