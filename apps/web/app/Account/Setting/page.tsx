@@ -481,9 +481,9 @@ function SettingContent() {
                       </button>
                     </div>
 
-                    {mascotPrankActive && (
-                      <div aria-hidden="true" className="fixed inset-0 z-[60] overflow-hidden pointer-events-none" style={{ "--start-x": `${mascotStart.x}px`, "--start-y": `${mascotStart.y}px`, "--cry-x": `${mascotStart.x + mascotStart.buttonWidth + 10}px`, "--cry-y": `${mascotStart.y + 4}px` } as React.CSSProperties}>
-                        <div className="fairy-runner">
+                    {(mascotPrankActive || mascotCrying) && (
+                      <div aria-hidden="true" className="fixed inset-0 z-[60] overflow-hidden pointer-events-none" style={{ "--start-x": `${mascotStart.x}px`, "--start-y": `${mascotStart.y}px`, "--return-x": `${mascotStart.x - 120}px`, "--cry-x": `${mascotStart.x + mascotStart.buttonWidth + 10}px`, "--cry-y": `${mascotStart.y + 4}px` } as React.CSSProperties}>
+                        {mascotPrankActive && <div className="fairy-runner">
                           <div className="tiny-wizard">
                             <div className="wizard-wand"><i /></div>
                             <div className="wizard-hat"><i /></div>
@@ -494,8 +494,8 @@ function SettingContent() {
                             <div className="wizard-shadow" />
                           </div>
                           <span className="carried-delete-button">{t("settings.deleteAccount.button")}</span>
-                        </div>
-                        <div className="fairy-crying">
+                        </div>}
+                        {mascotCrying && <div className="fairy-crying">
                           <div className="tiny-wizard tiny-wizard-crying">
                             <div className="wizard-hat"><i /></div>
                             <div className="wizard-face"><i className="wizard-eye eye-left" /><i className="wizard-eye eye-right" /><i className="wizard-blush blush-left" /><i className="wizard-blush blush-right" /><span className="wizard-tears">••</span></div>
@@ -503,7 +503,7 @@ function SettingContent() {
                             <div className="wizard-body"><i className="wizard-star">✦</i></div>
                             <div className="wizard-feet"><i /><i /></div>
                           </div>
-                        </div>
+                        </div>}
                       </div>
                     )}
 
@@ -588,8 +588,8 @@ function SettingContent() {
                       .fairy-crying { position:absolute; display:flex; align-items:center; left:var(--cry-x); top:var(--cry-y); opacity:0; animation:fairy-cry 7.5s linear both; }
                       .tiny-wizard-crying { transform:scale(.45); transform-origin:top left; margin:0; }
                       @keyframes fairy-lap {
-                        0% { transform:translate(-150px, 45vh) rotate(0); opacity:0; }
-                        5% { transform:translate(2vw, 45vh) rotate(-7deg); opacity:1; }
+                        0% { transform:translate(calc(var(--start-x) - 150px), var(--start-y)) rotate(0); opacity:0; }
+                        5% { transform:translate(var(--return-x), var(--start-y)) rotate(-7deg); opacity:1; }
                         16% { transform:translate(78vw, 8vh) rotate(12deg); }
                         27% { transform:translate(87vw, 72vh) rotate(-10deg); }
                         39% { transform:translate(52vw, 84vh) rotate(9deg); }
@@ -597,8 +597,10 @@ function SettingContent() {
                         63% { transform:translate(7vw, 12vh) rotate(10deg); }
                         75% { transform:translate(76vw, 25vh) rotate(-8deg); }
                         87% { transform:translate(56vw, 49vh) rotate(8deg); }
-                        94% { transform:translate(36vw, 47vh) rotate(-3deg); opacity:1; }
-                        100% { transform:translate(34vw, 48vh) rotate(0); opacity:0; }
+                        94% { transform:translate(var(--return-x), var(--start-y)) rotate(-3deg); opacity:1; }
+                        96% { transform:translate(var(--return-x), calc(var(--start-y) - 12px)) rotate(0); opacity:1; }
+                        98% { transform:translate(var(--return-x), var(--start-y)) rotate(0); opacity:1; }
+                        100% { transform:translate(var(--return-x), var(--start-y)) rotate(0); opacity:0; }
                       }
                       @keyframes fairy-cry {
                         0%, 91% { opacity:0; transform:translateY(10px); }
