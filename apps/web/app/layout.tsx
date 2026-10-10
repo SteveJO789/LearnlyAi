@@ -1,8 +1,16 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Fredoka } from "next/font/google";
 
 import "./globals.css";
 import { Providers } from "./providers"; // Import เพิ่มตรงนี้
+
+const fredoka = Fredoka({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-fredoka",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Learnly AI",
@@ -16,7 +24,7 @@ type RootLayoutProps = Readonly<{
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="th" suppressHydrationWarning>
-      <body>
+      <body className={fredoka.variable}>
         <Providers>{children}</Providers>
       </body>
     </html>

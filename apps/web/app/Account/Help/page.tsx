@@ -74,7 +74,7 @@ function HelpContent() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-text relative transition-colors duration-200">
+    <div className="min-h-screen bg-transparent text-text relative transition-colors duration-200">
       <SiteHeader
         links={[
           { labelKey: "nav.create", href: "/Create" },

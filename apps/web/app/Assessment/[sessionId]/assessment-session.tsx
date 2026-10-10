@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
 import { AssessmentView, assessmentCopy } from "../../components/assessment-view";
+import CuteLoadingPopup from "../../components/CuteLoadingPopup";
 import { getLearningSession, LearningApiError } from "../../../lib/learning-sessions";
 import { createAssessment, getAssessment, submitAssessment, type AssessmentDto, type AssessmentPhase, type AssessmentTopic } from "../../../lib/assessments";
 
@@ -55,6 +56,7 @@ export default function AssessmentSession({ sessionId, phase }: { sessionId: str
     finally { busy.current = false; setSaving(false); }
   }
   return <>
+    {(loading || saving) && <CuteLoadingPopup message={saving ? "กำลังบันทึกแบบทดสอบ..." : "กำลังเตรียมแบบทดสอบ..."} detail="กำลังโหลดข้อมูลบทเรียนและจัดห้องเรียนให้พร้อม 🌷" />}
     <AssessmentView language={language} phase={phase} assessment={data} loading={loading} saving={saving} error={error}
       topic={topic} answers={answers} onTopic={setTopic} onAnswer={(id, value) => setAnswers(previous => ({ ...previous, [id]: value }))}
       onCreate={() => void create()} onSubmit={() => void submit()} onRetry={() => setRetry(value => value + 1)} />

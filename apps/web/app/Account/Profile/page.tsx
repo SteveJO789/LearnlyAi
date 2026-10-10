@@ -250,12 +250,11 @@ function ProfileContent() {
   };
 
   if (!mounted) {
-    return <div className="min-h-screen bg-background" />;
+    return <div className="min-h-screen bg-transparent" />;
   }
 
   return (
-    <div className="min-h-screen bg-background text-text transition-colors duration-200">
-      <SiteHeader
+<div className="min-h-screen bg-transparent text-text transition-colors duration-200">      <SiteHeader
         links={[
           { labelKey: "nav.create", href: "/Create" },
           { labelKey: "nav.lessons", href: "/Lessons" },
