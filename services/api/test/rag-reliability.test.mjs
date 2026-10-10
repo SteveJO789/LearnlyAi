@@ -127,9 +127,11 @@ for (const [language, question, answer] of [
       assert.equal(signals.suspiciousVoltage, false);
       assert.equal(validateTutorOutput(output).valid, true);
       assert.equal(output.blocks[0].citationIds[0], output.citations[0].id);
-      assert.match(system(harness), /language of the CURRENT studentInput/);
-      assert.match(system(harness), /Reference language and conversation history do not determine response language/);
-      assert.equal(JSON.parse(harness.requests[0].messages.at(-1).content).studentInput, question);
+      assert.match(system(harness), /server-selected teachingPolicy language/);
+      assert.match(system(harness), /Reference language and previous assistant language never override this policy/);
+      const task = JSON.parse(harness.requests[0].messages.at(-1).content);
+      assert.equal(task.studentInput, question);
+      assert.equal(task.teachingPolicy.language, language === 'English' ? 'en' : 'th');
     }
   });
 }

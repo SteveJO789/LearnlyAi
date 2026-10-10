@@ -110,6 +110,14 @@ export const en: Dictionary = {
   "history.percentCompleted": "% Completed",
   "history.pretest": "Pretest:",
   "history.posttest": "Posttest:",
+  "history.loading": "Loading your history…",
+  "history.retry": "Retry",
+  "history.assessment": "Learning assessment",
+  "history.noScore": "No result recorded",
+  "history.change": "Change:",
+  "history.percentagePoints": "percentage points",
+  "history.sessionUpdated": "Session updated:",
+  "history.openLearning": "Open learning session",
 
   // --- Setting: Delete Account confirm modal ---
   "settings.deleteConfirm.title": "Confirm account deletion",
@@ -250,6 +258,7 @@ export const en: Dictionary = {
   "chat.messageAriaLabel": "Message",
   "chat.sendHint": "Enter to send · Shift+Enter for a new line",
   "chat.unknownError": "An unknown error occurred",
+  "chat.failedSession": "The tutor could not complete the last request. Select Try again to resume this session.",
 
   // --- Chat blocks (explanation/question/hint/quiz/feedback) ---
   "chat.blocks.question": "Question",
@@ -390,6 +399,14 @@ export const th: Dictionary = {
   "history.percentCompleted": "% เสร็จสมบูรณ์",
   "history.pretest": "ก่อนเรียน:",
   "history.posttest": "หลังเรียน:",
+  "history.loading": "กำลังโหลดประวัติของคุณ…",
+  "history.retry": "ลองอีกครั้ง",
+  "history.assessment": "แบบประเมินการเรียนรู้",
+  "history.noScore": "ยังไม่มีผลที่บันทึกไว้",
+  "history.change": "เปลี่ยนแปลง:",
+  "history.percentagePoints": "จุดเปอร์เซ็นต์",
+  "history.sessionUpdated": "อัปเดต session:",
+  "history.openLearning": "เปิดการเรียนรู้นี้",
 
   "settings.deleteConfirm.title": "ยืนยันการลบบัญชี",
   "settings.deleteConfirm.body":
@@ -520,6 +537,7 @@ export const th: Dictionary = {
   "chat.messageAriaLabel": "ข้อความ",
   "chat.sendHint": "Enter เพื่อส่ง · Shift+Enter ขึ้นบรรทัดใหม่",
   "chat.unknownError": "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ",
+  "chat.failedSession": "ติวเตอร์ทำคำขอล่าสุดไม่สำเร็จ กดลองอีกครั้งเพื่อกลับมาเรียนต่อใน session นี้",
 
   "chat.blocks.question": "คำถาม",
   "chat.blocks.quiz": "แบบทดสอบ",

@@ -9,7 +9,7 @@ import { createLearningSessionsRouter } from "./modules/learning/learning-sessio
 import { createReadinessCheck, type ReadinessOptions } from "./shared/readiness.js";
 import { ApiError } from "./shared/api-error.js";
 import { createAssessmentRouter, createLearningProfileRouter, type AssessmentRouterOptions } from "./modules/assessments/assessment-router.js";
-import { createMaterialRouter } from "./modules/input/material-router.js";
+import { createMaterialRouter, type MaterialRouterOptions } from "./modules/input/material-router.js";
 
 export interface AppOptions extends CreateLearningEngineOptions {
   learningEngine?: LearningEngine;
@@ -17,6 +17,7 @@ export interface AppOptions extends CreateLearningEngineOptions {
   enableDevelopmentLearningRoute?: boolean;
   readiness?: ReadinessOptions;
   assessment?: AssessmentRouterOptions;
+  materialApi?: MaterialRouterOptions;
 }
 
 export function createApp(options: AppOptions = {}): Express {
@@ -54,7 +55,7 @@ export function createApp(options: AppOptions = {}): Express {
     app.use("/api/v1/learning", learningRouter);
   }
   app.use(
-    "/api/v1/learning-sessions/:sessionId/materials", createMaterialRouter(),
+    "/api/v1/learning-sessions/:sessionId/materials", createMaterialRouter(options.materialApi),
   );
   app.use(
     "/api/v1/learning-sessions/:sessionId/assessments",
@@ -100,6 +101,10 @@ export function createApp(options: AppOptions = {}): Express {
         status = 413;
         code = "PAYLOAD_TOO_LARGE";
         message = "The request body is too large.";
+      } else if (error.type === "encoding.unsupported") {
+        status = 415;
+        code = "UNSUPPORTED_MEDIA_TYPE";
+        message = "Compressed request bodies are not supported.";
       }
     }
     response.status(status).json({ error: { code, message, requestId: response.locals.requestId, details } });

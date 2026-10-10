@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-10",
+  "status": "REAL_LANGUAGE_ASSETS_VERIFIED_RECOGNITION_PENDING",
+  "source": "tesseract-ocr/tessdata_fast",
+  "revision": "87416418657359cb625c412a48b6e1d6d41c29bd",
+  "license": "Apache-2.0; original LICENSE downloaded and hash verified",
+  "totalAssetBytes": 5197046,
+  "actualDownload": "PASS: node scripts/prepare-ocr-models.mjs --download",
+  "offlineVerification": "PASS: node scripts/prepare-ocr-models.mjs",
+  "modelManifest": "services/api/src/modules/input/ocr-models.json",
+  "packageDirectory": "services/api/runtime-ocr (ignored generated output)",
+  "initialPreparationFailure": "LICENSE served compressed; Content-Length described gzip bytes rather than Node fetch decompressed bytes. Fixed header handling while retaining exact decoded length/SHA checks and bounded stream cancellation.",
+  "tests": {"modelAssetIntegrity": {"passed": 4, "failed": 0}, "offlineApi": {"passed": 266, "failed": 0}, "apiCompile": "PASS"},
+  "freshSourceExport": {"apiPassed": 266, "apiFailed": 0, "relocatedKnowledgeRuntimePassed": 4, "deterministicKnowledgeFiles": 9, "dependencies": "copied locked local installations", "ocrModelBundleVerified": false},
+  "notVerified": ["actual OCR recognition or Thai/math accuracy", "Tesseract/image/PDF library installation", "OCR worker resource/abort lifecycle", "build/Vercel OCR asset packaging", "endpoint/UI/private Storage wiring", "deployed OCR smoke"],
+  "additionalPaidCalls": 0,
+  "npmRepair": "Pending explicit authorization. NVM4306 confirmed through actual npm.exe wrapper; prepared repair script corrected to verify npm.exe and exact active Node/archive/version before any system mutation. Script syntax parsed but repair not executed."
+}

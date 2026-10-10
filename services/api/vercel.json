@@ -1,11 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "express",
+  "git": { "deploymentEnabled": { "**": false, "develop": true } },
   "installCommand": "npm ci --no-audit --no-fund && npm --prefix ../../knowledge ci --no-audit --no-fund",
   "buildCommand": "npm run build && npm run knowledge:verify-runtime",
   "functions": {
     "src/**": {
-      "includeFiles": "{runtime-knowledge/**,src/contracts/**}"
+      "includeFiles": "{runtime-*/**,src/contracts/**,node_modules/{tesseract*,pngjs,jpeg-js,pdfjs-dist,bmp-js,wasm-feature-detect,is-url,zlibjs,regenerator-runtime,idb-keyval}/**}",
+      "excludeFiles": "**/*.map"
     }
   }
 }

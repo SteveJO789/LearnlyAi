@@ -1,5 +1,39 @@
 // use prisma-8
 
+// Published curated Knowledge only. Student materials never enter this table.
+model KnowledgeChunk {
+  id                 String @id
+  documentId         String
+  documentVersion    String
+  passageId          String
+  passageHash        String
+  contentHash        String
+  embeddingInputHash String
+  provenanceHash     String
+  ordinal            Int
+  content            String
+  subject            String
+  language           String
+  page               Int?
+  sources            Json
+  embeddingModel     String
+  dimensions         Int
+  embedding          pgvector.Vector(length: 1536)
+  reviewed           Boolean @default(false)
+
+  @@index([embeddingModel, subject, language])
+  @@index([documentId])
+  @@check(expression: "dimensions = 1536 AND ordinal >= 0 AND (page IS NULL OR page > 0)", name: "knowledge_chunk_shape")
+  @@check(expression: "\"passageHash\" ~ '^[0-9a-f]{64}$' AND \"contentHash\" ~ '^[0-9a-f]{64}$' AND \"embeddingInputHash\" ~ '^[0-9a-f]{64}$' AND \"provenanceHash\" ~ '^[0-9a-f]{64}$'", name: "knowledge_chunk_hashes")
+  @@rls
+}
+
+policy_select knowledge_chunk_read_reviewed {
+  target = KnowledgeChunk
+  roles = [authenticated]
+  using = "reviewed = true"
+}
+
 model User {
   id                String   @id @default(uuid())
   authUserId        String   @unique
@@ -85,6 +119,7 @@ model SourceMaterial {
   type              SourceMaterialType
   status            SourceMaterialStatus
   storageKey        String?
+  storageBucket     String?
   normalizedText    String?
   contentHash       String
   mimeType          String
@@ -162,6 +197,25 @@ model AssessmentAnswer {
   )
 
   @@unique([assessmentId, questionId])
+  @@rls
+}
+
+enum FileUploadState {
+  PENDING
+  FINALIZED
+  CANCELLED
+}
+
+// Durable upload intent; never a READY learning material or reviewed Knowledge.
+model FileUpload {
+  id                String          @id
+  learningSessionId String
+  state             FileUploadState
+  material          Json
+  createdAt         TimestamptzString @default(now())
+
+  learningSession LearningSession @relation(fields: [learningSessionId], references: [id])
+  @@index([learningSessionId, createdAt])
   @@rls
 }
 
@@ -350,4 +404,53 @@ policy_insert source_material_insert_api_own {
   target = SourceMaterial
   roles = [authenticated]
   withCheck = "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+}
+
+policy_select file_upload_select_own {
+  target = FileUpload
+  roles = [authenticated]
+  using = "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+}
+
+policy_insert file_upload_insert_api_own {
+  target = FileUpload
+  roles = [authenticated]
+  withCheck = "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND s.\"lifecycleState\" = 'ACTIVE' AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+}
+
+policy_update file_upload_update_api_own {
+  target = FileUpload
+  roles = [authenticated]
+  using = "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+  withCheck = "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))"
+}
+
+policy_insert file_upload_insert_guard {
+  target = FileUpload
+  roles = [authenticated]
+  permissive = false
+  withCheck = "(current_setting('learnly.api_write', true) = '1')"
+}
+
+policy_update file_upload_update_guard {
+  target = FileUpload
+  roles = [authenticated]
+  permissive = false
+  using = "(current_setting('learnly.api_write', true) = '1')"
+  withCheck = "(current_setting('learnly.api_write', true) = '1')"
+}
+
+policy_update source_material_review_update_own {
+  target = SourceMaterial
+  roles = [authenticated]
+  using = "(\"status\" = 'READY' AND \"type\" IN ('PDF', 'IMAGE') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text AND s.\"lifecycleState\" = 'ACTIVE' AND s.\"stage\" = 'EXPLAIN' AND s.\"version\" = 0 AND s.\"state\" IN ('INPUT', 'PRE_TEST')))"
+  withCheck = "(\"status\" = 'READY' AND \"type\" IN ('PDF', 'IMAGE') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text AND s.\"lifecycleState\" = 'ACTIVE' AND s.\"stage\" = 'EXPLAIN' AND s.\"version\" = 0 AND s.\"state\" IN ('INPUT', 'PRE_TEST')))"
+}
+
+policy_update source_material_review_update_guard {
+  target = SourceMaterial
+  roles = [authenticated]
+  permissive = false
+  using = "(current_setting('learnly.api_write', true) = '1')"
+  withCheck = "(current_setting('learnly.api_write', true) = '1')"
 }

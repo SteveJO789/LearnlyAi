@@ -130,7 +130,9 @@ flowchart TB
     Auth --> DB
 ```
 
-No Docker or Docker Compose. Local development uses Node.js 24.x via `npm ci` and `npm run dev` in `apps/web` and `services/api`. Set environment variables in Vercel/Supabase; never commit secrets. `/health/ready` currently reports API process readiness only, not DB readiness.
+No Docker or Docker Compose. Local development uses Node.js 24.x via `npm ci` and `npm run dev` in `apps/web` and `services/api`. Set environment variables in Vercel/Supabase; never commit secrets. `/health/ready` checks DB connectivity (`SELECT 1`), the reviewed runtime Knowledge artifact, and Auth URL/key configuration with bounded probes. It does not establish schema/marker compatibility, external Auth/provider health, RLS or a complete login journey.
+
+File input coordination uses an owned `FileUpload` journal before Storage mutation, exact-byte verification on explicit resume, and serialized cancellation before cleanup. Only finalized READY SourceMaterial reaches the existing Learning Engine as USER_MATERIAL. The journal/migration and transport are implemented but file endpoints, real decoder/OCR and live Storage integration remain pending; see [file pipeline](file-input-foundation.md).
 
 ## 10. Out of Scope for MVP
 

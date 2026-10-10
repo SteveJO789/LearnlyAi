@@ -1,6 +1,10 @@
 # ตัวติดตามการทำ MVP ให้ครบ
 
+สถานะล่าสุด 2026-10-11: canonical vector contract/publication และ protected persistent runtime implement แล้ว API309/309, Web24/24, simulatedpersistent14/14/build/typecheck/migrationintegrityPASS รวมdevelop472086cแล้ว Actual rollback publication/search/RLS fixtures รวม reuse actual embedding และ fresh6packages103steps190checksPASS ไม่มีpaidcalls/productionapply ดู Milestone21 รายการเก่าด้านล่างเป็นผล ณ milestoneเดิม
+
 เริ่มตรวจ 2026-10-09 จาก `origin/develop` commit `e2ddfdd7788a5d20d66b496ee2917771b6ea3021` บน branch `integration/university-mvp-20261009` ใน worktree แยก งานเดิมและ stash ไม่ถูกแก้ไข เป้าหมายยัง ACTIVE; ยังไม่ IMPLEMENTATION COMPLETE หรือ RELEASED
+
+สถานะล่าสุด 2026-10-10: PR #74 และ design PR #76 ถูกทีม merge แล้ว; งานใหม่ต่อจาก develop `5022c28` บน `integration/university-mvp-followup-20261009` โดยนำเฉพาะ recovery/embedding ใหม่มา ไม่ทำซ้ำ commits ที่ merge แล้ว
 
 ## หลักฐานจาก Phase 0
 
@@ -19,18 +23,18 @@
 |---|---|---|---|---|---|---|
 | Supabase Google/email login, verification, callback | #5 #6 (approved) | มี implementation; รักษาไว้ | regression และ real browser flow รอบนี้ | Supabase Auth | auth middleware tests มีอยู่; ต้อง rerun | isolated test accounts/preview |
 | Profile sync/edit | #2 #16 | Web เรียก Supabase User จริง | mastery, avatar Storage, UX tests | User RLS | apps/web/lib/user-profile.ts | safe test DB |
-| Persistent sessions/history | #8 #9 #14 | Prisma + JWT-scoped persistence จริง | whole-flow tests, failed-session recovery, retry correctness | Auth/DB | learning-sessions-router, PrismaLearningPersistence | real RLS fixture environment |
+| Persistent sessions/history | #8 #9 #14 | Prisma + JWT-scoped persistence และ explicit FAILED recovery | real Auth/browser whole-flow และ ambiguous interaction retries | Auth/DB | persisted integration 10/10; recovery RLS/atomic rollback จริง | public migration/browser proof |
 | P3.1 curated RAG integration | #11 #12 | merged แล้ว | fresh integrated regression and packaging | reviewed Knowledge | ancestor checks; code present | corpus มี concept เดียว |
 | Retrieval relevance/history | #11 | lexical pilot + bounded follow-up implemented | broader corpus/vector retrieval | P3.1 | core TP4/TN3/FP0/FN0; reset/revocation tests | corpus/model coverage |
-| Embeddings/pgvector ingestion and Top-K | #3 #11 | ยังไม่มี working implementation | chunks/vectors/metadata/queries | safe DB, approved source | Prisma contract ไม่มี Document/Chunk จริง | safe non-production DB; embedding model/budget |
-| Adaptive tutoring | #39 | deterministic language/mode + stage/history prompts | real model teaching-quality review | #12 | 5 multi-turn regressions + language test pass | live quality not run yet |
+| Embeddings/pgvector ingestion and Top-K | #3 #11 | canonical model/atomic reviewed publication/Top-K/persistent vector composition implemented | operator CLI, index readiness, live authenticated deployment/calibration | approved curated source + explicit configuration | API308, persistent14, actual migration/publication/search/RLS fixtures PASS | production-compatible migration/index and broader reviewed corpus |
+| Adaptive tutoring | #39 | mode/language/history; แก้ source-example borrowing และ premature numeric confirmation | independent educator review และ broader curriculum | #12 | 5 multi-turn regressions; live รอบแก้ 13/13 schema/citation/state | corpus/model coverage; บางคำใบ้ยาวเกิน preference |
 | Assessment PRE/POST scoring/persistence | #13 | APIs, snapshot, deterministic scoring, atomic answers/profile implemented | broader question bank; real Auth/browser journey; release migration | #2 #3 | 6 real API/Prisma/DB groups PASS; HTTP/scoring tests | deploy after team merge |
 | Learning profile/statistics | #13 #16 | owned APIs and Home/Profile UI implemented | browser/mobile QA; expanded curriculum evidence | Assessment | concurrent samples/PRE-POST comparison real DB PASS | develop-only CD |
-| Text/PDF/image normalization | #15 | normalized persistent TEXT + engine materials implemented | PDF/image extraction/OCR, file validation/Storage | #2 #3 | NFC/math tests, real material RLS rollback PASS | OCR/dependency/runtime assets |
-| Learning UI | #9 | stage, PRE/POST journey, actual 3 interactive widgets, structured blocks | provider-failure recovery, browser/mobile/keyboard QA | API contracts | rendering/calculator/contract tests; build PASS | browser evidence pending |
+| Text/PDF/image normalization | #15 | real PDF/OCR/private file API + Create review implemented | actual Auth/Storage/browser journey, owned file-history/retention UX | #2 #3 | API308, real extraction10, metadata-review/RLS rollback PASS | production migration/bucket and live verification |
+| Learning UI | #9 | stage, PRE/POST journey, 3 interactive widgets, structured blocks, explicit failure recovery | browser/mobile/keyboard QA | API contracts | rendering/client tests + persisted recovery + real recovery RLS | browser evidence pending |
 | Dashboard/History/Profile | #16 | real summary metrics/recent sessions/comparisons, /History alias | browser/mobile/empty/error interaction checks | #13 | new metrics APIs + rendering/client tests | develop-only CD |
-| Reliability/security | #14 | partial | readiness dependencies, auth timeout, log safety, public dev route | core integration | defects identified in app/auth/router | none for local fixes |
-| Release readiness | #14/all | incomplete | builds, fresh install/DB/E2E/preview/issue criteria | all above | CI configured; latest hosted status failed | Vercel build limit, no safe DB yet |
+| Reliability/security | #14 | readiness ที่ระบุขอบเขตจริง, bounded Auth, safe logs, dev route ปิด, recovery | full browser security journey; production schema readiness | core integration | API 237/237; real cross-user/guard/rollback fixtures | deployment logs/access |
+| Release readiness | #14/all | ยังไม่ครบ | full migration replay/public migration review, E2E, deployed smoke | all above | local Web/API builds ผ่าน; latest develop Web green/API red | npm repair, Vercel logs 403, public schema ยังเก่า |
 
 ## ลำดับงานที่ลงมือ
 
@@ -118,3 +122,204 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - Pending: browser/mobile/keyboard E2E; provider-failure recovery; PDF/image/OCR; embedding/pgvector; full historical migration replay; release/public migration and deployed smoke after team merge into develop
 - Next implementation: file input + retrieval persistence after publishing/reviewing this milestone. Live AI budget remains US$0 of approved US$1
 - Local npm still blocked by NVM4306 (untrusted delegated npm-cli.js, npm package 11.19.0). Do not invoke the delegated script indirectly or blindly trust it; verify provenance/repair before installing PDF/OCR dependencies
+
+### Milestone 6 — กู้คืน session หลัง provider failure
+
+- เพิ่ม protected `POST /learning-sessions/{id}/recovery` รับ `{}` เท่านั้น เจ้าของกู้คืนได้เฉพาะ FAILED; stage/progress เดิมไม่เปลี่ยน และ version เพิ่มหนึ่งครั้ง
+- เปลี่ยนสถานะและบันทึก SYSTEM event ใน transaction เดียว; event ไม่เข้าบทสนทนา AI และไม่บันทึก/ซ่อม rejected model output
+- Chat retry กู้คืนเมื่อผู้ใช้กดเอง รวมกรณีเปิดหน้า FAILED session ใหม่; ไม่มี automatic provider retry หรือค่าใช้จ่าย AI ในการ recovery
+- Integration 10/10, frontend 13/13 และ API/Web typechecks PASS
+- Complete recovery milestone checks PASS: Knowledge 50/50, API 230/230, Web/API production builds, fresh source-only runtime packaging (9 deterministic files) and relocated runtime 4/4; [evidence](evidence/mvp-recovery-local-checks.json). Embedding modules added afterward have separate targeted tests, not this full-suite evidence
+- PostgreSQL/RLS จริงแบบ BEGIN/ROLLBACK ผ่าน ownership, API-write guard, cross-user isolation, stale version, stage preservation และ event failure rollback; `fixture_removed=true` ไม่แก้ public tables/ข้อมูลผู้ใช้จริง
+- CI run154 สำหรับ published head c16ec50 ผ่าน: https://github.com/SteveJO789/LearnlyAi/actions/runs/37957856223 . ยังไม่ใช่ CI proof ของ recovery commit ใหม่
+- npm 11.19.0 registry signature/integrity ผ่าน แต่ installed runtime บางไฟล์ต่างจาก official archive; เตรียม same-version repair/backup ใน ignored `.verification/npm-repair/` และขออนุมัติ เพราะเป็น software/trust state นอก repository
+- Supabase pgvector 0.8.2 ติดตั้งใน extensions schema แล้ว (read-only inventory); ยังไม่สร้าง production Knowledge tables หรือเรียก paid embeddings
+- งานถัดไป: embedding/chunking และ Top-K integration; PDF/image/OCR รอ npm repair approval. Live budget ใช้ US$0 จาก US$1
+
+### Retrieval foundation (กำลังทำ ยังไม่ครบ pipeline)
+
+- เพิ่ม deterministic reviewed-passage chunking: NFC/LF, paragraph/formula ไม่ถูกตัด, content/passsage hashes, document/version/source metadata และ page=null เมื่อไม่มีข้อมูลหน้า
+- เพิ่ม real OpenRouter embedding adapter: จำกัด input/batch/timeout/response bytes, ตรวจ model/index/dimension/finite nonzero vector และปิดบัง raw provider errors; ไม่มี Mock fallback ใน runtime
+- Tests 4/4 และ API compile PASS โดย injected transport ไม่ใช่ paid live embedding evidence
+- Prisma 8 PSL เวอร์ชันที่ติดตั้งไม่รองรับ `Unsupported("extensions.vector")` (ตรวจใน ignored scratch contract เท่านั้น); ต้องใช้ pgvector extension pack ตาม public Prisma contract API ไม่สร้างตารางแยกนอก canonical migration
+- Storage/Top-K/runtime wiring และ live quality ยังไม่ implemented/verified; รอ dependency installation หลัง npm repair approval ก่อนเพิ่ม extension pack/PDF/OCR libraries
+
+### Milestone 7 — live adaptive verification และ follow-up จาก develop ล่าสุด
+
+- PR #74 merge a7cd027 และ PR #76 design merge 5022c28 ตรวจจาก GitHub/Git จริง; คง design ใหม่และไม่มี auto-merge โดย agent
+- Live รอบแรก: 5 conversations/13 turns ผ่าน schema/citation/state แต่ตรวจพบ HINT ยืมตัวเลขจาก reference example และ GUIDE ยืนยันตัวเลขโดยไม่ทราบ givens; เก็บ raw evidence เดิมแยก ไม่อ้างว่า quality ผ่านทั้งหมด
+- แก้เฉพาะ adaptive instructions: ไม่ถือ reference example เป็นโจทย์ learner; ต้องขอ givens ก่อนยืนยันตัวเลข ไม่แก้ schema/validator/stage authority
+- Live รอบหลังแก้: 13/13 schema, retrieval expectation, exact citation linkage และ engine binding; ตรวจคำใบ้/feedback แล้วสองข้อบกพร่องข้างต้นไม่เกิดในรอบนี้ ยังต้อง educator review และ corpus coverage เพิ่ม
+- ค่าใช้จ่าย OpenRouter ที่รายงานรวม 26 calls **US$0.0214265**; กันงบสะสม **US$0.31889835** จากเพดาน US$1; no retry, ledger จองงบก่อน request และไม่คืน reservation เมื่อ response กำกวม
+- [Live summary](evidence/mvp-adaptive-live-verification.json); raw synthetic evaluation outputs/ledger เก็บใน ignored paths ไม่เขียนทับ P3/P3.1 historical evidence
+- พบ architecture regression test failure จาก embedding transport อยู่ใน Knowledge module; ย้าย HTTP adapter ไป AI/providers และคง Knowledge port เป็น pure interface รวม hashing ที่จำเป็นเท่านั้น หลังแก้ API **237/237** ผ่าน
+- Latest develop + follow-up Web typecheck/tests **13/13** และ production build ผ่าน; API typecheck/compile ผ่าน; recovery integration 10/10 และ SQL/RLS evidence ไม่เปลี่ยน
+- develop 5022c28: Vercel Web status success, API failure; connector 403 และ browser initialization ล้มเหลว ยังไม่มี build log/cause ที่ยืนยัน จึงไม่เดาสาเหตุหรือ redeploy เพื่อเผา quota
+- อ่าน public catalog ซ้ำ: Assessment ยังไม่มี topic/snapshot/submissionHash; Assessment/Answer/Profile/SourceMaterial มี SELECT policies เท่านั้น ยังไม่มี API-write policies ใหม่ ไม่มี public migration โดย agent
+- กำลังรอคำตอบเรื่องซ่อม npm ส่วนกลางและข้อความ Vercel build error; ทำ historical migration verification และส่วนที่ไม่ต้องติดตั้ง dependency ต่อได้
+
+### Milestone 8 — Fresh database baseline / ตรวจพบข้อบกพร่อง historical replay
+
+- PR #78 เปิดและ CI run162 ผ่านสำหรับ remote 6fd9d8b: https://github.com/SteveJO789/LearnlyAi/actions/runs/38020135720 . ยังไม่ใช่ proof ของ milestones หลังจาก head นี้
+- main ถูกทีม merge develop ผ่าน PR #77 เป็น 0602e0c; agent ไม่ merge/main/deploy และยังคง CD เฉพาะ develop
+- Legacy 8-migration SQL replay ล้มเหลวที่ policy drop precheck: snapshot 075d335 อ้าง policies 10 ตัว แต่ migration ก่อนหน้าไม่สร้าง policies เหล่านั้น; graph integrity PASS ไม่พิสูจน์ replay ได้ เก็บผล failed และ rollback แล้ว fixture_removed=true
+- สร้างทางเลือก baseline ใหม่จาก @empty→d17a8bc ด้วย Prisma CLI โดยไม่แก้ historical hashes: current tables/FKs/indexes/RLS + explicit app table grants, ไม่มี legacy Auth tables/data cleanup หรือ global role mutation
+- Actual PostgreSQL rollback test: **68 SQL steps / 126 canonical pre/post checks PASS**, owner legacy identity อ่านได้/foreign user อ่านไม่ได้; fixture_removed=true
+- Read-only db migrate --show เลือก fresh app baseline + existing Supabase descriptor record; ยังไม่ execute Prisma marker/history หรือ public production migration
+- [หลักฐาน](evidence/mvp-fresh-baseline-verification.json); existing DB ต้องใช้ verified current marker ไม่ replay fresh baseline
+- เพิ่ม routing max_price/no provider fallback ใน paid evaluation runner เพื่อให้ราคา endpoint ไม่เกินราคาใช้คำนวณ reservation; offline budget tests 3/3 ผ่าน ไม่เรียก paid model เพิ่ม
+
+### Milestone 9 — รักษา ownership/history ของข้อมูลบัญชีเก่า
+
+- Aggregate audit พบ User.id ≠ authUserId 1 แถว โดยไม่อ่าน/แสดงตัวตนหรือข้อมูล learner; historical backfill รองรับกรณีนี้ แต่ API/Profile lookup เดิมสมมติ id=Auth UID
+- Backend resolve owned application User.id ผ่าน authUserId ภายใต้ JWT-bound Prisma/RLS เดิม ก่อนใช้ FK filters สำหรับ sessions/recovery/materials/assessments/profile; ไม่เปลี่ยน verified Auth identity หรือข้อมูลจริง
+- Browser profile sync/read/edit/theme lookup ใช้ authUserId; คง primary key, ชื่อและ custom avatar ของบัญชีเก่า และคง convention ของบัญชีใหม่
+- Simulated persistent integration **11/11**, frontend **16/16**, API **239/239**, API/Web typechecks/compile และ Web production build PASS
+- Fresh source-only export + relocated runtime PASS: API239/239 และ runtime4/4; snapshot ก่อนเพิ่ม native routing price guard ซึ่งมี budget tests3/3 แยก ไม่อ้างว่า export ตรวจ price guard ใหม่แล้ว
+- ยังไม่ใช่ actual OAuth/browser E2E หรือ live deployed repair; production schema/API deploy และ npm repair approvals/log access ยังเป็น blockers
+
+### Milestone 10 — History ใช้ผลสอบจริง
+
+- Goal ถูกพักตามคำสั่ง แล้วสถานะกลับมา ACTIVE ก่อนทำงานต่อ; เก็บงาน WIP เดิมและทำให้ครบ
+- แทน empty prototype testResults array ด้วย owned progress API comparisons; default History แสดง Chat จริงและอยู่หลัง RequireAuth
+- PRE/POST แสดง 0/null ต่างกัน, delta เป็นจุดเปอร์เซ็นต์, วันที่เป็น session updatedAt จริง ไม่ปลอมว่าเป็นวันสอบ; กรองวันที่และ links ใช้ session IDs ที่ encode
+- Sessions/results load แยกกัน มี loading/error/retry; คง Cake layout พร้อม responsive columns และ labels/ARIA
+- Frontend **20/20**, typecheck และ final production build PASS; [หลักฐาน](evidence/mvp-history-verification.json). ไม่อ้าง browser interaction/mobile visual proof
+- CI run163 ของ head24317df ผ่านก่อน milestone นี้: https://github.com/SteveJO789/LearnlyAi/actions/runs/38022572450
+- Read-only production Prisma verify: exit4 / verificationOk=false, Hash mismatch; marker storageHash=c7b3938 ก่อน 3 app deltas ไป d17a8bc ไม่มีการเปลี่ยน marker/schema/data
+- งานถัดไป:ตรวจ migration path จาก actual marker และ release preparation; PDF/OCR/pgvector dependencies ยังรอ npm repair approval และ Vercel API error log ยังไม่มีสิทธิ์อ่าน
+
+### Milestone 11 — คำตอบตัวเลขไม่หลุดภาษา/บริบท
+
+- เขียน regressions ก่อนแก้ พบ 2 failures จริง: “40 V” หลังบทสนทนาไทยเลือก English/STANDARD และไม่ retrieve reviewed context เดิม
+- เพิ่ม bounded numeric reply recognition (ไม่คำนวณ/ให้คะแนน), ใช้ล่าสุดของ learner เพื่อเลือกภาษา, GUIDE feedback และ context anchor ที่ยังต้อง reread review eligibility; topic reset/explicit English/Thanks ยังชนะ history
+- เพิ่ม server-selected teachingPolicy ใน task prompt; ไม่เปลี่ยน Tutor Output schema/engine authority และไม่ซ่อม model-authored blocks/citations
+- Live numeric 3 rounds/9 calls: พบ language drift แล้วแก้; พบ method confirmation ที่ไม่ทราบ reasoning แล้วแก้ รอบสุดท้ายตอบไทยกับ numeric และ English acknowledgement ได้ แต่ยังมี recap เล็กน้อย
+- Current full live regression 5 conversations/13 turns: schema/citation/engine binding/retrieval expectation 13/13; generic hint ยังสมมติว่าปัญหาต้องหา V จาก I/R ทั้งที่ learner ไม่ให้โจทย์ จึงไม่อ้าง all teaching quality PASS
+- Goal รวม 48 paid calls reported **US$0.02957363572**, conservative reservations **US$0.5915484** จาก US$1; [หลักฐาน](evidence/mvp-numeric-followup-verification.json). No retry/native price ceiling, CI offline
+- API **244/244**, persistent integration **11/11**, compile/typecheck และ fresh source export244/244 + relocated runtime4/4 PASS; Web20/20/build เดิมไม่มี frontend code changes รอบนี้
+- CI164 ของ History head6a4ff2c ผ่านก่อน numeric milestone: https://github.com/SteveJO789/LearnlyAi/actions/runs/38025240138
+- Read-only db migrate --show จาก actual c7b3938 ไป d17a8bc เลือก 3 app deltas + Supabase descriptor; ไม่เลือก fresh baseline ไม่ apply/sign production
+
+### Milestone 12 — vector retrieval และการตรวจฐานข้อมูลจริง
+
+- Resume ตามคำสั่งผู้ใช้; งานต่อจาก file foundation แล้วเข้าสู่ PDF/OCR และ vector retrieval โดยรักษาขอบเขต MVP เดิม
+- เพิ่ม bounded conversation-aware semantic retrieval และ JWT-bound Prisma Top-K query โดย filter model/dimensions/subject/language และ cosine threshold; database candidate ไม่มีอำนาจสร้าง trusted citations
+- Re-read reviewed source หลัง external IO และเทียบ chunk/passage/content/provenance hashes รวม exact source URLs/licenses; ปฏิเสธ stale/revoked/forged results และคืน teaching passage เต็ม
+- Compile เคย fail เพราะใช้ raw scalar returns แทน returnsRow; แก้แล้วผ่าน Architecture test เคย fail เพราะวาง Prisma adapter ใน Knowledge boundary; ย้ายไป prisma โดยไม่ลดข้อกำหนดการทดสอบ
+- API **255/255**, vector-specific **6/6**, persistent simulated integration **11/11** และ compile PASS
+- Actual PostgreSQL/pgvector SQL assertions ผ่าน Top-K/ties/filters/threshold/hostile model string/RLS/read-only privileges ใน BEGIN/ROLLBACK; `fixture_removed=true` ไม่แก้ public tables/ข้อมูล learner ไม่ใช่ actual Auth→Prisma vector execution หรือ live embedding quality
+- CI175 ของ previous file head9c587f PASS; ไม่ใช่ CI proof ของ milestone ใหม่ [หลักฐาน](evidence/mvp-vector-search-verification.json)
+- Canonical pgvector contract/ingestion/runtime wiring และ PDF/OCR ยังไม่ครบ npm repair approval ยัง pending; ไม่มี paid calls เพิ่ม ไม่ reset งบ US$1
+- งานถัดไป: real file extraction/OCR และ canonical vector persistence หลัง dependency installation ใช้ได้; เอกสารรายละเอียด [vector integration](vector-retrieval-integration.md)
+
+### File foundation (ยังไม่ complete input pipeline)
+
+- Resume รอบ file coordinator: เพิ่ม owned-session-before-extraction, immutable byte hash checks, normalized extraction/page bounds และ Prisma file save ที่ lock/recheck active ownership พร้อม API-write context/metadata/PRE gate ใน transaction
+- Confirmed upload + failed DB จะ compensate delete; failed cleanup มี explicit controlled error/operator material ID โดยไม่ expose storage key/private data Ambiguous upload timeout ยังต้อง durable reconciliation
+- File orchestration7/7 และ compile PASS; injected extractor/storage/DB ใช้เฉพาะ tests ไม่มี default/Mock extractor/runtime wiring จึงไม่ใช่ real PDF/OCR หรือ actual file persistence proof
+- Full offline API **262/262** PASS หลัง coordinator; vector head64a7b6f มี Linux CI176 PASS ก่อน file changes รอบนี้ [หลักฐาน file milestone](evidence/mvp-file-ingestion-verification.json)
+- Real file persistence SQL ตรวจพบ bug42704 (nonexistent enum cast) ที่ CI177/unit testsไม่จับ: contract/live columnใช้text แก้ bound parameterแล้ว API262/262/compile PASS. Fixture assertionเคยfailjson=jsonb แก้เฉพาะตัว verifierและเก็บfailure evidence. Actual SQL/canonical fixture RLSผ่าน legacy owner/direct API guard/metadata/PRE gate/atomic failed update/cross-user/FK และ fixture_removed=true [หลักฐาน](evidence/mvp-file-persistence-rls-verification.json); ไม่ใช่ actual Auth→Prisma/decoder/Storage proof
+- ยังรอ npm repair approval ก่อนติดตั้ง decoder/OCR/pgvector extension pack; ไม่ bypass NVM trust gate และไม่สร้าง bucket/แก้ production tables
+
+### OCR language assets — เตรียมไฟล์จริงแล้ว ยังไม่ใช่ recognition
+
+- ดาวน์โหลด official pinned eng/tha traineddata และ LICENSE รวม5,197,046bytes ตรวจsize/SHA256จริง และ offline cache verificationผ่าน; runtime verifierไม่มี CDN fallback
+- แก้ downloader หลัง actual LICENSE gzip Content-Length mismatch: ตรวจ decoded byte length/hash และ bounded streaming; tests4/4 และ current API**266/266**/compile PASS [หลักฐาน](evidence/mvp-ocr-model-packaging-verification.json)
+- Generated runtime-ocr files ignored ไม่ commit models binary ยังไม่ wire build/Vercel/runtime extractor ไม่มีการอ้าง actualOCRaccuracy/worker/deploy proof
+- Current fresh source-only export **API266/266 + relocated Knowledge runtime4/4 PASS**, deterministic9files; copied locked dependencies ไม่ใช่ freshnpm install และไม่รวม OCR assets จึงไม่ใช่ OCRdeployment proof
+- npm.exe wrapperยังNVM4306; prepared repair scriptปรับให้ใช้wrapperที่มีจริงตรวจNode24.21.0/npm11.19.0/official archive identityก่อนglobalmutation parse syntaxผ่านแต่ไม่ได้รัน รอคำตอบอนุมัติที่ส่งไว้
+- งานถัดไป: dependency installation→real PDF/image/OCR adapter→model packaging in build→owned file endpoints/UI→actualStorage/RLS/runtimevector integration ไม่รีเซ็ตงบUS$1
+
+### Milestone 13 — actual embeddings/pgvector และแก้ false-positive จากหลักฐานจริง
+
+- เพิ่มexplicit paid runnerที่ใช้shared US$1 ledger/lock/native price caps/no retry/no fallback มีoffline budget tests3/3 ไม่อยู่ในnormalCI paid path
+- Actual APIพบnative model name mismatch ทั้งที่vector1536ถูกต้อง: negative regressionก่อนแก้failจริง รองรับเฉพาะknown canonical/native pair และยังrejectwrong model/namespace/dimension; embedding tests5/5
+- Real PGแรกfail42501เพราะconnection roleไม่มีextensions USAGE แต่authenticatedมี ใช้existing SET LOCAL roleในTEMP fixture/FORCE RLSโดยไม่grantสิทธิ์ถาวร
+- Content-only vector thresholdเดิมผ่าน6/8และผิดtransformer/battery เก็บfailureแล้วเพิ่มpilot intent gate และtitle/topic-aware document input +exactembeddingInputHash; title-only changesinvalidateold index
+- Actual title-aware document vector+12actual query vectors/PG query: calibration4cases, subsequentregression8/8ทั้งraw vectorและintent/provenancegate ผ่าน unreviewedrowhidden/readerpublishdeny/fixture_removed=true ไม่มีAuth→Prisma/publicmigration/browserproof
+- API**272/272**, compile, persistent simulated11/11 ผ่าน Newpaidembeddings6calls; originalgoalรวม54calls reported**US$0.02963331572**/reserved**US$0.6515484** จากUS$1 [หลักฐาน](evidence/mvp-live-embedding-verification.json)
+- Actualproduction ingestion/contract/runtimewiring ยังpending pgvectorpack/npmrepair approval ไม่claimMVPcomplete; next implementationคือcanonical vector persistenceและrealPDF/OCRเมื่อdependenciesติดตั้งได้
+
+### Milestone 14 — canonicalprivateStorage policiesและfilebucketmetadata
+
+- Read-only auditพบactualbucket/policiesยัง0 เตรียมprivatelearnly-materials3MiB/PDF-PNG-JPEGและ8RLS policiesจากPrisma-generatedd17→8626880 additive edge เพิ่มnullableSourceMaterial.storageBucket; same-hashcustomedgeไม่ถูกเลือกจึงไม่ใช้
+- Persistbucketคู่keyในfilePrisma transaction, internalfieldsไม่ออกresponse ExistingTEXT/legacynullableไม่ถูกrewrite ยังไม่applypublic/storageจริง
+- Actualemptyclones/rollbackผ่าน20canonicalchecks + ownership/anon/cross-user/update/upsert/key/closed-sessioncleanup/other-bucketcases แม้มีbroadtruepolicies เก็บ42501anon-joinfailureแล้วแก้เป็นseparateguardไม่grantapptablesให้anon
+- Freshbaseline+storage packageผ่าน**78SQLsteps/146canonicalchecks**, filebucketSQLfixtureผ่าน fixture_removed=trueทั้งหมด Productionpost-auditยัง0bucket/0policies ไม่ใช่actualStorageHTTP/Prismaexecutor/PDFOCRproof [หลักฐาน](evidence/mvp-private-storage-verification.json)
+- FullAPI273/274failที่historical-tipguardครั้งแรก; updateverifierหลังreviewและStoragewrite-remappingแล้ว**274/274PASS**, integration11/11, compile/migrationintegrityPASS ไม่มีpaidcallsเพิ่ม
+- Next: realextractor/dependencies, authorizedprivatebucket/runtimewiring andrealAuthStorageE2E/reconciliation Canonicalcurrenttip8626880; actualproductionmarkerc7และAPIdeploy/npmrepair blockersยังคงอยู่
+
+### Milestone 15 — ป้องกันไฟล์หายเมื่อไม่รู้ผล COMMIT
+
+- พบว่า save อาจ COMMIT แล้วแต่ connection ส่ง error; compensation เดิมลบไฟล์ที่ใช้งานอยู่ได้ แก้ให้ตรวจ exact receipt หลัง parent-session lock ก่อนตัดสินใจ
+- Confirmed READY คืนสำเร็จโดยไม่เขียนซ้ำ; conclusive absence จึงลบ; UNKNOWN/timeout/hidden owner/conflict เก็บไฟล์และคืน controlled FILE_RECONCILIATION_REQUIRED พร้อม random material ID เท่านั้น
+- ตรวจ READ COMMITTED ก่อนเชื่อ absence, จำกัด lock/statement time และตรวจ completed owned session ได้ ไม่เปลี่ยน canonical schema/Auth/engine authority
+- Compile, full API **278/278**, file checks **11/11**, simulated persistent **11/11** PASS Actual adapter SQL/canonical RLS ผ่าน exact/absent/conflicting/completed/cross-user receipt ใน empty clones และ rollback หมด [หลักฐาน](evidence/mvp-file-receipt-verification.json)
+- ไม่มี real network-loss/concurrent Prisma/Storage proof และยังขาด durable upload/process-crash reconciliation, PDF/OCR, endpoints/UI ไม่มี paid calls เพิ่ม
+- Fetch พบ develop ใหม่ `875575f` (ทีมเพิ่ม auth/loading/mobile design และ Knowledge build hotfix); งานถัดไปคือรวมโดยรักษา UI ของทีม แล้ว rerun integration/build ก่อนกลับไป dependencies/runtime
+
+### Milestone 16 — รวม develop ล่าสุดและตรวจ build ใหม่
+
+- รวม develop `875575f` ใน integration ผ่าน merge `75ca453` โดยไม่มี conflict ตรวจ 3 auto-merged files ให้รักษา actual History/recovery และ UI/loading ของทีม ไม่ merge PR เข้า develop/main
+- API compile/**278/278**, frontend **20/20**/typecheck/production build PASS; Knowledge hotfix ผ่าน **4/4** เมื่อ parent environment ตั้ง VERCEL=1/NODE_ENV=production
+- Fresh source-only export API **278/278** + relocated runtime **4/4** PASS, deterministic Knowledge 9 files และ cleanup สำเร็จ ใช้ copied locked dependencies ไม่ใช่ fresh npm/OCR deployment proof
+- GitHub statuses ของ develop875575f ผ่านทั้ง Web/API หลัง hotfix ของทีม จึงไม่ใช้ API build failure ของ5022เป็น current blocker แล้ว; ยังไม่มี runtime smoke/real Auth proof และ Vercel inspection tool ใช้ไม่ได้
+- CD ยังเฉพาะ develop; workflow diff เทียบ develop ใหม่ว่าง ไม่มี paid calls/schema changes/deploymentเพิ่ม [หลักฐาน](evidence/mvp-develop-integration-verification.json)
+- Next: ติดตั้ง PDF/image/OCR/pgvector dependencies หลัง npm repair ที่รออนุมัติ, durable upload reconciliation, canonical vector ingestion/runtime และ actual file endpoint/UI/E2E
+
+### Milestone 17 — durable upload journal และ explicit resume
+
+- เพิ่ม canonical FileUpload intent ก่อนส่ง bytes: PENDING/CANCELLED, session FK, prepared metadata และ API-only RLS/grants Migration862→26370da additive/generated/self-emitted ไม่ apply production
+- Resume อ่าน intent ของเจ้าของและตรวจ authenticated original bytes/MIME/size/hash; save รับ exact PENDING เท่านั้น Cancellation commit ก่อน delete ภายใต้ parent lockเดียวกับsave/READY receipt กัน finalize/delete race และ retry cancelled cleanup ได้
+- ถ้า reservation/upload/cancel ไม่รู้ผลเก็บ journal ไม่เดาว่า rollback ไม่ re-upload และไม่เผย private key/filename/text/token Operatorได้เฉพาะ random ID Deadlineที่extractorกลับช้ายัง rejectก่อนสร้างintent
+- API **288/288**, file/Storage **26/26**, simulated persistent **11/11**, compile/migration integrity PASS Actual SQL/canonical RLS ผ่าน durable intent/failed-finalize retention/cancellation/guards/cross-user/FK/state checks; fresh3packages **89steps/167checks**, fixtures removed และ read-onlyตรวจpublic.FileUploadยังไม่สร้าง [หลักฐาน](evidence/mvp-durable-file-upload-verification.json)
+- Source-only snapshotก่อนfinal cleanup helper/last assertionผ่าน API287/relocated4; copied dependencies ไม่ใช่current-head/OCR install proof Frontendยังไม่เปลี่ยนจากMilestone16 ไม่มี paid calls/CD changes
+- ยังไม่มี real decoder/OCR, actual Storage/Auth/concurrent Prisma proof, endpoints/UI/intent retention UX หรือproductionapply งานถัดไปคือเชื่อมreal runtimeเมื่อ npm repair approval พร้อม ไม่claim #15 หรือMVPครบ
+- Code head9a1f2b6 (treeตรงlocalbb60b34) มี [CI205 PASS](https://github.com/SteveJO789/LearnlyAi/actions/runs/38049322385): Web/API install/typecheck/test/build, fresh export/relocated runtime และpersistent offline integration executedทั้งหมด PR78ยังdraft/open ไม่มีauto-mergeหรือdeploy
+
+### Dependency blocker resolved — ผู้ใช้ขอปลด npm
+
+- ซ่อม npm11.19.0 รุ่นเดิมด้วย signed official archive/hash และตรวจไฟล์ทุกไฟล์ก่อน nvm reshim สำรอง npmเดิมไว้ ไม่ replace Node/corepack/Codex npmในshellสิทธิ์ครบทำงานจริง ส่วนrestricted tool sandboxยังNVM4306 จึงใช้authorized full-permission commands
+- ติดตั้ง actual pinned PDF/OCR/image/pgvector dependenciesสำเร็จ14packagesใน services/api: pdfjs6.4.299, Tesseract7, pngjs7, jpeg-js0.4.4, Prisma pgvectorrc.12 ไม่มีinstall scripts/paid model calls `npm run lint` และ `npm ls` PASS
+- **npmไม่เป็น blocker ของ implementation แล้ว** Next: finish journal Storage gate tests แล้ว implement real PDF/image/OCR workers และcanonical pgvector persistence/runtime Libraries installedไม่เท่ากับfeaturesเสร็จ [หลักฐาน](evidence/mvp-npm-repair-verification.json)
+
+### Milestone 18 — Storage รับเฉพาะ journal ที่ตรวจแล้ว
+
+- พิสูจน์ original policyในSQLfixtureว่าowned active raw uploadข้ามjournalได้ เพิ่มrestrictive INSERT guardรับexact PENDING intent/owner/session/bucket/key/metadataและไม่มีSourceMaterialเดิม
+- FINALIZED journal/state commitพร้อมREADY/PREgate; finalized/cancelled/missing intentและlegacy PENDINGที่มีsaved SourceMaterialแล้วอัปโหลดซ้ำไม่ได้ Read/delete/history/other bucketsยังคงสิทธิ์เดิม
+- Generated migration263→076ce83แทนtwo-state CHECKด้วยthree-state CHECK; CLIจัดDROPconstraintเป็นdestructive เตรียม/ทดสอบภายในrollbacktransactionเท่านั้น ไม่มีproductionapply/table/data delete/historicalhashrewrite
+- `npm test` actual build/full suite **289/289**, simulated persistent **11/11**, migrationintegrityPASS Actual Storageclones **47canonicalchecks** + denial/metadata/isolationcases, fresh4packages **92steps/173checks**, filefinalizationatomicityPASS; fixturesremoved [หลักฐาน](evidence/mvp-storage-journal-gate-verification.json)
+- Library importsสำเร็จแต่PDFjsมีoptional nativeCanvas warnings ไม่อ้างว่าอ่านPDF/OCRจริงแล้ว Next: bounded real extraction workers + actual fixtures และcanonicalvector ingestion/runtime npmdependenciesพร้อมแล้ว ไม่มีpaidcalls/CDเพิ่ม
+
+### Milestone 19 — PDF/image/OCR จริงและruntime packaging
+
+- Implement RealFileTextExtractor/isolatedworkers: streamedPDF text/fullPNG-JPEG decode/CRCs/inflatecaps/EXIForientation/actualtha+engOCR ไม่มีMockหรือruntimeCDN จำกัดเวลา/หน้า/text/pixels/concurrencyและawaitthreadstop ปิดworkercredentials/rawdiagnostics
+- RealPDFหลายหน้าพร้อมหน้าว่าง, encryptedPDF, Thai/EnglishPNG/JPEG, rotatedJPEG, corruptimages, decompressionbomb, empty/overflow/missingmodels/abort/busy tests **10/10** Actualbuild/fullAPI **299/299**, simulatedpersistent **11/11** PASS [หลักฐานและfailedcases](evidence/mvp-real-file-extraction-verification.json)
+- Buildเตรียมpinnedmodels/copyworkersและVercelincludeFiles; source-onlycoldprepare+relocatedsnapshotก่อนfinalEXIF casesผ่านAPI297/extraction8/Knowledge4/cleanup ใช้copiedlockeddeps ไม่ใช่freshnpm/current-head/deployment proof
+- Originalbitmapอ่านสมการผิด, Windowsfontpathผิดslash, oversizePDFfixtureวาดoff-page และancillaryCRCไม่ถูกdecoderตรวจ ถูกวิเคราะห์จากไฟล์จริงแล้วแก้ ไม่fabricateOCRresults/teacher-reviewedstatus
+- ยังขาดfileAPIs/UI/liveAuthStoragePrismajourney/productionfunctionsize-memoryproof และbroaderrecognitionaccuracy ScannedPDFยังcontrolledNO_EXTRACTABLE_TEXT งานถัดไปคือauthenticatedupload/userreview/runtimevectorintegration ไม่มีpaidcallsหรือdeploymentเพิ่ม
+
+### Milestone 20 — protected file APIs และCreate→review→PRE
+
+- เชื่อมrealdefault Auth/Prisma/privateStorage/extractor: rawupload, ownedlist/journalresume, reviewและhash-verifieddownload ไม่แทนด้วยruntimeMock TEXTcompositionlazyไม่พึ่งbucket
+- Createรักษาdesignเดิม: filevalidation/read/edit-confirm/PRE, reusedraftหลังerrorและตรวจexistinguploadก่อนส่งซ้ำ cancelonunmount/accessiblelabel-alert ยังไม่มีbrowserproof
+- Reviewเก็บmetadata.learningText/hash/learnerconfirmationเท่านั้น ไม่เปลี่ยนoriginalextraction/contenthash/receiptและreviewed=false Unconfirmedbinaryไม่เข้าAIcontext ทั้งคู่ยังUSER_MATERIAL Canonical076→0039047 adds metadata-column-only grant/ownerinitialsession/API-contextRLS ไม่applyproduction
+- API **303/303**, frontend **23/23**/typecheck/Webbuild, simulatedpersistent **11/11** PASS ActualHTTP+realextractor journeyใช้injectedAuth/DB/Storageตามชัดเจน ActualSQLreview/isolation/immutabilityclonesและfresh5packages **95steps/178checksPASS**, rollbackหมด [หลักฐาน](evidence/mvp-file-journey-verification.json)
+- ยังขาดrealAuthStoragePrisma/browser/mobile/keyboard, file-historyUI/retention UX และcanonicalvectorruntime Productionmarker/migration/privatebucketยังเป็นreleasegates ไม่มีpaidcalls/auto-merge/deployและCDONLYdevelop
+
+- เพิ่ม header/MIME/size/hash/filename checks และ PNG dimension cap; ไม่อ้างว่าตรวจ full file content/extraction แล้ว
+- เพิ่ม real user-JWT private Storage transport (HTTPS/no redirect/no upsert, owned prefix, immutable verified bytes, safe errors); runtime ยังไม่ wired และ private bucket/RLS ยังไม่ created/verified
+- Targeted tests5/5, API compile และ full offline API249/249 PASS; HTTP transport injected ไม่ใช่ actual Storage upload proof
+- [ขอบเขตและงานที่ขาด](file-input-foundation.md); PDF/image decoder/OCR/pgvector dependencies ยังติด npm repair approval ไม่ bypass trust gate
+- CI171 ของ numeric heade14722c ผ่านก่อน file foundation: https://github.com/SteveJO789/LearnlyAi/actions/runs/38027199110
+
+### Milestone 21 — canonical pgvector publication และ persistent vector mode
+
+- เพิ่ม KnowledgeChunk/1536-vector/source metadata/hash constraints ใน canonical Prisma contract, generated pgvector space และ migration003→5e6080d ไม่แก้ historical hashes AppDDL ระบุ extensions.vector ไม่ย้าย shared extension; authenticated อ่านเฉพาะ reviewed และไม่มี publication grants
+- ตัวนำเข้าอ่าน curated reader → normalize/chunk/embedding → ตรวจ review/provenance ซ้ำ → serialized atomic replacement ไม่มี HTTP publication/paid auto-call และไม่นำ learner files เข้า trusted Knowledge
+- Persistent API เชื่อม actual PrismaVectorSearch/OpenRouter embeddings เมื่อเปิด vector mode ชัดเจน Model/threshold/Top-K มี limits; lexical defaultเดิม ไม่ fallbackเงียบ Candidateยังต้องตรงcurrent reviewed hashes/citations
+- API308/308, simulatedpersistent14/14, build/typecheck/migrationintegrityPASS Actual canonical publication/search/RLS ใช้ synthetic และ reuse actual1536embedding ผ่าน rollback fixtures Fresh6packages103SQLsteps190checksPASS [หลักฐาน](evidence/mvp-vector-publication-verification.json)
+- พบและแก้ boundary violation ของ composition และ brittle test count; ไม่ลด validators/grantsเพื่อให้ผ่าน ไม่มี production apply/paid call/CD เพิ่ม
+- รวมdevelop472086cล่าสุดด้วยmerge a8ee1dd ไม่มีconflict รักษาHome/Create/Lessons decorative UI/ลดmotion/aria-hidden และfile-reviewflow Webbuild/24testsPASS Freshsource API308 + relocatedKnowledge4/extraction10PASS (ก่อนเพิ่มpackagingtestล่าสุด ไม่ใช่clean-npm/deploymentproof)
+- พบPRbot VercelincludeFilesยาวเกิน256 ย่อglobและตรวจactualassets/dependenciesผ่าน APIรวม309testsPASS เพิ่มgit.deploymentEnabled globstarfalse/developtrueในWeb/APIตามข้อกำหนดCD ไม่แก้CIworkflows ยังไม่มีplatformenforcement/trace-size/deployproof งานถัดไปoperator publicationCLI/vectorreadiness และliveAuth/browser/productionmigration releasegates

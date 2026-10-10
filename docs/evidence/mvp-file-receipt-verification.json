@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-10",
+  "status": "AMBIGUOUS_SAVE_DATA_LOSS_FIXED_DURABLE_RECONCILIATION_PENDING",
+  "defect": "A lost database COMMIT response previously caused unconditional deletion of an already uploaded file, even when its READY material transaction had committed.",
+  "fix": "Resolve the exact material receipt after serializing with the save's owned parent-session lock. Confirmed receipt returns READY without another write; conclusive absence permits compensation; unknown/unavailable/hidden/conflicting outcome preserves the object and returns controlled FILE_RECONCILIATION_REQUIRED.",
+  "guards": ["READ COMMITTED checked before trusting absence", "parent lock before separate fresh receipt snapshot", "3 second lock timeout and 5 second statement timeout", "completed owned sessions remain readable", "exact bucket/key/type/status/content and normalized hashes/text/MIME/size/provenance/extraction match", "no private key, filename, text, token or upstream error logged", "no save retry or Storage upsert"],
+  "apiCompile": "PASS",
+  "offlineApi": {"passed": 278, "failed": 0},
+  "fileOrchestration": {"passed": 11, "failed": 0, "scope": "Injected extractor, Storage and DB; includes simulated lost COMMIT response, rollback, unknown receipt and lock timeout"},
+  "persistentIntegration": {"passed": 11, "failed": 0, "scope": "Existing simulated Auth/DB regression harness"},
+  "realPostgres": {
+    "schema": "learnly_file_material_verify",
+    "scope": "Captured compiled adapter SQL against empty canonical clones with synthetic claims inside BEGIN/ROLLBACK; not actual Auth-to-Prisma execution or real Storage",
+    "assertions": ["exact committed READY receipt", "conflicting bucket receipt returns UNKNOWN", "absent receipt has no row", "completed owner parent lock and committed receipt", "cross-user parent lock and receipt hidden", "existing metadata/PRE gate/atomic failed-update/FK/legacy ownership cases"],
+    "result": "PASS",
+    "fixtureRemoved": true,
+    "publicSchemaOrUserDataChanged": false
+  },
+  "commands": ["node node_modules/typescript/bin/tsc -p tsconfig.json", "node --test test/file-ingestion.test.mjs", "node --test test/*.test.mjs", "node --experimental-test-module-mocks --test test/persisted-rag.integration.mjs", "node scripts/render-file-persistence-verification.mjs --output=<explicit local SQL path>"],
+  "notVerified": ["Actual concurrent network-loss COMMIT through Prisma driver", "Durable receipt before ambiguous Storage upload or process termination", "Automatic orphan reconciliation after unknown outcome", "Real PDF/image decoder or OCR", "Real private Storage HTTP and authenticated file endpoint/UI", "Production migration or deployment"],
+  "additionalPaidCalls": 0,
+  "canonicalContractChanged": false
+}

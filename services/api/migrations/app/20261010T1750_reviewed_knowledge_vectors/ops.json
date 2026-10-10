@@ -1,0 +1,245 @@
+[
+  {
+    "id": "knowledge.require-extensions-vector",
+    "label": "Require Supabase pgvector type in extensions",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "execute": [
+      {
+        "sql": "DO $$ BEGIN IF to_regtype('extensions.vector') IS NULL THEN RAISE EXCEPTION 'Enable pgvector in extensions before the Knowledge migration'; END IF; END $$",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "sql": "SELECT to_regtype('extensions.vector') IS NOT NULL AS result",
+        "params": []
+      }
+    ]
+  },
+  {
+    "id": "table.KnowledgeChunk",
+    "label": "Create table \"KnowledgeChunk\"",
+    "summary": "Creates table \"KnowledgeChunk\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "KnowledgeChunk"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"KnowledgeChunk\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"KnowledgeChunk\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"KnowledgeChunk\"",
+        "sql": "CREATE TABLE \"public\".\"KnowledgeChunk\" (\n  \"content\" text NOT NULL,\n  \"contentHash\" text NOT NULL,\n  \"dimensions\" int4 NOT NULL,\n  \"documentId\" text NOT NULL,\n  \"documentVersion\" text NOT NULL,\n  \"embedding\" extensions.vector(1536) NOT NULL,\n  \"embeddingInputHash\" text NOT NULL,\n  \"embeddingModel\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"language\" text NOT NULL,\n  \"ordinal\" int4 NOT NULL,\n  \"page\" int4,\n  \"passageHash\" text NOT NULL,\n  \"passageId\" text NOT NULL,\n  \"provenanceHash\" text NOT NULL,\n  \"reviewed\" bool DEFAULT false NOT NULL,\n  \"sources\" json NOT NULL,\n  \"subject\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"knowledge_chunk_hashes_baf6cdf2\" CHECK (\"passageHash\" ~ '^[0-9a-f]{64}$' AND \"contentHash\" ~ '^[0-9a-f]{64}$' AND \"embeddingInputHash\" ~ '^[0-9a-f]{64}$' AND \"provenanceHash\" ~ '^[0-9a-f]{64}$'),\n  CONSTRAINT \"knowledge_chunk_shape_ac4a864f\" CHECK (dimensions = 1536 AND ordinal >= 0 AND (page IS NULL OR page > 0))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"KnowledgeChunk\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"KnowledgeChunk\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.KnowledgeChunk.KnowledgeChunk_documentId_idx_825ef746",
+    "label": "Create index \"KnowledgeChunk_documentId_idx_825ef746\" on \"KnowledgeChunk\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "KnowledgeChunk_documentId_idx_825ef746",
+        "table": "KnowledgeChunk"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"KnowledgeChunk_documentId_idx_825ef746\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"KnowledgeChunk_documentId_idx_825ef746\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"KnowledgeChunk_documentId_idx_825ef746\"",
+        "sql": "CREATE INDEX \"KnowledgeChunk_documentId_idx_825ef746\" ON \"public\".\"KnowledgeChunk\" (\"documentId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"KnowledgeChunk_documentId_idx_825ef746\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"KnowledgeChunk_documentId_idx_825ef746\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.KnowledgeChunk.KnowledgeChunk_embeddingModel_subject_language_idx_1c48278e",
+    "label": "Create index \"KnowledgeChunk_embeddingModel_subject_language_idx_1c48278e\" on \"KnowledgeChunk\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "KnowledgeChunk_embeddingModel_subject_language_idx_1c48278e",
+        "table": "KnowledgeChunk"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"KnowledgeChunk_embeddingModel_subject_language_idx_1c48278e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"KnowledgeChunk_embeddingModel_subject_language_idx_1c48278e\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"KnowledgeChunk_embeddingModel_subject_language_idx_1c48278e\"",
+        "sql": "CREATE INDEX \"KnowledgeChunk_embeddingModel_subject_language_idx_1c48278e\" ON \"public\".\"KnowledgeChunk\" (\"embeddingModel\", \"subject\", \"language\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"KnowledgeChunk_embeddingModel_subject_language_idx_1c48278e\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"KnowledgeChunk_embeddingModel_subject_language_idx_1c48278e\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.KnowledgeChunk",
+    "label": "Enable row-level security on \"KnowledgeChunk\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "KnowledgeChunk"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"KnowledgeChunk\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "KnowledgeChunk"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"KnowledgeChunk\"",
+        "sql": "ALTER TABLE \"public\".\"KnowledgeChunk\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"KnowledgeChunk\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "KnowledgeChunk"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.KnowledgeChunk.knowledge_chunk_read_reviewed_72bac3b2",
+    "label": "Create RLS policy \"knowledge_chunk_read_reviewed_72bac3b2\" on \"KnowledgeChunk\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "knowledge_chunk_read_reviewed_72bac3b2",
+        "table": "KnowledgeChunk"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"knowledge_chunk_read_reviewed_72bac3b2\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "KnowledgeChunk",
+          "knowledge_chunk_read_reviewed_72bac3b2"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"knowledge_chunk_read_reviewed_72bac3b2\"",
+        "sql": "CREATE POLICY \"knowledge_chunk_read_reviewed_72bac3b2\" ON \"public\".\"KnowledgeChunk\" AS PERMISSIVE FOR SELECT TO authenticated USING (reviewed = true)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"knowledge_chunk_read_reviewed_72bac3b2\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "KnowledgeChunk",
+          "knowledge_chunk_read_reviewed_72bac3b2"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "knowledge.read-only-grants",
+    "label": "Allow authenticated reviewed reads only",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "execute": [
+      {
+        "sql": "REVOKE ALL ON TABLE public.\"KnowledgeChunk\" FROM PUBLIC, anon, authenticated",
+        "params": []
+      },
+      {
+        "sql": "GRANT SELECT ON TABLE public.\"KnowledgeChunk\" TO authenticated",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "sql": "SELECT has_table_privilege('authenticated', 'public.\"KnowledgeChunk\"', 'SELECT')\n          AND NOT has_table_privilege('authenticated', 'public.\"KnowledgeChunk\"', 'INSERT')\n          AND NOT has_table_privilege('authenticated', 'public.\"KnowledgeChunk\"', 'UPDATE')\n          AND NOT has_table_privilege('authenticated', 'public.\"KnowledgeChunk\"', 'DELETE')\n          AND NOT has_table_privilege('anon', 'public.\"KnowledgeChunk\"', 'SELECT') AS result",
+        "params": []
+      }
+    ]
+  }
+]

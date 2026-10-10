@@ -49,7 +49,7 @@ async function authHeaders(): Promise<HeadersInit> {
   };
 }
 
-async function readResponse<T>(response: Response): Promise<T> {
+export async function readResponse<T>(response: Response): Promise<T> {
   const payload = (await response.json().catch(() => null)) as
     | { data?: T; error?: { message?: string; requestId?: string; code?: string } }
     | null;
@@ -68,14 +68,31 @@ async function readResponse<T>(response: Response): Promise<T> {
 }
 
 export async function authenticatedRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  return readResponse<T>(await authenticatedFetch(path, init));
+}
+
+export async function authenticatedFetch(path: string, init: RequestInit = {}, contentType = "application/json", extraHeaders: Record<string, string> = {}): Promise<Response> {
   if (!path.startsWith("/api/")) throw new Error("Authenticated requests require a same-origin API path.");
-  const response = await fetch(path, { ...init, headers: await authHeaders(), cache: "no-store", redirect: "error" });
-  return readResponse<T>(response);
+  const headers = new Headers(await authHeaders());
+  headers.set("content-type", contentType);
+  for (const [name, value] of Object.entries(extraHeaders)) {
+    if (name.toLowerCase() !== "x-file-name") throw new Error("Unsupported authenticated request header.");
+    headers.set(name, value);
+  }
+  // Keep plain-object headers for existing client conventions/tests; callers cannot override Authorization.
+  const verifiedHeaders: Record<string, string> = { "Content-Type": headers.get("content-type")!, Authorization: headers.get("authorization")! };
+  if (headers.has("x-file-name")) verifiedHeaders["x-file-name"] = headers.get("x-file-name")!;
+  return fetch(path, { ...init, headers: verifiedHeaders, cache: "no-store", redirect: "error" });
 }
 
 export function createTextMaterial(sessionId: string, text: string) {
   return authenticatedRequest<{ materialId: string; type: "TEXT"; status: "READY"; normalizedText: string }>(
     `/api/learning-sessions/${encodeURIComponent(sessionId)}/materials`, { method: "POST", body: JSON.stringify({ type: "TEXT", text }) });
+}
+
+export function recoverLearningSession(sessionId: string) {
+  return authenticatedRequest<{ id: string; lifecycleState: "ACTIVE"; stage: string; progressPercent: number }>(
+    `/api/learning-sessions/${encodeURIComponent(sessionId)}/recovery`, { method: "POST", body: "{}" });
 }
 
 export async function createLearningSession(input: {

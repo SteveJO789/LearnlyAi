@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { supabase } from '@prisma/orm-extension-supabase/runtime';
+import pgvector from '@prisma/orm-extension-pgvector/runtime';
 import type { Contract } from './contract.d';
 import contractJson from './contract.json' with { type: 'json' };
 
@@ -16,6 +17,7 @@ export function getDb() {
     }
     clientPromise = supabase<Contract>({
       contractJson,
+      extensions: [pgvector],
       url: databaseUrl,
       jwksUrl: `${url.replace(/\/+$/, '')}/auth/v1/.well-known/jwks.json`,
       poolOptions: { connectionTimeoutMillis: 3000 },

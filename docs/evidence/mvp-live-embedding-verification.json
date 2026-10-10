@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-10",
+  "status": "REAL_EMBEDDINGS_AND_TEMP_PGVECTOR_REGRESSIONS_PASS_RUNTIME_STORAGE_PENDING",
+  "model": "openai/text-embedding-3-small",
+  "dimensions": 1536,
+  "source": "Current reader-validated reviewed Ohm pilot 0.2.0; no new educational source/review status",
+  "initialFailures": [
+    {"case": "first paid embedding request", "result": "Rejected model identity although dimensions/count/finite vectors were correct; live response used native text-embedding-3-small", "fix": "One explicit canonical/native OpenAI model equivalence; other models/namespaces and malformed vectors still rejected"},
+    {"case": "pg execution under connection role", "result": "42501 at CREATE_TEMP_TABLE: connection role lacks extensions USAGE, authenticated role has it", "fix": "SET LOCAL existing authenticated role before TEMP creation; FORCE RLS because test role owns TEMP table; no permanent grants"},
+    {"case": "content-only document vectors with scalar threshold", "result": "6 of 8 initially held-out cases passed; transformer/battery false positives", "fix": "Reviewed pilot intent abstention; add existing reviewed title/concept/subject/language to bounded embedding input and bind exact embeddingInputHash"}
+  ],
+  "embeddingInputTemplate": "reviewed-title-concept-content-v1",
+  "actualModelVerification": "Current source title-aware document vector generated once; 12 previously generated actual query vectors reused without paid regeneration",
+  "calibration": {"cases": 4, "positiveMin": 0.429603219230806, "negativeMax": 0.148762923094543, "threshold": 0.2891830711626745, "scope": "Small one-model/one-document calibration; not a deployment default"},
+  "regressions": {"cases": 8, "rawVectorOnlyPassed": 8, "intentAndReviewedIdentityGatePassed": 8, "independentHoldoutClaim": false, "note": "Cases were initially held out, then inspected during debugging; final run is regression evidence"},
+  "realPostgres": {"transport": "pg executes SQL captured from real PrismaVectorSearch; not actual Prisma/JWT transport", "fixture": "Transaction-local TEMP KnowledgeChunk; authenticated role; FORCE RLS", "unreviewedRowHidden": true, "authenticatedPublicationDenied": true, "fixtureRemoved": true, "poolClosed": true, "publicSchemaOrLearnerDataChanged": false},
+  "offlineChecks": {"apiCompile": "PASS", "apiPassed": 272, "apiFailed": 0, "persistentSimulatedIntegrationPassed": 11, "embeddingBudgetTestsPassed": 3, "embeddingAdapterTestsPassed": 5, "vectorTestsPassed": 8},
+  "budget": {"approvedOriginalTotalUSD": 1, "newEmbeddingRequests": 6, "allPaidCalls": 54, "conservativeReservedUSD": 0.6515484, "providerReportedCostUSD": 0.029633315720000015, "unknownReportedCostEntries": 0, "ledgerReset": false, "automaticRetries": 0, "providerFallback": false, "nativePriceCeiling": true},
+  "rawEvidence": "Ignored primary .verification/embedding-live-20261010-{first,diagnostic,fixed,title}.json and embedding-postgres reports; failed reports preserved separately",
+  "notVerified": ["canonical KnowledgeChunk/pgvector contract and migration", "persistent reviewed ingestion/publication", "actual Auth-to-Prisma vector execution", "production runtime wiring/embedding environment readiness", "broader independent retrieval dataset/models/corpus", "production deployment", "PDF/OCR recognition"]
+}
