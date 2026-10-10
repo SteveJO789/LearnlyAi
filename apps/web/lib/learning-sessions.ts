@@ -78,6 +78,11 @@ export function createTextMaterial(sessionId: string, text: string) {
     `/api/learning-sessions/${encodeURIComponent(sessionId)}/materials`, { method: "POST", body: JSON.stringify({ type: "TEXT", text }) });
 }
 
+export function recoverLearningSession(sessionId: string) {
+  return authenticatedRequest<{ id: string; lifecycleState: "ACTIVE"; stage: string; progressPercent: number }>(
+    `/api/learning-sessions/${encodeURIComponent(sessionId)}/recovery`, { method: "POST", body: "{}" });
+}
+
 export async function createLearningSession(input: {
   title?: string;
   learningGoal?: string;

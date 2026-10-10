@@ -27,7 +27,7 @@
 | Assessment PRE/POST scoring/persistence | #13 | APIs, snapshot, deterministic scoring, atomic answers/profile implemented | broader question bank; real Auth/browser journey; release migration | #2 #3 | 6 real API/Prisma/DB groups PASS; HTTP/scoring tests | deploy after team merge |
 | Learning profile/statistics | #13 #16 | owned APIs and Home/Profile UI implemented | browser/mobile QA; expanded curriculum evidence | Assessment | concurrent samples/PRE-POST comparison real DB PASS | develop-only CD |
 | Text/PDF/image normalization | #15 | normalized persistent TEXT + engine materials implemented | PDF/image extraction/OCR, file validation/Storage | #2 #3 | NFC/math tests, real material RLS rollback PASS | OCR/dependency/runtime assets |
-| Learning UI | #9 | stage, PRE/POST journey, actual 3 interactive widgets, structured blocks | provider-failure recovery, browser/mobile/keyboard QA | API contracts | rendering/calculator/contract tests; build PASS | browser evidence pending |
+| Learning UI | #9 | stage, PRE/POST journey, 3 interactive widgets, structured blocks, explicit failure recovery | browser/mobile/keyboard QA | API contracts | rendering/client tests + persisted recovery + real recovery RLS | browser evidence pending |
 | Dashboard/History/Profile | #16 | real summary metrics/recent sessions/comparisons, /History alias | browser/mobile/empty/error interaction checks | #13 | new metrics APIs + rendering/client tests | develop-only CD |
 | Reliability/security | #14 | partial | readiness dependencies, auth timeout, log safety, public dev route | core integration | defects identified in app/auth/router | none for local fixes |
 | Release readiness | #14/all | incomplete | builds, fresh install/DB/E2E/preview/issue criteria | all above | CI configured; latest hosted status failed | Vercel build limit, no safe DB yet |
@@ -118,3 +118,16 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - Pending: browser/mobile/keyboard E2E; provider-failure recovery; PDF/image/OCR; embedding/pgvector; full historical migration replay; release/public migration and deployed smoke after team merge into develop
 - Next implementation: file input + retrieval persistence after publishing/reviewing this milestone. Live AI budget remains US$0 of approved US$1
 - Local npm still blocked by NVM4306 (untrusted delegated npm-cli.js, npm package 11.19.0). Do not invoke the delegated script indirectly or blindly trust it; verify provenance/repair before installing PDF/OCR dependencies
+
+### Milestone 6 — กู้คืน session หลัง provider failure
+
+- เพิ่ม protected `POST /learning-sessions/{id}/recovery` รับ `{}` เท่านั้น เจ้าของกู้คืนได้เฉพาะ FAILED; stage/progress เดิมไม่เปลี่ยน และ version เพิ่มหนึ่งครั้ง
+- เปลี่ยนสถานะและบันทึก SYSTEM event ใน transaction เดียว; event ไม่เข้าบทสนทนา AI และไม่บันทึก/ซ่อม rejected model output
+- Chat retry กู้คืนเมื่อผู้ใช้กดเอง รวมกรณีเปิดหน้า FAILED session ใหม่; ไม่มี automatic provider retry หรือค่าใช้จ่าย AI ในการ recovery
+- Integration 10/10, frontend 13/13 และ API/Web typechecks PASS
+- Complete recovery milestone checks PASS: Knowledge 50/50, API 230/230, Web/API production builds, fresh source-only runtime packaging (9 deterministic files) and relocated runtime 4/4; [evidence](evidence/mvp-recovery-local-checks.json). Embedding modules added afterward have separate targeted tests, not this full-suite evidence
+- PostgreSQL/RLS จริงแบบ BEGIN/ROLLBACK ผ่าน ownership, API-write guard, cross-user isolation, stale version, stage preservation และ event failure rollback; `fixture_removed=true` ไม่แก้ public tables/ข้อมูลผู้ใช้จริง
+- CI run154 สำหรับ published head c16ec50 ผ่าน: https://github.com/SteveJO789/LearnlyAi/actions/runs/37957856223 . ยังไม่ใช่ CI proof ของ recovery commit ใหม่
+- npm 11.19.0 registry signature/integrity ผ่าน แต่ installed runtime บางไฟล์ต่างจาก official archive; เตรียม same-version repair/backup ใน ignored `.verification/npm-repair/` และขออนุมัติ เพราะเป็น software/trust state นอก repository
+- Supabase pgvector 0.8.2 ติดตั้งใน extensions schema แล้ว (read-only inventory); ยังไม่สร้าง production Knowledge tables หรือเรียก paid embeddings
+- งานถัดไป: embedding/chunking และ Top-K integration; PDF/image/OCR รอ npm repair approval. Live budget ใช้ US$0 จาก US$1

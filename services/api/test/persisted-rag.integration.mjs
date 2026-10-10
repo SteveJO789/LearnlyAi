@@ -58,6 +58,13 @@ function dbClient(userId) {
       try { return await fn({ execute: async plan => {
         if (/set_config\('learnly.api_write'/.test(plan.text)) { apiWrite = true; return { affectedRows: 1 }; }
         assert.ok(apiWrite, 'Server-managed writes require the transaction-local API context');
+        if (/SET "lifecycleState" = 'ACTIVE'/.test(plan.text)) {
+          const [updatedAt, id, owner, expected] = plan.values;
+          const row = store.LearningSession.find(s => s.id === id && s.userId === owner && owner === userId && s.lifecycleState === 'FAILED' && s.version === expected);
+          if (!row) return { affectedRows: 0 };
+          row.lifecycleState = 'ACTIVE'; row.version++; row.updatedAt = updatedAt; store.writes++;
+          return { affectedRows: 1 };
+        }
         if (/INSERT INTO public\."LearningSession"/.test(plan.text)) {
           const [id, owner, title, goal, subject, state, lifecycleState, stage, progressPercent, version, createdAt, updatedAt] = plan.values;
           assert.equal(owner, userId);
@@ -74,7 +81,10 @@ function dbClient(userId) {
           store.writes++; return { affectedRows: 1 };
         }
         assert.match(plan.text, /INSERT INTO public\."Message"/);
-        const [id,learningSessionId,role,contentJson,createdAt] = plan.values;
+        const [id,learningSessionId,roleOrContent,contentOrAt,maybeAt] = plan.values;
+        const role = /'SYSTEM'/.test(plan.text) ? 'SYSTEM' : roleOrContent;
+        const contentJson = role === 'SYSTEM' ? roleOrContent : contentOrAt;
+        const createdAt = role === 'SYSTEM' ? contentOrAt : maybeAt;
         assert.ok(store.LearningSession.some(s => s.id === learningSessionId && s.userId === userId));
         store.Message.push({ id,learningSessionId,role,content: JSON.parse(contentJson),createdAt });
         store.writes++; return { affectedRows: 1 };
@@ -193,5 +203,32 @@ test('auth rejects missing/invalid bearer before DB and a second user cannot acc
     assert.equal((await call(`/${id}`,{token:'test-token-b'})).status,404);
     assert.equal((await call(`/${id}/interactions`,{token:'test-token-b',method:'POST',body:{input:"Explain Ohm's law."}})).status,404);
     assert.equal(requests.length,0); assert.equal(store.Message.length,0);
+  });
+});
+
+test('explicit owned recovery preserves rejected-output policy, records an event and excludes it from tutor context', async () => {
+  let fail = true;
+  await withApp(request => fail ? '{invalid' : mockTutorScenario(request), async ({ call, requests }) => {
+    const id = await session(call);
+    assert.equal((await call(`/${id}/interactions`, { method: 'POST', body: { input: "Explain Ohm's law" } })).status, 502);
+    assert.equal(store.LearningSession[0].lifecycleState, 'FAILED');
+    assert.equal(store.Message.length, 0);
+    const failedVersion = store.LearningSession[0].version;
+    assert.equal((await call(`/${id}/recovery`, { token: null, method: 'POST', body: {} })).status, 401);
+    assert.equal((await call(`/${id}/recovery`, { method: 'POST', body: { stage: 'REVIEW' } })).status, 400);
+    assert.equal((await call(`/${id}/recovery`, { method: 'POST', body: [] })).status, 400);
+    assert.equal(store.LearningSession[0].version, failedVersion);
+    assert.equal((await call(`/${id}/recovery`, { token: 'test-token-b', method: 'POST', body: {} })).status, 404);
+    assert.equal((await call(`/${id}/recovery`, { method: 'POST', body: {} })).status, 200);
+    assert.equal(store.LearningSession[0].lifecycleState, 'ACTIVE');
+    assert.equal(store.LearningSession[0].version, failedVersion + 1);
+    assert.equal(store.LearningSession[0].stage, 'EXPLAIN');
+    assert.equal(store.Message[0].role, 'SYSTEM');
+    assert.equal(store.Message[0].content.event, 'SESSION_RECOVERED');
+    fail = false;
+    assert.equal((await call(`/${id}/interactions`, { method: 'POST', body: { input: "Explain Ohm's law" } })).status, 200);
+    assert.ok(!JSON.stringify(requests.at(-1).messages).includes('SESSION_RECOVERED'));
+    assert.equal(store.Message.filter(message => message.role === 'TUTOR').length, 1);
+    assert.equal((await call(`/${id}/recovery`, { method: 'POST', body: {} })).status, 409);
   });
 });

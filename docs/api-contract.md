@@ -51,6 +51,7 @@ Implemented on the MVP completion branch: sessions/history/interactions, text ma
 | GET | `/learning-sessions/{sessionId}` | อ่าน session และ progress |
 | POST | `/learning-sessions/{sessionId}/materials` | Text normalization/persistence; PDF/image remains planned |
 | POST | `/learning-sessions/{sessionId}/interactions` | ส่งคำตอบ/ขอคำใบ้/ตอบ guided question |
+| POST | `/learning-sessions/{sessionId}/recovery` | Explicit recovery of an owned FAILED session; empty JSON body |
 | POST/GET | `/learning-sessions/{sessionId}/assessments/{phase}` | Create/retrieve PRE, POST or TRANSFER |
 | POST | `/learning-sessions/{sessionId}/assessments/{phase}/submissions` | Deterministic scoring and owned answer/profile persistence |
 
@@ -177,6 +178,8 @@ Response `200` places the entire validated Tutor Output directly in `data`, incl
 See [Learning Engine Core](learning-engine-core.md) for the complete sample response, stage mapping, error codes, terminal-session behavior, and Prisma/auth integration ports.
 
 ## Profile
+
+`POST /learning-sessions/{sessionId}/recovery` requires verified Supabase Bearer authorization and `{}`. Only `FAILED` sessions can return to `ACTIVE`; stage, progress and prior tutor messages remain intact. A version compare-and-set and a `SYSTEM` recovery event are committed together. Operational events are excluded from AI conversation context. An unknown or another user's session returns 404; an active/completed session returns 409; invalid bodies return 400. Recovery does not call the model or repair rejected output. The learner must explicitly request a new interaction after recovery.
 
 | Method | Endpoint | Purpose |
 |---|---|---|

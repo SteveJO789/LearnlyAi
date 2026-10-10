@@ -250,6 +250,36 @@ export function createLearningSessionsRouter(
   });
 
   router.post(
+    "/:sessionId/recovery",
+    async (request: AuthenticatedRequest, response, next) => {
+      try {
+        const user = requireUser(request);
+        const sessionId = readSessionId(request);
+        if (!request.is("application/json") || !request.body || typeof request.body !== "object" ||
+          Array.isArray(request.body) || Object.keys(request.body).length) {
+          throw new LearningError("VALIDATION_ERROR", [{ path: "/", message: "Use an empty JSON object for explicit recovery." }]);
+        }
+        const client = await requestDb(request);
+        const row = await client.orm.public.LearningSession.where({ id: sessionId, userId: user.id }).first();
+        if (!row) { response.status(404).json({ error: { code: "NOT_FOUND", message: "Learning session was not found.", requestId: response.locals.requestId, details: [] } }); return; }
+        if (row.lifecycleState !== "FAILED") throw new LearningError("SESSION_INACTIVE", [{ path: "/sessionId", message: "Only a failed session can be recovered." }]);
+        const at = new Date().toISOString();
+        const restored = await withApiWrite(client, async tx => {
+          const update = client.raw.sql`UPDATE public."LearningSession" SET "lifecycleState" = 'ACTIVE', "version" = "version" + 1, "updatedAt" = ${at}::timestamptz
+            WHERE "id" = ${sessionId} AND "userId" = ${user.id} AND "lifecycleState" = 'FAILED' AND "version" = ${row.version}`.affectedCount().build();
+          if ((await tx.execute(update)).affectedRows !== 1) return false;
+          const event = JSON.stringify({ event: "SESSION_RECOVERED", previousLifecycleState: "FAILED", at });
+          await tx.execute(client.raw.sql`INSERT INTO public."Message" ("id", "learningSessionId", "role", "content", "createdAt")
+            VALUES (${randomUUID()}, ${sessionId}, 'SYSTEM', ${event}::jsonb, ${at}::timestamptz)`.affectedCount().build());
+          return true;
+        });
+        if (!restored) throw new LearningError("SESSION_CONFLICT");
+        response.json({ data: { id: sessionId, lifecycleState: "ACTIVE", stage: row.stage, progressPercent: row.progressPercent } });
+      } catch (error) { next(error); }
+    },
+  );
+
+  router.post(
     "/:sessionId/interactions",
     async (request: AuthenticatedRequest, response, next) => {
       try {

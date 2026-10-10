@@ -250,6 +250,7 @@ export const en: Dictionary = {
   "chat.messageAriaLabel": "Message",
   "chat.sendHint": "Enter to send · Shift+Enter for a new line",
   "chat.unknownError": "An unknown error occurred",
+  "chat.failedSession": "The tutor could not complete the last request. Select Try again to resume this session.",
 
   // --- Chat blocks (explanation/question/hint/quiz/feedback) ---
   "chat.blocks.question": "Question",
@@ -520,6 +521,7 @@ export const th: Dictionary = {
   "chat.messageAriaLabel": "ข้อความ",
   "chat.sendHint": "Enter เพื่อส่ง · Shift+Enter ขึ้นบรรทัดใหม่",
   "chat.unknownError": "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ",
+  "chat.failedSession": "ติวเตอร์ทำคำขอล่าสุดไม่สำเร็จ กดลองอีกครั้งเพื่อกลับมาเรียนต่อใน session นี้",
 
   "chat.blocks.question": "คำถาม",
   "chat.blocks.quiz": "แบบทดสอบ",

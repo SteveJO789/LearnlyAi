@@ -54,6 +54,8 @@ Latest completion-branch evidence (2026-10-09): Assessment/Profile APIs and type
 
 Latest local checks: Knowledge 50/50, API 230/230, persisted RAG/session integration 9/9, frontend client/render/calculator 12/12, typechecks and final Web/API builds pass. Fresh source export: 9 deterministic Knowledge files, API 230/230 and relocated runtime 4/4 PASS. These tests do not prove browser keyboard/mobile behavior or actual Supabase OAuth. No public production migration or deployment occurred. PDF/image/OCR, vectors and broad source review remain outstanding; no full completion claim.
 
+Recovery milestone: protected explicit FAILED→ACTIVE endpoint with version compare-and-set, unchanged engine stage/progress and atomic SYSTEM event. Persistent simulated API integration 10/10 and frontend tests 13/13 PASS; API/Web typechecks PASS. Real PostgreSQL rollback-only tests pass ownership, API-write guard, cross-user denial, stale version, stage preservation and event-failure atomic rollback; fixture removal verified. This proves SQL/RLS behavior, not real Supabase login or browser retry interaction. Reproduce SQL with `node services/api/scripts/verify-session-recovery-rls.mjs` and execute only in an explicitly authorized environment.
+
 - [ ] ทุก feature/issue criterion มี working code และ evidence
 - [ ] Unit/integration/contract/E2E/security checks ผ่าน
 - [ ] Production Web/API builds ผ่าน

@@ -9,6 +9,17 @@ const api = require('../.web-test-build/lib/learning-sessions.js');
 afterEach(() => { supabase.getSupabaseClient = originalClient; globalThis.fetch = originalFetch; });
 const authenticated = () => { supabase.getSupabaseClient = () => ({ auth: { getSession: async () => ({ data: { session: { access_token: 'test-only-token' } }, error: null }) } }); };
 const dto = { id: 'a', sessionId: 's', phase: 'PRE', topic: 'ohms-law', language: 'en', questions: [{ id: 'q', prompt: 'question', format: 'NUMBER' }], score: null, maxScore: 1, submittedAt: null };
+test('explicit recovery sends an empty body to the owned protected endpoint', async () => {
+  authenticated();
+  const requests = [];
+  globalThis.fetch = async (url, init) => { requests.push({ url, init }); return Response.json({ data: { id: 's', lifecycleState: 'ACTIVE', stage: 'EXPLAIN', progressPercent: 25 } }); };
+  await api.recoverLearningSession('session/slash');
+  assert.equal(requests[0].url, '/api/learning-sessions/session%2Fslash/recovery');
+  assert.equal(requests[0].init.method, 'POST');
+  assert.equal(requests[0].init.body, '{}');
+  assert.equal(requests[0].init.redirect, 'error');
+  assert.equal(requests[0].init.headers.Authorization, 'Bearer test-only-token');
+});
 test('assessment client uses authenticated current endpoints and sends only answer data', async () => {
   authenticated();
   const requests = [];
