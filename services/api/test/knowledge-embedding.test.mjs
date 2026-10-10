@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { OpenRouterEmbeddingProvider, validateEmbedding } from '../dist/modules/knowledge/embedding-provider.js';
+import { OpenRouterEmbeddingProvider } from '../dist/modules/ai/providers/openrouter-embedding-provider.js';
+import { validateEmbedding } from '../dist/modules/knowledge/embedding-port.js';
 import { chunkReviewedPassage } from '../dist/modules/knowledge/reviewed-chunks.js';
 const passage = { passageId:'document@1:teaching',conceptId:'document',conceptVersion:'1',sourceType:'TRUSTED_KNOWLEDGE_BASE',
   subject:'physics',language:'th',sources:[{sourceId:'original-author'}],content:'สูตร V = IR และ x²\n\n'+ 'ก'.repeat(600) +'\n\n'+ 'ข'.repeat(600) };

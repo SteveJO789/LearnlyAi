@@ -2,6 +2,8 @@
 
 เริ่มตรวจ 2026-10-09 จาก `origin/develop` commit `e2ddfdd7788a5d20d66b496ee2917771b6ea3021` บน branch `integration/university-mvp-20261009` ใน worktree แยก งานเดิมและ stash ไม่ถูกแก้ไข เป้าหมายยัง ACTIVE; ยังไม่ IMPLEMENTATION COMPLETE หรือ RELEASED
 
+สถานะล่าสุด 2026-10-10: PR #74 และ design PR #76 ถูกทีม merge แล้ว; งานใหม่ต่อจาก develop `5022c28` บน `integration/university-mvp-followup-20261009` โดยนำเฉพาะ recovery/embedding ใหม่มา ไม่ทำซ้ำ commits ที่ merge แล้ว
+
 ## หลักฐานจาก Phase 0
 
 - Fetch ล่าสุด: develop `e2ddfdd`; main `1396fdd`; ไม่มี PR เปิดอยู่ ณ เวลาตรวจ
@@ -19,18 +21,18 @@
 |---|---|---|---|---|---|---|
 | Supabase Google/email login, verification, callback | #5 #6 (approved) | มี implementation; รักษาไว้ | regression และ real browser flow รอบนี้ | Supabase Auth | auth middleware tests มีอยู่; ต้อง rerun | isolated test accounts/preview |
 | Profile sync/edit | #2 #16 | Web เรียก Supabase User จริง | mastery, avatar Storage, UX tests | User RLS | apps/web/lib/user-profile.ts | safe test DB |
-| Persistent sessions/history | #8 #9 #14 | Prisma + JWT-scoped persistence จริง | whole-flow tests, failed-session recovery, retry correctness | Auth/DB | learning-sessions-router, PrismaLearningPersistence | real RLS fixture environment |
+| Persistent sessions/history | #8 #9 #14 | Prisma + JWT-scoped persistence และ explicit FAILED recovery | real Auth/browser whole-flow และ ambiguous interaction retries | Auth/DB | persisted integration 10/10; recovery RLS/atomic rollback จริง | public migration/browser proof |
 | P3.1 curated RAG integration | #11 #12 | merged แล้ว | fresh integrated regression and packaging | reviewed Knowledge | ancestor checks; code present | corpus มี concept เดียว |
 | Retrieval relevance/history | #11 | lexical pilot + bounded follow-up implemented | broader corpus/vector retrieval | P3.1 | core TP4/TN3/FP0/FN0; reset/revocation tests | corpus/model coverage |
-| Embeddings/pgvector ingestion and Top-K | #3 #11 | ยังไม่มี working implementation | chunks/vectors/metadata/queries | safe DB, approved source | Prisma contract ไม่มี Document/Chunk จริง | safe non-production DB; embedding model/budget |
-| Adaptive tutoring | #39 | deterministic language/mode + stage/history prompts | real model teaching-quality review | #12 | 5 multi-turn regressions + language test pass | live quality not run yet |
+| Embeddings/pgvector ingestion and Top-K | #3 #11 | chunking และ embedding adapter มีแล้ว; storage/Top-K ยังขาด | canonical chunk/vector model, ingestion, queries, live embeddings | pgvector pack, approved source | targeted tests 4/4; pgvector extension มีจริง | npm trust repair approval |
+| Adaptive tutoring | #39 | mode/language/history; แก้ source-example borrowing และ premature numeric confirmation | independent educator review และ broader curriculum | #12 | 5 multi-turn regressions; live รอบแก้ 13/13 schema/citation/state | corpus/model coverage; บางคำใบ้ยาวเกิน preference |
 | Assessment PRE/POST scoring/persistence | #13 | APIs, snapshot, deterministic scoring, atomic answers/profile implemented | broader question bank; real Auth/browser journey; release migration | #2 #3 | 6 real API/Prisma/DB groups PASS; HTTP/scoring tests | deploy after team merge |
 | Learning profile/statistics | #13 #16 | owned APIs and Home/Profile UI implemented | browser/mobile QA; expanded curriculum evidence | Assessment | concurrent samples/PRE-POST comparison real DB PASS | develop-only CD |
 | Text/PDF/image normalization | #15 | normalized persistent TEXT + engine materials implemented | PDF/image extraction/OCR, file validation/Storage | #2 #3 | NFC/math tests, real material RLS rollback PASS | OCR/dependency/runtime assets |
 | Learning UI | #9 | stage, PRE/POST journey, 3 interactive widgets, structured blocks, explicit failure recovery | browser/mobile/keyboard QA | API contracts | rendering/client tests + persisted recovery + real recovery RLS | browser evidence pending |
 | Dashboard/History/Profile | #16 | real summary metrics/recent sessions/comparisons, /History alias | browser/mobile/empty/error interaction checks | #13 | new metrics APIs + rendering/client tests | develop-only CD |
-| Reliability/security | #14 | partial | readiness dependencies, auth timeout, log safety, public dev route | core integration | defects identified in app/auth/router | none for local fixes |
-| Release readiness | #14/all | incomplete | builds, fresh install/DB/E2E/preview/issue criteria | all above | CI configured; latest hosted status failed | Vercel build limit, no safe DB yet |
+| Reliability/security | #14 | readiness ที่ระบุขอบเขตจริง, bounded Auth, safe logs, dev route ปิด, recovery | full browser security journey; production schema readiness | core integration | API 237/237; real cross-user/guard/rollback fixtures | deployment logs/access |
+| Release readiness | #14/all | ยังไม่ครบ | full migration replay/public migration review, E2E, deployed smoke | all above | local Web/API builds ผ่าน; latest develop Web green/API red | npm repair, Vercel logs 403, public schema ยังเก่า |
 
 ## ลำดับงานที่ลงมือ
 
@@ -139,3 +141,17 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - Tests 4/4 และ API compile PASS โดย injected transport ไม่ใช่ paid live embedding evidence
 - Prisma 8 PSL เวอร์ชันที่ติดตั้งไม่รองรับ `Unsupported("extensions.vector")` (ตรวจใน ignored scratch contract เท่านั้น); ต้องใช้ pgvector extension pack ตาม public Prisma contract API ไม่สร้างตารางแยกนอก canonical migration
 - Storage/Top-K/runtime wiring และ live quality ยังไม่ implemented/verified; รอ dependency installation หลัง npm repair approval ก่อนเพิ่ม extension pack/PDF/OCR libraries
+
+### Milestone 7 — live adaptive verification และ follow-up จาก develop ล่าสุด
+
+- PR #74 merge a7cd027 และ PR #76 design merge 5022c28 ตรวจจาก GitHub/Git จริง; คง design ใหม่และไม่มี auto-merge โดย agent
+- Live รอบแรก: 5 conversations/13 turns ผ่าน schema/citation/state แต่ตรวจพบ HINT ยืมตัวเลขจาก reference example และ GUIDE ยืนยันตัวเลขโดยไม่ทราบ givens; เก็บ raw evidence เดิมแยก ไม่อ้างว่า quality ผ่านทั้งหมด
+- แก้เฉพาะ adaptive instructions: ไม่ถือ reference example เป็นโจทย์ learner; ต้องขอ givens ก่อนยืนยันตัวเลข ไม่แก้ schema/validator/stage authority
+- Live รอบหลังแก้: 13/13 schema, retrieval expectation, exact citation linkage และ engine binding; ตรวจคำใบ้/feedback แล้วสองข้อบกพร่องข้างต้นไม่เกิดในรอบนี้ ยังต้อง educator review และ corpus coverage เพิ่ม
+- ค่าใช้จ่าย OpenRouter ที่รายงานรวม 26 calls **US$0.0214265**; กันงบสะสม **US$0.31889835** จากเพดาน US$1; no retry, ledger จองงบก่อน request และไม่คืน reservation เมื่อ response กำกวม
+- [Live summary](evidence/mvp-adaptive-live-verification.json); raw synthetic evaluation outputs/ledger เก็บใน ignored paths ไม่เขียนทับ P3/P3.1 historical evidence
+- พบ architecture regression test failure จาก embedding transport อยู่ใน Knowledge module; ย้าย HTTP adapter ไป AI/providers และคง Knowledge port เป็น pure interface รวม hashing ที่จำเป็นเท่านั้น หลังแก้ API **237/237** ผ่าน
+- Latest develop + follow-up Web typecheck/tests **13/13** และ production build ผ่าน; API typecheck/compile ผ่าน; recovery integration 10/10 และ SQL/RLS evidence ไม่เปลี่ยน
+- develop 5022c28: Vercel Web status success, API failure; connector 403 และ browser initialization ล้มเหลว ยังไม่มี build log/cause ที่ยืนยัน จึงไม่เดาสาเหตุหรือ redeploy เพื่อเผา quota
+- อ่าน public catalog ซ้ำ: Assessment ยังไม่มี topic/snapshot/submissionHash; Assessment/Answer/Profile/SourceMaterial มี SELECT policies เท่านั้น ยังไม่มี API-write policies ใหม่ ไม่มี public migration โดย agent
+- กำลังรอคำตอบเรื่องซ่อม npm ส่วนกลางและข้อความ Vercel build error; ทำ historical migration verification และส่วนที่ไม่ต้องติดตั้ง dependency ต่อได้

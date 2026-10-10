@@ -44,6 +44,8 @@ for (const scenario of scenarios) test(scenario.name, async () => {
     assert.ok(output.citations.every(citation => task.sourceMaterials.some(source => source.citation.id === citation.id)));
     if (index) assert.ok(request.messages.some(message => message.role === 'user' && message.content === scenario.turns[index - 1][0]));
     if (mode === 'HINT') assert.match(request.messages[0].content, /Do not reveal the full solution or final numeric answer/);
+    if (mode === 'HINT') assert.match(request.messages[0].content, /A reference worked example is not the learner's problem/);
+    if (mode === 'GUIDE') assert.match(request.messages[0].content, /A numeric match to a reference example does not establish correctness/);
     if (mode === 'SIMPLIFY') assert.match(request.messages[0].content, /one check-understanding question/);
   }
 });

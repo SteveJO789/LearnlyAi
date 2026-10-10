@@ -225,13 +225,14 @@ test("oversized/non-string queries fail before artifact IO", async () => {
   await assert.rejects(retriever.retrieve({ studentInput: null }), RangeError);
 });
 
-test("retrieval module imports only its own boundary, Node IO and local schema validators", () => {
+test("retrieval module imports only its own boundary, Node IO/hashes and local schema validators", () => {
   const root = fileURLToPath(new URL("../src/modules/knowledge/", import.meta.url));
   for (const file of readdirSync(root).filter((name) => name.endsWith(".ts"))) {
     const source = readFileSync(join(root, file), "utf8");
     const imports = [...source.matchAll(/(?:from\s+|import\s*\(|require\s*\()['"]([^'"]+)['"]/gu)].map((match) => match[1]);
     for (const dependency of imports) assert(dependency.startsWith("./")
-      || ["node:fs/promises", "node:module", "node:path", "ajv/dist/2020.js", "ajv-formats"].includes(dependency), dependency);
+      || ["node:fs/promises", "node:module", "node:path", "ajv/dist/2020.js", "ajv-formats"].includes(dependency)
+      || (file === "reviewed-chunks.ts" && dependency === "node:crypto"), dependency);
     assert.doesNotMatch(source, /\b(?:fetch|eval)\s*\(|new\s+Function\s*\(/u);
     if (file === "knowledge-retriever.ts") assert.deepEqual(imports, []);
   }

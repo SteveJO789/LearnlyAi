@@ -1,67 +1,80 @@
-# หลักฐานตรวจสอบ MVP (รายงานที่อัปเดตระหว่างทำงาน)
+# หลักฐานตรวจสอบ MVP
 
-สถานะ: IN PROGRESS — ยังไม่ IMPLEMENTATION COMPLETE และยังไม่ RELEASED
+สถานะล่าสุด 2026-10-10: **กำลังทำ — ยังไม่ IMPLEMENTATION COMPLETE และยังไม่ RELEASED**
 
-รายละเอียด feature/issue/evidence และงานต่อไปอยู่ใน [ตัวติดตามงาน](mvp-completion-tracker.md)
+PR #74 และ design PR #76 ถูก merge โดยทีมแล้ว งานใหม่อยู่บน `integration/university-mvp-followup-20261009` จาก develop `5022c28` งานเดิมใน primary checkout/stash ยังอยู่ครบ
 
-## Architecture และ API
+## ฟีเจอร์และหลักฐาน
 
-รักษา Next.js/React/TypeScript, Express modular monolith, Node 24/npm, Supabase Auth/PostgreSQL/Prisma/RLS, ModelProvider Mock/OpenRouter และ canonical Tutor Output
-RAG P3.1 อยู่ใน develop แล้ว; ไม่มีการ cherry-pick ซ้ำ
+| ฟีเจอร์ / issue | สิ่งที่ทำงานแล้ว | สิ่งที่ยังขาด |
+|---|---|---|
+| Auth / #5 #6 | รักษา Supabase Google/email/verification, callback→Home, Bearer verification; auth regression ผ่าน | real login/browser journey รอบล่าสุด |
+| Session / #8 #9 #14 | Prisma persistence/history, stage/progress จาก engine, explicit FAILED recovery พร้อม atomic event | browser retry และ ambiguous network receipt |
+| RAG / #11 #12 | Reviewed Ohm pilot, runtime packaging, history-aware retrieval, exact citations และ strict schema | broader reviewed corpus, vector storage/Top-K |
+| Embeddings / #3 #11 | chunking แบบรักษาสูตร/paragraph/hash/provenance และ real OpenRouter transport มี limits/validation | pgvector contract pack, ingestion/storage, live embedding test |
+| Adaptive tutor / #39 | 5 multi-turn offline scenarios; live 5 conversations/13 turns หลังแก้สอง teaching defects ผ่าน schema/citation/state | educator review, broader model/topic coverage |
+| Assessment / #13 | PRE/POST/TRANSFER, immutable snapshots, deterministic scoring, answer receipts และ atomic profile update | broader exercise bank, real Auth/browser และ public migration |
+| Profile/History / #16 | owned metrics/mastery/latest samples/PRE-POST comparisons ผ่าน API และ UI | browser/mobile/keyboard QA |
+| Input / #15 | TEXT validation/NFC/LF/hash/persistence, คง x² และ USER_MATERIAL identity | PDF/image/OCR/file validation/private Storage |
+| Learning UI / #9 | Create→PRE→Chat→POST, structured blocks, stage/progress, 3 interactive widgets | complete browser E2E และ uploads |
+| Release / #14 | local builds/tests และ source-only Knowledge packaging ผ่าน | public schema update, API deploy failure diagnosis, deployed smoke |
 
-## Test results/commands
+รายละเอียด acceptance criteria/dependencies อยู่ใน [ตัวติดตามงาน](mvp-completion-tracker.md) ไม่มี issue ถูกปิดเพียงเพราะเขียนโค้ด
 
-รอบ 2026-10-09: Knowledge 50/50, API 208/208, persisted RAG offline integration 8/8, Knowledge/API/Web typechecks และ API compile ผ่าน; Web production build ผ่าน
-Web tests พบ 0 tests จึงยังไม่ผ่าน acceptance criteria frontend regression; fresh runtime check PASS (source export, 9 deterministic files, fresh API 208/208, relocated runtime 4/4)
-Real readiness check with existing API+Web environment: all checks `ok` หลังแก้ anonymous-role permission failure; ไม่อ่าน learner records และไม่เรียก AI
-Fresh runtime export จับ source ก่อนการแก้ connectivity probe รอบสุดท้าย; probe ใหม่นี้มี typecheck/unit checks และ real SELECT 1 verification แยกต่างหาก ไม่อ้างว่า fresh export ตรวจ code รอบสุดท้ายแล้ว
-คำสั่งทั้งหมดและ exit codes ถูกบันทึกโดย `node scripts/verify-mvp.mjs` ใน `.verification-results/summary.json` พร้อม individual logs
-Prisma unscoped `migration check --json` พบ 4 integrity failures; เก็บผลเดิมและแก้ graph ต่อ ไม่ลด checks เพื่ออ้างว่า migration ผ่านครบ
+## สถาปัตยกรรมและ API
 
-Milestone 2: API **220/220**, persisted-RAG integration **8/8**, adaptive regressions **5 conversations + 1 language test** ผ่าน
-Offline core retrieval TP4/TN3/FP0/FN0; 13 records รวม follow-ups ตรงกับ expected retrieval เป็น corpus/fixture ขนาดเล็ก ไม่ใช่ universal retrieval proof
-ผลใหม่: [retrieval evidence](evidence/mvp-milestone2-rag-offline.json)
-Draft PR https://github.com/SteveJO789/LearnlyAi/pull/74; ยังไม่ merge/ปิด issue
+คง Next.js/React/TypeScript, Express modular monolith, Node 24/npm, Supabase Auth/PostgreSQL/Prisma/RLS, ModelProvider Mock/OpenRouter และ canonical Tutor Output ไม่มี Docker/Azure/custom authentication sessions
 
-Milestone 3: canonical session/message write policies + grants และ Supabase extension metadata generated จาก CLI; unscoped migration integrity check **ผ่านทั้งหมด** หลังแก้ findings เดิม
-API 220/220 กับ regenerated contract ผ่าน; new migration operations/grants ทดสอบจริงใน schema แยกที่มีแต่ empty clones/fixtures แล้ว rollback (`schema_removed=true`)
-ผลนี้ยังไม่ใช่ historical migration replay หรือการ apply ลง public production schema ดู [DB evidence](evidence/mvp-milestone3-ownership.json)
+เพิ่ม protected assessment/profile/progress/material APIs ตาม [API contract](api-contract.md) และ `POST /learning-sessions/{id}/recovery` รับ `{}` เท่านั้น กู้คืนเฉพาะ session FAILED ของเจ้าของ โดย stage/progress เดิมไม่เปลี่ยนและ version เพิ่ม การเปลี่ยนสถานะกับ SYSTEM event อยู่ใน transaction เดียว; operational event ไม่เข้าประวัติที่ส่งให้ AI ไม่มีการซ่อม rejected output หรือ retry model อัตโนมัติ
 
-## Security
+แยก embedding HTTP transport ไว้ใน AI/providers; Knowledge ใช้ pure embedding port และ deterministic reviewed chunking ยังไม่อ้างว่า vector pipeline ทำงานครบ
 
-อ่าน policies จาก Supabase catalog แล้ว: ownership SELECT และ LearningSession/Message write policies มีอยู่; ส่วนฟีเจอร์ assessment/material/profile ยังขาด write policies
-`services/api/scripts/verify-session-rls.sql` รันจริงผ่าน: owner read/write, cross-user read/update/insert ถูกปฏิเสธ และ reassignment ถูกปฏิเสธ; ROLLBACK แล้ว fixture users เหลือ 0
-ทดสอบระดับ SQL ด้วย simulated JWT claims ไม่ใช่ full login/browser proof ไม่อ่าน/แก้ learner data เดิม
-แก้ log ให้มีเฉพาะ request ID/phase, ปิด deployed development AI route และเพิ่ม bounded Auth/readiness checks; tests ผ่าน แต่ยังไม่ใช่ audit logging ทั้งระบบครบ
+## ผลทดสอบและคำสั่ง
 
-## Deployment
+- ล่าสุดบน develop 5022c28 + follow-up: API **237/237**, persisted session/RAG integration **10/10**, frontend **13/13**, API/Web typechecks/compile และ Web production build ผ่าน
+- Complete recovery milestone ก่อนเพิ่ม embedding/live runner: Knowledge **50/50**, API **230/230**, frontend **13/13**, source-only export **9 deterministic Knowledge files** และ relocated runtime **4/4** ผ่าน [ผลเต็ม](evidence/mvp-recovery-local-checks.json)
+- Latest published PR #74 CI run154 ผ่านบน Linux: [GitHub Actions](https://github.com/SteveJO789/LearnlyAi/actions/runs/37957856223) ไม่ใช้ run นี้เป็น CI proof ของ follow-up ใหม่
+- คำสั่งทั่วไป: `node scripts/verify-mvp.mjs`; API compile `node node_modules/typescript/bin/tsc -p tsconfig.json`, tests `node --test test/*.test.mjs`
+- Persistent integration: `node --experimental-test-module-mocks --test test/persisted-rag.integration.mjs` จาก services/api
+- Frontend: `node scripts/run-tests.mjs` และ `node node_modules/next/dist/bin/next build` จาก apps/web
+- Fresh packaging: `node scripts/verify-fresh-runtime.mjs` จาก services/api; ใช้ source export แต่คัดลอก locked local dependencies จึงไม่แทน fresh npm install proof
 
-Base SHA e2ddfdd: GitHub statuses Vercel Web/API failure และชี้ build-rate-limit (ตรวจ 2026-10-09)
-ไม่มี production release หรือ migration โดยงานนี้
+Live OpenRouter ใช้โมเดลที่ตั้งไว้ deepseek/deepseek-v4.1-flash รอบแรก 13/13 ผ่านโครงสร้าง แต่พบ HINT ยืมตัวเลข source example และ GUIDE ยืนยัน 40 V โดยไม่รู้ givens เก็บผลเดิมไว้แล้วแก้ adaptive instructions รอบหลังแก้ 13/13 ผ่าน schema, retrieval expectation, citation identity/linkage และ engine binding; agent inspection พบสองพฤติกรรมดังกล่าวแก้ได้ในรอบนี้
 
-ผู้ใช้ยืนยัน CD เฉพาะ `develop`; feature/integration deploy ต้อง skip เพื่อรักษา quota ดังนั้น PR #74 green statuses + Ignored/Skipped **ไม่ใช่** successful preview deployment ไม่มีการแก้ CD policy หรือ auto-merge
+ค่าใช้จ่ายที่รายงานรวม 26 calls **US$0.0214265**, reservation สะสม **US$0.31889835** จากเพดาน US$1 มี lock/ledger, จองก่อน request, max 13 attempts/run และ no retry [หลักฐาน live](evidence/mvp-adaptive-live-verification.json) Paid eval แยกจาก CI; CI ใช้ injected Mock transport ตรวจ budget gate โดยไม่เสียเงิน ยังไม่ได้เรียก live embeddings
 
-## Limitations/blockers
+ข้อจำกัด: ไม่ใช่ educator review หรือ curriculum-wide quality proof; hint บางครั้งให้สอง hints กับหนึ่งคำถาม แม้ prompt ขอคำใบ้สั้นหนึ่งข้อ Raw evidence อยู่ใน ignored evaluation/results/rag/local และไม่เขียนทับ historical P3/P3.1 evidence
 
-- ไม่มี Supabase development branch; user อนุญาต project production สำหรับ tests จึงใช้ rollback fixtures ไม่ apply destructive migration หรือเปลี่ยน live learner data
-- User approved live AI/embedding budget US$1 สำหรับ Goal นี้; ยังใช้ US$0 และต้องตรวจราคา/กำหนด worst-case ceiling ก่อนเรียก
-- Corpus ที่ reviewed แล้วมี Ohm pilot; ไม่ปลอม content/license/review เพื่อให้ดูว่ารองรับทุกบท
-- Local dependency copies ใช้เพื่อเริ่มทดสอบ; ไม่แทน fresh npm ci/clean Linux CI proof
+## Database และ security
 
-## Release checklist
+[Assessment DB evidence](evidence/mvp-assessment-db-verification.json): 6 API→Prisma→PostgreSQL groups ผ่าน scoring/answers/idempotency, concurrent topic updates, paired comparisons, cross-user isolation/direct-write denial และ atomic rollback ใช้ locally signed synthetic identities; ไม่ใช่ Supabase OAuth จริง
 
-Latest completion-branch evidence (2026-10-09): Assessment/Profile APIs and typed UI, deterministic integer exercise scoring, immutable answer receipts and transactional learning profile updates are implemented. Text intake persists normalized input and preserves math. Three interactive widgets replace placeholders. [Actual assessment DB evidence](evidence/mvp-assessment-db-verification.json): six API/Prisma/PostgreSQL groups PASS, with synthetic signed identities; fixture cleanup verified. Material isolation also passed real rollback-only SQL tests.
+Persistent fixture schema ที่ผู้ใช้อนุมัติถูกลบแล้วและ fixture_removed=true ตรวจยืนยัน Material และ [recovery RLS](evidence/mvp-recovery-rls-verification.json) ทดสอบจริงด้วย BEGIN/ROLLBACK ใน empty clones; ไม่แก้ public tables หรือข้อมูล learner จริง Recovery ผ่าน ownership, API-write guard, stale version, stage preservation และ event failure rollback
 
-Latest local checks: Knowledge 50/50, API 230/230, persisted RAG/session integration 9/9, frontend client/render/calculator 12/12, typechecks and final Web/API builds pass. Fresh source export: 9 deterministic Knowledge files, API 230/230 and relocated runtime 4/4 PASS. These tests do not prove browser keyboard/mobile behavior or actual Supabase OAuth. No public production migration or deployment occurred. PDF/image/OCR, vectors and broad source review remain outstanding; no full completion claim.
+Canonical migrations ถูกเตรียมแล้วและ unscoped migration integrity checks ผ่าน หลังแก้ข้อผิดพลาดเดิม หลักฐานนี้ยังไม่ใช่ historical migration replay ทั้ง graph หรือการ apply ลง public production schema อย่า replay legacy destructive cleanup จาก stale db ref; ตรวจ migration history/marker ก่อน release
 
-Recovery milestone: protected explicit FAILED→ACTIVE endpoint with version compare-and-set, unchanged engine stage/progress and atomic SYSTEM event. Persistent simulated API integration 10/10 and frontend tests 13/13 PASS; API/Web typechecks PASS. Real PostgreSQL rollback-only tests pass ownership, API-write guard, cross-user denial, stale version, stage preservation and event-failure atomic rollback; fixture removal verified. This proves SQL/RLS behavior, not real Supabase login or browser retry interaction. Reproduce SQL with `node services/api/scripts/verify-session-recovery-rls.mjs` and execute only in an explicitly authorized environment.
+อ่าน public catalog ล่าสุด: Assessment ยังไม่มี topic/snapshot/submissionHash; Assessment/Answer/Profile/SourceMaterial ยังมี SELECT policies เท่านั้น จึงเป็น release blocker สำหรับฟีเจอร์ใหม่ ไม่ถือว่า fixture ที่ผ่านเท่ากับ production schema พร้อม
 
-- [ ] ทุก feature/issue criterion มี working code และ evidence
-- [ ] Unit/integration/contract/E2E/security checks ผ่าน
-- [ ] Production Web/API builds ผ่าน
-- [ ] Safe migrations + cross-user RLS ผ่าน
-- [ ] Knowledge runtime packaging ผ่านจาก source ใหม่
-- [ ] README/API/architecture/operations ตรงกับ implementation
-- [ ] Preview deployment และ full user journey ผ่าน
-- [ ] ไม่มี critical/high blocker
-- [ ] Authorized production deployment + smoke tests ผ่าน ก่อนใช้คำว่า RELEASED
+ปิด development AI routes บน deployment/default runtime, จำกัด Auth/readiness deadlines, log เฉพาะ safe request ID/phase และรักษา RLS ownership/API-write guards Readiness ตรวจ DB SELECT 1, runtime Knowledge และ Auth configuration เท่านั้น ไม่พิสูจน์ OAuth, schema migration หรือ model availability
+
+## Deployment และ blockers
+
+- ผู้ใช้กำหนด **CD เฉพาะ develop**; feature/integration deployments ต้อง skip ไม่มีการแก้ policy หรือ auto-merge โดย agent
+- Latest develop 5022c28: Vercel Web status success แต่ API status failure [deployment ที่ล้มเหลว](https://vercel.com/webdev-bd06/learnly-ai/FHNjigF9xi5ye7V9Pp1WutiRaetQ) ยังไม่ทราบ cause ที่ยืนยัน
+- Vercel connector ไม่มีสิทธิ์ scope webdev-bd06 (403), CLI ไม่ติดตั้ง และ browser tool initialization ล้มเหลว รอ redacted build error; ไม่เดาสาเหตุหรืออ้าง deployed success
+- NVM4306 บล็อก npm เพราะ delegated script ไม่ trusted; official npm archive ผ่าน signature/hash แต่ installed runtime files บางส่วนต่าง เตรียม same-version repair + backup แล้ว รออนุมัติการเปลี่ยน software/trust state นอก repository ไม่ bypass security gate
+- ไม่มี non-production DB branch ใช้ได้ User อนุญาต isolated fixture/cleanup ใน production project แต่ยังไม่อนุญาต destructive public migration/live user-data changes
+- Corpus reviewed มี Ohm pilot; ไม่สร้าง educational content/license/review status เพื่อทำให้ดูว่า scope ครบ
+
+## รายการก่อน release
+
+- [ ] ทุก applicable issue criterion มี working feature และหลักฐาน
+- [ ] PDF/image/OCR/private Storage และ pgvector ingestion/Top-K ครบ
+- [ ] Login→Create→Input/Upload→Learn→Assess→History→Profile ผ่าน real browser/mobile/keyboard E2E
+- [ ] Historical migration replay และ ownership controls ตรวจใน safe environment
+- [ ] Public migration ผ่าน review/authorization และ production schema compatible
+- [ ] Fresh CI/typechecks/production builds ของ follow-up ผ่าน
+- [ ] API deploy failure แก้จาก verified build log และ deployed smoke ผ่าน
+- [ ] เอกสาร/environment/operations ตรงกับ code จริง
+- [ ] ไม่มี critical/high release blocker
+- [ ] Authorized deployment และ real production smoke ผ่าน ก่อนใช้คำว่า RELEASED

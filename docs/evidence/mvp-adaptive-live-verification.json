@@ -1,0 +1,58 @@
+{
+  "category": "LIVE_ADAPTIVE_EVALUATION",
+  "transport": "Actual configured OpenRouter model; in-memory learning persistence",
+  "pricing": {
+    "source": "https://openrouter.ai/api/v1/models",
+    "fetchedAt": "2026-10-09T16:59:33.030Z",
+    "inputPerTokenUSD": 3e-7,
+    "outputPerTokenUSD": 0.0000012
+  },
+  "first": {
+    "startedAt": "2026-10-09T16:56:46.992Z",
+    "finishedAt": "2026-10-09T16:57:59.409Z",
+    "model": "deepseek/deepseek-v4.1-flash",
+    "calls": 13,
+    "completed": true,
+    "accepted": 13,
+    "schemaValid": 13,
+    "engineBound": 13,
+    "retrievalMatches": 13,
+    "citationIdentityAndLinkage": 13,
+    "scenarioCount": 5
+  },
+  "second": {
+    "startedAt": "2026-10-09T16:59:32.792Z",
+    "finishedAt": "2026-10-09T17:00:39.240Z",
+    "model": "deepseek/deepseek-v4.1-flash",
+    "calls": 13,
+    "completed": true,
+    "accepted": 13,
+    "schemaValid": 13,
+    "engineBound": 13,
+    "retrievalMatches": 13,
+    "citationIdentityAndLinkage": 13,
+    "scenarioCount": 5
+  },
+  "cumulativeBudget": {
+    "reservedUSD": 0.31889835,
+    "reportedCostUSD": 0.021426496720000007
+  },
+  "promptSHA256": "ee71f6310dd7eedce4a5dc70424c36a05bf71982a1d3084e56ba97c2547af5e0",
+  "observedFirstRunDefects": [
+    "Generic Thai hint borrowed source-example givens not supplied by learner",
+    "40 V attempt marked CORRECT before learner supplied resistance/current"
+  ],
+  "secondRunAgentInspection": {
+    "hintAvoidsBorrowedNumbers": true,
+    "numericAttemptAsksForGivens": true,
+    "noFinalAnswerInPractice": true
+  },
+  "limitations": [
+    "Agent inspection, not an independent educator review",
+    "Hint returned two hints plus a guided question despite preference for one small hint",
+    "Small Ohm corpus and one model; not curriculum-wide teaching quality",
+    "Not Auth/Prisma/browser/deployment E2E",
+    "Paid embedding and vector retrieval not evaluated"
+  ],
+  "rawEvidence": "Separate ignored evaluation/results/rag/local files retained unchanged; no original P3/P3.1 evidence overwritten"
+}
