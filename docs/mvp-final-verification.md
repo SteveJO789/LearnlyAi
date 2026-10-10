@@ -2,6 +2,8 @@
 
 อัปเดต 2026-10-10: **กำลังทำ — ยังไม่ IMPLEMENTATION COMPLETE และยังไม่ RELEASED**
 
+2026-10-11 ล่าสุด: canonical KnowledgeChunk/pgvector codec/migration, reviewed-only RLS, atomic reviewed publication และ persistent vector mode implement แล้ว API **308/308**, simulated persistent **14/14**, build/typecheck/migration integrity PASS Actual publication/search SQL ใช้ทั้ง synthetic และ reused actual embedding ใน rollback fixture; fresh 6 migrations/103 SQL steps/190 checks PASS ไม่มี production apply/paid call เพิ่ม Operator CLI, vector readiness, actual marker และ live authenticated/deployment/browser verification ยังขาด [หลักฐาน](evidence/mvp-vector-publication-verification.json) รายละเอียดเก่าด้านล่างเป็นผลตาม milestone ในวันที่ตรวจ
+
 2026-10-11: protectedfileupload/list/resume/review/hash-verifieddownloadและCreate→editableconfirmation→PRE implementแล้ว Metadatareviewไม่เปลี่ยนoriginalextract/hashหรือtrustedstatus; unconfirmedbinaryไม่เข้าAI API303/303, frontend23/23/typecheck/Webbuild, simulatedpersistent11/11PASS ActualcanonicalreviewSQL/RLSclones+fresh95steps/178checksPASS/rollback ไม่มีliveAuthStorage/browser/deploymentproof [หลักฐาน](evidence/mvp-file-journey-verification.json)
 
 ล่าสุดตัวอ่านไฟล์จริง: PDF.js text extraction, fullPNG/JPEG decode/CRC/inflatecaps/EXIFและtha+engTesseractOCR/workerabort ทำงานกับactualsyntheticfixtures **10/10** Actualnpmtest/build **API299/299**, simulatedpersistent11/11PASS Pinnedmodels/workersเตรียมในbuildแล้ว แต่fileendpoint/UI/actualAuthStoragejourneyและdeploymentmemory/sizeยังไม่verified [หลักฐาน](evidence/mvp-real-file-extraction-verification.json)

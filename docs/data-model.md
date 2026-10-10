@@ -114,6 +114,8 @@ erDiagram
 
 ## Implementation notes
 
+Canonical `KnowledgeChunk` เก็บ document/version/passage/content/input/provenance hashes, chunk ordinal, original content, source title/URL/license JSON, nullable page และ pgvector 1536 dimensions มี reviewed-only authenticated SELECT RLS และไม่มี learner/anonymous write grants Publication มาจาก curated reader ผ่าน atomic transaction เท่านั้น ข้อมูลนักเรียนอยู่ SourceMaterial แยกกัน Runtime vector mode ต้องเปิดชัดเจน ผลใหม่อยู่ [vector evidence](evidence/mvp-vector-publication-verification.json) Production migration/index ยังไม่ apply
+
 Assessment/Profile/History และ text material flows มี implementations/tests แล้ว แต่ยังขาด public migration และ real Auth/browser journey Binary ingestion/journal/recovery มีโค้ดและ rollback SQL evidence แต่ real PDF/OCR/Storage/endpoints/UI ยังไม่ครบ Canonical vector persistence/runtime และ broader reviewed corpusยังpending ดูรายละเอียดตาม [MVP tracker](mvp-completion-tracker.md) ใช้ Prisma contract/migration workflow ที่ตรวจจริง ไม่ใช้ assumed schema.prisma
 
 ## Migration Rule

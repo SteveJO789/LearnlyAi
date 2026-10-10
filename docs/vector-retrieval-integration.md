@@ -1,4 +1,14 @@
-# การค้นหาด้วยเวกเตอร์ — ส่วนค้นหาพร้อมทดสอบ แต่ยังไม่เปิด runtime
+# การค้นหาด้วยเวกเตอร์ — canonical index และ runtime แบบเปิดใช้ชัดเจน
+
+อัปเดต 2026-10-11: เพิ่ม canonical `KnowledgeChunk`, generated pgvector migration/codec, reviewed-only RLS/grants และ atomic Prisma publication แล้ว เส้นทางเรียนที่ยืนยันตัวตนใช้ตัวค้นหาเวกเตอร์จริงเมื่อกำหนด `KNOWLEDGE_RETRIEVAL_MODE=vector` ค่าเริ่มต้นยังเป็น lexical และไม่มี automatic fallback/publication/paid call ข้อความด้านล่างเป็นหลักฐานตาม milestone ก่อนหน้า ดู [ผลล่าสุด](evidence/mvp-vector-publication-verification.json)
+
+การเปิดโหมดเวกเตอร์ต้องมี `OPENROUTER_API_KEY`, `KNOWLEDGE_EMBEDDING_MODEL=openai/text-embedding-3-small`, ค่า threshold `KNOWLEDGE_VECTOR_MIN_SIMILARITY` ที่กำหนดชัดเจน 0–1 และ optional `KNOWLEDGE_VECTOR_TOP_K` 1–8 (default 3) ต้องเตรียม migration/index ให้ตรงก่อนเปิด ไม่มี threshold default ที่อ้างว่าผ่าน curriculum-wide calibration
+
+ตัวนำเข้า `publishReviewedKnowledge` อ่าน curated reader เท่านั้น → normalize/chunk → validate embedding dimensions/hash/provenance → อ่าน review ซ้ำ → serialized transaction แทนที่หนึ่ง document ผ่าน `PrismaVectorPublication` แหล่งอ้างอิงเก็บชื่อ/URL/license เดิม และ `page=null` สำหรับ Markdown ไม่ประดิษฐ์เลขหน้า ไม่มี HTTP publication endpoint นักเรียน/anon ไม่มี write grant/policy คำสั่ง CLI สำหรับ operator ยังต้องทำ
+
+App migration ระบุ `extensions.vector(1536)` และปฏิเสธหากไม่มี type นี้ ไม่ย้าย extension ของ Supabase; generated extension baseline ของ package ใช้ `CREATE EXTENSION IF NOT EXISTS vector` ซึ่งต้องตรวจตำแหน่ง schema ก่อนใช้บนฐานข้อมูลใหม่ ไม่มีการ apply production ในรอบนี้
+
+ล่าสุด API **308/308**, simulated persistent **14/14**, build/typecheck/migration integrity ผ่าน Actual rollback fixtures ตรวจ canonical migration 7 postconditions + captured publication/search SQL + RLS ทั้ง synthetic และ reuse actual embedding ที่เคยตรวจไว้; fresh 6 packages/103 SQL steps/190 checks ผ่าน ไม่มี paid call เพิ่ม Readiness ปัจจุบันตรวจ connectivity/local reviewed artifacts/auth config เท่านั้น ยังไม่ตรวจ vector index/provider และยังไม่มี deployed vector/browser proof
 
 อัปเดต 2026-10-10: เพิ่ม `VectorKnowledgeRetriever` และ `PrismaVectorSearch` จริง ไม่ใช้ lexical result เป็นผลเวกเตอร์จำลอง โดยยังคง default lexical pilot จนกว่า canonical pgvector contract/migration, ingestion และ environment configuration จะพร้อม
 
@@ -25,11 +35,10 @@ TEMP database verificationใช้existing authenticated roleก่อนใช
 
 ## งานที่ยังต้องทำ
 
-1. ติดตั้ง Prisma pgvector extension pack หลัง npm repair ได้ แล้วเพิ่ม KnowledgeChunk ใน canonical contract/generated artifacts และ migration graph โดยไม่แก้ historical hashes
-2. Implement reviewed-only ingestion command: validate provenance ก่อนจ่ายค่า embedding, บันทึก model/dimensions/hashes/source metadata และทำ publication แบบ atomic; ห้ามนักเรียนเขียน trusted Knowledge
-3. ตรวจ canonical migration/RLS ด้วย isolated fixture; production changes ต้อง review/อนุมัติตามขอบเขตที่เกี่ยวข้องก่อน apply
-4. Wire retrieval configuration, budget-aware live embedding evaluation และ relevance threshold จากชุดทดสอบภาษาไทย/อังกฤษที่มี positive/negative/follow-up cases; ใช้งบรวมเดิม US$1 ไม่รีเซ็ต ledger
-5. ทดสอบ deployed runtime และ citation validation โดยคง CD เฉพาะ develop
+1. เพิ่ม operator CLI สำหรับ prepared/reviewed embedding publication พร้อมตรวจ target และ manifest; core publication และ fixture verification มีแล้ว
+2. ตรวจ actual Prisma marker/extension executor และ production-compatible migration path ก่อน apply ที่ได้รับอนุญาต
+3. เพิ่ม vector configuration/index readiness และ independent relevance calibration สำหรับ corpus ที่ reviewed จริง
+4. ทดสอบ live authenticated vector API/browser/deployed runtime โดยคง CD เฉพาะ develop และใช้ ledger งบเดิม US$1
 
 คำสั่ง live evaluationต้องมี explicit --budget-usd=1/--max-calls/--model/--ledger/--output และใช้ledgerเดิม ไม่มีautomatic retry/fallback มีnative routing price ceilings Paid requestsใหม่6calls รวมทั้งหมด54calls reportedUS$0.02963331572/reservedUS$0.6515484 ไม่รีเซ็ตงบUS$1 การreuse actual query embeddingsไม่เสียเงินเพิ่ม Thresholdจาก12casesนี้ยังไม่wireเป็นproduction default
 

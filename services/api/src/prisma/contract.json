@@ -20,6 +20,10 @@
       "model": "FileUpload",
       "namespace": "public"
     },
+    "KnowledgeChunk": {
+      "model": "KnowledgeChunk",
+      "namespace": "public"
+    },
     "LearningProfile": {
       "model": "LearningProfile",
       "namespace": "public"
@@ -711,6 +715,200 @@
               },
               "namespaceId": "public",
               "table": "FileUpload"
+            }
+          },
+          "KnowledgeChunk": {
+            "fields": {
+              "content": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "contentHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "dimensions": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "documentId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "documentVersion": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "embedding": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/vector@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 1536
+                  }
+                }
+              },
+              "embeddingInputHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "embeddingModel": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "language": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "ordinal": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "page": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "passageHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "passageId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "provenanceHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "reviewed": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "sources": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/json@1",
+                  "kind": "scalar"
+                }
+              },
+              "subject": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "content": {
+                  "column": "content"
+                },
+                "contentHash": {
+                  "column": "contentHash"
+                },
+                "dimensions": {
+                  "column": "dimensions"
+                },
+                "documentId": {
+                  "column": "documentId"
+                },
+                "documentVersion": {
+                  "column": "documentVersion"
+                },
+                "embedding": {
+                  "column": "embedding"
+                },
+                "embeddingInputHash": {
+                  "column": "embeddingInputHash"
+                },
+                "embeddingModel": {
+                  "column": "embeddingModel"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "language": {
+                  "column": "language"
+                },
+                "ordinal": {
+                  "column": "ordinal"
+                },
+                "page": {
+                  "column": "page"
+                },
+                "passageHash": {
+                  "column": "passageHash"
+                },
+                "passageId": {
+                  "column": "passageId"
+                },
+                "provenanceHash": {
+                  "column": "provenanceHash"
+                },
+                "reviewed": {
+                  "column": "reviewed"
+                },
+                "sources": {
+                  "column": "sources"
+                },
+                "subject": {
+                  "column": "subject"
+                }
+              },
+              "namespaceId": "public",
+              "table": "KnowledgeChunk"
             }
           },
           "LearningProfile": {
@@ -1539,6 +1737,19 @@
               "using": "(current_setting('learnly.api_write', true) = '1')",
               "withCheck": "(current_setting('learnly.api_write', true) = '1')"
             },
+            "knowledge_chunk_read_reviewed": {
+              "kind": "policy",
+              "name": "knowledge_chunk_read_reviewed_72bac3b2",
+              "namespaceId": "public",
+              "operation": "select",
+              "permissive": true,
+              "prefix": "knowledge_chunk_read_reviewed",
+              "roles": [
+                "authenticated"
+              ],
+              "tableName": "KnowledgeChunk",
+              "using": "reviewed = true"
+            },
             "learning_profile_insert_api_own": {
               "kind": "policy",
               "name": "learning_profile_insert_api_own_62b5c283",
@@ -1800,6 +2011,11 @@
               "kind": "rls",
               "namespaceId": "public",
               "tableName": "FileUpload"
+            },
+            "KnowledgeChunk": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "KnowledgeChunk"
             },
             "LearningProfile": {
               "kind": "rls",
@@ -2225,6 +2441,146 @@
                   ],
                   "name": "FileUpload_learningSessionId_idx_3c4d5acd",
                   "prefix": "FileUpload_learningSessionId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "KnowledgeChunk": {
+              "checks": [
+                {
+                  "expression": "\"passageHash\" ~ '^[0-9a-f]{64}$' AND \"contentHash\" ~ '^[0-9a-f]{64}$' AND \"embeddingInputHash\" ~ '^[0-9a-f]{64}$' AND \"provenanceHash\" ~ '^[0-9a-f]{64}$'",
+                  "name": "knowledge_chunk_hashes_baf6cdf2",
+                  "prefix": "knowledge_chunk_hashes"
+                },
+                {
+                  "expression": "dimensions = 1536 AND ordinal >= 0 AND (page IS NULL OR page > 0)",
+                  "name": "knowledge_chunk_shape_ac4a864f",
+                  "prefix": "knowledge_chunk_shape"
+                }
+              ],
+              "columns": {
+                "content": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "contentHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "dimensions": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "documentId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "documentVersion": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "embedding": {
+                  "codecId": "pg/vector@1",
+                  "nativeType": "vector",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 1536
+                  }
+                },
+                "embeddingInputHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "embeddingModel": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "language": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "ordinal": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "page": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "passageHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "passageId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "provenanceHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "reviewed": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "sources": {
+                  "codecId": "pg/json@1",
+                  "nativeType": "json",
+                  "nullable": false
+                },
+                "subject": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "documentId"
+                  ],
+                  "name": "KnowledgeChunk_documentId_idx_825ef746",
+                  "prefix": "KnowledgeChunk_documentId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "embeddingModel",
+                    "subject",
+                    "language"
+                  ],
+                  "name": "KnowledgeChunk_embeddingModel_subject_language_idx_1c48278e",
+                  "prefix": "KnowledgeChunk_embeddingModel_subject_language_idx",
                   "unique": false
                 }
               ],
@@ -2816,7 +3172,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "0039047422dff2448bd0223d8c5b74d4ef5beca41b455f665d5168bf03759620"
+    "storageHash": "5e6080d9d23dfa0183e4bbecfe0e5dfc14556f2304e686f5dccabe42280ac2ab"
   },
   "execution": {
     "executionHash": "1c5f64dbace57a6efe810d458509a690bf92acb20d8522d6bfb343791bdd4e83",
@@ -2939,6 +3295,7 @@
       "lateral": true,
       "limit": true,
       "orderBy": true,
+      "pgvector.cosine": true,
       "returning": true
     },
     "sql": {
@@ -2953,6 +3310,56 @@
     }
   },
   "extensions": {
+    "pgvector": {
+      "capabilities": {
+        "postgres": {
+          "pgvector.cosine": true
+        }
+      },
+      "familyId": "sql",
+      "id": "pgvector",
+      "kind": "extension",
+      "targetId": "postgres",
+      "types": {
+        "codecTypes": {
+          "import": {
+            "alias": "PgVectorTypes",
+            "named": "CodecTypes",
+            "package": "@internal/extension-pgvector/codec-types"
+          },
+          "typeImports": [
+            {
+              "alias": "Vector",
+              "named": "Vector",
+              "package": "@internal/extension-pgvector/codec-types"
+            }
+          ]
+        },
+        "operationTypes": {
+          "import": {
+            "alias": "PgVectorOperationTypes",
+            "named": "OperationTypes",
+            "package": "@internal/extension-pgvector/operation-types"
+          }
+        },
+        "queryOperationTypes": {
+          "import": {
+            "alias": "PgVectorQueryOperationTypes",
+            "named": "QueryOperationTypes",
+            "package": "@internal/extension-pgvector/operation-types"
+          }
+        },
+        "storage": [
+          {
+            "familyId": "sql",
+            "nativeType": "vector",
+            "targetId": "postgres",
+            "typeId": "pg/vector@1"
+          }
+        ]
+      },
+      "version": "0.0.1"
+    },
     "supabase": {
       "familyId": "sql",
       "id": "supabase",

@@ -17,6 +17,7 @@ import { PrismaLearningPersistence } from "./prisma-learning-persistence.js";
 import { readPersistedMessages, type PersistedMessage } from "./persisted-messages.js";
 import { logSessionLoadFailure } from "../../shared/safe-diagnostics.js";
 import { appUserIdForAuthUser } from "../../shared/app-user.js";
+import { createPersistentKnowledgeRetriever } from "./create-persistent-knowledge-retriever.js";
 
 type SessionRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["LearningSession"]["first"]>>>;
 
@@ -355,7 +356,7 @@ export function createLearningSessionsRouter(
         const engine = createLearningEngine({
           learningPersistence: persistence,
           modelProvider: options.modelProvider,
-          knowledgeRetriever: options.knowledgeRetriever,
+          knowledgeRetriever: options.knowledgeRetriever ?? createPersistentKnowledgeRetriever(client, options.knowledgeRoot),
           knowledgeRoot: options.knowledgeRoot,
           materials: new PrismaTextMaterials(client, appUserId),
         });

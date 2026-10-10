@@ -1,5 +1,7 @@
 # ตัวติดตามการทำ MVP ให้ครบ
 
+สถานะล่าสุด 2026-10-11: canonical vector contract/publication และ protected persistent runtime implement แล้ว API308/308, simulatedpersistent14/14/build/typecheck/migrationintegrityPASS Actual rollback publication/search/RLS fixtures รวม reuse actual embedding และ fresh6packages103steps190checksPASS ไม่มีpaidcalls/productionapply ดู Milestone21 รายการเก่าด้านล่างเป็นผล ณ milestoneเดิม
+
 เริ่มตรวจ 2026-10-09 จาก `origin/develop` commit `e2ddfdd7788a5d20d66b496ee2917771b6ea3021` บน branch `integration/university-mvp-20261009` ใน worktree แยก งานเดิมและ stash ไม่ถูกแก้ไข เป้าหมายยัง ACTIVE; ยังไม่ IMPLEMENTATION COMPLETE หรือ RELEASED
 
 สถานะล่าสุด 2026-10-10: PR #74 และ design PR #76 ถูกทีม merge แล้ว; งานใหม่ต่อจาก develop `5022c28` บน `integration/university-mvp-followup-20261009` โดยนำเฉพาะ recovery/embedding ใหม่มา ไม่ทำซ้ำ commits ที่ merge แล้ว
@@ -24,11 +26,11 @@
 | Persistent sessions/history | #8 #9 #14 | Prisma + JWT-scoped persistence และ explicit FAILED recovery | real Auth/browser whole-flow และ ambiguous interaction retries | Auth/DB | persisted integration 10/10; recovery RLS/atomic rollback จริง | public migration/browser proof |
 | P3.1 curated RAG integration | #11 #12 | merged แล้ว | fresh integrated regression and packaging | reviewed Knowledge | ancestor checks; code present | corpus มี concept เดียว |
 | Retrieval relevance/history | #11 | lexical pilot + bounded follow-up implemented | broader corpus/vector retrieval | P3.1 | core TP4/TN3/FP0/FN0; reset/revocation tests | corpus/model coverage |
-| Embeddings/pgvector ingestion and Top-K | #3 #11 | chunking และ embedding adapter มีแล้ว; storage/Top-K ยังขาด | canonical chunk/vector model, ingestion, queries, live embeddings | pgvector pack, approved source | targeted tests 4/4; pgvector extension มีจริง | npm trust repair approval |
+| Embeddings/pgvector ingestion and Top-K | #3 #11 | canonical model/atomic reviewed publication/Top-K/persistent vector composition implemented | operator CLI, index readiness, live authenticated deployment/calibration | approved curated source + explicit configuration | API308, persistent14, actual migration/publication/search/RLS fixtures PASS | production-compatible migration/index and broader reviewed corpus |
 | Adaptive tutoring | #39 | mode/language/history; แก้ source-example borrowing และ premature numeric confirmation | independent educator review และ broader curriculum | #12 | 5 multi-turn regressions; live รอบแก้ 13/13 schema/citation/state | corpus/model coverage; บางคำใบ้ยาวเกิน preference |
 | Assessment PRE/POST scoring/persistence | #13 | APIs, snapshot, deterministic scoring, atomic answers/profile implemented | broader question bank; real Auth/browser journey; release migration | #2 #3 | 6 real API/Prisma/DB groups PASS; HTTP/scoring tests | deploy after team merge |
 | Learning profile/statistics | #13 #16 | owned APIs and Home/Profile UI implemented | browser/mobile QA; expanded curriculum evidence | Assessment | concurrent samples/PRE-POST comparison real DB PASS | develop-only CD |
-| Text/PDF/image normalization | #15 | normalized persistent TEXT + engine materials implemented | PDF/image extraction/OCR, file validation/Storage | #2 #3 | NFC/math tests, real material RLS rollback PASS | OCR/dependency/runtime assets |
+| Text/PDF/image normalization | #15 | real PDF/OCR/private file API + Create review implemented | actual Auth/Storage/browser journey, owned file-history/retention UX | #2 #3 | API308, real extraction10, metadata-review/RLS rollback PASS | production migration/bucket and live verification |
 | Learning UI | #9 | stage, PRE/POST journey, 3 interactive widgets, structured blocks, explicit failure recovery | browser/mobile/keyboard QA | API contracts | rendering/client tests + persisted recovery + real recovery RLS | browser evidence pending |
 | Dashboard/History/Profile | #16 | real summary metrics/recent sessions/comparisons, /History alias | browser/mobile/empty/error interaction checks | #13 | new metrics APIs + rendering/client tests | develop-only CD |
 | Reliability/security | #14 | readiness ที่ระบุขอบเขตจริง, bounded Auth, safe logs, dev route ปิด, recovery | full browser security journey; production schema readiness | core integration | API 237/237; real cross-user/guard/rollback fixtures | deployment logs/access |
@@ -311,3 +313,12 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - Targeted tests5/5, API compile และ full offline API249/249 PASS; HTTP transport injected ไม่ใช่ actual Storage upload proof
 - [ขอบเขตและงานที่ขาด](file-input-foundation.md); PDF/image decoder/OCR/pgvector dependencies ยังติด npm repair approval ไม่ bypass trust gate
 - CI171 ของ numeric heade14722c ผ่านก่อน file foundation: https://github.com/SteveJO789/LearnlyAi/actions/runs/38027199110
+
+### Milestone 21 — canonical pgvector publication และ persistent vector mode
+
+- เพิ่ม KnowledgeChunk/1536-vector/source metadata/hash constraints ใน canonical Prisma contract, generated pgvector space และ migration003→5e6080d ไม่แก้ historical hashes AppDDL ระบุ extensions.vector ไม่ย้าย shared extension; authenticated อ่านเฉพาะ reviewed และไม่มี publication grants
+- ตัวนำเข้าอ่าน curated reader → normalize/chunk/embedding → ตรวจ review/provenance ซ้ำ → serialized atomic replacement ไม่มี HTTP publication/paid auto-call และไม่นำ learner files เข้า trusted Knowledge
+- Persistent API เชื่อม actual PrismaVectorSearch/OpenRouter embeddings เมื่อเปิด vector mode ชัดเจน Model/threshold/Top-K มี limits; lexical defaultเดิม ไม่ fallbackเงียบ Candidateยังต้องตรงcurrent reviewed hashes/citations
+- API308/308, simulatedpersistent14/14, build/typecheck/migrationintegrityPASS Actual canonical publication/search/RLS ใช้ synthetic และ reuse actual1536embedding ผ่าน rollback fixtures Fresh6packages103SQLsteps190checksPASS [หลักฐาน](evidence/mvp-vector-publication-verification.json)
+- พบและแก้ boundary violation ของ composition และ brittle test count; ไม่ลด validators/grantsเพื่อให้ผ่าน ไม่มี production apply/paid call/CD เพิ่ม
+- Fetch developล่าสุด472086c: ทีมเพิ่ม Home/Create/Lessons decorative UI ต้อง integrateโดยรักษาfile-reviewflowก่อนตรวจWebซ้ำ งานถัดไป operator publication CLI, vector readiness และ integration/latest-head checks LiveAuth/browser/production migrationยังเป็นreleasegates

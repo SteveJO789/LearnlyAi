@@ -1,5 +1,39 @@
 // use prisma-8
 
+// Published curated Knowledge only. Student materials never enter this table.
+model KnowledgeChunk {
+  id                 String @id
+  documentId         String
+  documentVersion    String
+  passageId          String
+  passageHash        String
+  contentHash        String
+  embeddingInputHash String
+  provenanceHash     String
+  ordinal            Int
+  content            String
+  subject            String
+  language           String
+  page               Int?
+  sources            Json
+  embeddingModel     String
+  dimensions         Int
+  embedding          pgvector.Vector(length: 1536)
+  reviewed           Boolean @default(false)
+
+  @@index([embeddingModel, subject, language])
+  @@index([documentId])
+  @@check(expression: "dimensions = 1536 AND ordinal >= 0 AND (page IS NULL OR page > 0)", name: "knowledge_chunk_shape")
+  @@check(expression: "\"passageHash\" ~ '^[0-9a-f]{64}$' AND \"contentHash\" ~ '^[0-9a-f]{64}$' AND \"embeddingInputHash\" ~ '^[0-9a-f]{64}$' AND \"provenanceHash\" ~ '^[0-9a-f]{64}$'", name: "knowledge_chunk_hashes")
+  @@rls
+}
+
+policy_select knowledge_chunk_read_reviewed {
+  target = KnowledgeChunk
+  roles = [authenticated]
+  using = "reviewed = true"
+}
+
 model User {
   id                String   @id @default(uuid())
   authUserId        String   @unique

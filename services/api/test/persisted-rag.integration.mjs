@@ -12,11 +12,22 @@ const api = resolve(import.meta.dirname, '..');
 const load = path => import(pathToFileURL(resolve(api, path)).href);
 const realFetch = globalThis.fetch;
 const originalEnv = { AI_PROVIDER: process.env.AI_PROVIDER, SUPABASE_URL: process.env.SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY: process.env.SUPABASE_PUBLISHABLE_KEY, KNOWLEDGE_ROOT: process.env.KNOWLEDGE_ROOT };
+const vectorEnvKeys = ['KNOWLEDGE_RETRIEVAL_MODE', 'KNOWLEDGE_EMBEDDING_MODEL', 'KNOWLEDGE_VECTOR_MIN_SIMILARITY', 'KNOWLEDGE_VECTOR_TOP_K', 'OPENROUTER_API_KEY'];
+for (const key of vectorEnvKeys) originalEnv[key] = process.env[key];
+delete process.env.KNOWLEDGE_RETRIEVAL_MODE;
+const embeddingRequests = [];
 process.env.AI_PROVIDER = 'mock';
 process.env.SUPABASE_URL = 'https://synthetic-auth.test';
 process.env.SUPABASE_PUBLISHABLE_KEY = 'synthetic-public-test-key';
 delete process.env.KNOWLEDGE_ROOT;
 globalThis.fetch = async (url, init) => {
+  if (String(url) === 'https://openrouter.ai/api/v1/embeddings') {
+    assert.equal(process.env.KNOWLEDGE_RETRIEVAL_MODE, 'vector');
+    assert.equal(init.headers.Authorization, 'Bearer offline-vector-key');
+    const body = JSON.parse(init.body); assert.equal(body.model, 'openai/text-embedding-3-small');
+    assert.equal(body.dimensions, 1536); embeddingRequests.push(body.input);
+    return Response.json({ model: 'text-embedding-3-small', data: [{ index: 0, embedding: [1, ...Array(1535).fill(0)] }] });
+  }
   if (String(url).startsWith('https://synthetic-auth.test/auth/v1/user')) {
     const id = { 'Bearer test-token-a': 'synthetic-user-a', 'Bearer test-token-b': 'synthetic-user-b' }[init.headers.authorization];
     return id ? Response.json({ id, email: `${id}@example.invalid`, user_metadata: { full_name: 'Synthetic Learner' } }) : Response.json({}, { status: 401 });
@@ -47,6 +58,12 @@ function dbClient(userId) {
   return {
     orm: { public: Object.fromEntries(['User','LearningSession','Message'].map(table => [table, tableApi(table)])) }, raw: { sql },
     query: plan => ({ toArray: async () => {
+      if (/FROM public\."KnowledgeChunk"/.test(plan.text)) {
+        assert.equal(JSON.parse(plan.values[0]).length, 1536);
+        assert.ok(plan.values.includes('openai/text-embedding-3-small'));
+        if (store.vectorFailure) throw new Error('Synthetic database unavailable');
+        return clone(store.vectorCandidates ?? []);
+      }
       if (/FROM public\."SourceMaterial"/.test(plan.text)) return [];
       if (/FROM public\."Assessment"/.test(plan.text)) return [];
       assert.match(plan.text, /SELECT[\s\S]+FROM public\."Message"/);
@@ -102,6 +119,9 @@ const { createApp } = await load('dist/app.js');
 const { MockModelProvider } = await load('dist/modules/ai/providers/mock-model-provider.js');
 const { mockTutorScenario } = await load('dist/modules/ai/mock-tutor-scenario.js');
 const { validateTutorOutput } = await load('dist/modules/ai/tutor-output-validator.js');
+const { LocalReviewedKnowledgeReader } = await load('dist/modules/knowledge/reviewed-knowledge-reader.js');
+const { chunkReviewedPassage, reviewedChunkEmbeddingInput } = await load('dist/modules/knowledge/reviewed-chunks.js');
+const { reviewedProvenanceHash } = await load('dist/modules/knowledge/vector-knowledge-retriever.js');
 after(() => { globalThis.fetch = realFetch; mock.restoreAll(); for (const [key,value] of Object.entries(originalEnv)) { if(value === undefined) delete process.env[key]; else process.env[key] = value; } });
 async function withApp(scenario, run) {
   reset(); const requests = [];
@@ -119,6 +139,39 @@ async function session(call) {
   const r = await call('', { method: 'POST', body: { title: 'Synthetic RAG verification', subject: 'physics' } });
   assert.equal(r.status,201); return r.body.data.id;
 }
+for (const mode of ['trusted', 'stale', 'unavailable']) test(`configured vector mode reaches protected persisted learning with ${mode} index response (offline services)`, async () => {
+  const previous = Object.fromEntries(vectorEnvKeys.map(key => [key, process.env[key]]));
+  Object.assign(process.env, { KNOWLEDGE_RETRIEVAL_MODE: 'vector', KNOWLEDGE_EMBEDDING_MODEL: 'openai/text-embedding-3-small',
+    KNOWLEDGE_VECTOR_MIN_SIMILARITY: '0.8', KNOWLEDGE_VECTOR_TOP_K: '3', OPENROUTER_API_KEY: 'offline-vector-key' });
+  try {
+    await withApp(mockTutorScenario, async ({ call, requests }) => {
+      const id = await session(call), passage = await new LocalReviewedKnowledgeReader(resolve(api, 'runtime-knowledge')).readPilot();
+      const chunk = chunkReviewedPassage(passage)[0];
+      store.vectorCandidates = [{ chunkId: chunk.id, passageId: chunk.passageId, passageHash: chunk.passageHash,
+        contentHash: mode === 'stale' ? 'stale' : chunk.contentHash, embeddingInputHash: reviewedChunkEmbeddingInput(passage, chunk).hash,
+        provenanceHash: reviewedProvenanceHash(passage), similarity: .95 }];
+      store.vectorFailure = mode === 'unavailable';
+      const before = embeddingRequests.length;
+      const other = await call(`/${id}/interactions`, { token: 'test-token-b', method: 'POST', body: { input: "Explain Ohm's law." } });
+      assert.equal(other.status, 404); assert.equal(embeddingRequests.length, before);
+      const result = await call(`/${id}/interactions`, { method: 'POST', body: { input: "Explain Ohm's law." } });
+      assert.equal(embeddingRequests.length, before + 1);
+      if (mode === 'unavailable') {
+        assert.equal(result.status, 503); assert.equal(result.body.error.code, 'KNOWLEDGE_UNAVAILABLE');
+        assert.equal(requests.length, 0); assert.equal(store.Message.length, 0);
+      } else {
+        assert.equal(result.status, 200);
+        const tutor = store.Message.find(row => row.role === 'TUTOR').content;
+        assert.equal(validateTutorOutput(tutor).valid, true);
+        assert.equal(tutor.citations.some(citation => citation.sourceType === 'TRUSTED_KNOWLEDGE_BASE'), mode === 'trusted');
+        const restored = await call(`/${id}`); assert.equal(restored.status, 200);
+        assert.equal(store.LearningSession[0].version, 1);
+      }
+    });
+  } finally {
+    for (const [key, value] of Object.entries(previous)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; }
+  }
+});
 test('creating another learning session preserves the user-selected profile avatar', async () => {
   await withApp(mockTutorScenario, async ({ call }) => {
     await session(call);

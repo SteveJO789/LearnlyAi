@@ -4,11 +4,11 @@ import { resolve } from 'node:path';
 const schema='learnly_history_verify';
 const quoteSchema='"'+schema+'"';
 const root=new URL('../migrations/app/',import.meta.url);
-const tip='0039047422dff2448bd0223d8c5b74d4ef5beca41b455f665d5168bf03759620';
+const tip='5e6080d9d23dfa0183e4bbecfe0e5dfc14556f2304e686f5dccabe42280ac2ab';
 const mode=process.argv.find(arg=>arg.startsWith('--path='))?.slice(7)??'legacy';
 if(!['legacy','fresh'].includes(mode)) throw new Error('Choose legacy or fresh explicitly.');
 const migrations=readdirSync(root).filter(name=>!['refs','snapshots'].includes(name)&&
-  (mode==='fresh'?['20261010T0331_fresh_supabase_mvp_baseline','20261010T0752_private_material_storage','20261010T1119_durable_file_uploads','20261010T1154_journal_storage_gate','20261010T1653_file_material_review'].includes(name):!name.endsWith('_fresh_supabase_mvp_baseline'))).sort().map(name=>({name,
+  (mode==='fresh'?['20261010T0331_fresh_supabase_mvp_baseline','20261010T0752_private_material_storage','20261010T1119_durable_file_uploads','20261010T1154_journal_storage_gate','20261010T1653_file_material_review','20261010T1750_reviewed_knowledge_vectors'].includes(name):!name.endsWith('_fresh_supabase_mvp_baseline'))).sort().map(name=>({name,
   manifest:JSON.parse(readFileSync(new URL(name+'/migration.json',root),'utf8')),
   operations:JSON.parse(readFileSync(new URL(name+'/ops.json',root),'utf8'))}));
 let previous=null;
