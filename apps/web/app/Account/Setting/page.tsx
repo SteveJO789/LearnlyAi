@@ -99,6 +99,14 @@ function SettingContent() {
   // --- Delete Account ---
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [mascotPrankActive, setMascotPrankActive] = useState(false);
+  const [mascotTapPending, setMascotTapPending] = useState(false);
+
+  const triggerMascotPrank = () => {
+    if (mascotPrankActive) return;
+    setMascotPrankActive(true);
+    window.setTimeout(() => setMascotPrankActive(false), 5000);
+  };
 
   return (
     <div className="min-h-screen bg-transparent text-text relative transition-colors duration-200">
@@ -431,13 +439,67 @@ function SettingContent() {
                     </ul>
                     <p className="text-sm text-danger font-medium mt-3">{t("settings.deleteAccount.irreversible")}</p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setDeleteConfirmOpen(true)}
-                    className="self-start rounded-xl bg-danger px-6 py-2.5 text-sm font-medium text-white hover:opacity-90 transition-all cursor-pointer"
+                  <div
+                    className="relative self-start"
+                    onMouseEnter={() => {
+                      if (typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+                        triggerMascotPrank();
+                      }
+                    }}
                   >
-                    {t("settings.deleteAccount.button")}
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Touch devices do not have hover: play a quick prank before opening confirmation.
+                        const canHover = typeof window !== "undefined" &&
+                          window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+                        if (canHover) {
+                          setDeleteConfirmOpen(true);
+                          return;
+                        }
+                        if (mascotTapPending) return;
+                        setMascotTapPending(true);
+                        triggerMascotPrank();
+                        window.setTimeout(() => {
+                          setDeleteConfirmOpen(true);
+                          setMascotTapPending(false);
+                        }, 550);
+                      }}
+                      disabled={mascotTapPending}
+                      className={`rounded-xl bg-danger px-6 py-2.5 text-sm font-medium text-white hover:opacity-90 transition-all cursor-pointer disabled:cursor-wait ${mascotPrankActive ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+                    >
+                      {t("settings.deleteAccount.button")}
+                    </button>
+                    {mascotPrankActive && (
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute left-0 top-1/2 z-10 flex items-center gap-2 whitespace-nowrap"
+                        style={{ animation: "learnly-mascot-prank 5s ease-in-out both" }}
+                      >
+                        <span className="text-3xl drop-shadow-md" role="img" aria-label="มาสคอตตัวแสบ">🐸</span>
+                        <span className="rounded-full bg-surface px-3 py-1 text-xs font-semibold text-text shadow-lg">
+                          เอาปุ่มไปก่อนนะ!
+                        </span>
+                      </div>
+                    )}
+                    <style jsx>{`
+                      @keyframes learnly-mascot-prank {
+                        0% { transform: translateX(-90px) translateY(-50%) scale(.75); opacity: 0; }
+                        10% { transform: translateX(0) translateY(-50%) scale(1); opacity: 1; }
+                        22% { transform: translateX(145px) translateY(-50%) rotate(-8deg); opacity: 1; }
+                        35% { transform: translateX(260px) translateY(-50%) rotate(8deg); opacity: 1; }
+                        72% { transform: translateX(260px) translateY(-50%) rotate(8deg); opacity: 1; }
+                        90% { transform: translateX(0) translateY(-50%) rotate(0); opacity: 1; }
+                        100% { transform: translateX(0) translateY(-50%) scale(.9); opacity: 0; }
+                      }
+                      @media (prefers-reduced-motion: reduce) {
+                        @keyframes learnly-mascot-prank {
+                          0%, 100% { opacity: 0; }
+                          15%, 85% { opacity: 1; }
+                        }
+                      }
+                    `}</style>
+                  </div>
                 </div>
               )}
             </div>
