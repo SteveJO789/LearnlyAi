@@ -150,3 +150,42 @@
   .mascot-scene:hover *, .mascot-scene:focus-visible * { animation: none !important; }
   .mascot-wave-hand { opacity: 1; }
 }
+
+
+/* Subtle shooting stars for the Home background, behind all content. */
+.home-shooting-star {
+  position: absolute;
+  z-index: 0;
+  top: -12%;
+  left: 0;
+  width: clamp(54px, 8vw, 100px);
+  height: 1.5px;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  transform: rotate(-38deg);
+  transform-origin: right center;
+  background: linear-gradient(90deg, transparent 0%, rgb(56 189 248 / 0.08) 25%, rgb(167 139 250 / 0.58) 72%, rgb(249 168 212 / 0.95) 100%);
+  box-shadow: 0 0 5px rgb(167 139 250 / 0.22);
+  animation: home-shooting-star-travel 1.5s ease-out infinite;
+  will-change: transform, opacity;
+}
+.home-shooting-star-one {
+  left: 22%;
+  animation-delay: 3s;
+}
+.home-shooting-star-two {
+  left: 78%;
+  width: clamp(48px, 6vw, 76px);
+  animation-delay: 10s;
+  animation-duration: 1.35s;
+}
+@keyframes home-shooting-star-travel {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(-38deg); }
+  12% { opacity: .72; }
+  72% { opacity: .48; }
+  100% { opacity: 0; transform: translate3d(-42vw, 58vh, 0) rotate(-38deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-shooting-star { animation: none !important; opacity: 0 !important; }
+}
