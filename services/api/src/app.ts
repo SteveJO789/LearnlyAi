@@ -10,6 +10,7 @@ import { createReadinessCheck, type ReadinessOptions } from "./shared/readiness.
 import { ApiError } from "./shared/api-error.js";
 import { createAssessmentRouter, createLearningProfileRouter, type AssessmentRouterOptions } from "./modules/assessments/assessment-router.js";
 import { createMaterialRouter, type MaterialRouterOptions } from "./modules/input/material-router.js";
+import { createFileHistoryRouter, type FileHistoryRouterOptions } from "./modules/input/file-history-router.js";
 
 export interface AppOptions extends CreateLearningEngineOptions {
   learningEngine?: LearningEngine;
@@ -18,6 +19,7 @@ export interface AppOptions extends CreateLearningEngineOptions {
   readiness?: ReadinessOptions;
   assessment?: AssessmentRouterOptions;
   materialApi?: MaterialRouterOptions;
+  fileHistory?: FileHistoryRouterOptions;
 }
 
 export function createApp(options: AppOptions = {}): Express {
@@ -61,6 +63,7 @@ export function createApp(options: AppOptions = {}): Express {
     "/api/v1/learning-sessions/:sessionId/assessments",
     createAssessmentRouter(options.assessment),
   );
+  app.use("/api/v1/users/me/files", createFileHistoryRouter(options.fileHistory));
   app.use("/api/v1/users/me", createLearningProfileRouter(options.assessment));
   app.use(
     "/api/v1/learning-sessions",

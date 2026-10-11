@@ -11,12 +11,9 @@ import { getLearningProgress, type LearningProgressDto } from "../../../lib/asse
 import { assessmentHistory, historyTab, inHistoryDateRange } from "../../../lib/history";
 import { AssessmentHistory } from "../../components/assessment-history";
 import RequireAuth from "../../components/require-auth";
+import { FileHistoryCards, FileHistoryDetails } from "../../components/file-history";
+import { listFileHistory, type FileHistoryItem } from "../../../lib/file-materials";
 
-interface FileItem {
-  id: number;
-  name: string;
-  date: string;
-}
 
 interface ChatItem {
   id: string;
@@ -29,7 +26,13 @@ function HistoryContent() {
   const { t, language } = useLanguage();
   const searchParams = useSearchParams();
   const activeTab = historyTab(searchParams.get("tab"));
-  const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
+  const [selectedFile, setSelectedFile] = useState<FileHistoryItem | null>(null);
+  const [files, setFiles] = useState<FileHistoryItem[]>([]);
+  const [filesLoading, setFilesLoading] = useState(activeTab === "Uploaded Files");
+  const [filesError, setFilesError] = useState<string | null>(null);
+  const [nextFileCursor, setNextFileCursor] = useState<string | null>(null);
+  const [fileCursor, setFileCursor] = useState("");
+  const [fileRetry, setFileRetry] = useState(0);
 
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [startDate, setStartDate] = useState<string>("");
@@ -44,6 +47,7 @@ function HistoryContent() {
   const [resultsError, setResultsError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (activeTab === "Uploaded Files") return;
     let active = true;
     setHistoryLoading(true); setHistoryError(null);
     listLearningSessions()
@@ -54,7 +58,7 @@ function HistoryContent() {
         );
       }).finally(() => { if (active) setHistoryLoading(false); });
     return () => { active = false; };
-  }, [retry]);
+  }, [retry, activeTab]);
 
   useEffect(() => {
     if (activeTab !== "Test Results") return;
@@ -66,8 +70,21 @@ function HistoryContent() {
     return () => { active = false; };
   }, [activeTab, retry]);
 
-  // Binary material history remains empty until upload/storage APIs exist.
-  const filesHistory: FileItem[] = [];
+  useEffect(() => {
+    setFileCursor(""); setFiles([]); setNextFileCursor(null);
+  }, [startDate, endDate]);
+  useEffect(() => {
+    if (activeTab !== "Uploaded Files") return;
+    const controller = new AbortController();
+    setFilesLoading(true); setFilesError(null);
+    listFileHistory({ after: fileCursor, from: startDate, to: endDate }, controller.signal)
+      .then(page => { if (!controller.signal.aborted) {
+        setFiles(previous => fileCursor ? [...previous, ...page.items.filter(item => !previous.some(loaded => loaded.id === item.id))] : page.items);
+        setNextFileCursor(page.nextCursor);
+      } }).catch(cause => { if (!controller.signal.aborted) setFilesError(cause instanceof Error ? cause.message : t("history.fileError")); })
+      .finally(() => { if (!controller.signal.aborted) setFilesLoading(false); });
+    return () => controller.abort();
+  }, [activeTab, fileCursor, startDate, endDate, fileRetry, t]);
   const testResultsHistory = assessmentHistory(sessionHistory, comparisons);
 
   const chatHistory: ChatItem[] = sessionHistory.map((session) => ({
@@ -86,7 +103,6 @@ function HistoryContent() {
     return true;
   };
 
-  const filteredFiles = filesHistory.filter((item) => filterByDate(item.date));
   const filteredChats = chatHistory.filter((item) => filterByDate(item.date));
   const filteredLessons = lessonsHistory.filter((item) =>
     filterByDate(item.updatedAt.slice(0, 10))
@@ -110,34 +126,8 @@ function HistoryContent() {
     <div className="min-h-screen bg-transparent text-text relative transition-colors duration-200">
       {/* Modal เปิดดูไฟล์ */}
       {selectedFile && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6">
-          <div className="relative flex h-[85vh] w-[90vw] max-w-4xl flex-col items-center justify-center rounded-3xl bg-surface p-8 shadow-2xl">
-            <button
-              onClick={() => setSelectedFile(null)}
-              className="absolute right-6 top-6 rounded-xl bg-secondary hover:opacity-80 px-6 py-2.5 text-sm font-medium text-text transition-all"
-            >
-              {t("history.back")}
-            </button>
-            <div className="flex flex-col items-center justify-center gap-6">
-              <svg
-                className="h-48 w-48 text-text"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002-2v-2"
-                />
-              </svg>
-              <p className="text-xl font-medium">
-                {selectedFile.name}
-              </p>
-            </div>
-          </div>
-        </div>
+        <FileHistoryDetails key={selectedFile.id} file={selectedFile} language={language} onClose={() => setSelectedFile(null)}
+          onReviewed={file => { setSelectedFile(file); setFiles(previous => previous.map(item => item.id === file.id ? file : item)); }} />
       )}
 
       <SiteHeader
@@ -233,13 +223,13 @@ function HistoryContent() {
 
             {/* Container เนื้อหาหลักของ History */}
             <div className="rounded-2xl border border-surface-border p-6 min-h-[650px] bg-surface flex flex-col justify-start">
-              {(historyError || (activeTab === "Test Results" && resultsError)) && (
+              {activeTab !== "Uploaded Files" && (historyError || (activeTab === "Test Results" && resultsError)) && (
                 <div role="alert" className="mb-4 rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
                   <p>{historyError || resultsError}</p>
                   <button type="button" onClick={() => setRetry(value => value + 1)} disabled={historyLoading || (activeTab === "Test Results" && resultsLoading)} className="mt-2 rounded-lg border border-danger/40 px-4 py-2 disabled:opacity-50">{t("history.retry")}</button>
                 </div>
               )}
-              {historyLoading || (activeTab === "Test Results" && resultsLoading) ? <p role="status" className="py-12 text-center text-muted">{t("history.loading")}</p> : null}
+              {activeTab !== "Uploaded Files" && (historyLoading || (activeTab === "Test Results" && resultsLoading)) ? <p role="status" className="py-12 text-center text-muted">{t("history.loading")}</p> : null}
               {/* แท็บ Chat */}
               {activeTab === "Chat" && !historyLoading && !historyError && (
                 <div className="flex flex-col gap-3 w-full">
@@ -303,44 +293,16 @@ function HistoryContent() {
               )}
 
               {/* แท็บ Uploaded Files */}
-              {activeTab === "Uploaded Files" && !historyLoading && (
-                <div className="grid grid-cols-1 gap-4 w-full items-start sm:grid-cols-2 xl:grid-cols-3">
-                  {filteredFiles.length === 0 ? (
-                    <p className="text-muted text-sm col-span-3 text-center py-12">{t("history.noFiles")}</p>
-                  ) : (
-                    filteredFiles.map((file) => (
-                      <button
-                        key={file.id}
-                        type="button"
-                        onClick={() => setSelectedFile(file)}
-                        className="flex flex-col items-center justify-center rounded-xl border border-surface-border p-4 hover:border-primary/60 transition-all text-center group cursor-pointer bg-background"
-                      >
-                        <div className="mb-3">
-                          <svg
-                            className="h-10 w-10 text-muted group-hover:text-primary transition-colors"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1.2}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                          </svg>
-                        </div>
-                        <div className="w-full overflow-hidden">
-                          <p className="font-semibold text-xs truncate">
-                            {file.name}
-                          </p>
-                          <p className="text-[10px] text-muted mt-1">
-                            {formatDateDisplay(file.date)}
-                          </p>
-                        </div>
-                      </button>
-                    ))
-                  )}
+              {activeTab === "Uploaded Files" && (
+                <div className="flex flex-col gap-4">
+                  {filesError ? <div role="alert" className="rounded-xl border border-danger/40 p-3 text-sm text-danger">
+                    <p>{filesError}</p><button type="button" disabled={filesLoading} onClick={() => setFileRetry(value => value + 1)}
+                      className="mt-2 rounded-lg border border-danger/40 px-4 py-2 disabled:opacity-50">{t("history.retry")}</button>
+                  </div> : null}
+                  {filesLoading ? <p role="status" className="py-6 text-center text-muted">{t("history.loading")}</p> : null}
+                  {(!filesError && !filesLoading) || files.length ? <FileHistoryCards items={files} language={language} onSelect={setSelectedFile} /> : null}
+                  {nextFileCursor ? <button type="button" disabled={filesLoading} onClick={() => setFileCursor(nextFileCursor)}
+                    className="self-start rounded-xl border border-surface-border px-4 py-2 text-sm disabled:opacity-50">{t("history.moreFiles")}</button> : null}
                 </div>
               )}
 

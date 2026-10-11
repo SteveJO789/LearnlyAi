@@ -1,6 +1,6 @@
 # ตัวติดตามการทำ MVP ให้ครบ
 
-สถานะล่าสุด 2026-10-11: operator prepare/dry-run/explicit publication และ vectorIndex readiness implement แล้ว API319/319/build/typecheck, simulatedpersistent14/14PASS พบPrisma markerเป็นwarning-only จึงเพิ่มhard marker gate; gateใหม่ยังรอrealPGrecheckเพราะautomaticapproval-reviewquotaหมด ไม่มีbypass/paidcalls/productionapply ดู Milestone22 และ evidence รายการก่อนหน้าเป็นผล ณ milestoneเดิม
+สถานะล่าสุด 2026-10-11: owned READY file History/API/review/download implement แล้ว API322/322, Web27/27, simulatedpersistent14/14/builds/typechecksPASS รวมdevelop4c2e0a7/font design แล้ว SQLfixtureเตรียมแต่ยังไม่executeเพราะapproval-reviewquota blocker ไม่มีbypass/paidcalls/productionapply ดูMilestone23/evidence รายการก่อนหน้าเป็นผล ณ milestoneเดิม
 
 เริ่มตรวจ 2026-10-09 จาก `origin/develop` commit `e2ddfdd7788a5d20d66b496ee2917771b6ea3021` บน branch `integration/university-mvp-20261009` ใน worktree แยก งานเดิมและ stash ไม่ถูกแก้ไข เป้าหมายยัง ACTIVE; ยังไม่ IMPLEMENTATION COMPLETE หรือ RELEASED
 
@@ -334,3 +334,13 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - ActualPG readiness metadata+publisher/search/RLS fixtureก่อนเพิ่มhardmarkerPASS/rollback ส่วนrendererของstrictmarkerใหม่เตรียมแล้วแต่ยังไม่execute ActualPrismaapply/markerexecutor/productionและliveAuth/browserยังไม่verified [หลักฐาน](evidence/mvp-vector-operations-verification.json)
 - External blocker: การอ่านSupabasecatalogล่าสุดNOT EXECUTEDเพราะautomaticapprovalreviewquotaหมด ไม่ใช่safetyrejection ไม่bypass/retryผ่านtransportอื่น; งานlocalทำต่อ ไม่มีpaidcalls/productionchanges/CDนอกdevelop
 - งานถัดไป: strictmarker/actualoperatorDB verificationเมื่อapprovalreviewพร้อม และowned file-history/receipt-retention UI ที่ยังขาด
+
+### Milestone 23 — owned uploaded-file history และยืนยันข้อความย้อนหลัง
+
+- เพิ่ม verified-auth GET users/me/files ผ่าน JWT-bound Prisma/legacy app-ID/owner+RLS, bound cursor/from/to, page25/lookahead26 และbounded textprojection ไม่คืนbucket/key/rawreceipt/token
+- History Uploaded Filesใช้ข้อมูลจริง/cards/dialog ไม่ hardcode [] โหลดเพิ่ม/ตัวกรองวันไทย/unknownlegacydate/loading/error/retry สถานะไฟล์แยกจากsessionloading/error รักษาโครงหน้าและfontsล่าสุดทีม
+- Dialogอ่าน/แก้-confirmlearningtextก่อนเรียนตามservergate ดาวน์โหลดoriginalผ่านexistinghash-verifiedprotectedendpoint frontendstreamจำกัด3MiB/MIME/empty พร้อมabort/deadline/focushandling/TabEscape; ยังไม่browserproof
+- API322/322, Web27/27, simulatedpersistent14/14 และAPI/Webbuild/typechecksPASS HTTP/Auth/query/client/renderใช้offlineportsชัดเจน พบfixtureAuthconfigmissing503และdateformatไม่ตรงdesignแล้วแก้จริง ไม่ลดguards [หลักฐาน](evidence/mvp-file-history-verification.json)
+- RendererเตรียมcanonicalfreshrollbackSQL+actualquery 6groups owner/peer/legacy/Thai-day/paging/confirmation/closedgate แต่NOTEXECUTEDเพราะapproval-reviewquota blockerเดิม ไม่bypass Currentstrictmarker/actualPrismamigration/publicAuthStorage/browser/deploymentยังpending
+- รวมdevelop4c2e0a7ผ่านmergeeb0738cก่อนfeature ไม่มีconflict/auto-merge develop/main/CDนอกdevelop/paidcalls/productionchanges
+- งานถัดไปคือpending/cancelledreceipt recovery/cleanup หลังออกCreate และretention UX พร้อมexternalSQL/browserchecksเมื่อverificationresourcesพร้อม

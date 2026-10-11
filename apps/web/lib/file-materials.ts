@@ -35,18 +35,55 @@ export async function resumeFileUpload(sessionId: string, id: string) {
   if (result?.status === "CANCELLED" && result.id === id && result.materialId === id) return { status: "CANCELLED" as const, id };
   return ready(value);
 }
-export async function reviewFileMaterial(sessionId: string, id: string, text: string) {
+export async function reviewFileMaterial(sessionId: string, id: string, text: string, signal?: AbortSignal) {
   const value = await authenticatedRequest<{ materialId: string; status: string; normalizedText: string }>(base(sessionId) + `/${encodeURIComponent(id)}/review`,
-    { method: "PATCH", body: JSON.stringify({ text }) });
+    { method: "PATCH", body: JSON.stringify({ text }), signal });
   if (value.materialId !== id || value.status !== "READY" || typeof value.normalizedText !== "string" || !value.normalizedText.trim() || value.normalizedText.length > 8000) {
     throw new Error("File API returned an invalid response.");
   }
   return value;
 }
-export async function downloadFileMaterial(sessionId: string, id: string) {
-  const response = await authenticatedFetch(base(sessionId) + `/${encodeURIComponent(id)}/file`);
+export async function downloadFileMaterial(sessionId: string, id: string, signal?: AbortSignal) {
+  const response = await authenticatedFetch(base(sessionId) + `/${encodeURIComponent(id)}/file`, { signal });
   if (!response.ok) await readResponse(response);
-  const file = await response.blob();
-  if (file.size > 3 * 1024 * 1024 || !["application/pdf", "image/png", "image/jpeg"].includes(file.type)) throw new Error("Stored file response is invalid.");
-  return file;
+  const mime = response.headers.get("content-type")?.split(";", 1)[0] ?? "";
+  if (!["application/pdf", "image/png", "image/jpeg"].includes(mime) || Number(response.headers.get("content-length")) > 3 * 1024 * 1024) {
+    await response.body?.cancel(); throw new Error("Stored file response is invalid.");
+  }
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error("Stored file response is invalid.");
+  let size = 0; const parts: Uint8Array<ArrayBuffer>[] = [];
+  try {
+    for (;;) {
+      const next = await reader.read(); if (next.done) break;
+      size += next.value.byteLength;
+      if (size > 3 * 1024 * 1024) { await reader.cancel(); throw new Error("Stored file response is invalid."); }
+      parts.push(new Uint8Array(next.value));
+    }
+  } finally { reader.releaseLock(); }
+  if (!size) throw new Error("Stored file response is invalid.");
+  return new Blob(parts, { type: mime });
+}
+
+export interface FileHistoryItem { id: string; sessionId: string; sessionTitle: string; type: "PDF" | "IMAGE";
+  mimeType: string; sizeBytes: number; filename: string; uploadedAt: string | null; normalizedText: string | null;
+  reviewedByLearner: boolean; canReview: boolean }
+export interface FileHistoryPage { items: FileHistoryItem[]; nextCursor: string | null }
+const validId = (value: unknown) => typeof value === "string" && /^[a-zA-Z0-9_-]{1,128}$/u.test(value);
+export async function listFileHistory(filters: { after?: string; from?: string; to?: string } = {}, signal?: AbortSignal): Promise<FileHistoryPage> {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(filters)) if (value) query.set(key, value);
+  const value = await readResponse<unknown>(await authenticatedFetch(`/api/users/me/files${query.size ? `?${query}` : ""}`, { signal }));
+  const page = value as FileHistoryPage | null;
+  if (!page || !Array.isArray(page.items) || page.items.length > 25 || page.nextCursor !== null && !validId(page.nextCursor) ||
+    new Set(page.items.map(item => item?.id)).size !== page.items.length || page.items.some(item => !item || !validId(item.id) || !validId(item.sessionId) ||
+      typeof item.sessionTitle !== "string" || item.sessionTitle.length > 200 || !["PDF", "IMAGE"].includes(item.type) ||
+      !["application/pdf", "image/png", "image/jpeg"].includes(item.mimeType) || (item.type === "PDF") !== (item.mimeType === "application/pdf") ||
+      !Number.isInteger(item.sizeBytes) || item.sizeBytes < 1 || item.sizeBytes > 3 * 1024 * 1024 ||
+      typeof item.filename !== "string" || item.filename.length > 128 || /[\u0000-\u001f\u007f/\\]/u.test(item.filename) ||
+      item.uploadedAt !== null && (typeof item.uploadedAt !== "string" || !Number.isFinite(Date.parse(item.uploadedAt))) ||
+      item.normalizedText !== null && (typeof item.normalizedText !== "string" || !item.normalizedText.trim() || item.normalizedText.length > 8000) ||
+      typeof item.reviewedByLearner !== "boolean" || typeof item.canReview !== "boolean")) throw new Error("File API returned an invalid response.");
+  if (page.nextCursor !== null && (!page.items.length || page.nextCursor !== page.items.at(-1)!.id)) throw new Error("File API returned an invalid cursor.");
+  return page;
 }
