@@ -113,7 +113,7 @@ async function pdfText(bytes: Uint8Array): Promise<ExtractedFileText> {
     let total = 0;
     for (let number = 1; number <= document.numPages; number++) {
       const page = await document.getPage(number), reader = page.streamTextContent().getReader();
-      let text = "", separator = "";
+      let text = "", separator = "", textTooLarge = false;
       try {
         for (;;) {
           const { done, value } = await reader.read(); if (done) break;
@@ -121,12 +121,16 @@ async function pdfText(bytes: Uint8Array): Promise<ExtractedFileText> {
             if (!("str" in item)) continue;
             if (!item.str) { if (item.hasEOL) separator = "\n"; continue; }
             const piece = (text && !/\s$/u.test(text) && !/^\s/u.test(item.str) ? separator : "") + item.str;
-            if (total + text.length + piece.length > 8000) fail("EXTRACTED_TEXT_TOO_LARGE");
+            // Defer the controlled size error until after the PDF text reader is cleaned up.
+            // Throwing here can be masked by PDF.js stream cancellation/cleanup errors.
+            if (total + text.length + piece.length > 8000) { textTooLarge = true; break; }
             text += piece;
             separator = item.hasEOL ? "\n" : " ";
           }
+          if (textTooLarge) break;
         }
       } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); page.cleanup(); }
+      if (textTooLarge) fail("EXTRACTED_TEXT_TOO_LARGE");
       text = text.trim(); total += text.length + (pages.length ? 2 : 0);
       if (total > 8000) fail("EXTRACTED_TEXT_TOO_LARGE");
       pages.push({ page: number, text });
