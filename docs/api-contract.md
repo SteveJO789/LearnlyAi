@@ -215,6 +215,8 @@ Upload uses real bounded PDF/OCR. Wrong MIME/compressed body/oversize return415/
 
 Readiness returns `data.status` and `data.checks` containing `api`, `database`, `knowledge`, `authConfiguration` with `ok`/`failed` values. Probes have a 3-second deadline. Database connectivity uses `SELECT 1` on the configured application connection and reads no learner records; it does not prove RLS, schema compatibility or migration correctness. Auth configuration does not prove OAuth login or Auth service availability. No paid provider call is made. Liveness remains independent of all these dependencies.
 
+Vector mode additionally reports `checks.vectorIndex`: validated retrieval configuration plus current reviewed chunk coverage/identity/1536-dimensional nonzero stored vectors read under the authenticated role in a read-only transaction. A missing/stale/malformed index or failed probe returns 503; this is not provider availability, semantic quality, OAuth/JWT or complete migration proof. Lexical mode retains the original response fields. [Operator/index procedure](knowledge-vector-operations.md)
+
 ## Status Codes
 
 | Status | Meaning |

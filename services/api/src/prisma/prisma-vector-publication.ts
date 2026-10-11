@@ -2,6 +2,7 @@ import type { UserDb } from "./db.js";
 import { validateEmbedding } from "../modules/knowledge/embedding-port.js";
 import { sha256 } from "../modules/knowledge/reviewed-chunks.js";
 import type { ReviewedVectorPublisher, ReviewedVectorRow } from "../modules/knowledge/reviewed-vector-publication.js";
+import contractJson from "./contract.json" with { type: "json" };
 
 /** Operator-only writer. Authenticated/anon roles have no publication policies or grants. */
 export class PrismaVectorPublication implements ReviewedVectorPublisher {
@@ -19,6 +20,12 @@ export class PrismaVectorPublication implements ReviewedVectorPublisher {
     await this.client.transaction(async tx => {
       await tx.execute(this.client.raw.sql`SET LOCAL lock_timeout = '3s'`.affectedCount().build());
       await tx.execute(this.client.raw.sql`SET LOCAL statement_timeout = '5s'`.affectedCount().build());
+      // Prisma rc.12's onFirstUse is warning-only. Publication must fail closed.
+      const marker = await tx.query(this.client.raw.sql`SELECT core_hash AS "coreHash", profile_hash AS "profileHash"
+        FROM prisma_contract.marker WHERE space = 'app' FOR SHARE`
+        .returnsRow({ coreHash: "pg/text@1", profileHash: "pg/text@1" }).build()).toArray();
+      if (marker.length !== 1 || marker[0]?.coreHash !== contractJson.storage.storageHash ||
+        marker[0]?.profileHash !== contractJson.profileHash) throw new Error("Knowledge publication requires the current application migration marker.");
       // Serialize publications of the same document, including the initially empty index.
       await tx.execute(this.client.raw.sql`SELECT pg_advisory_xact_lock(hashtextextended(${documentId}, 0))`.affectedCount().build());
       await tx.execute(this.client.raw.sql`DELETE FROM public."KnowledgeChunk" WHERE "documentId" = ${documentId}`.affectedCount().build());

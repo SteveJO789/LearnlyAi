@@ -6,6 +6,7 @@ import { createKnowledgeHarness } from './knowledge-test-helpers.mjs';
 import { createPersistentKnowledgeRetriever } from '../dist/modules/learning/create-persistent-knowledge-retriever.js';
 import { LocalKnowledgeRetriever } from '../dist/modules/knowledge/local-knowledge-retriever.js';
 import { VectorKnowledgeRetriever } from '../dist/modules/knowledge/vector-knowledge-retriever.js';
+import contractJson from '../dist/prisma/contract.json' with { type: 'json' };
 const vector = () => [1, ...Array(1535).fill(0)];
 const embedding = { model: 'fixture/offline', dimensions: 1536, embed: async inputs => inputs.map(vector) };
 
@@ -43,8 +44,13 @@ test('unreviewed, revoked or changed source and malformed embeddings never publi
 test('Prisma publisher binds content/source/vector and performs scoped replacement inside one serialized transaction', async t => {
   const harness = createKnowledgeHarness(t), passage = (await harness.retriever.retrieve({ studentInput: 'Ohm' }))[0];
   const plans = []; let transactions = 0;
-  const client = { raw: { sql: (strings, ...values) => ({ affectedCount: () => ({ build: () => ({ sql: strings.join('?'), values }) }) }) },
-    transaction: async work => { transactions++; return work({ execute: async plan => { plans.push(plan); return { affectedRows: 1 }; } }); } };
+  const client = { raw: { sql: (strings, ...values) => {
+    const plan = { sql: strings.join('?'), values };
+    return { affectedCount: () => ({ build: () => plan }), returnsRow: () => ({ build: () => plan }) };
+  } },
+    transaction: async work => { transactions++; return work({ execute: async plan => { plans.push(plan); return { affectedRows: 1 }; },
+      query: plan => ({ toArray: async () => { assert.ok(plan.sql.includes('prisma_contract.marker')); return [{ coreHash: contractJson.storage.storageHash, profileHash: contractJson.profileHash }]; } }),
+    }); } };
   const publisher = new PrismaVectorPublication(client);
   await publishReviewedKnowledge({ readPilot: async () => passage }, embedding, publisher);
   assert.equal(transactions, 1);
@@ -55,6 +61,20 @@ test('Prisma publisher binds content/source/vector and performs scoped replaceme
   assert.ok(inserts.every(plan => plan.sql.includes('::extensions.vector') && !plan.sql.includes(passage.content)));
   assert.ok(inserts[0].values.includes(JSON.stringify(passage.sources)));
   await assert.rejects(publisher.replace(passage.conceptId, [])); assert.equal(transactions, 1);
+});
+
+test('Prisma publisher rejects absent/mismatched markers before delete or insert and locks the exact app marker', async t => {
+  const harness = createKnowledgeHarness(t), passage = (await harness.retriever.retrieve({ studentInput: 'Ohm' }))[0];
+  for (const rows of [[], [{ coreHash: 'old', profileHash: contractJson.profileHash }], [{ coreHash: contractJson.storage.storageHash, profileHash: 'old' }]]) {
+    const executed = [];
+    const client = { raw: { sql: (parts, ...values) => {
+      const plan = { text: parts.join('?'), values }; return { affectedCount: () => ({ build: () => plan }), returnsRow: () => ({ build: () => plan }) };
+    } }, transaction: async work => work({ execute: async plan => { executed.push(plan.text); }, query: plan => ({ toArray: async () => {
+      assert.ok(plan.text.includes("space = 'app' FOR SHARE")); return rows;
+    } }) }) };
+    await assert.rejects(publishReviewedKnowledge({ readPilot: async () => passage }, embedding, new PrismaVectorPublication(client)), /marker/);
+    assert.ok(executed.every(sql => sql.startsWith('SET LOCAL')));
+  }
 });
 
 test('publication failure propagates for transaction rollback; no retry or lexical substitution', async t => {

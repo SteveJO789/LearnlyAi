@@ -1,5 +1,7 @@
 # การค้นหาด้วยเวกเตอร์ — canonical index และ runtime แบบเปิดใช้ชัดเจน
 
+อัปเดต operations 2026-10-11: [คำสั่ง operator และ index readiness](knowledge-vector-operations.md) implement แล้วพร้อม API319/persistent14 tests; actual apply/current strict marker DB check ยังต้องพิสูจน์แยก ไม่ใช้ CI/fixture ก่อน hard gate เป็นหลักฐานแทน
+
 อัปเดต 2026-10-11: เพิ่ม canonical `KnowledgeChunk`, generated pgvector migration/codec, reviewed-only RLS/grants และ atomic Prisma publication แล้ว เส้นทางเรียนที่ยืนยันตัวตนใช้ตัวค้นหาเวกเตอร์จริงเมื่อกำหนด `KNOWLEDGE_RETRIEVAL_MODE=vector` ค่าเริ่มต้นยังเป็น lexical และไม่มี automatic fallback/publication/paid call ข้อความด้านล่างเป็นหลักฐานตาม milestone ก่อนหน้า ดู [ผลล่าสุด](evidence/mvp-vector-publication-verification.json)
 
 การเปิดโหมดเวกเตอร์ต้องมี `OPENROUTER_API_KEY`, `KNOWLEDGE_EMBEDDING_MODEL=openai/text-embedding-3-small`, ค่า threshold `KNOWLEDGE_VECTOR_MIN_SIMILARITY` ที่กำหนดชัดเจน 0–1 และ optional `KNOWLEDGE_VECTOR_TOP_K` 1–8 (default 3) ต้องเตรียม migration/index ให้ตรงก่อนเปิด ไม่มี threshold default ที่อ้างว่าผ่าน curriculum-wide calibration

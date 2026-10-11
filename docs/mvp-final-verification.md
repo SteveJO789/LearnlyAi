@@ -2,6 +2,8 @@
 
 อัปเดต 2026-10-10: **กำลังทำ — ยังไม่ IMPLEMENTATION COMPLETE และยังไม่ RELEASED**
 
+2026-10-11 ล่าสุด: เพิ่ม actual operator CLI สำหรับ prepare/dry-run/explicit-target publication และ vectorIndex readiness แล้ว API **319/319**, simulated persistent **14/14**, API build/typecheck PASS CLI ทดสอบกับ report จริงเดิมโดยไม่ apply/paid call การตรวจ marker ของ Prisma rc.12 เป็น warning-only จึงเพิ่ม hard transactional marker gate; gate นี้ยังต้องตรวจบน PostgreSQLจริงซ้ำ เครื่องมืออ่าน catalog ล่าสุดไม่รันเพราะ automatic approval-review quota หมด ไม่มี bypass/production changes [หลักฐาน](evidence/mvp-vector-operations-verification.json)
+
 2026-10-11 ล่าสุด: canonical KnowledgeChunk/pgvector codec/migration, reviewed-only RLS, atomic reviewed publication และ persistent vector mode implement แล้ว API **308/308**, simulated persistent **14/14**, build/typecheck/migration integrity PASS Actual publication/search SQL ใช้ทั้ง synthetic และ reused actual embedding ใน rollback fixture; fresh 6 migrations/103 SQL steps/190 checks PASS ไม่มี production apply/paid call เพิ่ม Operator CLI, vector readiness, actual marker และ live authenticated/deployment/browser verification ยังขาด [หลักฐาน](evidence/mvp-vector-publication-verification.json) รายละเอียดเก่าด้านล่างเป็นผลตาม milestone ในวันที่ตรวจ
 
 2026-10-11: protectedfileupload/list/resume/review/hash-verifieddownloadและCreate→editableconfirmation→PRE implementแล้ว Metadatareviewไม่เปลี่ยนoriginalextract/hashหรือtrustedstatus; unconfirmedbinaryไม่เข้าAI API303/303, frontend23/23/typecheck/Webbuild, simulatedpersistent11/11PASS ActualcanonicalreviewSQL/RLSclones+fresh95steps/178checksPASS/rollback ไม่มีliveAuthStorage/browser/deploymentproof [หลักฐาน](evidence/mvp-file-journey-verification.json)

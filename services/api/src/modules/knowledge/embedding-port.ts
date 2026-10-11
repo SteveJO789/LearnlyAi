@@ -6,7 +6,7 @@ export interface EmbeddingProvider {
 
 export function validateEmbedding(value: unknown, dimensions: number): readonly number[] {
   if (!Number.isInteger(dimensions) || dimensions < 1 || dimensions > 2000 || !Array.isArray(value) || value.length !== dimensions ||
-    Array.from(value).some(item => typeof item !== "number" || !Number.isFinite(item)) ||
-    !value.some(item => item !== 0)) throw new Error("Embedding response is invalid.");
+    Array.from(value).some(item => typeof item !== "number" || !Number.isFinite(item) || !Number.isFinite(Math.fround(item))) ||
+    !value.some(item => Math.fround(item) !== 0)) throw new Error("Embedding response is invalid.");
   return Object.freeze([...value] as number[]);
 }

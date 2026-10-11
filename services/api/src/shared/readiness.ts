@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { Client } from "pg";
 import { LocalReviewedKnowledgeReader } from "../modules/knowledge/reviewed-knowledge-reader.js";
+import { checkVectorIndexReadiness } from "./vector-index-readiness.js";
 
 export type ReadinessProbe = (signal: AbortSignal) => Promise<void>;
 export interface ReadinessOptions {
@@ -9,6 +10,7 @@ export interface ReadinessOptions {
   authConfiguration?: ReadinessProbe;
   timeoutMs?: number;
   knowledgeRoot?: string;
+  vectorIndex?: ReadinessProbe;
 }
 
 /** Connectivity/configuration checks only; not an OAuth, RLS or provider smoke test. */
@@ -42,6 +44,11 @@ export function createReadinessCheck(options: ReadinessOptions = {}) {
       }
     }),
   };
+  if (options.vectorIndex || (process.env.KNOWLEDGE_RETRIEVAL_MODE !== undefined && process.env.KNOWLEDGE_RETRIEVAL_MODE !== "lexical")) {
+    probes.vectorIndex = options.vectorIndex ?? (signal => checkVectorIndexReadiness(new LocalReviewedKnowledgeReader(
+      options.knowledgeRoot ?? process.env.KNOWLEDGE_ROOT ?? fileURLToPath(new URL("../../runtime-knowledge/", import.meta.url)),
+    ), signal));
+  }
   return async () => {
     const checks: Record<string, "ok" | "failed"> = { api: "ok" };
     await Promise.all(Object.entries(probes).map(async ([name, probe]) => {

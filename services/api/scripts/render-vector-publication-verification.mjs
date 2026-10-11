@@ -7,6 +7,8 @@ import { PrismaVectorSearch } from '../dist/prisma/prisma-vector-search.js';
 import { reviewedChunkEmbeddingInput, chunkReviewedPassage } from '../dist/modules/knowledge/reviewed-chunks.js';
 import { reviewedProvenanceHash } from '../dist/modules/knowledge/vector-knowledge-retriever.js';
 import { fileURLToPath } from 'node:url';
+import { VECTOR_INDEX_READINESS_SQL } from '../dist/shared/vector-index-readiness.js';
+import contractJson from '../dist/prisma/contract.json' with { type: 'json' };
 const schema = 'learnly_vector_publication_verify';
 const scopedName = '"' + schema + '"';
 const ops = JSON.parse(readFileSync(new URL('../migrations/app/20261010T1750_reviewed_knowledge_vectors/ops.json', import.meta.url), 'utf8'));
@@ -14,11 +16,12 @@ const literal = value => value === null ? 'NULL' : typeof value === 'number' && 
   typeof value === 'boolean' ? String(value) : typeof value === 'string' ? "'" + value.replaceAll("'", "''") + "'" : (() => { throw Error('Unexpected SQL parameter'); })();
 function scoped({ sql, params = [] }) {
   const result = sql.replaceAll('"public".', scopedName + '.').replaceAll('public.', scopedName + '.')
+    .replaceAll('prisma_contract.marker', scopedName + '."FixtureContractMarker"')
     .replace(/\$(\d+)/gu, (_, n) => {
       const value = params[Number(n) - 1];
       return literal(value === 'public' ? schema : typeof value === 'string' ? value.replaceAll('"public".', scopedName + '.').replaceAll('public.', scopedName + '.') : value);
     });
-  if (/\bpublic\.|"public"\.|\b(?:CREATE|ALTER|DROP)\s+ROLE\b/iu.test(result)) throw Error('Unscoped SQL');
+  if (/\bpublic\.|"public"\.|\bprisma_contract\.|\b(?:CREATE|ALTER|DROP)\s+ROLE\b/iu.test(result)) throw Error('Unscoped SQL');
   return result;
 }
 const check = (sql, label) => `DO $assert$ BEGIN IF NOT COALESCE((${sql}), false) THEN RAISE EXCEPTION '${label}'; END IF; END $assert$;`;
@@ -30,11 +33,15 @@ for (const op of ops) {
   for (const step of op.postcheck ?? []) { out.push(check(scoped(step), 'Canonical Knowledge migration postcondition failed')); canonicalChecks++; }
 }
 out.push(`GRANT USAGE ON SCHEMA ${scopedName} TO authenticated, anon;`);
+out.push(`CREATE TABLE ${scopedName}."FixtureContractMarker" (space text PRIMARY KEY, core_hash text, profile_hash text);
+INSERT INTO ${scopedName}."FixtureContractMarker" VALUES ('app', ${literal(contractJson.storage.storageHash)}, ${literal(contractJson.profileHash)});`);
 const plans = [];
 const client = { raw: { sql: (parts, ...params) => {
   const sql = parts.map((part, i) => part + (i < params.length ? '$' + (i + 1) : '')).join('');
   return { affectedCount: () => ({ build: () => ({ sql, params }) }), returnsRow: () => ({ build: () => ({ sql, params }) }) };
-}}, transaction: async work => work({ execute: async plan => { plans.push(plan); return { affectedRows: 1 }; } }),
+}}, transaction: async work => work({ execute: async plan => { plans.push(plan); return { affectedRows: 1 }; },
+  query: plan => ({ toArray: async () => { plans.push(plan); return [{ coreHash: contractJson.storage.storageHash, profileHash: contractJson.profileHash }]; } }),
+}),
   query: plan => ({ toArray: async () => { plans.push(plan); return []; } }) };
 const reader = new LocalReviewedKnowledgeReader(fileURLToPath(new URL('../runtime-knowledge/', import.meta.url)));
 const cachePath = process.argv.find(arg => arg.startsWith('--embedding-cache='))?.slice(18);
@@ -70,6 +77,13 @@ out.push(check(`SELECT count(*) = ${result.chunks} FROM ${scopedName}."Knowledge
 out.push(`INSERT INTO ${scopedName}."KnowledgeChunk" SELECT content,"contentHash",dimensions,"documentId","documentVersion",embedding,"embeddingInputHash","embeddingModel",repeat('f',64),language,ordinal,page,"passageHash","passageId","provenanceHash",false,sources,subject FROM ${scopedName}."KnowledgeChunk" LIMIT 1;`);
 out.push('SET LOCAL ROLE authenticated;');
 out.push(check(`SELECT count(*) = ${result.chunks} FROM ${scopedName}."KnowledgeChunk"`, 'Reviewed RLS read failed'));
+const passage = await reader.readPilot(), chunks = chunkReviewedPassage(passage);
+const readiness = scoped({ sql: VECTOR_INDEX_READINESS_SQL, params: [passage.conceptId, model, passage.subject, passage.language] });
+const expected = chunks.map(chunk => ({ chunkId: chunk.id, passageId: chunk.passageId, passageHash: chunk.passageHash,
+  contentHash: chunk.contentHash, embeddingInputHash: reviewedChunkEmbeddingInput(passage, chunk).hash,
+  provenanceHash: reviewedProvenanceHash(passage), dimensions: 1536, nonzero: true }));
+out.push(check(`SELECT COALESCE(jsonb_agg(to_jsonb(item) ORDER BY "chunkId"), '[]'::jsonb) = ${literal(JSON.stringify(expected))}::jsonb FROM (${readiness}) item`,
+  'Actual readiness metadata/vector shape/RLS coverage failed'));
 const start = plans.length;
 await new PrismaVectorSearch(client).search({ vector, model, dimensions: 1536, subject: 'physics', language: 'th', topK: 3, minSimilarity: .8 });
 const search = scoped(plans[start]);

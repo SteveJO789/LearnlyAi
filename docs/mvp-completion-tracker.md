@@ -1,6 +1,6 @@
 # ตัวติดตามการทำ MVP ให้ครบ
 
-สถานะล่าสุด 2026-10-11: canonical vector contract/publication และ protected persistent runtime implement แล้ว API309/309, Web24/24, simulatedpersistent14/14/build/typecheck/migrationintegrityPASS รวมdevelop472086cแล้ว Actual rollback publication/search/RLS fixtures รวม reuse actual embedding และ fresh6packages103steps190checksPASS ไม่มีpaidcalls/productionapply ดู Milestone21 รายการเก่าด้านล่างเป็นผล ณ milestoneเดิม
+สถานะล่าสุด 2026-10-11: operator prepare/dry-run/explicit publication และ vectorIndex readiness implement แล้ว API319/319/build/typecheck, simulatedpersistent14/14PASS พบPrisma markerเป็นwarning-only จึงเพิ่มhard marker gate; gateใหม่ยังรอrealPGrecheckเพราะautomaticapproval-reviewquotaหมด ไม่มีbypass/paidcalls/productionapply ดู Milestone22 และ evidence รายการก่อนหน้าเป็นผล ณ milestoneเดิม
 
 เริ่มตรวจ 2026-10-09 จาก `origin/develop` commit `e2ddfdd7788a5d20d66b496ee2917771b6ea3021` บน branch `integration/university-mvp-20261009` ใน worktree แยก งานเดิมและ stash ไม่ถูกแก้ไข เป้าหมายยัง ACTIVE; ยังไม่ IMPLEMENTATION COMPLETE หรือ RELEASED
 
@@ -26,7 +26,7 @@
 | Persistent sessions/history | #8 #9 #14 | Prisma + JWT-scoped persistence และ explicit FAILED recovery | real Auth/browser whole-flow และ ambiguous interaction retries | Auth/DB | persisted integration 10/10; recovery RLS/atomic rollback จริง | public migration/browser proof |
 | P3.1 curated RAG integration | #11 #12 | merged แล้ว | fresh integrated regression and packaging | reviewed Knowledge | ancestor checks; code present | corpus มี concept เดียว |
 | Retrieval relevance/history | #11 | lexical pilot + bounded follow-up implemented | broader corpus/vector retrieval | P3.1 | core TP4/TN3/FP0/FN0; reset/revocation tests | corpus/model coverage |
-| Embeddings/pgvector ingestion and Top-K | #3 #11 | canonical model/atomic reviewed publication/Top-K/persistent vector composition implemented | operator CLI, index readiness, live authenticated deployment/calibration | approved curated source + explicit configuration | API308, persistent14, actual migration/publication/search/RLS fixtures PASS | production-compatible migration/index and broader reviewed corpus |
+| Embeddings/pgvector ingestion and Top-K | #3 #11 | canonical model, operator CLI/atomic reviewed publication, Top-K/persistent composition/index readiness implemented | actual strict-marker apply/live Auth/deployment/calibration | approved curated source + explicit configuration | API319/persistent14 PASS; actual fixtures before latest marker gate PASS | approval-review quota for DB recheck; production-compatible migration/index/broader reviewed corpus |
 | Adaptive tutoring | #39 | mode/language/history; แก้ source-example borrowing และ premature numeric confirmation | independent educator review และ broader curriculum | #12 | 5 multi-turn regressions; live รอบแก้ 13/13 schema/citation/state | corpus/model coverage; บางคำใบ้ยาวเกิน preference |
 | Assessment PRE/POST scoring/persistence | #13 | APIs, snapshot, deterministic scoring, atomic answers/profile implemented | broader question bank; real Auth/browser journey; release migration | #2 #3 | 6 real API/Prisma/DB groups PASS; HTTP/scoring tests | deploy after team merge |
 | Learning profile/statistics | #13 #16 | owned APIs and Home/Profile UI implemented | browser/mobile QA; expanded curriculum evidence | Assessment | concurrent samples/PRE-POST comparison real DB PASS | develop-only CD |
@@ -323,3 +323,14 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - พบและแก้ boundary violation ของ composition และ brittle test count; ไม่ลด validators/grantsเพื่อให้ผ่าน ไม่มี production apply/paid call/CD เพิ่ม
 - รวมdevelop472086cล่าสุดด้วยmerge a8ee1dd ไม่มีconflict รักษาHome/Create/Lessons decorative UI/ลดmotion/aria-hidden และfile-reviewflow Webbuild/24testsPASS Freshsource API308 + relocatedKnowledge4/extraction10PASS (ก่อนเพิ่มpackagingtestล่าสุด ไม่ใช่clean-npm/deploymentproof)
 - พบPRbot VercelincludeFilesยาวเกิน256 ย่อglobและตรวจactualassets/dependenciesผ่าน APIรวม309testsPASS เพิ่มgit.deploymentEnabled globstarfalse/developtrueในWeb/APIตามข้อกำหนดCD ไม่แก้CIworkflows ยังไม่มีplatformenforcement/trace-size/deployproof งานถัดไปoperator publicationCLI/vectorreadiness และliveAuth/browser/productionmigration releasegates
+
+### Milestone 22 — operator publication CLI และ vector index readiness
+
+- เพิ่ม prepared-index schemaVersion1/current reviewed hash/model/dimension gates และนำเข้าจาก report เดิม ไม่ส่ง query history/cost/credentials ไปใน artifact ไม่เรียก providerเพิ่ม
+- Actual CLI prepare/default dry-run/explicit dedicated-target apply, exclusive newfile, no DATABASE_URL fallback, reject connection overrides/duplicateflags, sanitized errors และปิด Prisma connectionเสมอ ไม่มี HTTP publication
+- Readiness vectorIndexตรวจconfigและทุกcurrent reviewed chunk/hash/provenance/1536 nonzero ผ่านfixed authenticated READ ONLY transaction; rereadreviewหลังDBและปิดเมื่อabort ไม่อ่านlearnerrecordsหรือเรียกโมเดล
+- API319/319/build/typecheck และsimulatedpersistent14/14PASS ActualCLIกับexistingactualreport PREPARED/VALIDATEDPASS Subprocessnetworkguard/nooverwrite/redaction และactualinstalledruntime/codecs/rawplansPASS
+- พบinstalledJSไม่มีnamed postgresแม้declarationมี;ใช้defaultexportที่ตรวจจริง พบPrisma onFirstUseเป็นwarning-only จึงเพิ่มhard marker/core-profile check+FOR SHAREก่อนpublicationwrites Float32overflow/underflowถูกปฏิเสธด้วย ไม่ลดcitation/schema/engineauthority guards
+- ActualPG readiness metadata+publisher/search/RLS fixtureก่อนเพิ่มhardmarkerPASS/rollback ส่วนrendererของstrictmarkerใหม่เตรียมแล้วแต่ยังไม่execute ActualPrismaapply/markerexecutor/productionและliveAuth/browserยังไม่verified [หลักฐาน](evidence/mvp-vector-operations-verification.json)
+- External blocker: การอ่านSupabasecatalogล่าสุดNOT EXECUTEDเพราะautomaticapprovalreviewquotaหมด ไม่ใช่safetyrejection ไม่bypass/retryผ่านtransportอื่น; งานlocalทำต่อ ไม่มีpaidcalls/productionchanges/CDนอกdevelop
+- งานถัดไป: strictmarker/actualoperatorDB verificationเมื่อapprovalreviewพร้อม และowned file-history/receipt-retention UI ที่ยังขาด
