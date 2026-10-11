@@ -201,12 +201,15 @@ export default function HomePage() {
             <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-pink-50 px-4 py-2 text-sm font-semibold text-pink-700 dark:bg-pink-950/50 dark:text-pink-200">
               ✦ {t("home.eyebrow")}
             </div>
-            <h1 className="max-w-[12ch] text-5xl font-bold leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
-              {t("home.welcome")}{" "}
-              <span className="hello-gradient bg-gradient-to-r from-pink-500 via-violet-500 to-sky-500 bg-clip-text text-transparent">
-                LearnlyAI
-              </span>
-            </h1>
+            
+<h1 className="max-w-[12ch] font-bold leading-[1.02] tracking-tight">
+  <span className="text-4xl sm:text-5xl lg:text-6xl">
+    {t("home.welcome")}{" "}
+  </span>
+  <span className="hello-gradient ml-2 bg-gradient-to-r from-pink-500 via-violet-500 to-sky-500 bg-clip-text text-5xl text-transparent sm:text-6xl lg:text-7xl">
+  LearnlyAI
+</span>
+</h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted sm:text-xl lg:text-2xl">{t("home.tagline")}</p>
             <Link href="/Create" className="mt-8 inline-flex items-center gap-3 rounded-xl bg-primary px-7 py-4 font-semibold text-primary-foreground shadow-lg transition hover:-translate-y-0.5 hover:opacity-95">
               {t("home.start")} →
