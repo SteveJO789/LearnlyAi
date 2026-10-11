@@ -537,7 +537,8 @@ function SettingContent() {
                         <div className="wizard-sparkles">✦ ˚｡⋆ ✧ ˚｡⋆ ✦</div>
                         <div className="tiny-wizard tiny-wizard-crying">
                           <div className="wizard-hat"><i /></div>
-                          <div className="wizard-face"><i className="wizard-eye eye-left" /><i className="wizard-eye eye-right" /><i className="wizard-blush blush-left" /><i className="wizard-blush blush-right" /><span className="wizard-tear-stream tear-left"><i>✦</i><i>✧</i><i>✦</i></span><span className="wizard-tear-stream tear-right"><i>✧</i><i>✦</i><i>✧</i></span></div>
+                          <div className="wizard-face"><i className="wizard-eye eye-left" /><i className="wizard-eye eye-right" /><i className="wizard-blush blush-left" /><i className="wizard-blush blush-right" /><span className="wizard-mouth" /></div>
+                          <span className="wizard-tear-stream tear-left"><i>✦</i><i>✧</i><i>✦</i></span><span className="wizard-tear-stream tear-right"><i>✧</i><i>✦</i><i>✧</i></span>
                           <div className="wizard-beard" />
                           <div className="wizard-body"><i className="wizard-star">✦</i></div>
                           <div className="wizard-feet"><i /><i /></div>
@@ -563,13 +564,16 @@ function SettingContent() {
                       .wizard-hat { position:absolute; z-index:4; left:2px; top:-26px; width:100px; height:96px; background:linear-gradient(135deg,#9c85ff 5%,#6b55ce 70%,#4d3aab); clip-path:polygon(50% 0,70% 62%,100% 84%,4% 88%,30% 69%); border-radius:15px; }
                       .wizard-hat i { position:absolute; width:7px; height:7px; border-radius:50%; background:#ffe99b; left:62px; top:51px; box-shadow:0 0 8px #fff2b3; }
                       .wizard-face { position:absolute; z-index:3; left:28px; top:39px; width:55px; height:49px; border-radius:46% 46% 48% 48%; background:linear-gradient(145deg,#ffe3c7,#f4b995); }
-                      .wizard-eye { position:absolute; top:21px; width:5px; height:7px; background:#49365d; border-radius:50%; }
-                      .eye-left { left:15px; } .eye-right { right:15px; }
+                      .wizard-eye { position:absolute; top:21px; width:5px; height:7px; background:#49365d; border-radius:50%; transform-origin:center; animation: wizard-blink 4.2s infinite; }
+                      .eye-left { left:15px; } .eye-right { right:15px; animation-delay:.08s; }
+                      .wizard-mouth { position:absolute; left:23px; top:32px; width:10px; height:5px; border-bottom:2px solid #8e536b; border-radius:0 0 8px 8px; animation: wizard-sob-mouth 1.6s ease-in-out infinite; }
+                      @keyframes wizard-blink { 0%,43%,47%,100% { transform:scaleY(1); } 45% { transform:scaleY(.12); } } 
+                      @keyframes wizard-sob-mouth { 0%,100% { transform:translateY(0) scaleY(1); } 50% { transform:translateY(2px) scaleY(.7); } }
                       .wizard-blush { position:absolute; top:29px; width:10px; height:5px; border-radius:50%; background:#f28d9e; opacity:.7; }
                       .blush-left { left:6px; } .blush-right { right:6px; }
-                      .wizard-tear-stream { position:absolute; z-index:5; top:25px; display:block; width:12px; height:39px; pointer-events:none; }
-                      .tear-left { left:12px; }
-                      .tear-right { right:12px; }
+                      .wizard-tear-stream { position:absolute; z-index:6; top:64px; display:block; width:12px; height:39px; pointer-events:none; }
+                      .tear-left { left:40px; }
+                      .tear-right { left:71px; }
                       .wizard-tear-stream i { position:absolute; left:0; top:0; display:block; font-style:normal; font-size:9px; line-height:1; color:#ffe99b; text-shadow:0 0 5px #fff4ba, 0 0 10px #bba8ff; opacity:0; animation: star-tears 1.05s ease-in infinite; }
                       .wizard-tear-stream i:nth-child(2) { animation-delay:.35s; left:3px; font-size:7px; }
                       .wizard-tear-stream i:nth-child(3) { animation-delay:.7s; left:-1px; font-size:8px; }
