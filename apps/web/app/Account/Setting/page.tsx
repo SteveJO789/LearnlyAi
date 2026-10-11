@@ -45,9 +45,8 @@ function SettingContent() {
 
   const handleTabChange = (tab: SettingTabType) => {
     if (tab !== "Delete Account") {
-      setMascotPrankActive(false);
+      
       setMascotCrying(false);
-      setMascotButtonStolen(false);
       setMascotPrankPlayed(false);
     }
     setActiveTab(tab);
