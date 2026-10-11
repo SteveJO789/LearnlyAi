@@ -29,11 +29,19 @@ export async function listUploadReceipts(sessionId: string): Promise<UploadRecei
     !["PDF", "IMAGE"].includes(m.type) || typeof m.filename !== "string" || typeof m.createdAt !== "string")) throw new Error("File API returned an invalid response.");
   return value;
 }
-export async function resumeFileUpload(sessionId: string, id: string) {
-  const value = await authenticatedRequest<unknown>(base(sessionId) + `/uploads/${encodeURIComponent(id)}/resume`, { method: "POST", body: "{}" });
+export async function resumeFileUpload(sessionId: string, id: string, signal?: AbortSignal) {
+  const value = await authenticatedRequest<unknown>(base(sessionId) + `/uploads/${encodeURIComponent(id)}/resume`, { method: "POST", body: "{}", signal });
   const result = value as { id?: string; materialId?: string; status?: string } | null;
   if (result?.status === "CANCELLED" && result.id === id && result.materialId === id) return { status: "CANCELLED" as const, id };
   return ready(value);
+}
+export async function cancelFileUpload(sessionId: string, id: string, signal?: AbortSignal) {
+  const value = await authenticatedRequest<unknown>(base(sessionId) + `/uploads/${encodeURIComponent(id)}/cancel`, { method: "POST", body: "{}", signal });
+  const result = value as { id?: string; materialId?: string; status?: string } | null;
+  if (result?.status === "CANCELLED" && result.id === id && result.materialId === id) return { status: "CANCELLED" as const, id };
+  const material = ready(value);
+  if (material.id !== id) throw new Error("File API returned an invalid cancellation response.");
+  return material;
 }
 export async function reviewFileMaterial(sessionId: string, id: string, text: string, signal?: AbortSignal) {
   const value = await authenticatedRequest<{ materialId: string; status: string; normalizedText: string }>(base(sessionId) + `/${encodeURIComponent(id)}/review`,
@@ -85,5 +93,21 @@ export async function listFileHistory(filters: { after?: string; from?: string; 
       item.normalizedText !== null && (typeof item.normalizedText !== "string" || !item.normalizedText.trim() || item.normalizedText.length > 8000) ||
       typeof item.reviewedByLearner !== "boolean" || typeof item.canReview !== "boolean")) throw new Error("File API returned an invalid response.");
   if (page.nextCursor !== null && (!page.items.length || page.nextCursor !== page.items.at(-1)!.id)) throw new Error("File API returned an invalid cursor.");
+  return page;
+}
+export interface UploadHistoryItem { id: string; sessionId: string; sessionTitle: string; state: "PENDING" | "CANCELLED";
+  filename: string; type: "PDF" | "IMAGE"; createdAt: string; canResume: boolean }
+export interface UploadHistoryPage { items: UploadHistoryItem[]; nextCursor: string | null }
+export async function listUploadHistory(filters: { after?: string; from?: string; to?: string } = {}, signal?: AbortSignal): Promise<UploadHistoryPage> {
+  const query = new URLSearchParams(); for (const [key, value] of Object.entries(filters)) if (value) query.set(key, value);
+  const value = await readResponse<unknown>(await authenticatedFetch(`/api/users/me/files/uploads${query.size ? `?${query}` : ""}`, { signal }));
+  const page = value as UploadHistoryPage | null;
+  if (!page || !Array.isArray(page.items) || page.items.length > 25 || page.nextCursor !== null && !validId(page.nextCursor) ||
+    new Set(page.items.map(item => item?.id)).size !== page.items.length || page.items.some(item => !item || !validId(item.id) || !validId(item.sessionId) ||
+      typeof item.sessionTitle !== "string" || item.sessionTitle.length > 200 || !["PENDING", "CANCELLED"].includes(item.state) || !["PDF", "IMAGE"].includes(item.type) ||
+      typeof item.filename !== "string" || item.filename.length > 128 || /[\u0000-\u001f\u007f/\\]/u.test(item.filename) ||
+      typeof item.createdAt !== "string" || !Number.isFinite(Date.parse(item.createdAt)) || typeof item.canResume !== "boolean" ||
+      item.state === "CANCELLED" && item.canResume)) throw new Error("File API returned an invalid upload-history response.");
+  if (page.nextCursor !== null && (!page.items.length || page.nextCursor !== page.items.at(-1)!.id)) throw new Error("File API returned an invalid upload-history cursor.");
   return page;
 }

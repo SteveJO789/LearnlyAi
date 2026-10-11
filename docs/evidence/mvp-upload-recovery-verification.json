@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-11",
+  "status": "OWNED_UPLOAD_RECOVERY_ABANDONMENT_AND_CONFIRMED_CLEANUP_IMPLEMENTED_EXTERNAL_DB_BROWSER_PENDING",
+  "contract": {"from": "5e6080d9d23dfa0183e4bbecfe0e5dfc14556f2304e686f5dccabe42280ac2ab", "to": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b", "migration": "20261011T0651_upload_cleanup_receipts", "operations": "nullable cleanupAt and CANCELLED-only CHECK, additive"},
+  "implemented": ["owner-scoped paginated pending/cancelled collection excludes saved and cleanup-confirmed rows", "History recovery and explicit abandonment confirmation, fresh-state reload after uncertainty", "server empty-body cancellation validates owned immutable receipt and checks current DB before Storage deletion", "matching SAVED result wins even for legacy CANCELLED recovery; UNKNOWN never deletes", "parent-lock cancellation commit precedes delete and cleanupAt marker; immutable prepared data retained", "initial-session stage/version guard prevents uploads/finalization after learner review closes", "abort/deadline/loading/error/retry and no automatic re-upload/worker"],
+  "tests": {"api": {"passed": 326, "failed": 0, "skipped": 0}, "web": {"passed": 29, "failed": 0}, "persistentOffline": {"passed": 14, "failed": 0}, "apiWebBuildsTypechecks": "PASS", "migrationIntegrity": "PASS", "scope": "actual coordinator/HTTP auth normalizer/real extraction/private transport/query/client/React rendering with explicit offline service ports; not live Auth/Storage/Postgres/browser"},
+  "failureFixed": "Old CANCELLED resume path directly deleted Storage without rechecking matching READY; now uses serialized DB cancellation decision and preserves a saved file",
+  "preparedSQL": {"freshCanonical": {"migrations": 7, "steps": 105, "checks": 194}, "adapterFixture": "current compiled cancellation/cleanup marker/late-stage locks + canonical CHECK/RLS in rollback clone", "execution": "NOT_EXECUTED due existing approval-review quota blocker; no bypass"},
+  "notVerified": ["actual canonical cleanup migration/marker/executor and adapter SQL on PostgreSQL", "live concurrent finalize/cancel/Storage journey", "browser/mobile/keyboard events", "production apply/deployment smoke", "retention age/purge of cleanup-completed private receipts"],
+  "productionSchemaOrUserDataChanged": false,
+  "additionalPaidCalls": 0,
+  "cdPolicy": "ONLY develop unchanged"
+}

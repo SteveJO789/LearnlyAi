@@ -9,7 +9,8 @@ export class PrismaFileMaterials implements FileMaterialStore {
   constructor(private readonly client: UserDb, private readonly appUserId: string) {}
   async assertActiveOwnedSession(sessionId: string): Promise<void> {
     const plan = this.client.raw.sql`SELECT "id" FROM public."LearningSession"
-      WHERE "id" = ${sessionId} AND "userId" = ${this.appUserId} AND "lifecycleState" = 'ACTIVE'`
+      WHERE "id" = ${sessionId} AND "userId" = ${this.appUserId} AND "lifecycleState" = 'ACTIVE'
+        AND stage = 'EXPLAIN' AND version = 0 AND state IN ('INPUT', 'PRE_TEST')`
       .returnsRow({ id: "pg/text@1" }).build();
     if (!(await this.client.query(plan).toArray()).length) throw new ApiError("NOT_FOUND", 404, "Active learning session was not found.");
   }
@@ -76,7 +77,7 @@ export class PrismaFileMaterials implements FileMaterialStore {
     await tx.execute(this.client.raw.sql`SET LOCAL statement_timeout = '5s'`.affectedCount().build());
     const plan = this.client.raw.sql`SELECT "id" FROM public."LearningSession"
       WHERE "id" = ${sessionId} AND "userId" = ${this.appUserId}
-      AND (${active}::boolean = false OR "lifecycleState" = 'ACTIVE') FOR UPDATE`
+      AND (${active}::boolean = false OR ("lifecycleState" = 'ACTIVE' AND stage = 'EXPLAIN' AND version = 0 AND state IN ('INPUT', 'PRE_TEST'))) FOR UPDATE`
       .returnsRow({ id: "pg/text@1" }).build();
     return (await tx.query(plan).toArray()).length === 1;
   }
@@ -126,6 +127,15 @@ export class PrismaFileMaterials implements FileMaterialStore {
       if (finalized.affectedRows !== 1) throw new ApiError("FILE_STATE_CONFLICT", 409, "The upload state could not be finalized.");
       await tx.execute(this.client.raw.sql`UPDATE public."LearningSession" SET "state" = 'PRE_TEST'
         WHERE "id" = ${sessionId} AND "userId" = ${this.appUserId} AND "stage" = 'EXPLAIN' AND "version" = 0`.affectedCount().build());
+    });
+  }
+  async markCleaned(sessionId: string, material: PreparedFileMaterial): Promise<void> {
+    await withApiWrite(this.client, async tx => {
+      if (!await this.lockSession(tx, sessionId, false)) throw new ApiError("FILE_CLEANUP_REQUIRED", 503, "Cleanup could not be confirmed.");
+      const result = await tx.execute(this.client.raw.sql`UPDATE public."FileUpload" SET "cleanupAt" = COALESCE("cleanupAt", ${new Date().toISOString()}::timestamptz)
+        WHERE id = ${material.id} AND "learningSessionId" = ${sessionId} AND state = 'CANCELLED' AND material::jsonb = ${JSON.stringify(material)}::jsonb
+          AND NOT EXISTS (SELECT 1 FROM public."SourceMaterial" m WHERE m.id = ${material.id} AND m."learningSessionId" = ${sessionId})`.affectedCount().build());
+      if (result.affectedRows !== 1) throw new ApiError("FILE_CLEANUP_REQUIRED", 503, "Cleanup could not be confirmed.");
     });
   }
   async resolveSave(sessionId: string, material: PreparedFileMaterial): Promise<"SAVED" | "NOT_SAVED" | "UNKNOWN"> {

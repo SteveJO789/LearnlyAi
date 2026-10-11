@@ -10,6 +10,7 @@ import storageOps from '../migrations/app/20261010T0752_private_material_storage
 import uploadOps from '../migrations/app/20261010T1119_durable_file_uploads/ops.json' with {type:'json'};
 import gateOps from '../migrations/app/20261010T1154_journal_storage_gate/ops.json' with {type:'json'};
 import reviewOps from '../migrations/app/20261010T1653_file_material_review/ops.json' with {type:'json'};
+import cleanupOps from '../migrations/app/20261011T0651_upload_cleanup_receipts/ops.json' with {type:'json'};
 const output=process.argv.find(value=>value.startsWith('--output='))?.slice(9);
 if(!output)throw Error('Explicit --output= is required; this command only renders SQL.');
 const schema='learnly_file_material_verify',tables=['User','LearningSession','SourceMaterial','FileUpload'];
@@ -58,6 +59,8 @@ const reservationEnd=rollback.findIndex(sql=>sql.startsWith('INSERT INTO')&&sql.
 if(!reservationEnd)throw Error('Durable reservation SQL not captured');
 captured=[];await store.reserve('file-fixture',preparedFile('file-fixture','cancel-material','PDF'));
 const cancelIntent=captured.map(render),cancel=await cancelQueries('file-fixture','cancel-material');
+captured=[];await store.markCleaned('file-fixture',preparedFile('file-fixture','cancel-material','PDF'));
+const mark=captured.map(render),markUpdate=mark.find(sql=>sql.startsWith('UPDATE'));
 const receipt=await receiptQueries('file-fixture','pdf-material');
 const conflict=await receiptQueries('file-fixture','pdf-material',{storageBucket:'different-private-bucket'});
 const absent=await receiptQueries('file-fixture','absent-material');
@@ -86,6 +89,10 @@ for(const operation of materialOps){
 for(const operation of uploadOps){
   if(operation.operationClass!=='additive')throw Error('Unexpected upload migration operation');
   for(const step of operation.execute){if(step.params?.length)throw Error('Unexpected upload parameter');statements.push(rewrite(step.sql)+';');}
+}
+for(const operation of cleanupOps){
+  if(operation.operationClass!=='additive')throw Error('Unexpected cleanup migration operation');
+  for(const step of operation.execute){if(step.params?.length)throw Error('Unexpected cleanup parameter');statements.push(rewrite(step.sql)+';');}
 }
 for(const operation of reviewOps){
   if(operation.operationClass!=='additive')throw Error('Unexpected review migration');
@@ -120,7 +127,13 @@ END $$;`);
 for(const sql of [...pdf,...image])statements.push(sql+';');
 for(const sql of rollback.slice(0,reservationEnd))statements.push(sql+';');
 for(const sql of [...cancelIntent,...cancel])statements.push(sql+';');
+for(const sql of mark)statements.push(sql+';');
 statements.push(`DO $$ DECLARE n int; BEGIN
+ SELECT count(*) INTO n FROM ${q(schema)}."FileUpload" WHERE id='cancel-material' AND "cleanupAt" IS NOT NULL
+   AND material->>'normalizedHash' IS NOT NULL;
+ IF n<>1 THEN RAISE EXCEPTION 'Cleanup marker missing or immutable receipt changed'; END IF;
+ BEGIN UPDATE ${q(schema)}."FileUpload" SET "cleanupAt"=now() WHERE state='FINALIZED';
+ RAISE EXCEPTION 'Cleanup marker accepted on finalized receipt' USING ERRCODE='XX000'; EXCEPTION WHEN check_violation THEN NULL; END;
  SELECT count(*) INTO n FROM ${q(schema)}."FileUpload" WHERE id='cancel-material' AND state='CANCELLED';
  IF n<>1 THEN RAISE EXCEPTION 'Durable cancellation missing'; END IF;
  SELECT count(*) INTO n FROM ${q(schema)}."FileUpload" WHERE id='pdf-material' AND state='FINALIZED'

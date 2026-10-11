@@ -13,6 +13,7 @@ import { AssessmentHistory } from "../../components/assessment-history";
 import RequireAuth from "../../components/require-auth";
 import { FileHistoryCards, FileHistoryDetails } from "../../components/file-history";
 import { listFileHistory, type FileHistoryItem } from "../../../lib/file-materials";
+import { UploadHistory } from "../../components/upload-history";
 
 
 interface ChatItem {
@@ -295,6 +296,7 @@ function HistoryContent() {
               {/* แท็บ Uploaded Files */}
               {activeTab === "Uploaded Files" && (
                 <div className="flex flex-col gap-4">
+                  <UploadHistory language={language} from={startDate} to={endDate} onChanged={() => { setFileCursor(""); setFileRetry(value => value + 1); }} />
                   {filesError ? <div role="alert" className="rounded-xl border border-danger/40 p-3 text-sm text-danger">
                     <p>{filesError}</p><button type="button" disabled={filesLoading} onClick={() => setFileRetry(value => value + 1)}
                       className="mt-2 rounded-lg border border-danger/40 px-4 py-2 disabled:opacity-50">{t("history.retry")}</button>

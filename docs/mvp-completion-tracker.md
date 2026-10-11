@@ -1,6 +1,6 @@
 # ตัวติดตามการทำ MVP ให้ครบ
 
-สถานะล่าสุด 2026-10-11: owned READY file History/API/review/download implement แล้ว API322/322, Web27/27, simulatedpersistent14/14/builds/typechecksPASS รวมdevelop4c2e0a7/font design แล้ว SQLfixtureเตรียมแต่ยังไม่executeเพราะapproval-reviewquota blocker ไม่มีbypass/paidcalls/productionapply ดูMilestone23/evidence รายการก่อนหน้าเป็นผล ณ milestoneเดิม
+สถานะล่าสุด 2026-10-11: owned upload receipt recovery/explicitcancel/confirmedcleanup implement แล้ว API326/326, Web29/29, simulatedpersistent14/14/builds/typechecks/migrationintegrityPASS Canonicalf099/additivecleanupAtเตรียมSQLแต่ยังไม่executeเพราะapproval-reviewquota blocker ไม่bypass/paidcalls/productionapply ดูMilestone24/evidence รายการก่อนหน้าเป็นผล ณ milestoneเดิม
 
 เริ่มตรวจ 2026-10-09 จาก `origin/develop` commit `e2ddfdd7788a5d20d66b496ee2917771b6ea3021` บน branch `integration/university-mvp-20261009` ใน worktree แยก งานเดิมและ stash ไม่ถูกแก้ไข เป้าหมายยัง ACTIVE; ยังไม่ IMPLEMENTATION COMPLETE หรือ RELEASED
 
@@ -30,7 +30,7 @@
 | Adaptive tutoring | #39 | mode/language/history; แก้ source-example borrowing และ premature numeric confirmation | independent educator review และ broader curriculum | #12 | 5 multi-turn regressions; live รอบแก้ 13/13 schema/citation/state | corpus/model coverage; บางคำใบ้ยาวเกิน preference |
 | Assessment PRE/POST scoring/persistence | #13 | APIs, snapshot, deterministic scoring, atomic answers/profile implemented | broader question bank; real Auth/browser journey; release migration | #2 #3 | 6 real API/Prisma/DB groups PASS; HTTP/scoring tests | deploy after team merge |
 | Learning profile/statistics | #13 #16 | owned APIs and Home/Profile UI implemented | browser/mobile QA; expanded curriculum evidence | Assessment | concurrent samples/PRE-POST comparison real DB PASS | develop-only CD |
-| Text/PDF/image normalization | #15 | real PDF/OCR/private API/Create review/READY file history implemented | actual Auth/Storage/browser journey, pending-receipt recovery/retention UX | #2 #3 | API322/Web27/persistent14; real extraction10; prepared new SQL not executed | approval-review quota; production migration/bucket/live verification |
+| Text/PDF/image normalization | #15 | real PDF/OCR/private API/Create/READY history/receipt recovery-cancel-cleanup implemented | actual Auth/Storage/concurrency/browser journey and receipt purge decision | #2 #3 | API326/Web29/persistent14; real extraction10; new SQL prepared not executed | approval-review quota; production migration/bucket/live verification |
 | Learning UI | #9 | stage, PRE/POST journey, 3 interactive widgets, structured blocks, explicit failure recovery | browser/mobile/keyboard QA | API contracts | rendering/client tests + persisted recovery + real recovery RLS | browser evidence pending |
 | Dashboard/History/Profile | #16 | real metrics/sessions/comparisons/READY files + review/download and /History alias | actual browser/mobile/keyboard and pending-receipt UX | #13 #15 | Web27/API322, rendering/client/HTTP query tests PASS | live verification, develop-only CD |
 | Reliability/security | #14 | readiness ที่ระบุขอบเขตจริง, bounded Auth, safe logs, dev route ปิด, recovery | full browser security journey; production schema readiness | core integration | API 237/237; real cross-user/guard/rollback fixtures | deployment logs/access |
@@ -344,3 +344,13 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - RendererเตรียมcanonicalfreshrollbackSQL+actualquery 6groups owner/peer/legacy/Thai-day/paging/confirmation/closedgate แต่NOTEXECUTEDเพราะapproval-reviewquota blockerเดิม ไม่bypass Currentstrictmarker/actualPrismamigration/publicAuthStorage/browser/deploymentยังpending
 - รวมdevelop4c2e0a7ผ่านmergeeb0738cก่อนfeature ไม่มีconflict/auto-merge develop/main/CDนอกdevelop/paidcalls/productionchanges
 - งานถัดไปคือpending/cancelledreceipt recovery/cleanup หลังออกCreate และretention UX พร้อมexternalSQL/browserchecksเมื่อverificationresourcesพร้อม
+
+### Milestone 24 — recover/cancel unfinished uploads และconfirmed cleanup
+
+- Historyเพิ่มowned pending/cancelled receipts แบบpaged/filter ไม่คืนrawmaterial/key/hash/text ไม่แสดงsaved/cleanup-confirmedเป็นรายการค้าง Usertriggerresumeไม่upload/OCRซ้ำ และcancelรับ{}เท่านั้น/explicitconfirmation
+- แก้defectจริง: CANCELLEDresumeเดิมdeleteตรงโดยไม่ตรวจREADYซ้ำ ทุกcleanupใหม่ใช้DBparentlock/cancellationdecision SAVEDชนะไม่ลบ UNKNOWNเก็บobject Cancellationcommitก่อนStoragedelete แล้วmarkcleanup timestamp เก็บimmutableprepareddataเดิม
+- เพิ่มinitialEXPLAIN/version0/INPUT-PRE gateให้reserve/save/earlyuploadตรวจตรงกับreviewwindow ไม่สร้างunreviewablelate material FlagcanResumeและservergateใช้เงื่อนไขเดียวกัน
+- Canonical5e→f099 generated additive nullablecleanupAt + CANCELLED-onlyCHECK ไม่แก้oldhash/production Materialreceiptmetadataยังอยู่privateRLSหลังcleanup อายุ/purgepolicyยังต้องตรวจแยก
+- API326/326, Web29/29, simulatedpersistent14/14, builds/typechecks/migrationintegrityPASS Coordinator/HTTP+realextractor/privateprotocol/capturedSQL/client/renderใช้offlineportsชัดเจน ยังไม่liveDB/browser/concurrencyproof [หลักฐาน](evidence/mvp-upload-recovery-verification.json)
+- Currentfresh7packages105SQLsteps194checks/adaptercleanupmarker SQLเตรียมแล้วNOT_EXECUTEDจากapproval-reviewquota blockerเดิม ไม่bypass/auto-retryผ่านtransportอื่น/paidcalls/CDนอกdevelop/deploy
+- ถัดไป: auditทุกremaining acceptance/releasegates, verificationของactualPrisma/migration/Storage/browserเมื่อทรัพยากรพร้อม และกำหนดretention/purgeที่ยังขาด ไม่ประกาศIMPLEMENTATION COMPLETE/RELEASED

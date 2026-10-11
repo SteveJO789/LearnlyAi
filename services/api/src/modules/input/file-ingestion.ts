@@ -29,6 +29,7 @@ export interface FileMaterialStore {
   load(sessionId: string, materialId: string): Promise<{ state: "PENDING" | "FINALIZED" | "CANCELLED"; material: PreparedFileMaterial }>;
   /** Commit cancellation under the same parent lock used by save. Never cancel a READY receipt. */
   cancel(sessionId: string, material: PreparedFileMaterial): Promise<"CANCELLED" | "SAVED" | "UNKNOWN">;
+  markCleaned(sessionId: string, material: PreparedFileMaterial): Promise<void>;
   /** Recheck active ownership in the INSERT transaction; do not trust the earlier read. */
   save(sessionId: string, material: PreparedFileMaterial): Promise<void>;
   /** Serialize with save before determining absence. An unreadable/mismatched receipt is UNKNOWN. */
@@ -139,13 +140,35 @@ export class FileIngestion {
     const receipt = await this.store.load(sessionId, id);
     const material = validatePreparedFileMaterial(receipt.material, sessionId, id, this.authUserId, this.storage.bucketId);
     if (receipt.state === "CANCELLED") {
-      await this.cleanup(material);
-      return { id, materialId: id, status: "CANCELLED" as const };
+      return this.cancelPrepared(sessionId, material);
     }
     if (!["PENDING", "FINALIZED"].includes(receipt.state)) throw new ApiError("INVALID_UPLOAD_RECEIPT", 503, "The upload receipt could not be verified.");
     // A successful HTTP upload response is not required after restart. Exact bytes are.
     await this.storage.verify(material.storageKey, material.file);
     return this.persist(sessionId, material);
+  }
+
+  /** Owner-triggered abandonment. A matching committed material always wins over deletion. */
+  async cancel(sessionId: string, id: string) {
+    const receipt = await this.store.load(sessionId, id);
+    const material = validatePreparedFileMaterial(receipt.material, sessionId, id, this.authUserId, this.storage.bucketId);
+    return this.cancelPrepared(sessionId, material);
+  }
+  private async cancelPrepared(sessionId: string, material: PreparedFileMaterial) {
+    let outcome: "CANCELLED" | "SAVED" | "UNKNOWN" = "UNKNOWN";
+    try { outcome = await this.store.cancel(sessionId, material); } catch { /* Preserve the object after an ambiguous cancellation result. */ }
+    if (outcome === "SAVED") return readyResult(material);
+    if (outcome !== "CANCELLED") {
+      this.notify(material.id);
+      throw new ApiError("FILE_RECONCILIATION_REQUIRED", 503, "The upload state could not be confirmed. Please reload before trying again.");
+    }
+    await this.cleanup(material);
+    try { await this.store.markCleaned(sessionId, material); }
+    catch {
+      this.notify(material.id);
+      throw new ApiError("FILE_CLEANUP_REQUIRED", 503, "File cleanup could not be confirmed. Please reload before trying again.");
+    }
+    return { id: material.id, materialId: material.id, status: "CANCELLED" as const };
   }
 
   private notify(id: string) {
@@ -182,6 +205,11 @@ export class FileIngestion {
           throw new ApiError("FILE_RECONCILIATION_REQUIRED", 503, "The file save result could not be confirmed. Please try again later.");
         }
         await this.cleanup(material);
+        try { await this.store.markCleaned(sessionId, material); }
+        catch {
+          this.notify(id);
+          throw new ApiError("FILE_CLEANUP_REQUIRED", 503, "File cleanup could not be confirmed. Please reload before trying again.");
+        }
         if (error instanceof ApiError) throw error;
         throw new ApiError("MATERIAL_PERSISTENCE_UNAVAILABLE", 503, "The file could not be saved. Please try again later.");
       }

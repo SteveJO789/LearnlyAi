@@ -39,7 +39,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'5e6080d9d23dfa0183e4bbecfe0e5dfc14556f2304e686f5dccabe42280ac2ab'>;
+  StorageHashBase<'f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b'>;
 export type ExecutionHash =
   ExecutionHashBase<'1c5f64dbace57a6efe810d458509a690bf92acb20d8522d6bfb343791bdd4e83'>;
 export type ProfileHash =
@@ -292,6 +292,7 @@ export type FieldOutputTypes = {
       readonly response: CodecTypes['pg/json@1']['output'];
     };
     readonly FileUpload: {
+      readonly cleanupAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly learningSessionId: CodecTypes['pg/text@1']['output'];
@@ -417,6 +418,7 @@ export type FieldInputTypes = {
       readonly response: CodecTypes['pg/json@1']['input'];
     };
     readonly FileUpload: {
+      readonly cleanupAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly learningSessionId: CodecTypes['pg/text@1']['input'];
@@ -542,6 +544,7 @@ export type StorageColumnTypes = {
       readonly response: CodecTypes['pg/json@1']['output'];
     };
     readonly FileUpload: {
+      readonly cleanupAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly learningSessionId: CodecTypes['pg/text@1']['output'];
@@ -667,6 +670,7 @@ export type StorageColumnInputTypes = {
       readonly response: CodecTypes['pg/json@1']['input'];
     };
     readonly FileUpload: {
+      readonly cleanupAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly learningSessionId: CodecTypes['pg/text@1']['input'];
@@ -799,6 +803,7 @@ export namespace Models {
     readonly [RelationKeys]?: 'assessment';
   };
   export type public_FileUpload = {
+    cleanupAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     id: CodecTypes['pg/text@1']['output'];
     learningSessionId: CodecTypes['pg/text@1']['output'];
@@ -1176,6 +1181,11 @@ type ContractBase = Omit<
             };
             readonly FileUpload: {
               columns: {
+                readonly cleanupAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                };
                 readonly createdAt: {
                   readonly nativeType: 'timestamptz';
                   readonly codecId: 'pg/timestamptz-string@1';
@@ -2037,6 +2047,13 @@ type ContractBase = Omit<
           };
           readonly FileUpload: {
             readonly fields: {
+              readonly cleanupAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
               readonly createdAt: {
                 readonly nullable: false;
                 readonly type: {
@@ -2079,6 +2096,7 @@ type ContractBase = Omit<
               readonly table: 'FileUpload';
               readonly namespaceId: 'public';
               readonly fields: {
+                readonly cleanupAt: { readonly column: 'cleanupAt' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly id: { readonly column: 'id' };
                 readonly learningSessionId: { readonly column: 'learningSessionId' };

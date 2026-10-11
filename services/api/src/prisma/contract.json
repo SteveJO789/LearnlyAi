@@ -635,6 +635,13 @@
           },
           "FileUpload": {
             "fields": {
+              "cleanupAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
               "createdAt": {
                 "nullable": false,
                 "type": {
@@ -697,6 +704,9 @@
             },
             "storage": {
               "fields": {
+                "cleanupAt": {
+                  "column": "cleanupAt"
+                },
                 "createdAt": {
                   "column": "createdAt"
                 },
@@ -2368,9 +2378,19 @@
                   "expression": "\"state\" IN ('PENDING', 'FINALIZED', 'CANCELLED')",
                   "name": "FileUpload_state_check_d8fae83c",
                   "prefix": "FileUpload_state_check"
+                },
+                {
+                  "expression": "\"cleanupAt\" IS NULL OR state = 'CANCELLED'",
+                  "name": "file_upload_cleanup_state_89133064",
+                  "prefix": "file_upload_cleanup_state"
                 }
               ],
               "columns": {
+                "cleanupAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
                 "createdAt": {
                   "codecId": "pg/timestamptz-string@1",
                   "default": {
@@ -3172,7 +3192,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "5e6080d9d23dfa0183e4bbecfe0e5dfc14556f2304e686f5dccabe42280ac2ab"
+    "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b"
   },
   "execution": {
     "executionHash": "1c5f64dbace57a6efe810d458509a690bf92acb20d8522d6bfb343791bdd4e83",

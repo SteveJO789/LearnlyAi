@@ -221,6 +221,8 @@ Vector mode additionally reports `checks.vectorIndex`: validated retrieval confi
 
 ### Owned uploaded-file history
 
+Pending/cancelled receipts: `GET /api/v1/users/me/files/uploads` supports the same cursor/date filters and returns at most25 `{id,sessionId,sessionTitle,state,filename,type,createdAt,canResume}` items, plus nextCursor. Excludes existing SourceMaterial and cleanup-confirmed entries. `POST .../learning-sessions/:sessionId/materials/uploads/:id/cancel` accepts `{}` only; current matching READY wins, uncertain DB decisions do not delete, confirmed cancellation precedes Storage deletion and cleanupAt marking. [Recovery contract](upload-recovery.md)
+
 `GET /api/v1/users/me/files?after=<id>&from=YYYY-MM-DD&to=YYYY-MM-DD` requires verified Bearer authorization. It returns `{data:{items:[{id,sessionId,sessionTitle,type,mimeType,sizeBytes,filename,uploadedAt,normalizedText,reviewedByLearner,canReview}],nextCursor}}`, at most25 READY PDF/image files with stored object metadata. Cursor is the last returned material ID when another page exists. Optional date bounds use Asia/Bangkok calendar days and include the full end day; dates1900-01-01 through9998-12-31 only. Unknown legacy upload time is null and excluded when a date filter is active. No owner/key/bucket override accepted or returned. Existing protected review/download endpoints are used by History. [Details](file-history.md)
 
 | Status | Meaning |

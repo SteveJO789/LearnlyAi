@@ -43,4 +43,21 @@ export class PrismaFileHistory {
     }));
     return { items, nextCursor: rows.length > 25 ? items.at(-1)!.id : null };
   }
+  async listReceipts(query: FileHistoryQuery) {
+    const from = query.from ? new Date(`${query.from}T00:00:00.000+07:00`).toISOString() : "";
+    const until = query.to ? new Date(Date.parse(`${query.to}T00:00:00.000+07:00`) + 86400000).toISOString() : "";
+    const plan = this.client.raw.sql`SELECT f.id, f."learningSessionId" AS "sessionId", s.title AS "sessionTitle", f.state,
+      COALESCE(f.material->'file'->>'filename', '') AS filename, f.material->'file'->>'type' AS type, f."createdAt",
+      (f.state = 'PENDING' AND s."lifecycleState" = 'ACTIVE' AND s.stage = 'EXPLAIN' AND s.version = 0 AND s.state IN ('INPUT', 'PRE_TEST')) AS "canResume"
+      FROM public."FileUpload" f JOIN public."LearningSession" s ON s.id = f."learningSessionId"
+      WHERE s."userId" = ${this.appUserId} AND f.state IN ('PENDING', 'CANCELLED') AND f."cleanupAt" IS NULL
+        AND NOT EXISTS (SELECT 1 FROM public."SourceMaterial" m WHERE m.id = f.id AND m."learningSessionId" = f."learningSessionId")
+        AND (${query.after}::text = '' OR f.id > ${query.after})
+        AND (${from}::text = '' OR f."createdAt" >= NULLIF(${from}, '')::timestamptz)
+        AND (${until}::text = '' OR f."createdAt" < NULLIF(${until}, '')::timestamptz)
+      ORDER BY f.id ASC LIMIT 26`.returnsRow({ id: "pg/text@1", sessionId: "pg/text@1", sessionTitle: "pg/text@1", state: "pg/text@1",
+        filename: "pg/text@1", type: "pg/text@1", createdAt: "pg/timestamptz-string@1", canResume: "pg/bool@1" }).build();
+    const rows = await this.client.query(plan).toArray(), items = rows.slice(0, 25);
+    return { items, nextCursor: rows.length > 25 ? items.at(-1)!.id : null };
+  }
 }

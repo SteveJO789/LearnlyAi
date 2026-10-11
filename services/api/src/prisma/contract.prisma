@@ -213,10 +213,12 @@ model FileUpload {
   state             FileUploadState
   material          Json
   createdAt         TimestamptzString @default(now())
+  cleanupAt         TimestamptzString?
 
   learningSession LearningSession @relation(fields: [learningSessionId], references: [id])
   @@index([learningSessionId, createdAt])
   @@rls
+  @@check(expression: "\"cleanupAt\" IS NULL OR state = 'CANCELLED'", name: "file_upload_cleanup_state")
 }
 
 model LearningProfile {

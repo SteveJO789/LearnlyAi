@@ -34,7 +34,7 @@
 
 นี่เป็นตัวอย่าง contract ไม่ใช่ข้อมูลที่สร้างจริง ไม่คืน bucket/key/token/raw receipt Normalized text จำกัดขนาดใน projection; ข้อมูลเกิน contract ถูกปฏิเสธแทนการนำข้อความที่ถูกตัดไปใช้เรียน
 
-รายการ PENDING/CANCELLED ที่ยังไม่เป็น READY ไม่แสดงเป็นไฟล์พร้อมเรียน การจัดการ recovery/cleanup receipts หลังออกจากหน้า Create ยังเป็นงานที่ต้องทำ ไม่ลบทิ้งหรือส่งไฟล์ซ้ำอัตโนมัติ
+รายการ PENDING/CANCELLED ที่ยังไม่เป็น READY แสดงในส่วนกู้คืนแยกจากไฟล์พร้อมเรียน มีตรวจรายการเดิม/ยืนยันยกเลิก/cleanup retry แล้ว ไม่ลบตามเวลาหรือส่ง bytes ซ้ำอัตโนมัติ ดู [upload recovery](upload-recovery.md) ผลล่าสุดและverification gatesอยู่ใน evidence ของ milestoneใหม่
 
 ## การตรวจ
 

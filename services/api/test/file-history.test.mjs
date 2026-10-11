@@ -28,6 +28,18 @@ test('invalid dates/ranges/cursors and owner/storage overrides are rejected befo
   assert.deepEqual(fileHistoryQuery({}), { after: '', from: '', to: '' });
 });
 
+test('pending receipt collection is bounded/owned, hides saved and cleaned records and exposes no prepared object data', async () => {
+  let captured;
+  const client = { raw: { sql: (parts, ...values) => ({ returnsRow: () => ({ build: () => {
+    captured = { text: parts.join('?'), values }; return captured;
+  } }) }) }, query: () => ({ toArray: async () => [] }) };
+  assert.deepEqual(await new PrismaFileHistory(client, 'legacy-owner').listReceipts(fileHistoryQuery({ after: 'prior' })), { items: [], nextCursor: null });
+  assert.ok(captured.values.includes('legacy-owner')); assert.ok(captured.values.includes('prior'));
+  assert.match(captured.text, /f\."cleanupAt" IS NULL/); assert.match(captured.text, /NOT EXISTS[\s\S]+SourceMaterial/);
+  assert.match(captured.text, /version = 0 AND s.state IN \('INPUT', 'PRE_TEST'\)/); assert.match(captured.text, /LIMIT 26/);
+  assert.doesNotMatch(captured.text.split('FROM public.')[0], /storageKey|storageBucket|normalizedText|contentHash/);
+});
+
 test('protected HTTP file collection returns owner-scoped page and rejects invalid auth/queries before store creation (offline service)', async () => {
   const previous = { SUPABASE_URL: process.env.SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY: process.env.SUPABASE_PUBLISHABLE_KEY };
   process.env.SUPABASE_URL = 'https://synthetic-auth.test'; process.env.SUPABASE_PUBLISHABLE_KEY = 'synthetic-public';
@@ -38,7 +50,8 @@ test('protected HTTP file collection returns owner-scoped page and rejects inval
   } });
   const server = createApp({ fileHistory: { authenticate, store: async request => {
     contexts++;
-    return { list: async query => ({ items: request.authUser.id.endsWith('ac01') ? [{ ...row('file'), uploadedAt: null }] : [], nextCursor: null }) };
+    return { list: async query => ({ items: request.authUser.id.endsWith('ac01') ? [{ ...row('file'), uploadedAt: null }] : [], nextCursor: null }),
+      listReceipts: async () => ({ items: request.authUser.id.endsWith('ac01') ? [{ id: 'pending', sessionId: 'session-owned', sessionTitle: 'Owned', state: 'PENDING', filename: 'x.pdf', type: 'PDF', createdAt: '2026-10-11T00:00:00Z', canResume: true }] : [], nextCursor: null }) };
   } } }).listen(0, '127.0.0.1');
   await once(server, 'listening');
   const base = `http://127.0.0.1:${server.address().port}/api/v1/users/me/files`;
@@ -47,6 +60,8 @@ test('protected HTTP file collection returns owner-scoped page and rejects inval
     const owned = await call(); assert.equal(owned.status, 200); assert.equal((await owned.json()).data.items[0].id, 'file');
     assert.equal(owned.headers.get('cache-control'), 'private, no-store');
     const peer = await call('', 'peer'); assert.deepEqual((await peer.json()).data.items, []);
+    const pending = await call('/uploads'); assert.equal(pending.status, 200); assert.equal((await pending.json()).data.items[0].state, 'PENDING');
+    assert.deepEqual((await (await call('/uploads', 'peer')).json()).data.items, []);
     const count = contexts;
     assert.equal((await call('', '')).status, 401); assert.equal((await call('', 'bad')).status, 401);
     for (const query of ['?owner=peer', '?from=2026-02-30', '?after=%27%20OR%20true', '?from=2026-10-11&from=2026-10-12']) {

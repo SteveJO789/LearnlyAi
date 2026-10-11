@@ -13,7 +13,7 @@ import { MAX_FILE_BYTES, type FileEnvelope } from "./file-envelope.js";
 export interface MaterialApiContext {
   texts: Pick<PrismaTextMaterials, "create" | "list">;
   files: Pick<PrismaFileMaterials, "listUploads" | "getFile" | "review">;
-  ingestion: Pick<FileIngestion, "ingest" | "resume">;
+  ingestion: Pick<FileIngestion, "ingest" | "resume" | "cancel">;
   storage(bucket: string): Pick<PrivateMaterialStorage, "download">;
 }
 export interface MaterialRouterOptions {
@@ -85,6 +85,14 @@ export function createMaterialRouter(options: MaterialRouterOptions = {}) {
       }
       const text = normalizeTextMaterial(body.text);
       response.json({ data: await (await context(request)).files.review(identity(request.params.sessionId), identity(request.params.materialId), text) });
+    } catch (error) { next(error); }
+  });
+  router.post("/uploads/:materialId/cancel", async (request: AuthenticatedRequest, response, next) => {
+    try {
+      if (!request.is("application/json") || !request.body || typeof request.body !== "object" || Array.isArray(request.body) || Object.keys(request.body).length) {
+        throw new ApiError("VALIDATION_ERROR", 400, "Use an empty JSON object for upload cancellation.");
+      }
+      response.json({ data: await (await context(request)).ingestion.cancel(identity(request.params.sessionId), identity(request.params.materialId)) });
     } catch (error) { next(error); }
   });
   router.get("/:materialId/file", async (request: AuthenticatedRequest, response, next) => {

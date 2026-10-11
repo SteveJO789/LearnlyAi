@@ -9,12 +9,13 @@ const authId='10000000-0000-0000-0000-000000000001';
 const bytes=()=>Buffer.from('%PDF-1.7\nfixture\n%%EOF\n');
 const extraction={method:'PDF_TEXT',confidence:null,pages:[{page:1,text:'  สูตร x²\r\nV = IR  '},{page:2,text:''}]};
 function harness({ownerFailure,extractFailure,saveFailure,uploadFailure,removeFailure,mutateExtraction,
-  saveOutcome='NOT_SAVED',resolveFailure,reserveFailure,cancelOutcome='CANCELLED',cancelFailure,verifyFailure,loadState='PENDING'}={}) {
+  saveOutcome='NOT_SAVED',resolveFailure,reserveFailure,cancelOutcome='CANCELLED',cancelFailure,markFailure,verifyFailure,loadState='PENDING'}={}) {
   const events=[],saved=[],reserved=[];
   const store={assertActiveOwnedSession:async()=>{events.push('owner');if(ownerFailure)throw ownerFailure;},
     reserve:async(session,material)=>{events.push('reserve');reserved.push({session,material});if(reserveFailure)throw reserveFailure;},
     load:async()=>{events.push('load');return {state:loadState,material:reserved[0].material};},
     cancel:async()=>{events.push('cancel');if(cancelFailure)throw cancelFailure;return cancelOutcome;},
+    markCleaned:async()=>{events.push('mark');if(markFailure)throw markFailure;},
     save:async(session,material)=>{events.push('save');saved.push({session,material});if(saveFailure)throw saveFailure;},
     resolveSave:async(session,material)=>{events.push('resolve');assert.equal(session,saved[0].session);
       assert.equal(material,saved[0].material);if(resolveFailure)throw resolveFailure;return saveOutcome;}};
@@ -72,7 +73,7 @@ test('missing/corrupt stored bytes never finalize; cancelled intent retries clea
   const cancelled=harness({loadState:'CANCELLED',uploadFailure:Error('upload response lost')});
   await assert.rejects(cancelled.service.ingest('session',bytes(),'application/pdf','lesson.pdf'));cancelled.events.length=0;
   const result=await cancelled.service.resume('session',cancelled.reserved[0].material.id);
-  assert.equal(result.status,'CANCELLED');assert.deepEqual(cancelled.events,['load','remove']);
+  assert.equal(result.status,'CANCELLED');assert.deepEqual(cancelled.events,['load','cancel','remove','mark']);
   cancelled.storage.remove=async()=>{throw Error('private Storage error');};
   await assert.rejects(cancelled.service.resume('session',cancelled.reserved[0].material.id),e=>e.code==='FILE_CLEANUP_REQUIRED'&&!e.message.includes('private'));
 });
@@ -85,6 +86,31 @@ test('concurrent finalization wins over cancellation; ambiguous cancellation nev
     await assert.rejects(h.service.ingest('session',bytes(),'application/pdf','lesson.pdf'),e=>e.code==='FILE_RECONCILIATION_REQUIRED');
     assert.ok(!h.events.includes('remove'));
   }
+});
+
+test('owner cancellation confirms DB state before delete/cleanup marker and ambiguous results preserve bytes', async () => {
+  const h = harness({ uploadFailure: Error('lost response') });
+  await assert.rejects(h.service.ingest('session', bytes(), 'application/pdf', 'lesson.pdf'));
+  h.events.length = 0;
+  assert.equal((await h.service.cancel('session', h.reserved[0].material.id)).status, 'CANCELLED');
+  assert.deepEqual(h.events, ['load', 'cancel', 'remove', 'mark']);
+  for (const options of [{ cancelOutcome: 'UNKNOWN' }, { cancelFailure: Error('secret commit error') }]) {
+    const pending = harness({ uploadFailure: Error('lost'), ...options });
+    await assert.rejects(pending.service.ingest('session', bytes(), 'application/pdf', 'lesson.pdf')); pending.events.length = 0;
+    await assert.rejects(pending.service.cancel('session', pending.reserved[0].material.id), e => e.code === 'FILE_RECONCILIATION_REQUIRED' && !e.message.includes('secret'));
+    assert.deepEqual(pending.events, ['load', 'cancel']);
+  }
+});
+
+test('saved material wins even over a cancelled journal recovery; failed cleanup marker remains a controlled retry', async () => {
+  const saved = harness({ uploadFailure: Error('lost'), loadState: 'CANCELLED', cancelOutcome: 'SAVED' });
+  await assert.rejects(saved.service.ingest('session', bytes(), 'application/pdf', 'lesson.pdf')); saved.events.length = 0;
+  assert.equal((await saved.service.resume('session', saved.reserved[0].material.id)).status, 'READY');
+  assert.deepEqual(saved.events, ['load', 'cancel']);
+  const mark = harness({ uploadFailure: Error('lost'), markFailure: Error('private marker failure') });
+  await assert.rejects(mark.service.ingest('session', bytes(), 'application/pdf', 'lesson.pdf')); mark.events.length = 0;
+  await assert.rejects(mark.service.cancel('session', mark.reserved[0].material.id), e => e.code === 'FILE_CLEANUP_REQUIRED' && !e.message.includes('private'));
+  assert.deepEqual(mark.events, ['load', 'cancel', 'remove', 'mark']);
 });
 test('durable intent validation rejects forged paths, mismatched text/hash and binary metadata before Storage access',async()=>{
   const h=harness();await h.service.ingest('session',bytes(),'application/pdf','lesson.pdf');
@@ -111,7 +137,7 @@ test('failed decode and mutated extracted bytes never upload; raw decoder errors
 test('confirmed upload is compensated only after persistence absence is verified; cleanup failure records only material ID',async()=>{
   const h=harness({saveFailure:Error('database credentials/private query')});
   await assert.rejects(h.service.ingest('session',bytes(),'application/pdf','lesson.pdf'),error=>error.code==='MATERIAL_PERSISTENCE_UNAVAILABLE'&&!error.message.includes('credentials'));
-  assert.deepEqual(h.events,['owner','extract','reserve','upload','save','resolve','cancel','remove']);
+  assert.deepEqual(h.events,['owner','extract','reserve','upload','save','resolve','cancel','remove','mark']);
   const failed=harness({saveFailure:Error('database'),removeFailure:Error('storage secret')});
   await assert.rejects(failed.service.ingest('session',bytes(),'application/pdf','lesson.pdf'),error=>error.code==='FILE_CLEANUP_REQUIRED'&&!error.message.includes('secret'));
   assert.deepEqual(failed.cleanup,[failed.saved[0].material.id]);assert.ok(!failed.cleanup[0].includes('/'));
@@ -163,6 +189,17 @@ test('Prisma durable intent is committed before upload and cancellation serializ
   assert.ok(pending.plans.findIndex(p=>p.sql.includes('FOR UPDATE'))<pending.plans.indexOf(change));
   const hidden=receiptHarness({owned:false});assert.equal(await hidden.store.cancel('session',hidden.material),'UNKNOWN');
   assert.ok(!hidden.plans.some(p=>p.sql.startsWith('UPDATE')));
+});
+
+test('cleanup marker uses owned parent lock and exact cancelled receipt without clearing the original material', async () => {
+  const pending = receiptHarness({ rows: [] });
+  await assert.rejects(pending.store.markCleaned('session', pending.material), e => e.code === 'FILE_CLEANUP_REQUIRED');
+  const sql = pending.plans.find(plan => plan.sql.startsWith('UPDATE'));
+  assert.ok(sql.sql.includes("state = 'CANCELLED'")); assert.ok(sql.sql.includes('NOT EXISTS'));
+  assert.ok(sql.sql.includes('COALESCE("cleanupAt"')); assert.ok(sql.values.includes(JSON.stringify(pending.material)));
+  assert.ok(!sql.sql.includes('SET "material"')); assert.ok(pending.plans.findIndex(plan => plan.sql.includes('FOR UPDATE')) < pending.plans.indexOf(sql));
+  const hidden = receiptHarness({ owned: false }); await assert.rejects(hidden.store.markCleaned('session', hidden.material));
+  assert.ok(!hidden.plans.some(plan => plan.sql.startsWith('UPDATE')));
 });
 test('cancelled or missing pending intent prevents READY insertion before any session progress change',async()=>{
   const h=receiptHarness({rows:[]});

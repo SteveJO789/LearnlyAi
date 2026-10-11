@@ -29,7 +29,7 @@ function context(request){
     }});
   const store={assertActiveOwnedSession:async id=>owned(request,id),reserve:async(id,m)=>{owned(request,id);intents.set(m.id,m);},
     save:async(id,m)=>{owned(request,id);saved.set(m.id,m);},resolveSave:async(id,m)=>{owned(request,id);return saved.has(m.id)?'SAVED':'NOT_SAVED';},
-    cancel:async()=> 'CANCELLED',load:async(id,mid)=>{owned(request,id);if(!intents.has(mid))throw new ApiError('NOT_FOUND',404,'Upload not found');return{state:saved.has(mid)?'FINALIZED':'PENDING',material:intents.get(mid)};}};
+    cancel:async(id,m)=>{owned(request,id);return saved.has(m.id)?'SAVED':'CANCELLED';},markCleaned:async()=>{},load:async(id,mid)=>{owned(request,id);if(!intents.has(mid))throw new ApiError('NOT_FOUND',404,'Upload not found');return{state:saved.has(mid)?'FINALIZED':'PENDING',material:intents.get(mid)};}};
   return Promise.resolve({texts:{list:async id=>{owned(request,id);return [...saved.values()].map(m=>({id:m.id,type:m.file.type,status:'READY',normalizedText:m.normalizedText}));},create:async()=>{throw Error('Unused');}},
     files:{listUploads:async id=>{owned(request,id);return [...intents.values()].map(m=>({id:m.id,state:'FINALIZED',type:m.file.type,filename:m.file.filename,createdAt:'2026-10-10T00:00:00Z'}));},
       getFile:async(id,mid)=>{owned(request,id);const m=saved.get(mid);if(!m)throw new ApiError('NOT_FOUND',404,'File not found');return{id:mid,type:m.file.type,storageBucket:m.storageBucket,storageKey:m.storageKey,contentHash:m.file.contentHash,mimeType:m.file.mimeType,sizeBytes:m.file.sizeBytes,filename:m.file.filename,confidence:''};},
@@ -51,6 +51,10 @@ test('protected HTTP file upload -> real PDF/OCR -> durable save -> list/review/
     const resume=await fetch(base+`/uploads/${data.id}/resume`,{method:'POST',headers:{...headers,'content-type':'application/json'},body:'{}'});assert.equal(resume.status,200);
     const download=await fetch(base+`/${data.id}/file`,{headers});assert.equal(download.status,200);assert.equal(download.headers.get('x-content-type-options'),'nosniff');
     assert.deepEqual(Buffer.from(await download.arrayBuffer()),bytes);
+    const cancel=await fetch(base+`/uploads/${data.id}/cancel`,{method:'POST',headers:{...headers,'content-type':'application/json'},body:'{}'});
+    assert.equal(cancel.status,200);assert.equal((await cancel.json()).data.status,'READY');
+    assert.equal((await fetch(base+`/${data.id}/file`,{headers})).status,200);
+    assert.equal((await fetch(base+`/uploads/${data.id}/cancel`,{method:'POST',headers:{Authorization:'Bearer test-b','content-type':'application/json'},body:'{}'})).status,404);
     const foreign=await fetch(base+`/${data.id}/file`,{headers:{Authorization:'Bearer test-b'}});assert.equal(foreign.status,404);
   }
   const listed=await fetch(base+'/uploads',{headers});assert.equal(listed.status,200);assert.ok((await listed.json()).data.length>=2);
@@ -66,4 +70,5 @@ test('missing/invalid Auth, unsupported MIME, oversized/compressed bytes and for
   assert.equal(contexts,before);
   assert.equal((await fetch(base+'/x/review',{method:'PATCH',headers:{...h,'content-type':'application/json'},body:'{"text":"hello","reviewed":true}'})).status,400);
   assert.equal((await fetch(base+'/uploads/x/resume',{method:'POST',headers:{...h,'content-type':'application/json'},body:'{"storageKey":"forged"}'})).status,400);
+  assert.equal((await fetch(base+'/uploads/x/cancel',{method:'POST',headers:{...h,'content-type':'application/json'},body:'{"storageKey":"forged"}'})).status,400);
 }));

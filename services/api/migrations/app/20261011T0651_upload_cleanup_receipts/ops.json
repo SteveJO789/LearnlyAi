@@ -1,0 +1,86 @@
+[
+  {
+    "id": "column.public.FileUpload.cleanupAt",
+    "label": "Add column \"cleanupAt\" to \"FileUpload\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "cleanupAt",
+        "table": "FileUpload"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"cleanupAt\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FileUpload",
+          "cleanupAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"cleanupAt\"",
+        "sql": "ALTER TABLE \"public\".\"FileUpload\" ADD COLUMN \"cleanupAt\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"cleanupAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FileUpload",
+          "cleanupAt"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.FileUpload.file_upload_cleanup_state_89133064",
+    "label": "Add check constraint \"file_upload_cleanup_state_89133064\" on \"FileUpload\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "file_upload_cleanup_state_89133064",
+        "table": "FileUpload"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"file_upload_cleanup_state_89133064\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "file_upload_cleanup_state_89133064",
+          "public",
+          "\"public\".\"FileUpload\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"file_upload_cleanup_state_89133064\"",
+        "sql": "ALTER TABLE \"public\".\"FileUpload\" ADD CONSTRAINT \"file_upload_cleanup_state_89133064\" CHECK (\"cleanupAt\" IS NULL OR state = 'CANCELLED')"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"file_upload_cleanup_state_89133064\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "file_upload_cleanup_state_89133064",
+          "public",
+          "\"public\".\"FileUpload\""
+        ]
+      }
+    ]
+  }
+]

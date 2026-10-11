@@ -6,7 +6,7 @@ import { PrismaFileHistory, fileHistoryQuery } from "./file-history.js";
 
 export interface FileHistoryRouterOptions {
   authenticate?: RequestHandler;
-  store?: (request: AuthenticatedRequest) => Promise<Pick<PrismaFileHistory, "list">>;
+  store?: (request: AuthenticatedRequest) => Promise<Pick<PrismaFileHistory, "list" | "listReceipts">>;
 }
 export function createFileHistoryRouter(options: FileHistoryRouterOptions = {}) {
   const router = Router();
@@ -19,6 +19,12 @@ export function createFileHistoryRouter(options: FileHistoryRouterOptions = {}) 
     try {
       const query = fileHistoryQuery(request.query);
       response.set("cache-control", "private, no-store").json({ data: await (await store(request)).list(query) });
+    } catch (error) { next(error); }
+  });
+  router.get("/uploads", async (request: AuthenticatedRequest, response, next) => {
+    try {
+      const query = fileHistoryQuery(request.query);
+      response.set("cache-control", "private, no-store").json({ data: await (await store(request)).listReceipts(query) });
     } catch (error) { next(error); }
   });
   return router;
