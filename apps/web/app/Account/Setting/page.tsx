@@ -105,42 +105,42 @@ function SettingContent() {
   // --- Delete Account ---
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
-  const [mascotPrankActive, setMascotPrankActive] = useState(false);
+  const [buttonEscapeStep, setButtonEscapeStep] = useState(0);
   const [mascotCrying, setMascotCrying] = useState(false);
-  const [mascotButtonStolen, setMascotButtonStolen] = useState(false);
   const [mascotPrankPlayed, setMascotPrankPlayed] = useState(false);
   const [mascotTapPending, setMascotTapPending] = useState(false);
-  const [mascotStart, setMascotStart] = useState({ x: 0, y: 0, buttonWidth: 0 });
+  const [mascotStart, setMascotStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const deleteButtonRef = useRef<HTMLButtonElement>(null);
+  const escapeTimers = useRef<number[]>([]);
+
+  useEffect(() => {
+    return () => escapeTimers.current.forEach(window.clearTimeout);
+  }, []);
 
   useEffect(() => {
     if (activeTab !== "Delete Account") {
-      setMascotPrankActive(false);
+      escapeTimers.current.forEach(window.clearTimeout);
+      escapeTimers.current = [];
+      setButtonEscapeStep(0);
       setMascotCrying(false);
-      setMascotButtonStolen(false);
       setMascotPrankPlayed(false);
     }
   }, [activeTab]);
 
   const triggerMascotPrank = () => {
-    if (mascotPrankActive || mascotPrankPlayed) return;
+    if (mascotPrankPlayed || buttonEscapeStep > 0) return;
     const rect = deleteButtonRef.current?.getBoundingClientRect();
-    if (rect) {
-      setMascotStart({ x: rect.left, y: rect.top, buttonWidth: rect.width });
-    }
-    setMascotCrying(false);
-    setMascotButtonStolen(false);
+    if (!rect) return;
+    setMascotStart({ x: rect.left, y: rect.top, width: rect.width, height: rect.height });
     setMascotPrankPlayed(true);
-    setMascotPrankActive(true);
-    // Match the button swap to the moment the wizard reaches its original position.
-    const isTouch = !window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-    const duration = isTouch ? 1800 : 2600;
-    window.setTimeout(() => setMascotButtonStolen(true), duration * 0.08);
-    window.setTimeout(() => {
-      setMascotPrankActive(false);
-      setMascotButtonStolen(false);
-      setMascotCrying(true);
-    }, duration);
+    setButtonEscapeStep(1);
+  };
+
+  const advanceEscapingButton = () => {
+    if (buttonEscapeStep < 1 || buttonEscapeStep >= 5) return;
+    const nextStep = buttonEscapeStep + 1;
+    setButtonEscapeStep(nextStep);
+    if (nextStep === 5) setMascotCrying(true);
   };
 
   return (
@@ -478,183 +478,81 @@ function SettingContent() {
                   <div className="relative">
                     <div className="relative inline-flex items-center">
                       <button
+                        ref={deleteButtonRef}
                         type="button"
                         onMouseEnter={() => {
-                          if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) triggerMascotPrank();
+                          if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+                            if (!mascotPrankPlayed) triggerMascotPrank();
+                            else advanceEscapingButton();
+                          }
                         }}
                         onClick={() => {
                           const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-                          if (canHover) {
-                            if (!mascotPrankActive) setDeleteConfirmOpen(true);
+                          if (canHover && buttonEscapeStep < 5) return;
+                          if (!canHover && !mascotPrankPlayed) {
+                            triggerMascotPrank();
+                            setMascotTapPending(true);
+                            escapeTimers.current.push(window.setTimeout(() => {
+                              setButtonEscapeStep(5);
+                              setMascotCrying(true);
+                              setMascotTapPending(false);
+                            }, 1000));
                             return;
                           }
-                          if (mascotTapPending) return;
-                          setMascotTapPending(true);
-                          triggerMascotPrank();
-                          window.setTimeout(() => {
-                            setDeleteConfirmOpen(true);
-                            setMascotTapPending(false);
-                          }, 550);
+                          setDeleteConfirmOpen(true);
                         }}
-                        disabled={mascotTapPending || mascotButtonStolen}
-                        aria-hidden={mascotButtonStolen}
-                        tabIndex={mascotButtonStolen ? -1 : 0}
-                        className={`rounded-xl bg-danger px-6 py-2.5 text-sm font-medium text-white transition-all cursor-pointer disabled:cursor-wait ${mascotButtonStolen ? "invisible pointer-events-none" : "visible hover:opacity-90"}` }
+                        disabled={mascotTapPending}
+                        style={buttonEscapeStep > 0 ? {
+                          position: "fixed",
+                          left: buttonEscapeStep === 1 ? mascotStart.x : buttonEscapeStep === 2 ? "42vw" : buttonEscapeStep === 3 ? "60vw" : buttonEscapeStep === 4 ? "78vw" : "72vw",
+                          top: buttonEscapeStep === 1 ? mascotStart.y : buttonEscapeStep === 2 ? "76vh" : buttonEscapeStep === 3 ? "70vh" : buttonEscapeStep === 4 ? "84vh" : "24vh",
+                          zIndex: 70,
+                          transition: "left 1s ease-in-out, top 1s ease-in-out, transform .25s ease-out",
+                          transform: buttonEscapeStep === 5 ? "scale(1.03)" : "scale(1)",
+                        } : undefined}
+                        className="rounded-xl bg-danger px-6 py-2.5 text-sm font-medium text-white transition-all cursor-pointer disabled:cursor-wait hover:opacity-90"
                       >
                         {t("settings.deleteAccount.button")}
                       </button>
                     </div>
 
-                    {(mascotPrankActive || mascotCrying) && (
-                      <div aria-hidden="true" className="fixed inset-0 z-[60] overflow-hidden pointer-events-none" style={{ "--start-x": `${mascotStart.x}px`, "--start-y": `${mascotStart.y}px`, "--return-x": `${mascotStart.x - 120}px`, "--cry-x": `${mascotStart.x + mascotStart.buttonWidth + 10}px`, "--cry-y": `${mascotStart.y + 4}px`, "--prank-duration": `${window.matchMedia("(hover: hover) and (pointer: fine)").matches ? 2600 : 1800}ms` } as React.CSSProperties}>
-                        {mascotPrankActive && <div className="fairy-runner">
-                          <div className="tiny-wizard">
-                            <div className="wizard-wand"><i /></div>
-                            <div className="wizard-hat"><i /></div>
-                            <div className="wizard-face"><i className="wizard-eye eye-left" /><i className="wizard-eye eye-right" /><i className="wizard-blush blush-left" /><i className="wizard-blush blush-right" /></div>
-                            <div className="wizard-beard" />
-                            <div className="wizard-body"><i className="wizard-star">✦</i></div>
-                            <div className="wizard-feet"><i /><i /></div>
-                            <div className="wizard-shadow" />
-                          </div>
-                          <span className="carried-delete-button">{t("settings.deleteAccount.button")}</span>
-                        </div>}
-                        {mascotCrying && <div className="fairy-crying">
-                          <div className="tiny-wizard tiny-wizard-crying">
-                            <div className="wizard-hat"><i /></div>
-                            <div className="wizard-face"><i className="wizard-eye eye-left" /><i className="wizard-eye eye-right" /><i className="wizard-blush blush-left" /><i className="wizard-blush blush-right" /><span className="wizard-tears">••</span></div>
-                            <div className="wizard-beard" />
-                            <div className="wizard-body"><i className="wizard-star">✦</i></div>
-                            <div className="wizard-feet"><i /><i /></div>
-                          </div>
-                        </div>}
+                    {mascotCrying && buttonEscapeStep === 5 && (
+                      <div aria-hidden="true" className="fixed z-[80] pointer-events-none" style={{ left: "78vw", top: "24vh" }}>
+                        <div className="tiny-wizard tiny-wizard-crying">
+                          <div className="wizard-hat"><i /></div>
+                          <div className="wizard-face"><i className="wizard-eye eye-left" /><i className="wizard-eye eye-right" /><i className="wizard-blush blush-left" /><i className="wizard-blush blush-right" /><span className="wizard-tears">••</span></div>
+                          <div className="wizard-beard" />
+                          <div className="wizard-body"><i className="wizard-star">✦</i></div>
+                          <div className="wizard-feet"><i /><i /></div>
+                        </div>
                       </div>
                     )}
 
                     <style jsx>{`
-                      .fairy-runner {
-                        position: absolute;
-                        left: 0;
-                        top: 0;
-                        display: flex;
-                        align-items: center;
-                        gap: 8px;
-                        width: max-content;
-                        animation: fairy-lap var(--prank-duration, 2600ms) linear both;
-                        will-change: transform, opacity;
-                      }
-                      .fairy-runner::after {
-                        content: "✦ ･ﾟ✧ ･ﾟ✦";
-                        position: absolute;
-                        left: -34px;
-                        top: 30px;
-                        color: #ffe99b;
-                        font-size: 22px;
-                        letter-spacing: 5px;
-                        text-shadow: 0 0 8px #fff2b3, 0 0 16px #c5b5ff;
-                        pointer-events: none;
-                        animation: sparkle-trail .42s ease-out infinite;
-                      }
-                      .fairy-runner::before {
-                        content: "✧ ･ﾟ";
-                        position: absolute;
-                        left: -52px;
-                        top: 62px;
-                        color: #d8ceff;
-                        font-size: 18px;
-                        text-shadow: 0 0 10px #fff;
-                        animation: sparkle-trail .65s ease-out infinite .15s;
-                      }
-                      @keyframes sparkle-trail {
-                        0% { opacity: 0; transform: translateX(12px) scale(.5); }
-                        35% { opacity: 1; }
-                        100% { opacity: 0; transform: translateX(-18px) scale(1.25); }
-                      }
-                      .carried-delete-button {
-                        display: inline-flex;
-                        align-items: center;
-                        white-space: nowrap;
-                        border-radius: .75rem;
-                        background: var(--danger, #dc2626);
-                        color: white;
-                        padding: .625rem 1.5rem;
-                        font-size: .875rem;
-                        line-height: 1.25rem;
-                        font-weight: 500;
-                        box-sizing: border-box;
-                        opacity: 0;
-                        animation: carried-button var(--prank-duration, 2600ms) linear both;
-                      }
-                      @keyframes carried-button {
-                        0%, 7.9% { opacity: 0; }
-                        8%, 91.9% { opacity: 1; }
-                        92%, 100% { opacity: 0; }
-                      }
                       .tiny-wizard {
                         position: relative;
-                        flex: 0 0 112px;
                         width: 112px;
                         height: 164px;
-                        transform: scale(.58);
-                        transform-origin: bottom center;
+                        transform: scale(.45);
+                        transform-origin: top left;
                         filter: drop-shadow(0 8px 8px rgb(77 51 130 / .14));
-                        margin-bottom: -55px;
                       }
-                      .wizard-hat { position:absolute; z-index:4; left:2px; top:-26px; width:100px; height:96px; background:linear-gradient(135deg,#9c85ff 5%,#6b55ce 70%,#4d3aab); clip-path:polygon(50% 0,70% 62%,100% 84%,4% 88%,30% 69%); border-radius:15px; filter:drop-shadow(2px 4px 2px rgb(54 39 117 / .22)); }
+                      .wizard-hat { position:absolute; z-index:4; left:2px; top:-26px; width:100px; height:96px; background:linear-gradient(135deg,#9c85ff 5%,#6b55ce 70%,#4d3aab); clip-path:polygon(50% 0,70% 62%,100% 84%,4% 88%,30% 69%); border-radius:15px; }
                       .wizard-hat i { position:absolute; width:7px; height:7px; border-radius:50%; background:#ffe99b; left:62px; top:51px; box-shadow:0 0 8px #fff2b3; }
-                      .wizard-face { position:absolute; z-index:3; left:28px; top:39px; width:55px; height:49px; border-radius:46% 46% 48% 48%; background:linear-gradient(145deg,#ffe3c7,#f4b995); box-shadow:inset -4px -4px 0 rgb(197 116 100 / .12); }
+                      .wizard-face { position:absolute; z-index:3; left:28px; top:39px; width:55px; height:49px; border-radius:46% 46% 48% 48%; background:linear-gradient(145deg,#ffe3c7,#f4b995); }
                       .wizard-eye { position:absolute; top:21px; width:5px; height:7px; background:#49365d; border-radius:50%; }
                       .eye-left { left:15px; } .eye-right { right:15px; }
                       .wizard-blush { position:absolute; top:29px; width:10px; height:5px; border-radius:50%; background:#f28d9e; opacity:.7; }
                       .blush-left { left:6px; } .blush-right { right:6px; }
                       .wizard-tears { position:absolute; color:#58b9ff; top:25px; left:12px; letter-spacing:13px; font-size:12px; }
                       .wizard-beard { position:absolute; z-index:4; left:37px; top:68px; width:37px; height:34px; background:linear-gradient(145deg,#fff8ed,#d9d0e9); clip-path:polygon(0 0,100% 0,80% 65%,50% 100%,20% 65%); border-radius:8px; }
-                      .wizard-body { position:absolute; z-index:2; left:22px; top:79px; width:68px; height:65px; border-radius:27px 27px 20px 20px; background:linear-gradient(120deg,#a28bff,#7560d7 72%,#5a48b7); box-shadow:inset 7px 2px 0 rgb(255 255 255 / .18),inset -6px -4px 0 rgb(54 38 124 / .12); }
+                      .wizard-body { position:absolute; z-index:2; left:22px; top:79px; width:68px; height:65px; border-radius:27px 27px 20px 20px; background:linear-gradient(120deg,#a28bff,#7560d7 72%,#5a48b7); }
                       .wizard-star { position:absolute; top:17px; left:27px; color:#ffe99b; font-style:normal; font-size:14px; }
-                      .wizard-wand { position:absolute; z-index:5; right:0; top:55px; width:5px; height:45px; border-radius:5px; background:linear-gradient(90deg,#bd8c54,#ffe2a0); transform:rotate(25deg); }
-                      .wizard-wand i { position:absolute; top:-8px; left:-5px; width:15px; height:15px; background:#fff0a8; clip-path:polygon(50% 0,62% 35%,100% 50%,62% 65%,50% 100%,38% 65%,0 50%,38% 35%); }
                       .wizard-feet { position:absolute; z-index:3; left:29px; bottom:7px; display:flex; gap:19px; }
                       .wizard-feet i { width:22px; height:12px; border-radius:50%; background:linear-gradient(180deg,#e7b18e,#bc7e77); }
-                      .wizard-shadow { position:absolute; bottom:0; left:15%; width:70%; height:10px; border-radius:50%; background:rgb(78 61 130 / .13); filter:blur(4px); }
-                      .fairy-crying { position:absolute; display:flex; align-items:center; left:var(--cry-x); top:var(--cry-y); opacity:0; animation:fairy-cry .35s ease-out both; }
-                      .tiny-wizard-crying { transform:scale(.45); transform-origin:top left; margin:0; }
-                      @keyframes fairy-lap {
-                        0% { transform:translate(calc(var(--start-x) - 150px), var(--start-y)) rotate(0); opacity:0; }
-                        2% { transform:translate(calc(var(--start-x) - 110px), var(--start-y)) rotate(-7deg); opacity:1; }
-                        8% { transform:translate(var(--return-x), var(--start-y)) rotate(0); opacity:1; }
-                        20% { transform:translate(78vw, 8vh) rotate(12deg); }
-                        32% { transform:translate(87vw, 72vh) rotate(-10deg); }
-                        44% { transform:translate(52vw, 84vh) rotate(9deg); }
-                        56% { transform:translate(3vw, 72vh) rotate(-12deg); }
-                        66% { transform:translate(7vw, 12vh) rotate(10deg); }
-                        76% { transform:translate(76vw, 25vh) rotate(-8deg); }
-                        84% { transform:translate(56vw, 49vh) rotate(8deg); }
-                        92% { transform:translate(var(--return-x), var(--start-y)) rotate(-3deg); opacity:1; }
-                        96% { transform:translate(var(--return-x), calc(var(--start-y) - 12px)) rotate(0); opacity:1; }
-                        98% { transform:translate(var(--return-x), var(--start-y)) rotate(0); opacity:1; }
-                        100% { transform:translate(var(--return-x), var(--start-y)) rotate(0); opacity:0; }
-                      }
-                      @keyframes fairy-cry {
-                        0% { opacity:0; transform:translateY(10px); }
-                        100% { opacity:1; transform:translateY(0); }
-                      }
-                      @media(max-width:767px) {
-                        .fairy-runner { animation:fairy-walk var(--prank-duration, 1800ms) linear both; }
-                        .fairy-runner .tiny-wizard { transform:scale(.42); }
-                        .carried-delete-button { display:none; animation:none; }\n                        .fairy-runner::before, .fairy-runner::after { font-size:16px; }
-                        @keyframes fairy-walk {
-                          0% { transform:translate(calc(var(--start-x) - 150px), var(--start-y)); opacity:0; }
-                          8% { transform:translate(var(--return-x), var(--start-y)); opacity:1; }
-                          48% { transform:translate(43vw, 49vh); }
-                          90% { transform:translate(var(--return-x), var(--start-y)); opacity:1; }
-                          96%,100% { transform:translate(var(--return-x), var(--start-y)); opacity:0; }
-                        }
-                        .fairy-crying { left:var(--cry-x); top:var(--cry-y); }
-                      }
-                      @media(prefers-reduced-motion:reduce) {
-                        .fairy-runner { animation-duration:1ms; }
-                        .fairy-crying { animation-duration:1ms; opacity:1; }
-                      }
+                      .fairy-crying { animation: cry-in .25s ease-out both; }
+                      @keyframes cry-in { from { opacity:0; transform:translateY(8px) scale(.9); } to { opacity:1; transform:translateY(0) scale(1); } }
+                      @media(prefers-reduced-motion:reduce) { * { transition-duration:1ms !important; animation-duration:1ms !important; } }
                     `}</style>
                   </div>
                 </div>
