@@ -504,8 +504,8 @@ function SettingContent() {
                         disabled={mascotTapPending}
                         style={buttonEscapeStep > 0 ? {
                           position: "fixed",
-                          left: buttonEscapeStep === 1 ? mascotStart.x : buttonEscapeStep === 2 ? "42vw" : buttonEscapeStep === 3 ? "60vw" : buttonEscapeStep === 4 ? "78vw" : "72vw",
-                          top: buttonEscapeStep === 1 ? mascotStart.y : buttonEscapeStep === 2 ? "76vh" : buttonEscapeStep === 3 ? "70vh" : buttonEscapeStep === 4 ? "84vh" : "24vh",
+                          left: buttonEscapeStep === 1 ? "42vw" : buttonEscapeStep === 2 ? "60vw" : buttonEscapeStep === 3 ? "78vw" : "72vw",
+                          top: buttonEscapeStep === 1 ? "76vh" : buttonEscapeStep === 2 ? "70vh" : buttonEscapeStep === 3 ? "84vh" : "24vh",
                           zIndex: 70,
                           transition: "left 1s ease-in-out, top 1s ease-in-out, transform .25s ease-out",
                           transform: buttonEscapeStep === 5 ? "scale(1.03)" : "scale(1)",
