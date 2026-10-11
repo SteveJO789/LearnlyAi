@@ -525,8 +525,9 @@ function SettingContent() {
                           left: buttonEscapeStep === 1 ? "42vw" : buttonEscapeStep === 2 ? "60vw" : buttonEscapeStep === 3 ? "78vw" : buttonEscapeStep === 4 ? "72vw" : "84vw",
                           top: buttonEscapeStep === 1 ? "76vh" : buttonEscapeStep === 2 ? "70vh" : buttonEscapeStep === 3 ? "84vh" : buttonEscapeStep === 4 ? "24vh" : "18vh",
                           zIndex: 70,
-                          transition: "left 1s linear, top 1s linear",
-                          transform: buttonEscapeStep === 5 ? "scale(1.03)" : "scale(1)",
+                          transitionProperty: "left, top",
+                          transitionDuration: "1000ms, 1000ms",
+                          transitionTimingFunction: "linear, linear",
                         } : undefined}
                         className="rounded-xl bg-danger px-6 py-2.5 text-sm font-medium text-white cursor-pointer disabled:cursor-wait hover:opacity-90"
                       >
