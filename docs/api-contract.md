@@ -51,6 +51,7 @@ Implemented on the MVP completion branch: sessions/history/interactions, text ma
 | GET | `/learning-sessions/{sessionId}` | อ่าน session และ progress |
 | POST | `/learning-sessions/{sessionId}/materials` | Text normalization/persistence; PDF/image remains planned |
 | POST | `/learning-sessions/{sessionId}/interactions` | ส่งคำตอบ/ขอคำใบ้/ตอบ guided question |
+| POST | `/learning-sessions/{sessionId}/recovery` | Explicit recovery of an owned FAILED session; empty JSON body |
 | POST/GET | `/learning-sessions/{sessionId}/assessments/{phase}` | Create/retrieve PRE, POST or TRANSFER |
 | POST | `/learning-sessions/{sessionId}/assessments/{phase}/submissions` | Deterministic scoring and owned answer/profile persistence |
 
@@ -178,6 +179,8 @@ See [Learning Engine Core](learning-engine-core.md) for the complete sample resp
 
 ## Profile
 
+`POST /learning-sessions/{sessionId}/recovery` requires verified Supabase Bearer authorization and `{}`. Only `FAILED` sessions can return to `ACTIVE`; stage, progress and prior tutor messages remain intact. A version compare-and-set and a `SYSTEM` recovery event are committed together. Operational events are excluded from AI conversation context. An unknown or another user's session returns 404; an active/completed session returns 409; invalid bodies return 400. Recovery does not call the model or repair rejected output. The learner must explicitly request a new interaction after recovery.
+
 | Method | Endpoint | Purpose |
 |---|---|---|
 | GET | `/users/me/learning-profile` | Latest assessed topic samples, strengths/weak points |
@@ -185,6 +188,23 @@ See [Learning Engine Core](learning-engine-core.md) for the complete sample resp
 
 Learning profile returns `mastery` keyed by topic: `{percent,assessmentId,sampleQuestions,assessedAt}`, `strengths`, `weakPoints`, `updatedAt`. Empty profile: `{mastery:{},strengths:[],weakPoints:[],updatedAt:null}`. Latest submitted POST/TRANSFER sample per topic is used; >=80% is a strong result, <50% needs practice. These are small assessment samples, not a calibrated global mastery estimate.
 Progress returns `sessionCount`, `completedSessionCount`, `averageProgressPercent` and up to 100 comparison rows `{sessionId,topic,prePercent,postPercent,deltaPercent}`. Missing paired phases use null, never invented zero scores. Web forwards these via `/api/users/me/...` with the Supabase Bearer token.
+
+## File materials (verified Bearer required)
+
+Base `/api/v1/learning-sessions/{sessionId}/materials`; Web same-origin rewrite `/api/learning-sessions/{sessionId}/materials` forwards the verified user token. Private Storage uses publishable key + user JWT, never service-role.
+
+| Method | Suffix | Request / response |
+|---|---|---|
+| GET | `/` | Owned bounded material list, including effective normalized learning text; unknown/foreign rows are not visible |
+| POST | `/files` | Raw PDF/PNG/JPEG bytes, max3MiB, declared Content-Type and URL-encoded `x-file-name`;201 READY with `{id,materialId,type,status,normalizedText,contentHash,mimeType,sizeBytes}` |
+| GET | `/uploads` | Up to20 owned journal summaries `{id,state,type,filename,createdAt}`; no private keys/buckets returned |
+| POST | `/uploads/{materialId}/resume` | Exactly `{}`; verify stored original bytes before READY recovery or retry CANCELLED cleanup; no re-upload |
+| PATCH | `/{materialId}/review` | Exactly `{text}`; up to8000 normalized characters; own active initial session only, stageEXPLAIN/version0/stateINPUT orPRE_TEST |
+| GET | `/{materialId}/file` | Owned READY binary download after MIME/size/SHA256 verification; private/no-store, attachment, nosniff |
+
+OCR/read text must be reviewed before binary material enters tutor context. Review writes only `metadata.learningText`, `learningTextHash`, `reviewedByLearner`; it preserves original extraction/normalizedText/hash and `reviewed=false`. Trusted curated Knowledge review is distinct from learner confirmation. Unknown review fields, scores, ownership and storage keys are rejected. SourceMaterial UPDATE permission is metadata-only with canonical owner/API-context RLS. Review after learning starts returns409 MATERIAL_REVIEW_CLOSED.
+
+Upload uses real bounded PDF/OCR. Wrong MIME/compressed body/oversize return415/413 before writes, corrupted/encrypted/empty input controlled422, busy/dependency errors503, processing deadline504. Ambiguous upload/save remains in journal; explicitly list/resume before sending another copy. No raw upstream/file/credential errors are exposed. Current tests use synthetic Auth/Storage/DB transports plus real decoders; production schema/Storage/browser journey is a separate verification gate.
 
 ## Health
 
@@ -195,7 +215,15 @@ Progress returns `sessionCount`, `completedSessionCount`, `averageProgressPercen
 
 Readiness returns `data.status` and `data.checks` containing `api`, `database`, `knowledge`, `authConfiguration` with `ok`/`failed` values. Probes have a 3-second deadline. Database connectivity uses `SELECT 1` on the configured application connection and reads no learner records; it does not prove RLS, schema compatibility or migration correctness. Auth configuration does not prove OAuth login or Auth service availability. No paid provider call is made. Liveness remains independent of all these dependencies.
 
+Vector mode additionally reports `checks.vectorIndex`: validated retrieval configuration plus current reviewed chunk coverage/identity/1536-dimensional nonzero stored vectors read under the authenticated role in a read-only transaction. A missing/stale/malformed index or failed probe returns 503; this is not provider availability, semantic quality, OAuth/JWT or complete migration proof. Lexical mode retains the original response fields. [Operator/index procedure](knowledge-vector-operations.md)
+
 ## Status Codes
+
+### Owned uploaded-file history
+
+Pending/cancelled receipts: `GET /api/v1/users/me/files/uploads` supports the same cursor/date filters and returns at most25 `{id,sessionId,sessionTitle,state,filename,type,createdAt,canResume}` items, plus nextCursor. Excludes existing SourceMaterial and cleanup-confirmed entries. `POST .../learning-sessions/:sessionId/materials/uploads/:id/cancel` accepts `{}` only; current matching READY wins, uncertain DB decisions do not delete, confirmed cancellation precedes Storage deletion and cleanupAt marking. [Recovery contract](upload-recovery.md)
+
+`GET /api/v1/users/me/files?after=<id>&from=YYYY-MM-DD&to=YYYY-MM-DD` requires verified Bearer authorization. It returns `{data:{items:[{id,sessionId,sessionTitle,type,mimeType,sizeBytes,filename,uploadedAt,normalizedText,reviewedByLearner,canReview}],nextCursor}}`, at most25 READY PDF/image files with stored object metadata. Cursor is the last returned material ID when another page exists. Optional date bounds use Asia/Bangkok calendar days and include the full end day; dates1900-01-01 through9998-12-31 only. Unknown legacy upload time is null and excluded when a date filter is active. No owner/key/bucket override accepted or returned. Existing protected review/download endpoints are used by History. [Details](file-history.md)
 
 | Status | Meaning |
 |---|---|
@@ -210,3 +238,6 @@ Readiness returns `data.status` and `data.checks` containing `api`, `database`, 
 | 429 | Rate limited |
 | 502/503/504 | AI/dependency failure แบบควบคุมได้ |
 
+# Merge-safe feature availability
+
+`GET /api/v1/capabilities` returns `{data:{assessments:boolean,fileUploads:boolean}}` with `Cache-Control: no-store`, no DB/Storage or secrets. Both default false; file uploads require assessments. Protected disabled assessment/profile/progress, file/review/recovery/cancel/download/history and TEXT material-write endpoints authenticate first, then return `503 FEATURE_DISABLED` before infrastructure access. Existing session reads/interactions/recovery remain available. Without assessments, Create stores original text through interactions and opens Chat; no scores/mastery are simulated. See [activation and verification](pr78-merge-safety.md).

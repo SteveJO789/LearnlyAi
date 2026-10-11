@@ -91,3 +91,14 @@ test("stalled readiness probe receives an abort signal and cannot hang the HTTP 
     knowledge: async () => {}, authConfiguration: async () => {},
   } });
 });
+
+test('vector index failure is reported separately without exposing errors or claiming provider availability', async () => {
+  await withTestServer(async base => {
+    const response = await fetch(base + '/health/ready'); assert.equal(response.status, 503);
+    const data = (await response.json()).data;
+    assert.equal(data.checks.vectorIndex, 'failed'); assert.equal(data.checks.database, 'ok');
+    assert.doesNotMatch(JSON.stringify(data), /provider|secret|raw-index|question/);
+    assert.equal((await fetch(base + '/health/live')).status, 200);
+  }, { readiness: { database: async () => {}, knowledge: async () => {}, authConfiguration: async () => {},
+    vectorIndex: async () => { throw Error('raw-index-question-secret'); } } });
+});

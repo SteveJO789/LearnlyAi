@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-10",
+  "status": "ORCHESTRATION_IMPLEMENTED_REAL_EXTRACTION_PENDING",
+  "apiCompile": "PASS",
+  "offlineApi": {"passed": 262, "failed": 0},
+  "fileOrchestration": {"passed": 7, "failed": 0, "transports": "explicitly injected extractor/storage/database; no real decoding claim"},
+  "verified": ["active ownership checked before extraction/upload", "binary bytes/hash unchanged across extraction and storage", "normalized text hash distinct from original binary hash", "actual PDF page sequence and empty-page preservation; image page=null", "no text/page truncation on overflow", "decode error redaction", "confirmed-upload compensation on failed persistence", "cleanup failure explicitly reported with operator material ID only", "ambiguous upload failure does not blindly delete", "Prisma SQL binding, active-session lock/recheck and transaction-local API context"],
+  "ciBeforeThisChange": {"run": 176, "head": "64a7b6f48688be21ef5802ff348597de4604b078", "conclusion": "success", "url": "https://github.com/SteveJO789/LearnlyAi/actions/runs/38029122705"},
+  "notVerified": ["actual PDF extraction/OCR", "full image/PDF decoder validation", "private bucket setup and actual Storage RLS/upload", "actual PostgreSQL file persistence transaction", "file endpoint/UI/browser journey", "durable reconciliation of ambiguous upload/cleanup outcomes"],
+  "dependencyBlocker": "npm repair outside repository awaiting explicit authorization; NVM4306 trust gate is not bypassed",
+  "additionalPaidCalls": 0,
+  "productionTablesOrBucketChanged": false
+}

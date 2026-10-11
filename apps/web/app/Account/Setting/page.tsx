@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect, Suspense, FormEvent } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import AccountSidebar from "../components/AccountSidebar";
 import SiteHeader from "../../components/SiteHeader";
 import Toggle from "../components/Toggle";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
+import { PasswordChangeForm } from "../../components/password-change-form";
+import RequireAuth from "../../components/require-auth";
 
 type SettingTabType =
   | "Change Password"
@@ -47,9 +49,6 @@ function SettingContent() {
   };
 
   // --- Change Password ---
-  const [passwords, setPasswords] = useState({ current: "", next: "", confirm: "" });
-  const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
-  const [isSavingPassword, setIsSavingPassword] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (message: string) => {
@@ -57,22 +56,6 @@ function SettingContent() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handlePasswordSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    const errors: Record<string, string> = {};
-    if (!passwords.current) errors.current = t("settings.changePassword.errorCurrent");
-    if (passwords.next.length < 8) errors.next = t("settings.changePassword.errorLength");
-    if (passwords.next !== passwords.confirm) errors.confirm = t("settings.changePassword.errorMismatch");
-    setPasswordErrors(errors);
-    if (Object.keys(errors).length > 0) return;
-
-    setIsSavingPassword(true);
-    setTimeout(() => {
-      setIsSavingPassword(false);
-      setPasswords({ current: "", next: "", confirm: "" });
-      showToast(t("settings.toast.passwordChanged"));
-    }, 1200);
-  };
 
   // --- Learning Preferences ---
   const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Medium");
@@ -172,71 +155,7 @@ function SettingContent() {
 
               {/* Change Password */}
               {activeTab === "Change Password" && (
-                <form onSubmit={handlePasswordSubmit} className="max-w-md flex flex-col gap-5">
-                  <h3 className="text-xl font-bold">{t("settings.changePassword.title")}</h3>
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-muted">{t("settings.changePassword.current")}</label>
-                    <input
-                      type="password"
-                      value={passwords.current}
-                      onChange={(e) => {
-                        setPasswords({ ...passwords, current: e.target.value });
-                        if (passwordErrors.current) setPasswordErrors({ ...passwordErrors, current: "" });
-                      }}
-                      className={`rounded-xl border p-3 text-sm outline-none bg-transparent transition-all ${
-                        passwordErrors.current ? "border-danger" : "border-surface-border focus:border-primary"
-                      }`}
-                    />
-                    {passwordErrors.current && (
-                      <p className="text-xs text-danger mt-0.5">{passwordErrors.current}</p>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-muted">{t("settings.changePassword.new")}</label>
-                    <input
-                      type="password"
-                      value={passwords.next}
-                      onChange={(e) => {
-                        setPasswords({ ...passwords, next: e.target.value });
-                        if (passwordErrors.next) setPasswordErrors({ ...passwordErrors, next: "" });
-                      }}
-                      className={`rounded-xl border p-3 text-sm outline-none bg-transparent transition-all ${
-                        passwordErrors.next ? "border-danger" : "border-surface-border focus:border-primary"
-                      }`}
-                    />
-                    {passwordErrors.next && (
-                      <p className="text-xs text-danger mt-0.5">{passwordErrors.next}</p>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-muted">{t("settings.changePassword.confirm")}</label>
-                    <input
-                      type="password"
-                      value={passwords.confirm}
-                      onChange={(e) => {
-                        setPasswords({ ...passwords, confirm: e.target.value });
-                        if (passwordErrors.confirm) setPasswordErrors({ ...passwordErrors, confirm: "" });
-                      }}
-                      className={`rounded-xl border p-3 text-sm outline-none bg-transparent transition-all ${
-                        passwordErrors.confirm ? "border-danger" : "border-surface-border focus:border-primary"
-                      }`}
-                    />
-                    {passwordErrors.confirm && (
-                      <p className="text-xs text-danger mt-0.5">{passwordErrors.confirm}</p>
-                    )}
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSavingPassword}
-                    className="self-start rounded-xl bg-primary text-primary-foreground px-6 py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all cursor-pointer"
-                  >
-                    {isSavingPassword ? t("settings.changePassword.saving") : t("settings.changePassword.save")}
-                  </button>
-                </form>
+                <PasswordChangeForm language={language} />
               )}
 
               {/* Learning Preferences */}
@@ -451,7 +370,7 @@ function SettingContent() {
 export default function SettingPage() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <SettingContent />
+      <RequireAuth><SettingContent /></RequireAuth>
     </Suspense>
   );
 }

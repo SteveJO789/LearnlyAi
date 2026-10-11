@@ -1,0 +1,435 @@
+[
+  {
+    "id": "table.FileUpload",
+    "label": "Create table \"FileUpload\"",
+    "summary": "Creates table \"FileUpload\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "FileUpload"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"FileUpload\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"FileUpload\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"FileUpload\"",
+        "sql": "CREATE TABLE \"public\".\"FileUpload\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"learningSessionId\" text NOT NULL,\n  \"material\" json NOT NULL,\n  \"state\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"FileUpload_state_check_2cdd5b3d\" CHECK (\"state\" IN ('PENDING', 'CANCELLED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"FileUpload\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"FileUpload\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.FileUpload.FileUpload_learningSessionId_createdAt_idx_bdaff9b7",
+    "label": "Create index \"FileUpload_learningSessionId_createdAt_idx_bdaff9b7\" on \"FileUpload\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "FileUpload_learningSessionId_createdAt_idx_bdaff9b7",
+        "table": "FileUpload"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"FileUpload_learningSessionId_createdAt_idx_bdaff9b7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"FileUpload_learningSessionId_createdAt_idx_bdaff9b7\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"FileUpload_learningSessionId_createdAt_idx_bdaff9b7\"",
+        "sql": "CREATE INDEX \"FileUpload_learningSessionId_createdAt_idx_bdaff9b7\" ON \"public\".\"FileUpload\" (\"learningSessionId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"FileUpload_learningSessionId_createdAt_idx_bdaff9b7\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"FileUpload_learningSessionId_createdAt_idx_bdaff9b7\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.FileUpload.FileUpload_learningSessionId_idx_3c4d5acd",
+    "label": "Create index \"FileUpload_learningSessionId_idx_3c4d5acd\" on \"FileUpload\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "FileUpload_learningSessionId_idx_3c4d5acd",
+        "table": "FileUpload"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"FileUpload_learningSessionId_idx_3c4d5acd\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"FileUpload_learningSessionId_idx_3c4d5acd\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"FileUpload_learningSessionId_idx_3c4d5acd\"",
+        "sql": "CREATE INDEX \"FileUpload_learningSessionId_idx_3c4d5acd\" ON \"public\".\"FileUpload\" (\"learningSessionId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"FileUpload_learningSessionId_idx_3c4d5acd\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"FileUpload_learningSessionId_idx_3c4d5acd\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.FileUpload.FileUpload_learningSessionId_fkey",
+    "label": "Add foreign key \"FileUpload_learningSessionId_fkey\" on \"FileUpload\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "FileUpload_learningSessionId_fkey",
+        "table": "FileUpload"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"FileUpload_learningSessionId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "FileUpload_learningSessionId_fkey",
+          "public",
+          "\"public\".\"FileUpload\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"FileUpload_learningSessionId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"FileUpload\"\nADD CONSTRAINT \"FileUpload_learningSessionId_fkey\"\nFOREIGN KEY (\"learningSessionId\")\nREFERENCES \"public\".\"LearningSession\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"FileUpload_learningSessionId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "FileUpload_learningSessionId_fkey",
+          "public",
+          "\"public\".\"FileUpload\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.FileUpload",
+    "label": "Enable row-level security on \"FileUpload\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "FileUpload"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"FileUpload\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "FileUpload"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"FileUpload\"",
+        "sql": "ALTER TABLE \"public\".\"FileUpload\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"FileUpload\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "FileUpload"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.FileUpload.file_upload_insert_api_own_d6a3a6ba",
+    "label": "Create RLS policy \"file_upload_insert_api_own_d6a3a6ba\" on \"FileUpload\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "file_upload_insert_api_own_d6a3a6ba",
+        "table": "FileUpload"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"file_upload_insert_api_own_d6a3a6ba\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FileUpload",
+          "file_upload_insert_api_own_d6a3a6ba"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"file_upload_insert_api_own_d6a3a6ba\"",
+        "sql": "CREATE POLICY \"file_upload_insert_api_own_d6a3a6ba\" ON \"public\".\"FileUpload\" AS PERMISSIVE FOR INSERT TO authenticated WITH CHECK (((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND s.\"lifecycleState\" = 'ACTIVE' AND u.\"authUserId\" = (SELECT auth.uid())::text)))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"file_upload_insert_api_own_d6a3a6ba\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FileUpload",
+          "file_upload_insert_api_own_d6a3a6ba"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "security.grant-file-upload-api-access",
+    "label": "Grant RLS-protected upload receipt access",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "execute": [
+      {
+        "sql": "GRANT SELECT, INSERT, UPDATE ON TABLE public.\"FileUpload\" TO authenticated",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "sql": "SELECT has_table_privilege('authenticated', 'public.\"FileUpload\"', 'SELECT')\n          AND has_table_privilege('authenticated', 'public.\"FileUpload\"', 'INSERT')\n          AND has_table_privilege('authenticated', 'public.\"FileUpload\"', 'UPDATE') AS result",
+        "params": []
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.FileUpload.file_upload_insert_guard_649e1632",
+    "label": "Create RLS policy \"file_upload_insert_guard_649e1632\" on \"FileUpload\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "file_upload_insert_guard_649e1632",
+        "table": "FileUpload"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"file_upload_insert_guard_649e1632\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FileUpload",
+          "file_upload_insert_guard_649e1632"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"file_upload_insert_guard_649e1632\"",
+        "sql": "CREATE POLICY \"file_upload_insert_guard_649e1632\" ON \"public\".\"FileUpload\" AS RESTRICTIVE FOR INSERT TO authenticated WITH CHECK ((current_setting('learnly.api_write', true) = '1'))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"file_upload_insert_guard_649e1632\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FileUpload",
+          "file_upload_insert_guard_649e1632"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.FileUpload.file_upload_select_own_5472d21c",
+    "label": "Create RLS policy \"file_upload_select_own_5472d21c\" on \"FileUpload\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "file_upload_select_own_5472d21c",
+        "table": "FileUpload"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"file_upload_select_own_5472d21c\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FileUpload",
+          "file_upload_select_own_5472d21c"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"file_upload_select_own_5472d21c\"",
+        "sql": "CREATE POLICY \"file_upload_select_own_5472d21c\" ON \"public\".\"FileUpload\" AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text)))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"file_upload_select_own_5472d21c\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FileUpload",
+          "file_upload_select_own_5472d21c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.FileUpload.file_upload_update_api_own_e13f9bb0",
+    "label": "Create RLS policy \"file_upload_update_api_own_e13f9bb0\" on \"FileUpload\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "file_upload_update_api_own_e13f9bb0",
+        "table": "FileUpload"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"file_upload_update_api_own_e13f9bb0\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FileUpload",
+          "file_upload_update_api_own_e13f9bb0"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"file_upload_update_api_own_e13f9bb0\"",
+        "sql": "CREATE POLICY \"file_upload_update_api_own_e13f9bb0\" ON \"public\".\"FileUpload\" AS PERMISSIVE FOR UPDATE TO authenticated USING ((EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))) WITH CHECK ((EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text)))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"file_upload_update_api_own_e13f9bb0\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FileUpload",
+          "file_upload_update_api_own_e13f9bb0"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.FileUpload.file_upload_update_guard_cd84f83e",
+    "label": "Create RLS policy \"file_upload_update_guard_cd84f83e\" on \"FileUpload\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "file_upload_update_guard_cd84f83e",
+        "table": "FileUpload"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"file_upload_update_guard_cd84f83e\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FileUpload",
+          "file_upload_update_guard_cd84f83e"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"file_upload_update_guard_cd84f83e\"",
+        "sql": "CREATE POLICY \"file_upload_update_guard_cd84f83e\" ON \"public\".\"FileUpload\" AS RESTRICTIVE FOR UPDATE TO authenticated USING ((current_setting('learnly.api_write', true) = '1')) WITH CHECK ((current_setting('learnly.api_write', true) = '1'))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"file_upload_update_guard_cd84f83e\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FileUpload",
+          "file_upload_update_guard_cd84f83e"
+        ]
+      }
+    ]
+  }
+]

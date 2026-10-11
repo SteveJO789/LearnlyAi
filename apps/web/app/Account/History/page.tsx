@@ -7,14 +7,15 @@ import AccountSidebar from "../components/AccountSidebar"; // นำเข้า
 import SiteHeader from "../../components/SiteHeader";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
 import { listLearningSessions, type LearningSessionSummary } from "../../../lib/learning-sessions";
+import { getLearningProgress, type LearningProgressDto } from "../../../lib/assessments";
+import { assessmentHistory, historyTab, inHistoryDateRange } from "../../../lib/history";
+import { AssessmentHistory } from "../../components/assessment-history";
+import RequireAuth from "../../components/require-auth";
+import { FileHistoryCards, FileHistoryDetails } from "../../components/file-history";
+import { listFileHistory, type FileHistoryItem } from "../../../lib/file-materials";
+import { UploadHistory } from "../../components/upload-history";
+import { useFeatures } from "../../../lib/features";
 
-type TabType = "Chat" | "Lessons" | "Uploaded Files" | "Test Results";
-
-interface FileItem {
-  id: number;
-  name: string;
-  date: string;
-}
 
 interface ChatItem {
   id: string;
@@ -23,53 +24,76 @@ interface ChatItem {
   date: string;
 }
 
-interface TestResultItem {
-  id: number;
-  title: string;
-  imageUrl: string;
-  pretestScore: number;
-  posttestScore: number;
-  date: string;
-}
-
 function HistoryContent() {
-  const { t } = useLanguage();
+  const features = useFeatures();
+  const { t, language } = useLanguage();
   const searchParams = useSearchParams();
-  const initialTab = searchParams.get("tab") as TabType | null;
-
-  const [activeTab, setActiveTab] = useState<TabType | null>(initialTab);
-  const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
+  const activeTab = historyTab(searchParams.get("tab"));
+  const [selectedFile, setSelectedFile] = useState<FileHistoryItem | null>(null);
+  const [files, setFiles] = useState<FileHistoryItem[]>([]);
+  const [filesLoading, setFilesLoading] = useState(activeTab === "Uploaded Files");
+  const [filesError, setFilesError] = useState<string | null>(null);
+  const [nextFileCursor, setNextFileCursor] = useState<string | null>(null);
+  const [fileCursor, setFileCursor] = useState("");
+  const [fileRetry, setFileRetry] = useState(0);
 
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
-  useEffect(() => {
-    const tabParam = searchParams.get("tab") as TabType | null;
-    setActiveTab(tabParam);
-  }, [searchParams]);
-
   const [sessionHistory, setSessionHistory] = useState<LearningSessionSummary[]>([]);
   const [historyError, setHistoryError] = useState<string | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [retry, setRetry] = useState(0);
+  const [comparisons, setComparisons] = useState<LearningProgressDto["comparisons"]>([]);
+  const [resultsLoading, setResultsLoading] = useState(activeTab === "Test Results");
+  const [resultsError, setResultsError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (activeTab === "Uploaded Files") return;
+    let active = true;
+    setHistoryLoading(true); setHistoryError(null);
     listLearningSessions()
-      .then(setSessionHistory)
+      .then(rows => { if (active) setSessionHistory(rows); })
       .catch((loadError) => {
-        setHistoryError(
+        if (active) setHistoryError(
           loadError instanceof Error ? loadError.message : "Could not load history.",
         );
-      });
-  }, []);
+      }).finally(() => { if (active) setHistoryLoading(false); });
+    return () => { active = false; };
+  }, [retry, activeTab]);
 
-  // These tabs intentionally show no fabricated data until their APIs exist.
-  const filesHistory: FileItem[] = [];
-  const testResultsHistory: TestResultItem[] = [];
+  useEffect(() => {
+    if (activeTab !== "Test Results" || !features.assessments) return;
+    let active = true;
+    setResultsLoading(true); setResultsError(null);
+    getLearningProgress().then(progress => { if (active) setComparisons(progress.comparisons); })
+      .catch(cause => { if (active) setResultsError(cause instanceof Error ? cause.message : "Could not load results."); })
+      .finally(() => { if (active) setResultsLoading(false); });
+    return () => { active = false; };
+  }, [activeTab, retry, features.assessments]);
+
+  useEffect(() => {
+    setFileCursor(""); setFiles([]); setNextFileCursor(null);
+  }, [startDate, endDate]);
+  useEffect(() => {
+    if (activeTab !== "Uploaded Files" || !features.fileUploads) return;
+    const controller = new AbortController();
+    setFilesLoading(true); setFilesError(null);
+    listFileHistory({ after: fileCursor, from: startDate, to: endDate }, controller.signal)
+      .then(page => { if (!controller.signal.aborted) {
+        setFiles(previous => fileCursor ? [...previous, ...page.items.filter(item => !previous.some(loaded => loaded.id === item.id))] : page.items);
+        setNextFileCursor(page.nextCursor);
+      } }).catch(cause => { if (!controller.signal.aborted) setFilesError(cause instanceof Error ? cause.message : t("history.fileError")); })
+      .finally(() => { if (!controller.signal.aborted) setFilesLoading(false); });
+    return () => controller.abort();
+  }, [activeTab, fileCursor, startDate, endDate, fileRetry, t, features.fileUploads]);
+  const testResultsHistory = assessmentHistory(sessionHistory, comparisons);
 
   const chatHistory: ChatItem[] = sessionHistory.map((session) => ({
     id: session.id,
     title: session.title,
-    lastMessage: `${session.stage} · ${session.progressPercent}% completed`,
+    lastMessage: `${t(`chat.stage.${session.stage}`)} · ${session.progressPercent}${t("history.percentCompleted")}`,
     date: session.updatedAt.slice(0, 10),
   }));
 
@@ -82,19 +106,16 @@ function HistoryContent() {
     return true;
   };
 
-  const filteredFiles = filesHistory.filter((item) => filterByDate(item.date));
   const filteredChats = chatHistory.filter((item) => filterByDate(item.date));
   const filteredLessons = lessonsHistory.filter((item) =>
     filterByDate(item.updatedAt.slice(0, 10))
   );
-  const filteredTestResults = testResultsHistory.filter((item) =>
-    filterByDate(item.date)
-  );
+  const filteredTestResults = testResultsHistory.filter(item => inHistoryDateRange(item.updatedAt, startDate, endDate));
 
   const formatDateDisplay = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString("en-US", {
+      return date.toLocaleDateString(language === "th" ? "th-TH" : "en-US", {
         month: "short",
         day: "numeric",
         year: "numeric",
@@ -108,34 +129,8 @@ function HistoryContent() {
     <div className="min-h-screen bg-transparent text-text relative transition-colors duration-200">
       {/* Modal เปิดดูไฟล์ */}
       {selectedFile && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6">
-          <div className="relative flex h-[85vh] w-[90vw] max-w-4xl flex-col items-center justify-center rounded-3xl bg-surface p-8 shadow-2xl">
-            <button
-              onClick={() => setSelectedFile(null)}
-              className="absolute right-6 top-6 rounded-xl bg-secondary hover:opacity-80 px-6 py-2.5 text-sm font-medium text-text transition-all"
-            >
-              {t("history.back")}
-            </button>
-            <div className="flex flex-col items-center justify-center gap-6">
-              <svg
-                className="h-48 w-48 text-text"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002-2v-2"
-                />
-              </svg>
-              <p className="text-xl font-medium">
-                {selectedFile.name}
-              </p>
-            </div>
-          </div>
-        </div>
+        <FileHistoryDetails key={selectedFile.id} file={selectedFile} language={language} onClose={() => setSelectedFile(null)}
+          onReviewed={file => { setSelectedFile(file); setFiles(previous => previous.map(item => item.id === file.id ? file : item)); }} />
       )}
 
       <SiteHeader
@@ -147,24 +142,26 @@ function HistoryContent() {
       />
 
       {/* Main Content */}
-      <main className="px-10 py-4 max-w-[1400px] mx-auto">
-        <h1 className="mb-8 !text-[48px] font-bold tracking-tight whitespace-nowrap">
-          {t("settings.pageTitle")}
+      <main className="px-4 py-4 max-w-[1400px] mx-auto sm:px-10">
+        <h1 className="mb-8 text-3xl font-bold tracking-tight sm:text-5xl">
+          {t("history.title")}
         </h1>
         <br />
 
-        <div className="flex gap-8 items-start">
+        <div className="flex flex-col gap-8 items-start lg:flex-row">
           {/* เรียกใช้งาน Sidebar กลาง (กำหนดให้ activeSection เป็น History) */}
           <AccountSidebar activeSection="History" activeTab={activeTab} />
 
           {/* Right Main Display Panel */}
-          <section className="flex-1 flex flex-col gap-4">
+          <section className="min-w-0 w-full flex-1 flex flex-col gap-4">
             {/* Filter Date Picker Bar */}
             {activeTab !== null ? (
               <div className="relative self-start">
                 <button
                   type="button"
                   onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+                  aria-expanded={isDatePickerOpen}
+                  aria-controls="history-date-picker"
                   className="flex items-center gap-4 bg-secondary/80 border border-surface-border rounded-xl px-5 py-2.5 text-sm transition-all hover:bg-secondary"
                 >
                   <span className="text-muted font-medium">{t("history.dateLabel")}</span>
@@ -176,13 +173,14 @@ function HistoryContent() {
                 </button>
 
                 {isDatePickerOpen && (
-                  <div className="absolute left-0 top-12 z-20 w-72 rounded-2xl border border-surface-border bg-surface p-4 shadow-xl flex flex-col gap-3 text-xs">
+                  <div id="history-date-picker" className="absolute left-0 top-12 z-20 w-72 rounded-2xl border border-surface-border bg-surface p-4 shadow-xl flex flex-col gap-3 text-xs">
                     <p className="font-medium">{t("history.selectDateRange")}</p>
 
                     <div className="flex flex-col gap-1">
-                      <label className="text-muted">{t("history.from")}</label>
+                      <label htmlFor="history-date-from" className="text-muted">{t("history.from")}</label>
                       <input
                         type="date"
+                        id="history-date-from"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
                         className="rounded-lg border border-surface-border bg-transparent p-2 outline-none focus:border-primary text-xs"
@@ -190,9 +188,10 @@ function HistoryContent() {
                     </div>
 
                     <div className="flex flex-col gap-1">
-                      <label className="text-muted">{t("history.to")}</label>
+                      <label htmlFor="history-date-to" className="text-muted">{t("history.to")}</label>
                       <input
                         type="date"
+                        id="history-date-to"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
                         className="rounded-lg border border-surface-border bg-transparent p-2 outline-none focus:border-primary text-xs"
@@ -227,22 +226,16 @@ function HistoryContent() {
 
             {/* Container เนื้อหาหลักของ History */}
             <div className="rounded-2xl border border-surface-border p-6 min-h-[650px] bg-surface flex flex-col justify-start">
-              {historyError && (
-                <p className="mb-4 rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
-                  {historyError}
-                </p>
-              )}
-              {/* หน้า Default: HISTORY */}
-              {activeTab === null && (
-                <div className="flex-1 min-h-[550px] flex items-center justify-center">
-                  <h2 className="text-4xl font-bold tracking-widest text-muted uppercase">
-                    {t("history.title")}
-                  </h2>
+              {activeTab !== "Uploaded Files" && (historyError || (activeTab === "Test Results" && resultsError)) && (
+                <div role="alert" className="mb-4 rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
+                  <p>{historyError || resultsError}</p>
+                  <button type="button" onClick={() => setRetry(value => value + 1)} disabled={historyLoading || (activeTab === "Test Results" && resultsLoading)} className="mt-2 rounded-lg border border-danger/40 px-4 py-2 disabled:opacity-50">{t("history.retry")}</button>
                 </div>
               )}
-
+              {activeTab !== "Uploaded Files" && (historyLoading || (activeTab === "Test Results" && features.assessments && resultsLoading)) ? <p role="status" className="py-12 text-center text-muted">{t("history.loading")}</p> : null}
+              {((activeTab === "Uploaded Files" && !features.fileUploads) || (activeTab === "Test Results" && !features.assessments)) && <p role="status" className="py-12 text-center text-muted">{language === "th" ? "ฟีเจอร์นี้ยังไม่เปิดใช้งาน ประวัติบทเรียนยังดูได้ตามปกติ" : "This feature is not enabled. Lesson history remains available."}</p>}
               {/* แท็บ Chat */}
-              {activeTab === "Chat" && (
+              {activeTab === "Chat" && !historyLoading && !historyError && (
                 <div className="flex flex-col gap-3 w-full">
                   {filteredChats.length === 0 ? (
                     <p className="text-muted text-sm text-center py-12">{t("history.noChats")}</p>
@@ -250,7 +243,7 @@ function HistoryContent() {
                     filteredChats.map((chat) => (
                       <Link
                         key={chat.id}
-                        href={`/Chat/${chat.id}`}
+                        href={`/Chat/${encodeURIComponent(chat.id)}`}
                         className="rounded-xl border border-surface-border p-4 bg-background hover:border-primary/60 transition-all cursor-pointer flex flex-col gap-2"
                       >
                         <div className="flex items-center gap-2">
@@ -268,20 +261,20 @@ function HistoryContent() {
               )}
 
               {/* แท็บ Lessons */}
-              {activeTab === "Lessons" && (
-                <div className="grid grid-cols-3 gap-6 w-full items-start">
+              {activeTab === "Lessons" && !historyLoading && !historyError && (
+                <div className="grid grid-cols-1 gap-6 w-full items-start sm:grid-cols-2 xl:grid-cols-3">
                   {filteredLessons.length === 0 ? (
                     <p className="text-muted text-sm col-span-3 text-center py-12">{t("history.noLessons")}</p>
                   ) : (
                     filteredLessons.map((lesson) => (
                       <Link
                         key={lesson.id}
-                        href={`/Lessons/${lesson.id}`}
+                        href={`/Lessons/${encodeURIComponent(lesson.id)}`}
                         className="rounded-2xl border border-surface-border p-4 bg-background flex flex-col gap-3 hover:border-primary/60 transition-all cursor-pointer"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <h3 className="font-semibold text-sm">{lesson.title}</h3>
-                          <span className="text-[10px] text-muted">{lesson.stage}</span>
+                          <span className="text-[10px] text-muted">{t(`chat.stage.${lesson.stage}`)}</span>
                         </div>
                         <p className="text-[10px] text-muted">
                           {formatDateDisplay(lesson.updatedAt)}
@@ -304,94 +297,23 @@ function HistoryContent() {
               )}
 
               {/* แท็บ Uploaded Files */}
-              {activeTab === "Uploaded Files" && (
-                <div className="grid grid-cols-3 gap-4 w-full items-start">
-                  {filteredFiles.length === 0 ? (
-                    <p className="text-muted text-sm col-span-3 text-center py-12">{t("history.noFiles")}</p>
-                  ) : (
-                    filteredFiles.map((file) => (
-                      <button
-                        key={file.id}
-                        type="button"
-                        onClick={() => setSelectedFile(file)}
-                        className="flex flex-col items-center justify-center rounded-xl border border-surface-border p-4 hover:border-primary/60 transition-all text-center group cursor-pointer bg-background"
-                      >
-                        <div className="mb-3">
-                          <svg
-                            className="h-10 w-10 text-muted group-hover:text-primary transition-colors"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1.2}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                          </svg>
-                        </div>
-                        <div className="w-full overflow-hidden">
-                          <p className="font-semibold text-xs truncate">
-                            {file.name}
-                          </p>
-                          <p className="text-[10px] text-muted mt-1">
-                            {formatDateDisplay(file.date)}
-                          </p>
-                        </div>
-                      </button>
-                    ))
-                  )}
+              {activeTab === "Uploaded Files" && features.fileUploads && (
+                <div className="flex flex-col gap-4">
+                  <UploadHistory language={language} from={startDate} to={endDate} onChanged={() => { setFileCursor(""); setFileRetry(value => value + 1); }} />
+                  {filesError ? <div role="alert" className="rounded-xl border border-danger/40 p-3 text-sm text-danger">
+                    <p>{filesError}</p><button type="button" disabled={filesLoading} onClick={() => setFileRetry(value => value + 1)}
+                      className="mt-2 rounded-lg border border-danger/40 px-4 py-2 disabled:opacity-50">{t("history.retry")}</button>
+                  </div> : null}
+                  {filesLoading ? <p role="status" className="py-6 text-center text-muted">{t("history.loading")}</p> : null}
+                  {(!filesError && !filesLoading) || files.length ? <FileHistoryCards items={files} language={language} onSelect={setSelectedFile} /> : null}
+                  {nextFileCursor ? <button type="button" disabled={filesLoading} onClick={() => setFileCursor(nextFileCursor)}
+                    className="self-start rounded-xl border border-surface-border px-4 py-2 text-sm disabled:opacity-50">{t("history.moreFiles")}</button> : null}
                 </div>
               )}
 
               {/* แท็บ Test Results */}
-              {activeTab === "Test Results" && (
-                <div className="grid grid-cols-3 gap-6 w-full items-start">
-                  {filteredTestResults.length === 0 ? (
-                    <p className="text-muted text-sm col-span-3 text-center py-12">{t("history.noTestResults")}</p>
-                  ) : (
-                    filteredTestResults.map((test) => (
-                      <div
-                        key={test.id}
-                        className="rounded-2xl border border-surface-border p-4 bg-background flex flex-col gap-3 hover:border-primary/60 transition-all cursor-pointer"
-                      >
-                        <h3 className="font-semibold text-sm">{test.title}</h3>
-                        <div className="w-full h-36 rounded-xl overflow-hidden bg-secondary">
-                          <img
-                            src={test.imageUrl}
-                            alt={test.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                          <p className="text-[11px] text-muted font-medium">
-                            {t("history.pretest")} {test.pretestScore}%
-                          </p>
-                          <div className="w-full h-2.5 bg-secondary rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-primary rounded-full"
-                              style={{ width: `${test.pretestScore}%` }}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                          <p className="text-[11px] text-muted font-medium">
-                            {t("history.posttest")} {test.posttestScore}%
-                          </p>
-                          <div className="w-full h-2.5 bg-secondary rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-primary rounded-full"
-                              style={{ width: `${test.posttestScore}%` }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
+              {activeTab === "Test Results" && features.assessments && !historyLoading && !resultsLoading && !resultsError && (
+                <AssessmentHistory items={filteredTestResults} language={language} />
               )}
             </div>
           </section>
@@ -403,8 +325,8 @@ function HistoryContent() {
 
 export default function HistoryPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <HistoryContent />
+    <Suspense fallback={<div role="status">Loading… / กำลังโหลด…</div>}>
+      <RequireAuth><HistoryContent /></RequireAuth>
     </Suspense>
   );
 }

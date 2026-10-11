@@ -167,7 +167,8 @@ class PrismaMessageRepository implements MessageRepository {
 
     const rows = await readPersistedMessages(this.options.client, sessionId);
 
-    return rows.map(toLearningMessage);
+    // Operational SYSTEM events stay in persisted history but are never tutoring context.
+    return rows.filter(row => row.role !== "SYSTEM").map(toLearningMessage);
   }
 }
 

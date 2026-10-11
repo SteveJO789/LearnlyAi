@@ -1,0 +1,108 @@
+[
+  {
+    "id": "security.grant-material-review-metadata",
+    "label": "Allow only RLS-protected learner metadata review",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "execute": [
+      {
+        "sql": "GRANT UPDATE (metadata) ON TABLE public.\"SourceMaterial\" TO authenticated",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "sql": "SELECT has_column_privilege('authenticated', 'public.\"SourceMaterial\"', 'metadata', 'UPDATE') AS result",
+        "params": []
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.SourceMaterial.source_material_review_update_guard_cd84f83e",
+    "label": "Create RLS policy \"source_material_review_update_guard_cd84f83e\" on \"SourceMaterial\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "source_material_review_update_guard_cd84f83e",
+        "table": "SourceMaterial"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"source_material_review_update_guard_cd84f83e\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_review_update_guard_cd84f83e"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"source_material_review_update_guard_cd84f83e\"",
+        "sql": "CREATE POLICY \"source_material_review_update_guard_cd84f83e\" ON \"public\".\"SourceMaterial\" AS RESTRICTIVE FOR UPDATE TO authenticated USING ((current_setting('learnly.api_write', true) = '1')) WITH CHECK ((current_setting('learnly.api_write', true) = '1'))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"source_material_review_update_guard_cd84f83e\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_review_update_guard_cd84f83e"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.SourceMaterial.source_material_review_update_own_c072fcc3",
+    "label": "Create RLS policy \"source_material_review_update_own_c072fcc3\" on \"SourceMaterial\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "source_material_review_update_own_c072fcc3",
+        "table": "SourceMaterial"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"source_material_review_update_own_c072fcc3\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_review_update_own_c072fcc3"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"source_material_review_update_own_c072fcc3\"",
+        "sql": "CREATE POLICY \"source_material_review_update_own_c072fcc3\" ON \"public\".\"SourceMaterial\" AS PERMISSIVE FOR UPDATE TO authenticated USING ((\"status\" = 'READY' AND \"type\" IN ('PDF', 'IMAGE') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text AND s.\"lifecycleState\" = 'ACTIVE' AND s.\"stage\" = 'EXPLAIN' AND s.\"version\" = 0 AND s.\"state\" IN ('INPUT', 'PRE_TEST')))) WITH CHECK ((\"status\" = 'READY' AND \"type\" IN ('PDF', 'IMAGE') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text AND s.\"lifecycleState\" = 'ACTIVE' AND s.\"stage\" = 'EXPLAIN' AND s.\"version\" = 0 AND s.\"state\" IN ('INPUT', 'PRE_TEST'))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"source_material_review_update_own_c072fcc3\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_review_update_own_c072fcc3"
+        ]
+      }
+    ]
+  }
+]

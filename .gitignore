@@ -33,3 +33,7 @@ uploads/
 .devin/
 .verification-results/
 .web-test-build/
+
+# Generated, checksum-verified OCR language assets (prepare explicitly before OCR builds)
+services/api/runtime-ocr/
+services/api/runtime-workers/

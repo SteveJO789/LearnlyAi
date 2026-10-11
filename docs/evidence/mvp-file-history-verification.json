@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-11",
+  "status": "OWNED_READY_FILE_HISTORY_REVIEW_DOWNLOAD_IMPLEMENTED_EXTERNAL_VERIFICATION_PENDING",
+  "implemented": ["verified-auth aggregate file collection with legacy app-ID ownership, RLS and bound cursor/date filters", "25-item pagination with 26-row lookahead and bounded text projection, no storage keys/buckets/receipts", "Thai-day inclusive date range and explicit unknown legacy upload time", "real History file cards/details/review/download/learning links preserving existing layout", "current server-enforced initial-session review gate; corrections never alter original bytes/hash/trusted status", "bounded frontend binary stream with MIME/size/empty rejection", "dialog labels/focus handling/Escape/Tab and abort/deadline; loading/empty/error/retry/load-more"],
+  "tests": {"api": {"passed": 322, "failed": 0, "skipped": 0}, "web": {"passed": 27, "failed": 0}, "persistentOffline": {"passed": 14, "failed": 0}, "apiBuildAndTypecheck": "PASS", "webProductionBuildAndTypecheck": "PASS after develop4c2e0a7 merge", "scope": "actual compiled Express/auth normalizer/query/client/React rendering with explicit offline Auth/DB/HTTP response injections; not browser/live services"},
+  "preparedDatabaseVerification": {"script": "services/api/scripts/render-file-history-verification.mjs", "source": "current canonical fresh migration fixture plus actual compiled Prisma file-history query", "groups": 6, "covers": ["owner/peer RLS isolation", "legacy app-id and unknown upload date", "Thai-date filtering", "cursor/page bound", "confirmed learning text and closed review gate"], "execution": "NOT_EXECUTED", "blocker": "existing automatic approval-review usage quota failure; no bypass attempted"},
+  "failuresResolved": ["new HTTP fixture lacked explicit synthetic Auth config and correctly returned503; test setup fixed", "date rendering used numeric format instead of existing short-month style; actual UI aligned", "file errors no longer render a fabricated empty result, independent tab loading avoids session error interference"],
+  "notVerified": ["actual browser/mobile/keyboard events", "current file collection SQL on real PostgreSQL", "live Auth/Prisma/private Storage/download journey", "pending/cancelled receipt recovery/cleanup UI and retention", "production migrations and authorized deployment smoke"],
+  "developIntegrated": "4c2e0a7; teammate global bilingual fonts/Home design retained",
+  "productionSchemaOrUserDataChanged": false,
+  "additionalPaidCalls": 0,
+  "cdPolicy": "ONLY develop unchanged"
+}

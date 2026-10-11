@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-09",
+  "environment": "LearnlyAI Supabase PostgreSQL 17, isolated empty fixture clones in one BEGIN/ROLLBACK",
+  "scope": "Recovery SQL and canonical RLS policies; no public migrations or learner records changed",
+  "script": "services/api/scripts/verify-session-recovery-rls.mjs",
+  "checks": ["owned recovery", "API-write context required", "cross-user recovery and event denial", "stale version rejected", "stage and progress preserved", "event insert failure rolls back state change"],
+  "result": "PASS",
+  "fixture_removed": true,
+  "limitations": "Direct SQL/RLS checks, not a real OAuth/browser or full API-to-database recovery test"
+}

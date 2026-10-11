@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-10",
+  "status": "LATEST_DEVELOP_INTEGRATED_LOCAL_CHECKS_PASS",
+  "develop": "875575f1dca5950f4d454b870c89d5521564814c",
+  "mainAtFetch": "d1f2b1b",
+  "integrationMergeLocal": "75ca45378d26006d93fdfdf438a156db93153af1",
+  "merge": "Non-force integration merge of latest develop; no conflicts. Preserve teammate auth/brand/loading/mobile layouts and MVP history/recovery/file/vector changes.",
+  "reviewedMergeFiles": ["apps/web/app/Account/History/page.tsx", "apps/web/app/Chat/[sessionId]/learning-session.tsx", "services/api/package.json"],
+  "apiCompile": "PASS",
+  "offlineApi": {"passed": 278, "failed": 0},
+  "frontend": {"passed": 20, "failed": 0, "typecheck": "PASS", "productionBuild": "PASS; 19 reported routes"},
+  "knowledgeHotfix": {"passed": 4, "failed": 0, "command": "VERCEL=1 NODE_ENV=production node scripts/verify-runtime-knowledge.mjs", "scope": "Teammate wrapper intentionally removes deployment flag in its isolated offline test subprocess; no runtime authentication/route policy change"},
+  "freshSourceExport": {"apiPassed": 278, "apiFailed": 0, "relocatedRuntimePassed": 4, "knowledgeFiles": 9, "deterministicBytes": true, "scope": "Copied locked existing dependencies; not fresh npm installation or OCR packaging proof", "temporaryExportRemoved": true},
+  "developDeploymentStatuses": {"source": "GitHub combined status at exact develop SHA", "web": "success", "api": "success", "apiUrl": "https://vercel.com/webdev-bd06/learnly-ai/7JdBtG2RzLR7Khseo6gTeQ5oh5kR", "scope": "Build/deployment checks for develop; no real browser/HTTP/authenticated smoke or integration-branch deployment claim", "inspectionBlocker": "Vercel connector get_deployment returned Unknown tool; no private runtime metadata obtained"},
+  "cdPolicy": "ONLY develop; workflow files unchanged relative to latest develop",
+  "notVerified": ["Browser/mobile/keyboard design QA", "Actual OAuth and end-to-end learning", "Real production dependency readiness and deployed smoke", "Current integration branch deployment", "PDF/image decoder/OCR and canonical pgvector runtime", "Production database migration compatibility"],
+  "additionalPaidCalls": 0,
+  "autoMergedPullRequest": false,
+  "productionSchemaChanged": false
+}

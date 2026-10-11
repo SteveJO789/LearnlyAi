@@ -20,15 +20,16 @@ const STAGE_PROMPTS: Record<LearningStage, string> = {
 
 export function buildTutorPrompt(context: TutorContext): ModelRequest {
   const { previousMessages, ...task } = context;
+  const teachingPolicy = selectAdaptivePolicy(context);
   return {
     messages: [
       {
         role: "system",
-        content: `${TUTOR_SYSTEM_PROMPT}\n\n${STAGE_PROMPTS[context.stage]}\n\n${adaptiveInstructions(selectAdaptivePolicy(context))}\n\nTutor Output schema:\n${JSON.stringify(getTutorOutputSchema())}`,
+        content: `${TUTOR_SYSTEM_PROMPT}\n\n${STAGE_PROMPTS[context.stage]}\n\n${adaptiveInstructions(teachingPolicy)}\n\nTutor Output schema:\n${JSON.stringify(getTutorOutputSchema())}\n\nThe final task's teachingPolicy is server-selected for THIS turn. Its language and mode override previous assistant language/style and stage prose instructions. For ACKNOWLEDGE, give only a brief acknowledgement in that language; no recap of answers, even if history is in another language. Do not echo teachingPolicy into Tutor Output.`,
       },
       ...previousMessages,
       // JSON keeps source text/metadata in task data; never interpolate it into the system message.
-      { role: "user", content: JSON.stringify(task) },
+      { role: "user", content: JSON.stringify({ ...task, teachingPolicy }) },
     ],
     temperature: 0.2,
     maxOutputTokens: 2048,
