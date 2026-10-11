@@ -537,7 +537,7 @@ function SettingContent() {
                         <div className="wizard-sparkles">✦ ˚｡⋆ ✧ ˚｡⋆ ✦</div>
                         <div className="tiny-wizard tiny-wizard-crying">
                           <div className="wizard-hat"><i /></div>
-                          <div className="wizard-face"><i className="wizard-eye eye-left" /><i className="wizard-eye eye-right" /><i className="wizard-blush blush-left" /><i className="wizard-blush blush-right" /><span className="wizard-tears">✦ ✧</span></div>
+                          <div className="wizard-face"><i className="wizard-eye eye-left" /><i className="wizard-eye eye-right" /><i className="wizard-blush blush-left" /><i className="wizard-blush blush-right" /><span className="wizard-tear-stream tear-left"><i>✦</i><i>✧</i><i>✦</i></span><span className="wizard-tear-stream tear-right"><i>✧</i><i>✦</i><i>✧</i></span></div>
                           <div className="wizard-beard" />
                           <div className="wizard-body"><i className="wizard-star">✦</i></div>
                           <div className="wizard-feet"><i /><i /></div>
@@ -567,7 +567,22 @@ function SettingContent() {
                       .eye-left { left:15px; } .eye-right { right:15px; }
                       .wizard-blush { position:absolute; top:29px; width:10px; height:5px; border-radius:50%; background:#f28d9e; opacity:.7; }
                       .blush-left { left:6px; } .blush-right { right:6px; }
-                      .wizard-tears { position:absolute; color:#58b9ff; top:25px; left:12px; letter-spacing:13px; font-size:12px; }
+                      .wizard-tear-stream { position:absolute; z-index:5; top:25px; display:block; width:12px; height:39px; pointer-events:none; }
+                      .tear-left { left:12px; }
+                      .tear-right { right:12px; }
+                      .wizard-tear-stream i { position:absolute; left:0; top:0; display:block; font-style:normal; font-size:9px; line-height:1; color:#ffe99b; text-shadow:0 0 5px #fff4ba, 0 0 10px #bba8ff; opacity:0; animation: star-tears 1.05s ease-in infinite; }
+                      .wizard-tear-stream i:nth-child(2) { animation-delay:.35s; left:3px; font-size:7px; }
+                      .wizard-tear-stream i:nth-child(3) { animation-delay:.7s; left:-1px; font-size:8px; }
+                      .tear-right i { animation-delay:.18s; }
+                      .tear-right i:nth-child(2) { animation-delay:.53s; }
+                      .tear-right i:nth-child(3) { animation-delay:.88s; }
+                      @keyframes star-tears {
+                        0% { opacity:0; transform:translate(0,-2px) scale(.45) rotate(-12deg); }
+                        12% { opacity:1; transform:translate(-2px,4px) scale(1) rotate(0); }
+                        62% { opacity:.95; transform:translate(3px,22px) scale(.82) rotate(24deg); }
+                        88% { opacity:.35; transform:translate(7px,32px) scale(.5) rotate(45deg); filter:blur(.4px); }
+                        100% { opacity:0; transform:translate(9px,39px) scale(.15) rotate(70deg); filter:blur(1.5px); }
+                      }
                       .wizard-beard { position:absolute; z-index:4; left:37px; top:68px; width:37px; height:34px; background:linear-gradient(145deg,#fff8ed,#d9d0e9); clip-path:polygon(0 0,100% 0,80% 65%,50% 100%,20% 65%); border-radius:8px; }
                       .wizard-body { position:absolute; z-index:2; left:22px; top:79px; width:68px; height:65px; border-radius:27px 27px 20px 20px; background:linear-gradient(120deg,#a28bff,#7560d7 72%,#5a48b7); }
                       .wizard-star { position:absolute; top:17px; left:27px; color:#ffe99b; font-style:normal; font-size:14px; }
