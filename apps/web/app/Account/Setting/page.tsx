@@ -168,6 +168,8 @@ function SettingContent() {
                 onClick={() => {
                   setDeleteConfirmOpen(false);
                   setDeleteConfirmText("");
+                  setMascotPosition(null);
+                  setIsDeletingAccount(false);
                 }}
                 className="rounded-xl border border-surface-border px-5 py-2.5 text-sm font-medium text-muted hover:bg-secondary transition-all"
               >
@@ -523,7 +525,7 @@ function SettingContent() {
                           left: buttonEscapeStep === 1 ? "42vw" : buttonEscapeStep === 2 ? "60vw" : buttonEscapeStep === 3 ? "78vw" : "72vw",
                           top: buttonEscapeStep === 1 ? "76vh" : buttonEscapeStep === 2 ? "70vh" : buttonEscapeStep === 3 ? "84vh" : "24vh",
                           zIndex: 70,
-                          transition: "left 1s ease-in-out, top 1s ease-in-out, transform .25s ease-out",
+                          transition: "left 1s linear, top 1s linear, transform .15s ease-out",
                           transform: buttonEscapeStep === 5 ? "scale(1.03)" : "scale(1)",
                         } : undefined}
                         className="rounded-xl bg-danger px-6 py-2.5 text-sm font-medium text-white transition-all cursor-pointer disabled:cursor-wait hover:opacity-90"
@@ -534,7 +536,7 @@ function SettingContent() {
 
                     {(mascotCrying || mascotPosition || isDeletingAccount) && (
                       <div aria-hidden="true" className={`wizard-emotion fixed z-[80] pointer-events-none ${isDeletingAccount ? "wizard-sad-loading" : ""}`} style={mascotPosition ? { left: mascotPosition.left, top: mascotPosition.top } : { left: "calc(72vw + 170px)", top: "24vh" }}>
-                        <div className="wizard-sparkles">✦ ˚｡⋆ ✧ ˚｡⋆ ✦</div>
+                        
                         <div className="tiny-wizard tiny-wizard-crying">
                           <div className="wizard-hat"><i /></div>
                           <div className="wizard-face"><i className="wizard-eye eye-left" /><i className="wizard-eye eye-right" /><i className="wizard-blush blush-left" /><i className="wizard-blush blush-right" /><span className="wizard-mouth" /></div>
@@ -549,10 +551,8 @@ function SettingContent() {
 
                     <style jsx>{`
                       .wizard-emotion { width: 100px; animation: sob-breathe 1.6s ease-in-out infinite; }
-                      .wizard-sparkles { position:absolute; top:-20px; left:-12px; width:130px; color:#ffe99b; font-size:14px; letter-spacing:2px; text-shadow:0 0 8px #fff2b3; animation: sparkle-sob .9s ease-in-out infinite alternate; white-space:nowrap; }
                       .wizard-sad-caption { position:absolute; top:76px; left:-28px; width:170px; padding:6px 9px; border-radius:10px; background:rgb(30 26 49 / .92); color:#f5dfff; font-size:11px; text-align:center; box-shadow:0 0 16px rgb(197 181 255 / .2); }
                       .wizard-sad-loading { position:fixed !important; left:auto !important; right:24px !important; top:50% !important; z-index:100 !important; }
-                      .wizard-sad-loading .wizard-sparkles { animation-duration:.55s; }
                       .tiny-wizard {
                         position: relative;
                         width: 112px;
