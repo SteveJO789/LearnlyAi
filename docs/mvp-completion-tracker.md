@@ -1,6 +1,6 @@
 # ตัวติดตามการทำ MVP ให้ครบ
 
-สถานะล่าสุด 2026-10-11: owned upload receipt recovery/explicitcancel/confirmedcleanup implement แล้ว API326/326, Web29/29, simulatedpersistent14/14/builds/typechecks/migrationintegrityPASS Canonicalf099/additivecleanupAtเตรียมSQLแต่ยังไม่executeเพราะapproval-reviewquota blocker ไม่bypass/paidcalls/productionapply ดูMilestone24/evidence รายการก่อนหน้าเป็นผล ณ milestoneเดิม
+สถานะล่าสุด 2026-10-11: realSupabase password changeแก้timer-successแล้ว Web35/35/build/typecheck/actualSDKofflineprotocolPASS BackendคงAPI326/persistent14จากCI239 ไม่เปลี่ยนlivepassword/schema/paidcalls OtherSettingsprototypesและactualAuth/browser/DB gatesยังต้องตรวจ ดูMilestone25/evidence รายการก่อนหน้าเป็นผล ณ milestoneเดิม
 
 เริ่มตรวจ 2026-10-09 จาก `origin/develop` commit `e2ddfdd7788a5d20d66b496ee2917771b6ea3021` บน branch `integration/university-mvp-20261009` ใน worktree แยก งานเดิมและ stash ไม่ถูกแก้ไข เป้าหมายยัง ACTIVE; ยังไม่ IMPLEMENTATION COMPLETE หรือ RELEASED
 
@@ -354,3 +354,12 @@ PASS = รันผ่านจริงกับ source ปัจจุบั�
 - API326/326, Web29/29, simulatedpersistent14/14, builds/typechecks/migrationintegrityPASS Coordinator/HTTP+realextractor/privateprotocol/capturedSQL/client/renderใช้offlineportsชัดเจน ยังไม่liveDB/browser/concurrencyproof [หลักฐาน](evidence/mvp-upload-recovery-verification.json)
 - Currentfresh7packages105SQLsteps194checks/adaptercleanupmarker SQLเตรียมแล้วNOT_EXECUTEDจากapproval-reviewquota blockerเดิม ไม่bypass/auto-retryผ่านtransportอื่น/paidcalls/CDนอกdevelop/deploy
 - ถัดไป: auditทุกremaining acceptance/releasegates, verificationของactualPrisma/migration/Storage/browserเมื่อทรัพยากรพร้อม และกำหนดretention/purgeที่ยังขาด ไม่ประกาศIMPLEMENTATION COMPLETE/RELEASED
+
+### Milestone 25 — password Settings เรียก Auth จริง
+
+- AuditพบpasswordChangedtoastหลังtimer1200msโดยไม่เรียกAuth เปลี่ยนเป็นRequireAuth-gated typedservice/form ตรวจcurrentpasswordกับisolatedSupabase clientไม่persist/refresh/consumeURL เทียบactorIDก่อนupdateและacceptedresult ส่งcurrent_passwordด้วย แจ้งสำเร็จหลังAuthรับเท่านั้น
+- Mainbrowserclientไม่ถูกsignin/signout/updateUser ไม่ใช้customExpresssession/admin key/DBเก็บpassword CleanupscopeLOCALเฉพาะtemporaryclient+stoprefresh Passwordไม่trim/normalize/log/persistและไม่autoRetrymutation UNKNOWNให้ตรวจผลจริงก่อน
+- Web35/35, password6/6/typecheck/productionbuildPASS ActualinstalledSDK/factory sign-in→userupdate→local-logoutผ่านofflinefetch/JWTfixture (ไม่liveJWTproof) พบSDKมีnullablePKCEfieldsแล้วปรับfixtureตามsourceโดยไม่ลดcredential/IDchecks [หลักฐาน](evidence/mvp-password-change-verification.json)
+- ตรวจwrongcurrent/guest/identitymismatch/Google-linkedpassword/weak-same-rate-reauth/unknowntransport/lookupdeadline และlabelautocomplete/noinitialfakesuccess ไม่livepassword/email/paidcall Sourcebackendไม่มีdiff ไม่localrerunAPI326/persistent14ซึ่งCI239ก่อนหน้านี้ผ่าน
+- ActualAuth/projectsessionpolicy/browser/E2Eยังpending OtherSettingslearningprefs/privacy/deleteAccountและHelpยังต้องauditตามscopeจริง ก่อนสรุปMVPcomplete SQLapproval-reviewquota blocker/productionmigration/rootreleasegatesเดิมคงอยู่ ไม่bypass/CDนอกdevelop/auto-merge
+- ถัดไป: actualremaining-criteria auditและแก้preferences/privacy/deleteAccountที่ยังแสดงความสำเร็จแต่ไม่ทำงานจริง พร้อมแยกexternalverificationgatesชัดเจน

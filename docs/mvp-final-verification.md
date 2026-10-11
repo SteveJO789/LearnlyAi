@@ -2,6 +2,8 @@
 
 อัปเดต 2026-10-10: **กำลังทำ — ยังไม่ IMPLEMENTATION COMPLETE และยังไม่ RELEASED**
 
+2026-10-11 ล่าสุด: แก้ Settings password success timer เป็น realSupabaseAuth/isolated verified actor/current_password/local-session cleanup แล้ว Web **35/35**/typecheck/productionbuild และactualSDKofflineprotocolPASS ไม่เปลี่ยนpasswordlive ไม่ส่งemail/paidcall บัญชีGoogle/Email/session policyจริงยังต้องverified OtherSettingspreferences/privacy/deleteAccountยังprototype [หลักฐาน](evidence/mvp-password-change-verification.json)
+
 2026-10-11 ล่าสุด: owned pending/cancelled upload History/recovery/explicitcancel/cleanup markers implement แล้ว แก้ CANCELLED-resume ที่เดิมลบโดยไม่ตรวจ matchingREADY ซ้ำ API **326/326**, Web **29/29**, simulatedpersistent **14/14**, builds/typechecks/migrationintegrityPASS Canonicaltipf099/additivecleanupAtเตรียมSQL7migrations105steps194checks แต่NOT_EXECUTEDเพราะapproval-review quota blocker ActualDB/AuthStorage/concurrency/browser/productionและreceiptpurgeยังไม่verified [หลักฐาน](evidence/mvp-upload-recovery-verification.json)
 
 2026-10-11 ล่าสุด: owned READY file catalogue/History review/download implement แล้ว API **322/322**, Web **27/27**, simulated persistent **14/14**, builds/typechecks PASS รวม develop4c2e0a7/font design ล่าสุด API/server/client/render evidence ไม่แทน actual browser/DB/Storage proof SQL fixture เตรียมแต่ยังไม่ execute เพราะ approval-review quota blocker Recovery/cleanup receipts หลังออกจากCreateและretentionยังขาด [หลักฐาน](evidence/mvp-file-history-verification.json)
