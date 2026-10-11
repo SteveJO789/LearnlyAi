@@ -109,8 +109,10 @@ function SettingContent() {
   const [mascotCrying, setMascotCrying] = useState(false);
   const [mascotPrankPlayed, setMascotPrankPlayed] = useState(false);
   const [mascotTapPending, setMascotTapPending] = useState(false);
-  const [mascotStart, setMascotStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [mascotPosition, setMascotPosition] = useState<{ left: number; top: number } | null>(null);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const deleteButtonRef = useRef<HTMLButtonElement>(null);
+  const confirmDeleteButtonRef = useRef<HTMLButtonElement>(null);
   const escapeTimers = useRef<number[]>([]);
 
   useEffect(() => {
@@ -131,7 +133,6 @@ function SettingContent() {
     if (mascotPrankPlayed || buttonEscapeStep > 0) return;
     const rect = deleteButtonRef.current?.getBoundingClientRect();
     if (!rect) return;
-    setMascotStart({ x: rect.left, y: rect.top, width: rect.width, height: rect.height });
     setMascotPrankPlayed(true);
     setButtonEscapeStep(1);
   };
@@ -173,11 +174,26 @@ function SettingContent() {
                 {t("settings.deleteConfirm.cancel")}
               </button>
               <button
+                ref={confirmDeleteButtonRef}
                 type="button"
-                disabled={deleteConfirmText !== "DELETE"}
+                disabled={deleteConfirmText !== "DELETE" || isDeletingAccount}
+                onMouseEnter={() => {
+                  const rect = confirmDeleteButtonRef.current?.getBoundingClientRect();
+                  if (rect) {
+                    const mascotWidth = 58;
+                    const left = rect.right + mascotWidth + 18 < window.innerWidth
+                      ? rect.right + 18
+                      : Math.max(8, rect.left - mascotWidth - 18);
+                    setMascotPosition({ left, top: Math.max(8, rect.top - 22) });
+                  }
+                }}
+                onClick={() => {
+                  // Keep the loading gag separate from the API until the actual endpoint contract is confirmed.
+                  setIsDeletingAccount(true);
+                }}
                 className="rounded-xl bg-danger px-5 py-2.5 text-sm font-medium text-white disabled:opacity-40 transition-all"
               >
-                {t("settings.deleteConfirm.confirmButton")}
+                {isDeletingAccount ? "กำลังลบ… 💧" : t("settings.deleteConfirm.confirmButton")}
               </button>
             </div>
           </div>
@@ -516,19 +532,26 @@ function SettingContent() {
                       </button>
                     </div>
 
-                    {mascotCrying && buttonEscapeStep === 5 && (
-                      <div aria-hidden="true" className="fixed z-[80] pointer-events-none" style={{ left: "78vw", top: "24vh" }}>
+                    {(mascotCrying || mascotPosition || isDeletingAccount) && (
+                      <div aria-hidden="true" className={`wizard-emotion fixed z-[80] pointer-events-none ${isDeletingAccount ? "wizard-sad-loading" : ""}`} style={mascotPosition ? { left: mascotPosition.left, top: mascotPosition.top } : { left: "calc(72vw + 170px)", top: "24vh" }}>
+                        <div className="wizard-sparkles">✦ ˚｡⋆ ✧ ˚｡⋆ ✦</div>
                         <div className="tiny-wizard tiny-wizard-crying">
                           <div className="wizard-hat"><i /></div>
-                          <div className="wizard-face"><i className="wizard-eye eye-left" /><i className="wizard-eye eye-right" /><i className="wizard-blush blush-left" /><i className="wizard-blush blush-right" /><span className="wizard-tears">••</span></div>
+                          <div className="wizard-face"><i className="wizard-eye eye-left" /><i className="wizard-eye eye-right" /><i className="wizard-blush blush-left" /><i className="wizard-blush blush-right" /><span className="wizard-tears">✦ ✧</span></div>
                           <div className="wizard-beard" />
                           <div className="wizard-body"><i className="wizard-star">✦</i></div>
                           <div className="wizard-feet"><i /><i /></div>
                         </div>
+                        {isDeletingAccount && <div className="wizard-sad-caption">ฮือออ… อย่าทิ้งเราเลยนะ 🥺</div>}
                       </div>
                     )}
 
                     <style jsx>{`
+                      .wizard-emotion { width: 100px; animation: sob-breathe 1.6s ease-in-out infinite; }
+                      .wizard-sparkles { position:absolute; top:-20px; left:-12px; width:130px; color:#ffe99b; font-size:14px; letter-spacing:2px; text-shadow:0 0 8px #fff2b3; animation: sparkle-sob .9s ease-in-out infinite alternate; white-space:nowrap; }
+                      .wizard-sad-caption { position:absolute; top:76px; left:-28px; width:170px; padding:6px 9px; border-radius:10px; background:rgb(30 26 49 / .92); color:#f5dfff; font-size:11px; text-align:center; box-shadow:0 0 16px rgb(197 181 255 / .2); }
+                      .wizard-sad-loading { position:fixed !important; left:auto !important; right:24px !important; top:50% !important; z-index:100 !important; }
+                      .wizard-sad-loading .wizard-sparkles { animation-duration:.55s; }
                       .tiny-wizard {
                         position: relative;
                         width: 112px;
@@ -552,6 +575,8 @@ function SettingContent() {
                       .wizard-feet i { width:22px; height:12px; border-radius:50%; background:linear-gradient(180deg,#e7b18e,#bc7e77); }
                       .fairy-crying { animation: cry-in .25s ease-out both; }
                       @keyframes cry-in { from { opacity:0; transform:translateY(8px) scale(.9); } to { opacity:1; transform:translateY(0) scale(1); } }
+                      @keyframes sob-breathe { 0%,100% { transform:translateY(0) scale(1); } 50% { transform:translateY(3px) scale(1.035,.97); } }
+                      @keyframes sparkle-sob { from { opacity:.35; transform:translateY(3px) rotate(-8deg) scale(.85); } to { opacity:1; transform:translateY(-4px) rotate(8deg) scale(1.1); } }
                       @media(prefers-reduced-motion:reduce) { * { transition-duration:1ms !important; animation-duration:1ms !important; } }
                     `}</style>
                   </div>
