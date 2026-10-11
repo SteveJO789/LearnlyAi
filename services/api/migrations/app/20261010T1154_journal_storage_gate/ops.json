@@ -1,0 +1,120 @@
+[
+  {
+    "id": "dropCheckConstraint.FileUpload.FileUpload_state_check_2cdd5b3d",
+    "label": "Drop check constraint \"FileUpload_state_check_2cdd5b3d\" on \"FileUpload\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "FileUpload_state_check_2cdd5b3d",
+        "table": "FileUpload"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"FileUpload_state_check_2cdd5b3d\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "FileUpload_state_check_2cdd5b3d",
+          "public",
+          "\"public\".\"FileUpload\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"FileUpload_state_check_2cdd5b3d\"",
+        "sql": "ALTER TABLE \"public\".\"FileUpload\" DROP CONSTRAINT \"FileUpload_state_check_2cdd5b3d\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"FileUpload_state_check_2cdd5b3d\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "FileUpload_state_check_2cdd5b3d",
+          "public",
+          "\"public\".\"FileUpload\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.FileUpload.FileUpload_state_check_d8fae83c",
+    "label": "Add check constraint \"FileUpload_state_check_d8fae83c\" on \"FileUpload\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "FileUpload_state_check_d8fae83c",
+        "table": "FileUpload"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"FileUpload_state_check_d8fae83c\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "FileUpload_state_check_d8fae83c",
+          "public",
+          "\"public\".\"FileUpload\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"FileUpload_state_check_d8fae83c\"",
+        "sql": "ALTER TABLE \"public\".\"FileUpload\" ADD CONSTRAINT \"FileUpload_state_check_d8fae83c\" CHECK (\"state\" IN ('PENDING', 'FINALIZED', 'CANCELLED'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"FileUpload_state_check_d8fae83c\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "FileUpload_state_check_d8fae83c",
+          "public",
+          "\"public\".\"FileUpload\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "storage.pending-upload-intent-guard",
+    "label": "Require exact owned pending journal before private Storage insertion",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_pending_intent_guard"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "sql": "CREATE POLICY \"learnly_materials_pending_intent_guard\" ON storage.objects AS RESTRICTIVE FOR INSERT TO authenticated WITH CHECK ((bucket_id IS DISTINCT FROM 'learnly-materials' OR EXISTS (\n  SELECT 1 FROM public.\"FileUpload\" f\n  JOIN public.\"LearningSession\" s ON s.id = f.\"learningSessionId\"\n  JOIN public.\"User\" u ON u.id = s.\"userId\"\n  WHERE f.state = 'PENDING' AND s.\"lifecycleState\" = 'ACTIVE'\n    AND u.\"authUserId\" = (SELECT auth.uid())::text\n    AND f.\"learningSessionId\" = split_part(storage.objects.name, '/', 2)\n    AND f.id = split_part(split_part(storage.objects.name, '/', 3), '.', 1)\n    AND f.material->>'id' = f.id\n    AND f.material->>'storageBucket' = storage.objects.bucket_id\n    AND f.material->>'storageKey' = storage.objects.name\n    AND f.material->'file'->>'extension' = split_part(storage.objects.name, '.', 2)\n    AND ((f.material->'file'->>'type' = 'PDF' AND f.material->'file'->>'mimeType' = 'application/pdf'\n      AND f.material->'file'->>'extension' = 'pdf')\n      OR (f.material->'file'->>'type' = 'IMAGE' AND ((f.material->'file'->>'mimeType' = 'image/png'\n        AND f.material->'file'->>'extension' = 'png') OR (f.material->'file'->>'mimeType' = 'image/jpeg'\n        AND f.material->'file'->>'extension' = 'jpg'))))\n    AND f.material->'file'->>'contentHash' ~ '^[a-f0-9]{64}$'\n    AND CASE WHEN f.material->'file'->>'sizeBytes' ~ '^[1-9][0-9]{0,6}$'\n      THEN (f.material->'file'->>'sizeBytes')::integer BETWEEN 1 AND 3145728 ELSE false END\n    AND NOT EXISTS (SELECT 1 FROM public.\"SourceMaterial\" m\n      WHERE m.id = f.id AND m.\"learningSessionId\" = f.\"learningSessionId\")\n)))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "sql": "SELECT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3 AND cmd = 'INSERT' AND permissive = 'RESTRICTIVE') AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_pending_intent_guard"
+        ]
+      }
+    ]
+  }
+]

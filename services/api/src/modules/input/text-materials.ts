@@ -16,13 +16,13 @@ export class PrismaTextMaterials implements SourceMaterialRepository {
   constructor(private readonly client: UserDb, private readonly userId: string) {}
 
   async list(sessionId: string) {
-    const plan = this.client.raw.sql`SELECT m."id", m."type", m."status", COALESCE(m."normalizedText", '') AS "normalizedText",
-      m."contentHash", m."mimeType", m."sizeBytes"
+    const plan = this.client.raw.sql`SELECT m."id", m."type", m."status", COALESCE(m."metadata"->>'learningText', m."normalizedText", '') AS "normalizedText",
+      m."contentHash", m."mimeType", m."sizeBytes", COALESCE(m."metadata"->>'reviewedByLearner' = 'true', false) AS "reviewedByLearner"
       FROM public."SourceMaterial" m JOIN public."LearningSession" s ON s."id" = m."learningSessionId"
       WHERE m."learningSessionId" = ${sessionId} AND s."userId" = ${this.userId}
       ORDER BY m."metadata"->>'createdAt' DESC, m."id" DESC LIMIT 20`
       .returnsRow({ id: "pg/text@1", type: "pg/text@1", status: "pg/text@1", normalizedText: "pg/text@1",
-        contentHash: "pg/text@1", mimeType: "pg/text@1", sizeBytes: "pg/int4@1" }).build();
+        contentHash: "pg/text@1", mimeType: "pg/text@1", sizeBytes: "pg/int4@1", reviewedByLearner: "pg/bool@1" }).build();
     return this.client.query(plan).toArray();
   }
 
@@ -49,7 +49,7 @@ export class PrismaTextMaterials implements SourceMaterialRepository {
 
   async findBySessionId(sessionId: string) {
     const rows = await this.list(sessionId);
-    return rows.filter(row => row.status === "READY" && row.normalizedText && row.normalizedText.length <= 8000).slice(0, 4).map(row => ({
+    return rows.filter(row => row.status === "READY" && (row.type === "TEXT" || row.reviewedByLearner) && row.normalizedText && row.normalizedText.length <= 8000).slice(0, 4).map(row => ({
       citation: { id: `material_${row.id}`, title: "Learner-provided material", sourceType: "USER_MATERIAL" as const },
       content: row.normalizedText,
     }));

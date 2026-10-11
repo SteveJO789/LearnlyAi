@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-10",
+  "legacyPath": {
+    "migrations": 8,
+    "graphIntegrity": "PASS",
+    "sqlReplay": "FAILED",
+    "failure": "20261007T1022_auth_rls_alignment / ai_request_select_own.drop precheck: earlier package does not create the policies claimed by its end snapshot",
+    "failedFixtureRemoved": true,
+    "historicalArtifactsChanged": false
+  },
+  "freshPath": {
+    "migration": "20261010T0331_fresh_supabase_mvp_baseline",
+    "from": null,
+    "to": "d17a8bc493eb8d240a7a2d0c664b00ec49f5823963634f78f5385a01bd26b397",
+    "sqlSteps": 68,
+    "canonicalChecks": 126,
+    "result": "PASS",
+    "ownership": "Legacy app User id with distinct authUserId remains RLS-visible only to the owner",
+    "fixtureRemoved": true,
+    "transaction": "BEGIN/ROLLBACK in isolated schema, no public/Auth table data or global role changes"
+  },
+  "prismaMigrateShow": "Read-only --show --from @empty chooses the new app baseline plus the existing Supabase descriptor record",
+  "limitations": "Canonical SQL/preconditions/postconditions and RLS verified. Actual Prisma executor/marker/history and production migration not executed; legacy path remains unsuitable for a fresh DB. Existing DBs must continue from their verified current marker, never replay the fresh baseline."
+}

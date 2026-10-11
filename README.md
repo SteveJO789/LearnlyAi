@@ -2,7 +2,7 @@
 
 เว็บแอปช่วยเรียนรู้แบบปรับให้เหมาะกับผู้เรียน โดยเปลี่ยน AI จาก “เครื่องเฉลย” ให้เป็น “ผู้ช่วยคิด” ผ่านคำถามนำทาง คำใบ้ แบบฝึกหัด และการวัดผลก่อน–หลังเรียน
 
-> สถานะ 2026-10-09: Login (Google/Email) ได้รับอนุมัติว่าเสร็จแล้ว, persistent learning sessions และ history อยู่ในโค้ดจริง; RAG retrieval, assessment, OCR และ full E2E ยังไม่ครบ
+> สถานะ 2026-10-11: รักษา Login (Google/Email) ที่อนุมัติแล้ว; persistent learning/history, assessments/profile, real PDF/OCR/file-review และ reviewed RAG/vector pipeline มี implementation และ tests แล้ว ยังขาดการตรวจ Auth→DB→Storage/browser จริง, production-compatible migrations/index และ release smoke ดู tracker/evidence ก่อนอ้างว่าพร้อม production
 
 ## MVP User Journey
 

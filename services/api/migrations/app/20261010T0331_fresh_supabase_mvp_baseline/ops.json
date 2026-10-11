@@ -1,0 +1,2604 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.AIRequest",
+    "label": "Create table \"AIRequest\"",
+    "summary": "Creates table \"AIRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "AIRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"AIRequest\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"AIRequest\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"AIRequest\"",
+        "sql": "CREATE TABLE \"public\".\"AIRequest\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"errorCode\" text,\n  \"id\" text NOT NULL,\n  \"inputTokens\" int4,\n  \"latencyMs\" int4,\n  \"learningSessionId\" text NOT NULL,\n  \"model\" text NOT NULL,\n  \"operation\" text NOT NULL,\n  \"outputSnapshot\" json,\n  \"outputTokens\" int4,\n  \"promptSnapshot\" json,\n  \"provider\" text NOT NULL,\n  \"requestId\" text NOT NULL,\n  \"status\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"AIRequest_status_check_f32a67f1\" CHECK (\"status\" IN ('PENDING', 'SUCCESS', 'FAILED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"AIRequest\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"AIRequest\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Assessment",
+    "label": "Create table \"Assessment\"",
+    "summary": "Creates table \"Assessment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Assessment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Assessment\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Assessment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Assessment\"",
+        "sql": "CREATE TABLE \"public\".\"Assessment\" (\n  \"id\" text NOT NULL,\n  \"learningSessionId\" text NOT NULL,\n  \"maxScore\" int4,\n  \"phase\" text NOT NULL,\n  \"score\" int4,\n  \"snapshot\" json,\n  \"submissionHash\" text,\n  \"submittedAt\" timestamptz,\n  \"topic\" text,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"Assessment_phase_check_0c021859\" CHECK (\"phase\" IN ('PRE', 'POST', 'TRANSFER'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Assessment\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Assessment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.AssessmentAnswer",
+    "label": "Create table \"AssessmentAnswer\"",
+    "summary": "Creates table \"AssessmentAnswer\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "AssessmentAnswer"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"AssessmentAnswer\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"AssessmentAnswer\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"AssessmentAnswer\"",
+        "sql": "CREATE TABLE \"public\".\"AssessmentAnswer\" (\n  \"assessmentId\" text NOT NULL,\n  \"awardedScore\" int4,\n  \"id\" text NOT NULL,\n  \"isCorrect\" bool,\n  \"questionId\" text NOT NULL,\n  \"response\" json NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"AssessmentAnswer\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"AssessmentAnswer\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.LearningProfile",
+    "label": "Create table \"LearningProfile\"",
+    "summary": "Creates table \"LearningProfile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "LearningProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"LearningProfile\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"LearningProfile\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"LearningProfile\"",
+        "sql": "CREATE TABLE \"public\".\"LearningProfile\" (\n  \"mastery\" json NOT NULL,\n  \"strengths\" json NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"userId\" text NOT NULL,\n  \"weakPoints\" json NOT NULL,\n  PRIMARY KEY (\"userId\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"LearningProfile\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"LearningProfile\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.LearningSession",
+    "label": "Create table \"LearningSession\"",
+    "summary": "Creates table \"LearningSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"LearningSession\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"LearningSession\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"LearningSession\"",
+        "sql": "CREATE TABLE \"public\".\"LearningSession\" (\n  \"completedAt\" timestamptz,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"learningGoal\" text,\n  \"lifecycleState\" text DEFAULT 'ACTIVE' NOT NULL,\n  \"progressPercent\" int4 NOT NULL,\n  \"stage\" text DEFAULT 'EXPLAIN' NOT NULL,\n  \"state\" text DEFAULT 'INPUT' NOT NULL,\n  \"subject\" text,\n  \"title\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"userId\" text NOT NULL,\n  \"version\" int4 DEFAULT 1 NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"LearningSession_lifecycleState_check_1f2ffd0e\" CHECK (\"lifecycleState\" IN ('ACTIVE', 'COMPLETED', 'FAILED')),\n  CONSTRAINT \"LearningSession_stage_check_df720be3\" CHECK (\"stage\" IN ('DIAGNOSE', 'EXPLAIN', 'PRACTICE', 'ASSESS', 'REVIEW')),\n  CONSTRAINT \"LearningSession_state_check_d925cf7a\" CHECK (\"state\" IN ('INPUT', 'CONTENT_ANALYSIS', 'PRE_TEST', 'LEARNING', 'TRANSFER', 'POST_TEST', 'COMPLETED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"LearningSession\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"LearningSession\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Message",
+    "label": "Create table \"Message\"",
+    "summary": "Creates table \"Message\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Message\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Message\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Message\"",
+        "sql": "CREATE TABLE \"public\".\"Message\" (\n  \"content\" json NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"learningSessionId\" text NOT NULL,\n  \"role\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"Message_role_check_25286c5d\" CHECK (\"role\" IN ('USER', 'TUTOR', 'SYSTEM'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Message\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Message\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.SourceMaterial",
+    "label": "Create table \"SourceMaterial\"",
+    "summary": "Creates table \"SourceMaterial\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "SourceMaterial"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"SourceMaterial\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"SourceMaterial\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"SourceMaterial\"",
+        "sql": "CREATE TABLE \"public\".\"SourceMaterial\" (\n  \"contentHash\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"learningSessionId\" text NOT NULL,\n  \"metadata\" json,\n  \"mimeType\" text NOT NULL,\n  \"normalizedText\" text,\n  \"sizeBytes\" int4 NOT NULL,\n  \"status\" text NOT NULL,\n  \"storageKey\" text,\n  \"type\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"SourceMaterial_status_check_c104a595\" CHECK (\"status\" IN ('UPLOADED', 'PROCESSING', 'READY', 'FAILED')),\n  CONSTRAINT \"SourceMaterial_type_check_74d9d9d9\" CHECK (\"type\" IN ('TEXT', 'PDF', 'IMAGE'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"SourceMaterial\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"SourceMaterial\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.User",
+    "label": "Create table \"User\"",
+    "summary": "Creates table \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"User\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"User\"",
+        "sql": "CREATE TABLE \"public\".\"User\" (\n  \"authUserId\" text NOT NULL,\n  \"avatarUrl\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"displayName\" text NOT NULL,\n  \"email\" text,\n  \"id\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"username\" text,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"User\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.AIRequest.AIRequest_requestId_key",
+    "label": "Add unique constraint on \"AIRequest\" (requestId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "AIRequest_requestId_key",
+        "table": "AIRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"AIRequest_requestId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "AIRequest_requestId_key",
+          "public",
+          "\"public\".\"AIRequest\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"AIRequest_requestId_key\"",
+        "sql": "ALTER TABLE \"public\".\"AIRequest\" ADD CONSTRAINT \"AIRequest_requestId_key\" UNIQUE (\"requestId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"AIRequest_requestId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "AIRequest_requestId_key",
+          "public",
+          "\"public\".\"AIRequest\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Assessment.Assessment_learningSessionId_phase_key",
+    "label": "Add unique constraint on \"Assessment\" (learningSessionId, phase)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Assessment_learningSessionId_phase_key",
+        "table": "Assessment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Assessment_learningSessionId_phase_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Assessment_learningSessionId_phase_key",
+          "public",
+          "\"public\".\"Assessment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Assessment_learningSessionId_phase_key\"",
+        "sql": "ALTER TABLE \"public\".\"Assessment\" ADD CONSTRAINT \"Assessment_learningSessionId_phase_key\" UNIQUE (\"learningSessionId\", \"phase\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Assessment_learningSessionId_phase_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Assessment_learningSessionId_phase_key",
+          "public",
+          "\"public\".\"Assessment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.AssessmentAnswer.AssessmentAnswer_assessmentId_questionId_key",
+    "label": "Add unique constraint on \"AssessmentAnswer\" (assessmentId, questionId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "AssessmentAnswer_assessmentId_questionId_key",
+        "table": "AssessmentAnswer"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"AssessmentAnswer_assessmentId_questionId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "AssessmentAnswer_assessmentId_questionId_key",
+          "public",
+          "\"public\".\"AssessmentAnswer\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"AssessmentAnswer_assessmentId_questionId_key\"",
+        "sql": "ALTER TABLE \"public\".\"AssessmentAnswer\" ADD CONSTRAINT \"AssessmentAnswer_assessmentId_questionId_key\" UNIQUE (\"assessmentId\", \"questionId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"AssessmentAnswer_assessmentId_questionId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "AssessmentAnswer_assessmentId_questionId_key",
+          "public",
+          "\"public\".\"AssessmentAnswer\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.User.User_authUserId_key",
+    "label": "Add unique constraint on \"User\" (authUserId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "User_authUserId_key",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"User_authUserId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_authUserId_key",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"User_authUserId_key\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ADD CONSTRAINT \"User_authUserId_key\" UNIQUE (\"authUserId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"User_authUserId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_authUserId_key",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.User.User_username_key",
+    "label": "Add unique constraint on \"User\" (username)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "User_username_key",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"User_username_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_username_key",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"User_username_key\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ADD CONSTRAINT \"User_username_key\" UNIQUE (\"username\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"User_username_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_username_key",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.AIRequest.AIRequest_learningSessionId_createdAt_idx_bdaff9b7",
+    "label": "Create index \"AIRequest_learningSessionId_createdAt_idx_bdaff9b7\" on \"AIRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "AIRequest_learningSessionId_createdAt_idx_bdaff9b7",
+        "table": "AIRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"AIRequest_learningSessionId_createdAt_idx_bdaff9b7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"AIRequest_learningSessionId_createdAt_idx_bdaff9b7\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"AIRequest_learningSessionId_createdAt_idx_bdaff9b7\"",
+        "sql": "CREATE INDEX \"AIRequest_learningSessionId_createdAt_idx_bdaff9b7\" ON \"public\".\"AIRequest\" (\"learningSessionId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"AIRequest_learningSessionId_createdAt_idx_bdaff9b7\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"AIRequest_learningSessionId_createdAt_idx_bdaff9b7\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.AIRequest.AIRequest_learningSessionId_idx_3c4d5acd",
+    "label": "Create index \"AIRequest_learningSessionId_idx_3c4d5acd\" on \"AIRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "AIRequest_learningSessionId_idx_3c4d5acd",
+        "table": "AIRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"AIRequest_learningSessionId_idx_3c4d5acd\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"AIRequest_learningSessionId_idx_3c4d5acd\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"AIRequest_learningSessionId_idx_3c4d5acd\"",
+        "sql": "CREATE INDEX \"AIRequest_learningSessionId_idx_3c4d5acd\" ON \"public\".\"AIRequest\" (\"learningSessionId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"AIRequest_learningSessionId_idx_3c4d5acd\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"AIRequest_learningSessionId_idx_3c4d5acd\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Assessment.Assessment_learningSessionId_idx_3c4d5acd",
+    "label": "Create index \"Assessment_learningSessionId_idx_3c4d5acd\" on \"Assessment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Assessment_learningSessionId_idx_3c4d5acd",
+        "table": "Assessment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Assessment_learningSessionId_idx_3c4d5acd\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Assessment_learningSessionId_idx_3c4d5acd\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Assessment_learningSessionId_idx_3c4d5acd\"",
+        "sql": "CREATE INDEX \"Assessment_learningSessionId_idx_3c4d5acd\" ON \"public\".\"Assessment\" (\"learningSessionId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Assessment_learningSessionId_idx_3c4d5acd\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Assessment_learningSessionId_idx_3c4d5acd\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.AssessmentAnswer.AssessmentAnswer_assessmentId_idx_1fe05216",
+    "label": "Create index \"AssessmentAnswer_assessmentId_idx_1fe05216\" on \"AssessmentAnswer\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "AssessmentAnswer_assessmentId_idx_1fe05216",
+        "table": "AssessmentAnswer"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"AssessmentAnswer_assessmentId_idx_1fe05216\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"AssessmentAnswer_assessmentId_idx_1fe05216\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"AssessmentAnswer_assessmentId_idx_1fe05216\"",
+        "sql": "CREATE INDEX \"AssessmentAnswer_assessmentId_idx_1fe05216\" ON \"public\".\"AssessmentAnswer\" (\"assessmentId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"AssessmentAnswer_assessmentId_idx_1fe05216\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"AssessmentAnswer_assessmentId_idx_1fe05216\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.LearningSession.LearningSession_userId_createdAt_idx_f726f04a",
+    "label": "Create index \"LearningSession_userId_createdAt_idx_f726f04a\" on \"LearningSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "LearningSession_userId_createdAt_idx_f726f04a",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"LearningSession_userId_createdAt_idx_f726f04a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"LearningSession_userId_createdAt_idx_f726f04a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"LearningSession_userId_createdAt_idx_f726f04a\"",
+        "sql": "CREATE INDEX \"LearningSession_userId_createdAt_idx_f726f04a\" ON \"public\".\"LearningSession\" (\"userId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"LearningSession_userId_createdAt_idx_f726f04a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"LearningSession_userId_createdAt_idx_f726f04a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.LearningSession.LearningSession_userId_idx_a489d58a",
+    "label": "Create index \"LearningSession_userId_idx_a489d58a\" on \"LearningSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "LearningSession_userId_idx_a489d58a",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"LearningSession_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"LearningSession_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"LearningSession_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"LearningSession_userId_idx_a489d58a\" ON \"public\".\"LearningSession\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"LearningSession_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"LearningSession_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Message.Message_learningSessionId_idx_3c4d5acd",
+    "label": "Create index \"Message_learningSessionId_idx_3c4d5acd\" on \"Message\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Message_learningSessionId_idx_3c4d5acd",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Message_learningSessionId_idx_3c4d5acd\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Message_learningSessionId_idx_3c4d5acd\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Message_learningSessionId_idx_3c4d5acd\"",
+        "sql": "CREATE INDEX \"Message_learningSessionId_idx_3c4d5acd\" ON \"public\".\"Message\" (\"learningSessionId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Message_learningSessionId_idx_3c4d5acd\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Message_learningSessionId_idx_3c4d5acd\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.SourceMaterial.SourceMaterial_learningSessionId_idx_3c4d5acd",
+    "label": "Create index \"SourceMaterial_learningSessionId_idx_3c4d5acd\" on \"SourceMaterial\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "SourceMaterial_learningSessionId_idx_3c4d5acd",
+        "table": "SourceMaterial"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"SourceMaterial_learningSessionId_idx_3c4d5acd\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"SourceMaterial_learningSessionId_idx_3c4d5acd\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"SourceMaterial_learningSessionId_idx_3c4d5acd\"",
+        "sql": "CREATE INDEX \"SourceMaterial_learningSessionId_idx_3c4d5acd\" ON \"public\".\"SourceMaterial\" (\"learningSessionId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"SourceMaterial_learningSessionId_idx_3c4d5acd\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"SourceMaterial_learningSessionId_idx_3c4d5acd\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.User.User_email_idx_46df9cad",
+    "label": "Create index \"User_email_idx_46df9cad\" on \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "User_email_idx_46df9cad",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"User_email_idx_46df9cad\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User_email_idx_46df9cad\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"User_email_idx_46df9cad\"",
+        "sql": "CREATE INDEX \"User_email_idx_46df9cad\" ON \"public\".\"User\" (\"email\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"User_email_idx_46df9cad\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User_email_idx_46df9cad\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.AIRequest.AIRequest_learningSessionId_fkey",
+    "label": "Add foreign key \"AIRequest_learningSessionId_fkey\" on \"AIRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "AIRequest_learningSessionId_fkey",
+        "table": "AIRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"AIRequest_learningSessionId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "AIRequest_learningSessionId_fkey",
+          "public",
+          "\"public\".\"AIRequest\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"AIRequest_learningSessionId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"AIRequest\"\nADD CONSTRAINT \"AIRequest_learningSessionId_fkey\"\nFOREIGN KEY (\"learningSessionId\")\nREFERENCES \"public\".\"LearningSession\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"AIRequest_learningSessionId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "AIRequest_learningSessionId_fkey",
+          "public",
+          "\"public\".\"AIRequest\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Assessment.Assessment_learningSessionId_fkey",
+    "label": "Add foreign key \"Assessment_learningSessionId_fkey\" on \"Assessment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Assessment_learningSessionId_fkey",
+        "table": "Assessment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Assessment_learningSessionId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Assessment_learningSessionId_fkey",
+          "public",
+          "\"public\".\"Assessment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Assessment_learningSessionId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Assessment\"\nADD CONSTRAINT \"Assessment_learningSessionId_fkey\"\nFOREIGN KEY (\"learningSessionId\")\nREFERENCES \"public\".\"LearningSession\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Assessment_learningSessionId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Assessment_learningSessionId_fkey",
+          "public",
+          "\"public\".\"Assessment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.AssessmentAnswer.AssessmentAnswer_assessmentId_fkey",
+    "label": "Add foreign key \"AssessmentAnswer_assessmentId_fkey\" on \"AssessmentAnswer\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "AssessmentAnswer_assessmentId_fkey",
+        "table": "AssessmentAnswer"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"AssessmentAnswer_assessmentId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "AssessmentAnswer_assessmentId_fkey",
+          "public",
+          "\"public\".\"AssessmentAnswer\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"AssessmentAnswer_assessmentId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"AssessmentAnswer\"\nADD CONSTRAINT \"AssessmentAnswer_assessmentId_fkey\"\nFOREIGN KEY (\"assessmentId\")\nREFERENCES \"public\".\"Assessment\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"AssessmentAnswer_assessmentId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "AssessmentAnswer_assessmentId_fkey",
+          "public",
+          "\"public\".\"AssessmentAnswer\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.LearningProfile.LearningProfile_userId_fkey",
+    "label": "Add foreign key \"LearningProfile_userId_fkey\" on \"LearningProfile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "LearningProfile_userId_fkey",
+        "table": "LearningProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"LearningProfile_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LearningProfile_userId_fkey",
+          "public",
+          "\"public\".\"LearningProfile\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"LearningProfile_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"LearningProfile\"\nADD CONSTRAINT \"LearningProfile_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"User\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"LearningProfile_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LearningProfile_userId_fkey",
+          "public",
+          "\"public\".\"LearningProfile\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.LearningSession.LearningSession_userId_fkey",
+    "label": "Add foreign key \"LearningSession_userId_fkey\" on \"LearningSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "LearningSession_userId_fkey",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"LearningSession_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LearningSession_userId_fkey",
+          "public",
+          "\"public\".\"LearningSession\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"LearningSession_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"LearningSession\"\nADD CONSTRAINT \"LearningSession_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"User\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"LearningSession_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LearningSession_userId_fkey",
+          "public",
+          "\"public\".\"LearningSession\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Message.Message_learningSessionId_fkey",
+    "label": "Add foreign key \"Message_learningSessionId_fkey\" on \"Message\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Message_learningSessionId_fkey",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Message_learningSessionId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Message_learningSessionId_fkey",
+          "public",
+          "\"public\".\"Message\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Message_learningSessionId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Message\"\nADD CONSTRAINT \"Message_learningSessionId_fkey\"\nFOREIGN KEY (\"learningSessionId\")\nREFERENCES \"public\".\"LearningSession\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Message_learningSessionId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Message_learningSessionId_fkey",
+          "public",
+          "\"public\".\"Message\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.SourceMaterial.SourceMaterial_learningSessionId_fkey",
+    "label": "Add foreign key \"SourceMaterial_learningSessionId_fkey\" on \"SourceMaterial\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "SourceMaterial_learningSessionId_fkey",
+        "table": "SourceMaterial"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"SourceMaterial_learningSessionId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "SourceMaterial_learningSessionId_fkey",
+          "public",
+          "\"public\".\"SourceMaterial\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"SourceMaterial_learningSessionId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"SourceMaterial\"\nADD CONSTRAINT \"SourceMaterial_learningSessionId_fkey\"\nFOREIGN KEY (\"learningSessionId\")\nREFERENCES \"public\".\"LearningSession\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"SourceMaterial_learningSessionId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "SourceMaterial_learningSessionId_fkey",
+          "public",
+          "\"public\".\"SourceMaterial\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.AIRequest",
+    "label": "Enable row-level security on \"AIRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "AIRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"AIRequest\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "AIRequest"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"AIRequest\"",
+        "sql": "ALTER TABLE \"public\".\"AIRequest\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"AIRequest\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "AIRequest"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.Assessment",
+    "label": "Enable row-level security on \"Assessment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "Assessment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"Assessment\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "Assessment"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"Assessment\"",
+        "sql": "ALTER TABLE \"public\".\"Assessment\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"Assessment\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "Assessment"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.AssessmentAnswer",
+    "label": "Enable row-level security on \"AssessmentAnswer\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "AssessmentAnswer"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"AssessmentAnswer\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "AssessmentAnswer"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"AssessmentAnswer\"",
+        "sql": "ALTER TABLE \"public\".\"AssessmentAnswer\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"AssessmentAnswer\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "AssessmentAnswer"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.LearningProfile",
+    "label": "Enable row-level security on \"LearningProfile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "LearningProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"LearningProfile\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "LearningProfile"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"LearningProfile\"",
+        "sql": "ALTER TABLE \"public\".\"LearningProfile\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"LearningProfile\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "LearningProfile"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.LearningSession",
+    "label": "Enable row-level security on \"LearningSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"LearningSession\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"LearningSession\"",
+        "sql": "ALTER TABLE \"public\".\"LearningSession\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"LearningSession\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.Message",
+    "label": "Enable row-level security on \"Message\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"Message\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "Message"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"Message\"",
+        "sql": "ALTER TABLE \"public\".\"Message\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"Message\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "Message"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.SourceMaterial",
+    "label": "Enable row-level security on \"SourceMaterial\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "SourceMaterial"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"SourceMaterial\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"SourceMaterial\"",
+        "sql": "ALTER TABLE \"public\".\"SourceMaterial\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"SourceMaterial\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.User",
+    "label": "Enable row-level security on \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"User\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "User"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"User\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"User\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "User"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.AIRequest.ai_request_select_own_5424dd11",
+    "label": "Create RLS policy \"ai_request_select_own_5424dd11\" on \"AIRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "ai_request_select_own_5424dd11",
+        "table": "AIRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"ai_request_select_own_5424dd11\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AIRequest",
+          "ai_request_select_own_5424dd11"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"ai_request_select_own_5424dd11\"",
+        "sql": "CREATE POLICY \"ai_request_select_own_5424dd11\" ON \"public\".\"AIRequest\" AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"AIRequest\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"ai_request_select_own_5424dd11\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AIRequest",
+          "ai_request_select_own_5424dd11"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.Assessment.assessment_insert_api_own_277fff40",
+    "label": "Create RLS policy \"assessment_insert_api_own_277fff40\" on \"Assessment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "assessment_insert_api_own_277fff40",
+        "table": "Assessment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"assessment_insert_api_own_277fff40\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Assessment",
+          "assessment_insert_api_own_277fff40"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"assessment_insert_api_own_277fff40\"",
+        "sql": "CREATE POLICY \"assessment_insert_api_own_277fff40\" ON \"public\".\"Assessment\" AS PERMISSIVE FOR INSERT TO authenticated WITH CHECK (((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"Assessment\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text)))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"assessment_insert_api_own_277fff40\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Assessment",
+          "assessment_insert_api_own_277fff40"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.Assessment.assessment_select_own_d47c911a",
+    "label": "Create RLS policy \"assessment_select_own_d47c911a\" on \"Assessment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "assessment_select_own_d47c911a",
+        "table": "Assessment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"assessment_select_own_d47c911a\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Assessment",
+          "assessment_select_own_d47c911a"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"assessment_select_own_d47c911a\"",
+        "sql": "CREATE POLICY \"assessment_select_own_d47c911a\" ON \"public\".\"Assessment\" AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Assessment\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"assessment_select_own_d47c911a\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Assessment",
+          "assessment_select_own_d47c911a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.Assessment.assessment_update_api_own_168c1514",
+    "label": "Create RLS policy \"assessment_update_api_own_168c1514\" on \"Assessment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "assessment_update_api_own_168c1514",
+        "table": "Assessment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"assessment_update_api_own_168c1514\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Assessment",
+          "assessment_update_api_own_168c1514"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"assessment_update_api_own_168c1514\"",
+        "sql": "CREATE POLICY \"assessment_update_api_own_168c1514\" ON \"public\".\"Assessment\" AS PERMISSIVE FOR UPDATE TO authenticated USING ((EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"Assessment\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))) WITH CHECK (((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"Assessment\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text)))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"assessment_update_api_own_168c1514\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Assessment",
+          "assessment_update_api_own_168c1514"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.AssessmentAnswer.assessment_answer_insert_api_own_6ac7083b",
+    "label": "Create RLS policy \"assessment_answer_insert_api_own_6ac7083b\" on \"AssessmentAnswer\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "assessment_answer_insert_api_own_6ac7083b",
+        "table": "AssessmentAnswer"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"assessment_answer_insert_api_own_6ac7083b\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AssessmentAnswer",
+          "assessment_answer_insert_api_own_6ac7083b"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"assessment_answer_insert_api_own_6ac7083b\"",
+        "sql": "CREATE POLICY \"assessment_answer_insert_api_own_6ac7083b\" ON \"public\".\"AssessmentAnswer\" AS PERMISSIVE FOR INSERT TO authenticated WITH CHECK (((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"Assessment\" a JOIN \"LearningSession\" s ON s.id = a.\"learningSessionId\" JOIN \"User\" u ON u.id = s.\"userId\" WHERE a.id = \"AssessmentAnswer\".\"assessmentId\" AND u.\"authUserId\" = (SELECT auth.uid())::text)))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"assessment_answer_insert_api_own_6ac7083b\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AssessmentAnswer",
+          "assessment_answer_insert_api_own_6ac7083b"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.AssessmentAnswer.assessment_answer_select_own_c190452e",
+    "label": "Create RLS policy \"assessment_answer_select_own_c190452e\" on \"AssessmentAnswer\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "assessment_answer_select_own_c190452e",
+        "table": "AssessmentAnswer"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"assessment_answer_select_own_c190452e\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AssessmentAnswer",
+          "assessment_answer_select_own_c190452e"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"assessment_answer_select_own_c190452e\"",
+        "sql": "CREATE POLICY \"assessment_answer_select_own_c190452e\" ON \"public\".\"AssessmentAnswer\" AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1 FROM ((\"Assessment\" a JOIN \"LearningSession\" ls ON ((ls.id = a.\"learningSessionId\"))) JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((a.id = \"AssessmentAnswer\".\"assessmentId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"assessment_answer_select_own_c190452e\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "AssessmentAnswer",
+          "assessment_answer_select_own_c190452e"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.LearningProfile.learning_profile_insert_api_own_62b5c283",
+    "label": "Create RLS policy \"learning_profile_insert_api_own_62b5c283\" on \"LearningProfile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "learning_profile_insert_api_own_62b5c283",
+        "table": "LearningProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"learning_profile_insert_api_own_62b5c283\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningProfile",
+          "learning_profile_insert_api_own_62b5c283"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"learning_profile_insert_api_own_62b5c283\"",
+        "sql": "CREATE POLICY \"learning_profile_insert_api_own_62b5c283\" ON \"public\".\"LearningProfile\" AS PERMISSIVE FOR INSERT TO authenticated WITH CHECK (((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"User\" u WHERE u.id = \"LearningProfile\".\"userId\" AND u.\"authUserId\" = (SELECT auth.uid())::text)))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"learning_profile_insert_api_own_62b5c283\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningProfile",
+          "learning_profile_insert_api_own_62b5c283"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.LearningProfile.learning_profile_select_own_13d05569",
+    "label": "Create RLS policy \"learning_profile_select_own_13d05569\" on \"LearningProfile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "learning_profile_select_own_13d05569",
+        "table": "LearningProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"learning_profile_select_own_13d05569\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningProfile",
+          "learning_profile_select_own_13d05569"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"learning_profile_select_own_13d05569\"",
+        "sql": "CREATE POLICY \"learning_profile_select_own_13d05569\" ON \"public\".\"LearningProfile\" AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningProfile\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"learning_profile_select_own_13d05569\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningProfile",
+          "learning_profile_select_own_13d05569"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.LearningProfile.learning_profile_update_api_own_40a07354",
+    "label": "Create RLS policy \"learning_profile_update_api_own_40a07354\" on \"LearningProfile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "learning_profile_update_api_own_40a07354",
+        "table": "LearningProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"learning_profile_update_api_own_40a07354\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningProfile",
+          "learning_profile_update_api_own_40a07354"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"learning_profile_update_api_own_40a07354\"",
+        "sql": "CREATE POLICY \"learning_profile_update_api_own_40a07354\" ON \"public\".\"LearningProfile\" AS PERMISSIVE FOR UPDATE TO authenticated USING ((EXISTS (SELECT 1 FROM \"User\" u WHERE u.id = \"LearningProfile\".\"userId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))) WITH CHECK (((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"User\" u WHERE u.id = \"LearningProfile\".\"userId\" AND u.\"authUserId\" = (SELECT auth.uid())::text)))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"learning_profile_update_api_own_40a07354\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningProfile",
+          "learning_profile_update_api_own_40a07354"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.LearningSession.learning_session_insert_own_2be3816c",
+    "label": "Create RLS policy \"learning_session_insert_own_2be3816c\" on \"LearningSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "learning_session_insert_own_2be3816c",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"learning_session_insert_own_2be3816c\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "learning_session_insert_own_2be3816c"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"learning_session_insert_own_2be3816c\"",
+        "sql": "CREATE POLICY \"learning_session_insert_own_2be3816c\" ON \"public\".\"LearningSession\" AS PERMISSIVE FOR INSERT TO authenticated WITH CHECK ((EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"learning_session_insert_own_2be3816c\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "learning_session_insert_own_2be3816c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.LearningSession.learning_session_select_own_a34ec569",
+    "label": "Create RLS policy \"learning_session_select_own_a34ec569\" on \"LearningSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "learning_session_select_own_a34ec569",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"learning_session_select_own_a34ec569\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "learning_session_select_own_a34ec569"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"learning_session_select_own_a34ec569\"",
+        "sql": "CREATE POLICY \"learning_session_select_own_a34ec569\" ON \"public\".\"LearningSession\" AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"learning_session_select_own_a34ec569\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "learning_session_select_own_a34ec569"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.LearningSession.learning_session_update_own_056e8007",
+    "label": "Create RLS policy \"learning_session_update_own_056e8007\" on \"LearningSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "learning_session_update_own_056e8007",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"learning_session_update_own_056e8007\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "learning_session_update_own_056e8007"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"learning_session_update_own_056e8007\"",
+        "sql": "CREATE POLICY \"learning_session_update_own_056e8007\" ON \"public\".\"LearningSession\" AS PERMISSIVE FOR UPDATE TO authenticated USING ((EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))) WITH CHECK ((EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"learning_session_update_own_056e8007\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "learning_session_update_own_056e8007"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.LearningSession.session_api_insert_guard_649e1632",
+    "label": "Create RLS policy \"session_api_insert_guard_649e1632\" on \"LearningSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "session_api_insert_guard_649e1632",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"session_api_insert_guard_649e1632\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "session_api_insert_guard_649e1632"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"session_api_insert_guard_649e1632\"",
+        "sql": "CREATE POLICY \"session_api_insert_guard_649e1632\" ON \"public\".\"LearningSession\" AS RESTRICTIVE FOR INSERT TO authenticated WITH CHECK ((current_setting('learnly.api_write', true) = '1'))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"session_api_insert_guard_649e1632\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "session_api_insert_guard_649e1632"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.LearningSession.session_api_update_guard_cca2e683",
+    "label": "Create RLS policy \"session_api_update_guard_cca2e683\" on \"LearningSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "session_api_update_guard_cca2e683",
+        "table": "LearningSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"session_api_update_guard_cca2e683\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "session_api_update_guard_cca2e683"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"session_api_update_guard_cca2e683\"",
+        "sql": "CREATE POLICY \"session_api_update_guard_cca2e683\" ON \"public\".\"LearningSession\" AS RESTRICTIVE FOR UPDATE TO authenticated USING (true) WITH CHECK ((current_setting('learnly.api_write', true) = '1'))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"session_api_update_guard_cca2e683\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LearningSession",
+          "session_api_update_guard_cca2e683"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.Message.message_api_insert_guard_649e1632",
+    "label": "Create RLS policy \"message_api_insert_guard_649e1632\" on \"Message\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "message_api_insert_guard_649e1632",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"message_api_insert_guard_649e1632\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Message",
+          "message_api_insert_guard_649e1632"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"message_api_insert_guard_649e1632\"",
+        "sql": "CREATE POLICY \"message_api_insert_guard_649e1632\" ON \"public\".\"Message\" AS RESTRICTIVE FOR INSERT TO authenticated WITH CHECK ((current_setting('learnly.api_write', true) = '1'))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"message_api_insert_guard_649e1632\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Message",
+          "message_api_insert_guard_649e1632"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.Message.message_insert_own_4f346578",
+    "label": "Create RLS policy \"message_insert_own_4f346578\" on \"Message\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "message_insert_own_4f346578",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"message_insert_own_4f346578\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Message",
+          "message_insert_own_4f346578"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"message_insert_own_4f346578\"",
+        "sql": "CREATE POLICY \"message_insert_own_4f346578\" ON \"public\".\"Message\" AS PERMISSIVE FOR INSERT TO authenticated WITH CHECK ((EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"message_insert_own_4f346578\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Message",
+          "message_insert_own_4f346578"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.Message.message_select_own_968c3fb0",
+    "label": "Create RLS policy \"message_select_own_968c3fb0\" on \"Message\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "message_select_own_968c3fb0",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"message_select_own_968c3fb0\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Message",
+          "message_select_own_968c3fb0"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"message_select_own_968c3fb0\"",
+        "sql": "CREATE POLICY \"message_select_own_968c3fb0\" ON \"public\".\"Message\" AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"message_select_own_968c3fb0\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Message",
+          "message_select_own_968c3fb0"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.SourceMaterial.source_material_insert_api_own_bbb50d09",
+    "label": "Create RLS policy \"source_material_insert_api_own_bbb50d09\" on \"SourceMaterial\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "source_material_insert_api_own_bbb50d09",
+        "table": "SourceMaterial"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"source_material_insert_api_own_bbb50d09\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_insert_api_own_bbb50d09"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"source_material_insert_api_own_bbb50d09\"",
+        "sql": "CREATE POLICY \"source_material_insert_api_own_bbb50d09\" ON \"public\".\"SourceMaterial\" AS PERMISSIVE FOR INSERT TO authenticated WITH CHECK (((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text)))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"source_material_insert_api_own_bbb50d09\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_insert_api_own_bbb50d09"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.SourceMaterial.source_material_select_own_f7e3ac0e",
+    "label": "Create RLS policy \"source_material_select_own_f7e3ac0e\" on \"SourceMaterial\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "source_material_select_own_f7e3ac0e",
+        "table": "SourceMaterial"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"source_material_select_own_f7e3ac0e\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_select_own_f7e3ac0e"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"source_material_select_own_f7e3ac0e\"",
+        "sql": "CREATE POLICY \"source_material_select_own_f7e3ac0e\" ON \"public\".\"SourceMaterial\" AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"SourceMaterial\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"source_material_select_own_f7e3ac0e\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "source_material_select_own_f7e3ac0e"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.User.user_insert_own_770e92f4",
+    "label": "Create RLS policy \"user_insert_own_770e92f4\" on \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "user_insert_own_770e92f4",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"user_insert_own_770e92f4\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_insert_own_770e92f4"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"user_insert_own_770e92f4\"",
+        "sql": "CREATE POLICY \"user_insert_own_770e92f4\" ON \"public\".\"User\" AS PERMISSIVE FOR INSERT TO authenticated WITH CHECK ((\"authUserId\" = (( SELECT auth.uid() AS uid))::text))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"user_insert_own_770e92f4\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_insert_own_770e92f4"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.User.user_select_own_4f3aea31",
+    "label": "Create RLS policy \"user_select_own_4f3aea31\" on \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "user_select_own_4f3aea31",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"user_select_own_4f3aea31\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_select_own_4f3aea31"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"user_select_own_4f3aea31\"",
+        "sql": "CREATE POLICY \"user_select_own_4f3aea31\" ON \"public\".\"User\" AS PERMISSIVE FOR SELECT TO authenticated USING ((\"authUserId\" = (( SELECT auth.uid() AS uid))::text))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"user_select_own_4f3aea31\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_select_own_4f3aea31"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.User.user_update_own_0788dd28",
+    "label": "Create RLS policy \"user_update_own_0788dd28\" on \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "user_update_own_0788dd28",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"user_update_own_0788dd28\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_update_own_0788dd28"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"user_update_own_0788dd28\"",
+        "sql": "CREATE POLICY \"user_update_own_0788dd28\" ON \"public\".\"User\" AS PERMISSIVE FOR UPDATE TO authenticated USING ((\"authUserId\" = (( SELECT auth.uid() AS uid))::text)) WITH CHECK ((\"authUserId\" = (( SELECT auth.uid() AS uid))::text))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"user_update_own_0788dd28\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "user_update_own_0788dd28"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "security.fresh-app-grants.User",
+    "label": "Grant authenticated application access to User",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "execute": [
+      {
+        "description": "Grant only required app table privileges",
+        "sql": "GRANT SELECT, INSERT, UPDATE ON TABLE \"public\".\"User\" TO authenticated"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "Verify each required privilege",
+        "sql": "SELECT has_table_privilege('authenticated', '\"public\".\"User\"', 'SELECT') AND has_table_privilege('authenticated', '\"public\".\"User\"', 'INSERT') AND has_table_privilege('authenticated', '\"public\".\"User\"', 'UPDATE') AS result"
+      }
+    ]
+  },
+  {
+    "id": "security.fresh-app-grants.LearningSession",
+    "label": "Grant authenticated application access to LearningSession",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "execute": [
+      {
+        "description": "Grant only required app table privileges",
+        "sql": "GRANT SELECT, INSERT, UPDATE ON TABLE \"public\".\"LearningSession\" TO authenticated"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "Verify each required privilege",
+        "sql": "SELECT has_table_privilege('authenticated', '\"public\".\"LearningSession\"', 'SELECT') AND has_table_privilege('authenticated', '\"public\".\"LearningSession\"', 'INSERT') AND has_table_privilege('authenticated', '\"public\".\"LearningSession\"', 'UPDATE') AS result"
+      }
+    ]
+  },
+  {
+    "id": "security.fresh-app-grants.Message",
+    "label": "Grant authenticated application access to Message",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "execute": [
+      {
+        "description": "Grant only required app table privileges",
+        "sql": "GRANT SELECT, INSERT ON TABLE \"public\".\"Message\" TO authenticated"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "Verify each required privilege",
+        "sql": "SELECT has_table_privilege('authenticated', '\"public\".\"Message\"', 'SELECT') AND has_table_privilege('authenticated', '\"public\".\"Message\"', 'INSERT') AS result"
+      }
+    ]
+  },
+  {
+    "id": "security.fresh-app-grants.SourceMaterial",
+    "label": "Grant authenticated application access to SourceMaterial",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "execute": [
+      {
+        "description": "Grant only required app table privileges",
+        "sql": "GRANT SELECT, INSERT ON TABLE \"public\".\"SourceMaterial\" TO authenticated"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "Verify each required privilege",
+        "sql": "SELECT has_table_privilege('authenticated', '\"public\".\"SourceMaterial\"', 'SELECT') AND has_table_privilege('authenticated', '\"public\".\"SourceMaterial\"', 'INSERT') AS result"
+      }
+    ]
+  },
+  {
+    "id": "security.fresh-app-grants.Assessment",
+    "label": "Grant authenticated application access to Assessment",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "execute": [
+      {
+        "description": "Grant only required app table privileges",
+        "sql": "GRANT SELECT, INSERT, UPDATE ON TABLE \"public\".\"Assessment\" TO authenticated"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "Verify each required privilege",
+        "sql": "SELECT has_table_privilege('authenticated', '\"public\".\"Assessment\"', 'SELECT') AND has_table_privilege('authenticated', '\"public\".\"Assessment\"', 'INSERT') AND has_table_privilege('authenticated', '\"public\".\"Assessment\"', 'UPDATE') AS result"
+      }
+    ]
+  },
+  {
+    "id": "security.fresh-app-grants.AssessmentAnswer",
+    "label": "Grant authenticated application access to AssessmentAnswer",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "execute": [
+      {
+        "description": "Grant only required app table privileges",
+        "sql": "GRANT SELECT, INSERT ON TABLE \"public\".\"AssessmentAnswer\" TO authenticated"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "Verify each required privilege",
+        "sql": "SELECT has_table_privilege('authenticated', '\"public\".\"AssessmentAnswer\"', 'SELECT') AND has_table_privilege('authenticated', '\"public\".\"AssessmentAnswer\"', 'INSERT') AS result"
+      }
+    ]
+  },
+  {
+    "id": "security.fresh-app-grants.LearningProfile",
+    "label": "Grant authenticated application access to LearningProfile",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "execute": [
+      {
+        "description": "Grant only required app table privileges",
+        "sql": "GRANT SELECT, INSERT, UPDATE ON TABLE \"public\".\"LearningProfile\" TO authenticated"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "Verify each required privilege",
+        "sql": "SELECT has_table_privilege('authenticated', '\"public\".\"LearningProfile\"', 'SELECT') AND has_table_privilege('authenticated', '\"public\".\"LearningProfile\"', 'INSERT') AND has_table_privilege('authenticated', '\"public\".\"LearningProfile\"', 'UPDATE') AS result"
+      }
+    ]
+  },
+  {
+    "id": "security.fresh-app-grants.AIRequest",
+    "label": "Grant authenticated application access to AIRequest",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "execute": [
+      {
+        "description": "Grant only required app table privileges",
+        "sql": "GRANT SELECT ON TABLE \"public\".\"AIRequest\" TO authenticated"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "Verify each required privilege",
+        "sql": "SELECT has_table_privilege('authenticated', '\"public\".\"AIRequest\"', 'SELECT') AS result"
+      }
+    ]
+  }
+]

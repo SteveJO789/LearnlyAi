@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-11",
+  "scope": "PR78 safe-merge preparation; no merge or deployment",
+  "auditedHead": "fc6d4c6c089320ee3f3bff426cf831d90e881e58",
+  "develop": "4c2e0a783d768a300cd51d0f8b3fbb93b4b240dc",
+  "recommendation": "NOT_READY_DRAFT_PENDING_LIVE_BASELINE",
+  "features": { "assessments": "disabled by default", "fileUploads": "disabled by default; requires assessments", "retrieval": "lexical default" },
+  "local": { "apiTests": 329, "apiFailed": 0, "webTests": 37, "webFailed": 0, "persistentOfflineTests": 15, "skipped": 0, "typechecks": "PASS", "productionBuilds": "PASS", "migrationIntegrity": "PASS", "runtimeKnowledge": "4/4", "freshRelocatedRuntime": "PASS; API329, runtime4 and real extraction10", "vercelConfig": "official schema constraints validated locally using existing AJV; URI formats/meta-schema validation disabled", "includeFilesLength": 157 },
+  "database": {
+    "catalog": "Read-only actual columns, marker/ledger, grants, RLS, FKs and indexes inspected",
+    "observedMarker": "c7b3938544e5e74ca8b9f22476cc7dbb3d987938d552a6e2214b5edd941b8665",
+    "proposedTip": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+    "freshFixture": { "status": "PASS", "migrations": 7, "steps": 105, "checks": 194, "fixtureRemoved": true },
+    "currentOriginFixture": { "status": "PASS", "scope": "Clone current 7 table definitions/policies/grants/FKs only; apply forward suffix and verify synthetic legacy ID/session preservation and cross-user RLS", "fixtureRemoved": true },
+    "historicalReplay": "FAILED: 20261007T1022_auth_rls_alignment AIRequest.ai_request_select_own.drop precheck; applied history untouched; not a recommended fresh/current path",
+    "initialCloneFailure": "record variable k collided with SQL alias; corrected to ck and verified on actual rerun",
+    "publicMarkerUnchanged": true,
+    "missingInfrastructure": ["learnly-materials private bucket", "public.FileUpload", "public.KnowledgeChunk", "new assessment columns/write grants"],
+    "prismaExecutorAndMarker": "NOT_VERIFIED",
+    "productionApply": "NOT_PERFORMED"
+  },
+  "githubFinalHead": "Consult PR78 Checks and final PR description; historical CI240 is not final-head proof",
+  "notExecuted": ["live OAuth/email/password/session-policy mutation", "actual Auth/JWT/Prisma/Storage/browser full journey", "deployed Vercel function trace/size/memory/smoke", "paid OpenRouter calls"],
+  "preserved": ["existing auth/callback and Supabase browser sessions", "User.id versus authUserId identity mapping", "strict citations/engine authority", "develop-only automatic CD", "existing CI workflows", "historical migration packages", "teammate UI/design"],
+  "details": "../pr78-merge-safety.md"
+}
