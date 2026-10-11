@@ -98,6 +98,10 @@ export const en: Dictionary = {
   "settings.changePassword.errorCurrent": "Please enter your current password",
   "settings.changePassword.errorLength": "New password must be at least 8 characters",
   "settings.changePassword.errorMismatch": "New passwords don't match",
+  "settings.changePassword.checking": "Checking...",
+  "settings.changePassword.googleOnlyNotice":
+    "You signed in with Google. Password can't be changed here.",
+  "settings.changePassword.errorCurrentWrong": "Current password is incorrect",
   "settings.toast.passwordChanged": "Password changed successfully!",
 
   // --- Setting: Learning Preferences ---
@@ -315,6 +319,10 @@ export const th: Dictionary = {
   "settings.changePassword.errorCurrent": "กรุณากรอกรหัสผ่านปัจจุบัน",
   "settings.changePassword.errorLength": "รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร",
   "settings.changePassword.errorMismatch": "รหัสผ่านใหม่ไม่ตรงกัน",
+  "settings.changePassword.checking": "กำลังตรวจสอบ...",
+  "settings.changePassword.googleOnlyNotice":
+    "คุณเข้าสู่ระบบด้วย Google ไม่สามารถเปลี่ยนรหัสผ่านได้ที่นี่",
+  "settings.changePassword.errorCurrentWrong": "รหัสผ่านปัจจุบันไม่ถูกต้อง",
   "settings.toast.passwordChanged": "เปลี่ยนรหัสผ่านเรียบร้อยแล้ว!",
 
   "settings.learningPreferences.title": "ค่าการเรียนรู้",

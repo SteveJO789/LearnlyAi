@@ -7,6 +7,7 @@ import AccountSidebar from "../components/AccountSidebar";
 import SiteHeader from "../../components/SiteHeader";
 import Toggle from "../components/Toggle";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
+import { getSupabaseClient } from "../../../lib/supabase";
 
 type SettingTabType =
   | "Change Password"
@@ -57,7 +58,18 @@ function SettingContent() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handlePasswordSubmit = (e: FormEvent) => {
+  // null = ยังเช็คไม่เสร็จ, true = login ด้วย Google อย่างเดียว (ไม่มี password ผูกอยู่)
+  const [isGoogleOnlyUser, setIsGoogleOnlyUser] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const supabase = getSupabaseClient();
+    supabase.auth.getUser().then(({ data }) => {
+      const providers = data.user?.identities?.map((identity) => identity.provider) ?? [];
+      setIsGoogleOnlyUser(providers.length > 0 && !providers.includes("email"));
+    });
+  }, []);
+
+  const handlePasswordSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const errors: Record<string, string> = {};
     if (!passwords.current) errors.current = t("settings.changePassword.errorCurrent");
@@ -67,11 +79,38 @@ function SettingContent() {
     if (Object.keys(errors).length > 0) return;
 
     setIsSavingPassword(true);
-    setTimeout(() => {
-      setIsSavingPassword(false);
-      setPasswords({ current: "", next: "", confirm: "" });
-      showToast(t("settings.toast.passwordChanged"));
-    }, 1200);
+
+    const supabase = getSupabaseClient();
+
+    // Supabase updateUser ไม่เช็ค current password ให้อัตโนมัติ ต้องยืนยันเองก่อน
+    // ด้วยการลอง sign in ซ้ำด้วย current password ที่ user กรอกมา
+    const { data: userData } = await supabase.auth.getUser();
+    const email = userData.user?.email;
+
+    if (email) {
+      const { error: reauthError } = await supabase.auth.signInWithPassword({
+        email,
+        password: passwords.current,
+      });
+
+      if (reauthError) {
+        setIsSavingPassword(false);
+        setPasswordErrors({ current: t("settings.changePassword.errorCurrentWrong") });
+        return;
+      }
+    }
+
+    const { error } = await supabase.auth.updateUser({ password: passwords.next });
+
+    setIsSavingPassword(false);
+
+    if (error) {
+      setPasswordErrors({ next: error.message });
+      return;
+    }
+
+    setPasswords({ current: "", next: "", confirm: "" });
+    showToast(t("settings.toast.passwordChanged"));
   };
 
   // --- Learning Preferences ---
@@ -171,7 +210,18 @@ function SettingContent() {
               )}
 
               {/* Change Password */}
-              {activeTab === "Change Password" && (
+              {activeTab === "Change Password" && isGoogleOnlyUser === null && (
+                <p className="text-sm text-muted">{t("settings.changePassword.checking")}</p>
+              )}
+
+              {activeTab === "Change Password" && isGoogleOnlyUser === true && (
+                <div className="max-w-md flex flex-col gap-3">
+                  <h3 className="text-xl font-bold">{t("settings.changePassword.title")}</h3>
+                  <p className="text-sm text-muted">{t("settings.changePassword.googleOnlyNotice")}</p>
+                </div>
+              )}
+
+              {activeTab === "Change Password" && isGoogleOnlyUser === false && (
                 <form onSubmit={handlePasswordSubmit} className="max-w-md flex flex-col gap-5">
                   <h3 className="text-xl font-bold">{t("settings.changePassword.title")}</h3>
 
