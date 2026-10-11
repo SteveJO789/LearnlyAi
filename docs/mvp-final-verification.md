@@ -1,5 +1,13 @@
 # หลักฐานตรวจสอบ MVP
 
+## สถานะล่าสุด: PR #78 merge safety (2026-10-11)
+
+**NOT READY / คง Draft** ระหว่างรอ live baseline Auth→Prisma smoke. ฟีเจอร์ assessment/private upload/File History ปิดโดย default ผ่าน server-owned flags; lexical RAG เป็น default. Create ข้อความบันทึกผ่าน interaction/message เดิมและไป Chat ได้โดยไม่ใช้ assessment schema ใหม่. API disabled routes authenticate ก่อนและไม่แตะ DB/Storage/extractor. รายละเอียดและขั้นตอนเปิดใช้งานอยู่ใน [PR78 merge safety](pr78-merge-safety.md) และ [หลักฐานรอบนี้](evidence/pr78-merge-safety-verification.json)
+
+ตรวจใหม่: API329/329, Web37/37, offline persistent15/15, typechecks/builds/migration check PASS; fresh SQL fixture7migrations/105steps/194checks และ current-origin cloned-schema forward SQL/legacy ownership/cross-user RLS PASS/rollback/removed. Marker production c7 คงเดิม. Historical legacy replay failure ยังบันทึกไว้ ไม่แก้ applied history. ยังไม่ตรวจ real Prisma executor/marker, live Storage/browser/Auth และ deployed Vercel smoke. ไม่มี production apply/paid call/deploy/merge. CI ของ final HEAD ให้ตรวจจาก PR78 Checks/description
+
+โควต้า approval-review ที่บล็อก SQL รอบก่อนปลดแล้วในรอบนี้และอ่าน catalog/ทดสอบ fixtures ได้จริง. ข้อมูลด้านล่างเป็นหลักฐานย้อนหลังของแต่ละ milestone ไม่ใช่สถานะ verification ล่าสุด และไม่ใช่คำรับรองว่า MVP ทั้งหมดเสร็จ
+
 อัปเดต 2026-10-10: **กำลังทำ — ยังไม่ IMPLEMENTATION COMPLETE และยังไม่ RELEASED**
 
 2026-10-11 ล่าสุด: แก้ Settings password success timer เป็น realSupabaseAuth/isolated verified actor/current_password/local-session cleanup แล้ว Web **35/35**/typecheck/productionbuild และactualSDKofflineprotocolPASS ไม่เปลี่ยนpasswordlive ไม่ส่งemail/paidcall บัญชีGoogle/Email/session policyจริงยังต้องverified OtherSettingspreferences/privacy/deleteAccountยังprototype [หลักฐาน](evidence/mvp-password-change-verification.json)

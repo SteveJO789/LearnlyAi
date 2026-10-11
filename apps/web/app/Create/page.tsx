@@ -7,13 +7,16 @@ import SiteHeader from "../components/SiteHeader";
 import CuteLoadingPopup from "../components/CuteLoadingPopup";
 import CreateMagicCharacters from "./CreateMagicCharacters";
 import { useLanguage } from "../lib/i18n/LanguageContext";
-import { createLearningSession, createTextMaterial } from "../../lib/learning-sessions";
+import { createLearningSession } from "../../lib/learning-sessions";
+import { disabledFeatures, getFeatures, useFeatures } from "../../lib/features";
+import { startTextLesson } from "../../lib/start-text-lesson";
 import { getCurrentUserProfile, type AppUserProfile } from "../../lib/user-profile";
 import { uploadFileMaterial, reviewFileMaterial, listUploadReceipts, resumeFileUpload, validateSelectedFile, type FileMaterialDto, type UploadReceiptDto } from "../../lib/file-materials";
 
 export default function CreatePage() {
   const { t, language } = useLanguage();
   const router = useRouter();
+  const features = useFeatures();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadController = useRef<AbortController | null>(null);
 
@@ -47,6 +50,9 @@ export default function CreatePage() {
     setIsStarting(true);
 
     try {
+      // Recheck the server before a mutation; no build-time public env flag.
+      const available = await getFeatures(AbortSignal.timeout(5000)).catch(() => disabledFeatures);
+      if (file && !available.fileUploads) throw new Error(label("การอัปโหลดไฟล์ยังไม่เปิดใช้งาน ใช้ข้อความเพื่อเริ่มเรียนได้", "File uploads are not enabled. Start with text instead."));
       let id = draftId;
       if (!id) {
         id = (await createLearningSession({ title: (input || file?.name || "Lesson").replace(/\s+/g, " ").slice(0, 120) })).id;
@@ -59,8 +65,11 @@ export default function CreatePage() {
         setQuestion(extracted.normalizedText + (input ? "\n\n" + input : ""));
         return;
       }
-      if (material) await reviewFileMaterial(id, material.id, input);
-      else await createTextMaterial(id, input);
+      if (!material) {
+        router.push(await startTextLesson(id, input, available));
+        return;
+      }
+      await reviewFileMaterial(id, material.id, input);
       router.push(`/Assessment/${id}?phase=PRE`);
     } catch (startError) {
       setError(
@@ -192,7 +201,7 @@ export default function CreatePage() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            disabled={isStarting || !!material}
+            disabled={isStarting || !!material || !features.fileUploads}
             className="w-full break-all rounded-full border border-surface-border bg-surface px-4 py-4 text-sm text-muted hover:border-primary transition-colors cursor-pointer disabled:opacity-60"
           >
             {file ? `📎 ${file.name}` : t("create.uploadPlaceholder")}
@@ -200,6 +209,7 @@ export default function CreatePage() {
           <input
             ref={fileInputRef}
             type="file"
+            disabled={!features.fileUploads}
             accept="image/png,image/jpeg,application/pdf"
             className="hidden"
             onChange={(e) => {
@@ -208,6 +218,7 @@ export default function CreatePage() {
               catch (error) { setFile(null); setError(error instanceof Error ? error.message : label("ไฟล์ไม่รองรับ", "Unsupported file.")); }
             }}
           />
+          {!features.fileUploads && <p role="status" className="text-xs text-muted">{label("อัปโหลดไฟล์ยังไม่เปิดใช้งาน เริ่มเรียนด้วยข้อความได้", "Uploads are not enabled. You can start learning with text.")}</p>}
           {file && (
             <>
               <button

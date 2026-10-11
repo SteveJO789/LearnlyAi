@@ -48,7 +48,7 @@ test('protected HTTP file collection returns owner-scoped page and rejects inval
     const id = { 'Bearer owned': '11111111-1111-4111-8111-11111111ac01', 'Bearer peer': '11111111-1111-4111-8111-11111111ac02' }[init.headers.authorization];
     return id ? Response.json({ id, user_metadata: {} }) : Response.json({}, { status: 401 });
   } });
-  const server = createApp({ fileHistory: { authenticate, store: async request => {
+  const server = createApp({ features: { assessments: true, fileUploads: true }, fileHistory: { authenticate, store: async request => {
     contexts++;
     return { list: async query => ({ items: request.authUser.id.endsWith('ac01') ? [{ ...row('file'), uploadedAt: null }] : [], nextCursor: null }),
       listReceipts: async () => ({ items: request.authUser.id.endsWith('ac01') ? [{ id: 'pending', sessionId: 'session-owned', sessionTitle: 'Owned', state: 'PENDING', filename: 'x.pdf', type: 'PDF', createdAt: '2026-10-11T00:00:00Z', canResume: true }] : [], nextCursor: null }) };

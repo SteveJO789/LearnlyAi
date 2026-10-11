@@ -18,12 +18,14 @@ import { readPersistedMessages, type PersistedMessage } from "./persisted-messag
 import { logSessionLoadFailure } from "../../shared/safe-diagnostics.js";
 import { appUserIdForAuthUser } from "../../shared/app-user.js";
 import { createPersistentKnowledgeRetriever } from "./create-persistent-knowledge-retriever.js";
+import { readFeatures } from "../../shared/features.js";
 
 type SessionRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["LearningSession"]["first"]>>>;
 
 export interface LearningSessionsRouterOptions extends Pick<CreateLearningEngineOptions, "knowledgeRetriever" | "knowledgeRoot"> {
   authenticate?: RequestHandler;
   modelProvider?: ModelProvider;
+  assessmentsEnabled?: boolean;
 }
 
 function sessionSummary(row: SessionRow) {
@@ -113,6 +115,7 @@ export function createLearningSessionsRouter(
   options: LearningSessionsRouterOptions = {},
 ): Router {
   const router = Router();
+  const assessmentsEnabled = options.assessmentsEnabled ?? readFeatures().assessments;
   router.use(options.authenticate ?? requireSupabaseUser);
 
   router.post("/", async (request: AuthenticatedRequest, response, next) => {
@@ -334,14 +337,14 @@ export function createLearningSessionsRouter(
           ]);
         }
 
-        if (action === "ADVANCE" && session.stage === "ASSESS") {
+        if (assessmentsEnabled && action === "ADVANCE" && session.stage === "ASSESS") {
           const assessment = await new PrismaAssessmentStore(client, appUserId).getAssessment(session.id, "POST");
           if (!assessment?.submittedAt) throw new LearningError("INVALID_STAGE_TRANSITION", [
             { path: "/action", message: "Submit the post-test before completing the learning session." },
           ]);
         }
 
-        if (session.state === "PRE_TEST" && session.stage === "EXPLAIN") {
+        if (assessmentsEnabled && session.state === "PRE_TEST" && session.stage === "EXPLAIN") {
           const assessment = await new PrismaAssessmentStore(client, appUserId).getAssessment(session.id, "PRE");
           if (!assessment?.submittedAt) throw new LearningError("INVALID_STAGE_TRANSITION", [
             { path: "/action", message: "Submit the pre-test before starting this learning session." },

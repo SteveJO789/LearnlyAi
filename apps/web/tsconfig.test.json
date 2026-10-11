@@ -20,7 +20,8 @@
     "app/Chat/[sessionId]/blocks.tsx",
     "lib/assessments.ts",
     "lib/user-profile.ts",
-    "lib/file-materials.ts"
+    "lib/file-materials.ts",
+    "lib/start-text-lesson.ts"
   ],
   "exclude": ["node_modules", ".next", ".web-test-build"]
 }

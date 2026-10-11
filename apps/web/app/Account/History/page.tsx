@@ -14,6 +14,7 @@ import RequireAuth from "../../components/require-auth";
 import { FileHistoryCards, FileHistoryDetails } from "../../components/file-history";
 import { listFileHistory, type FileHistoryItem } from "../../../lib/file-materials";
 import { UploadHistory } from "../../components/upload-history";
+import { useFeatures } from "../../../lib/features";
 
 
 interface ChatItem {
@@ -24,6 +25,7 @@ interface ChatItem {
 }
 
 function HistoryContent() {
+  const features = useFeatures();
   const { t, language } = useLanguage();
   const searchParams = useSearchParams();
   const activeTab = historyTab(searchParams.get("tab"));
@@ -62,20 +64,20 @@ function HistoryContent() {
   }, [retry, activeTab]);
 
   useEffect(() => {
-    if (activeTab !== "Test Results") return;
+    if (activeTab !== "Test Results" || !features.assessments) return;
     let active = true;
     setResultsLoading(true); setResultsError(null);
     getLearningProgress().then(progress => { if (active) setComparisons(progress.comparisons); })
       .catch(cause => { if (active) setResultsError(cause instanceof Error ? cause.message : "Could not load results."); })
       .finally(() => { if (active) setResultsLoading(false); });
     return () => { active = false; };
-  }, [activeTab, retry]);
+  }, [activeTab, retry, features.assessments]);
 
   useEffect(() => {
     setFileCursor(""); setFiles([]); setNextFileCursor(null);
   }, [startDate, endDate]);
   useEffect(() => {
-    if (activeTab !== "Uploaded Files") return;
+    if (activeTab !== "Uploaded Files" || !features.fileUploads) return;
     const controller = new AbortController();
     setFilesLoading(true); setFilesError(null);
     listFileHistory({ after: fileCursor, from: startDate, to: endDate }, controller.signal)
@@ -85,7 +87,7 @@ function HistoryContent() {
       } }).catch(cause => { if (!controller.signal.aborted) setFilesError(cause instanceof Error ? cause.message : t("history.fileError")); })
       .finally(() => { if (!controller.signal.aborted) setFilesLoading(false); });
     return () => controller.abort();
-  }, [activeTab, fileCursor, startDate, endDate, fileRetry, t]);
+  }, [activeTab, fileCursor, startDate, endDate, fileRetry, t, features.fileUploads]);
   const testResultsHistory = assessmentHistory(sessionHistory, comparisons);
 
   const chatHistory: ChatItem[] = sessionHistory.map((session) => ({
@@ -230,7 +232,8 @@ function HistoryContent() {
                   <button type="button" onClick={() => setRetry(value => value + 1)} disabled={historyLoading || (activeTab === "Test Results" && resultsLoading)} className="mt-2 rounded-lg border border-danger/40 px-4 py-2 disabled:opacity-50">{t("history.retry")}</button>
                 </div>
               )}
-              {activeTab !== "Uploaded Files" && (historyLoading || (activeTab === "Test Results" && resultsLoading)) ? <p role="status" className="py-12 text-center text-muted">{t("history.loading")}</p> : null}
+              {activeTab !== "Uploaded Files" && (historyLoading || (activeTab === "Test Results" && features.assessments && resultsLoading)) ? <p role="status" className="py-12 text-center text-muted">{t("history.loading")}</p> : null}
+              {((activeTab === "Uploaded Files" && !features.fileUploads) || (activeTab === "Test Results" && !features.assessments)) && <p role="status" className="py-12 text-center text-muted">{language === "th" ? "ฟีเจอร์นี้ยังไม่เปิดใช้งาน ประวัติบทเรียนยังดูได้ตามปกติ" : "This feature is not enabled. Lesson history remains available."}</p>}
               {/* แท็บ Chat */}
               {activeTab === "Chat" && !historyLoading && !historyError && (
                 <div className="flex flex-col gap-3 w-full">
@@ -294,7 +297,7 @@ function HistoryContent() {
               )}
 
               {/* แท็บ Uploaded Files */}
-              {activeTab === "Uploaded Files" && (
+              {activeTab === "Uploaded Files" && features.fileUploads && (
                 <div className="flex flex-col gap-4">
                   <UploadHistory language={language} from={startDate} to={endDate} onChanged={() => { setFileCursor(""); setFileRetry(value => value + 1); }} />
                   {filesError ? <div role="alert" className="rounded-xl border border-danger/40 p-3 text-sm text-danger">
@@ -309,7 +312,7 @@ function HistoryContent() {
               )}
 
               {/* แท็บ Test Results */}
-              {activeTab === "Test Results" && !historyLoading && !resultsLoading && !resultsError && (
+              {activeTab === "Test Results" && features.assessments && !historyLoading && !resultsLoading && !resultsError && (
                 <AssessmentHistory items={filteredTestResults} language={language} />
               )}
             </div>

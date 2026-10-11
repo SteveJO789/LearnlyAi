@@ -11,6 +11,7 @@ import { ApiError } from "./shared/api-error.js";
 import { createAssessmentRouter, createLearningProfileRouter, type AssessmentRouterOptions } from "./modules/assessments/assessment-router.js";
 import { createMaterialRouter, type MaterialRouterOptions } from "./modules/input/material-router.js";
 import { createFileHistoryRouter, type FileHistoryRouterOptions } from "./modules/input/file-history-router.js";
+import { readFeatures, type Features } from "./shared/features.js";
 
 export interface AppOptions extends CreateLearningEngineOptions {
   learningEngine?: LearningEngine;
@@ -20,10 +21,12 @@ export interface AppOptions extends CreateLearningEngineOptions {
   assessment?: AssessmentRouterOptions;
   materialApi?: MaterialRouterOptions;
   fileHistory?: FileHistoryRouterOptions;
+  features?: Features;
 }
 
 export function createApp(options: AppOptions = {}): Express {
   const app = express();
+  const features = options.features ?? readFeatures();
   const engine = options.learningEngine ?? createLearningEngine(options);
 
   app.disable("x-powered-by");
@@ -33,6 +36,10 @@ export function createApp(options: AppOptions = {}): Express {
     next();
   });
   app.use(express.json({ limit: "1mb" }));
+  app.get("/api/v1/capabilities", (_request, response) => {
+    response.setHeader("cache-control", "no-store");
+    response.json({ data: features });
+  });
 
   app.get("/health/live", (_request, response) => {
     response.status(200).json({
@@ -57,18 +64,18 @@ export function createApp(options: AppOptions = {}): Express {
     app.use("/api/v1/learning", learningRouter);
   }
   app.use(
-    "/api/v1/learning-sessions/:sessionId/materials", createMaterialRouter(options.materialApi),
+    "/api/v1/learning-sessions/:sessionId/materials", createMaterialRouter({ ...options.materialApi, features }),
   );
   app.use(
     "/api/v1/learning-sessions/:sessionId/assessments",
-    createAssessmentRouter(options.assessment),
+    createAssessmentRouter({ ...options.assessment, enabled: features.assessments }),
   );
-  app.use("/api/v1/users/me/files", createFileHistoryRouter(options.fileHistory));
-  app.use("/api/v1/users/me", createLearningProfileRouter(options.assessment));
+  app.use("/api/v1/users/me/files", createFileHistoryRouter({ ...options.fileHistory, enabled: features.fileUploads }));
+  app.use("/api/v1/users/me", createLearningProfileRouter({ ...options.assessment, enabled: features.assessments }));
   app.use(
     "/api/v1/learning-sessions",
     createLearningSessionsRouter({ modelProvider: options.modelProvider,
-      knowledgeRetriever: options.knowledgeRetriever, knowledgeRoot: options.knowledgeRoot }),
+      knowledgeRetriever: options.knowledgeRetriever, knowledgeRoot: options.knowledgeRoot, assessmentsEnabled: features.assessments }),
   );
 
   app.use((_request, response) => {

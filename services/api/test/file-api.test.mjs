@@ -37,7 +37,7 @@ function context(request){
     ingestion:new FileIngestion(store,storage,new RealFileTextExtractor(),request.authUser.id),storage:()=>storage});
 }
 async function withApi(work){
-  const server=createApp({modelProvider:{generate:async()=>{throw Error('No AI expected');}},materialApi:{authenticate,context}}).listen(0,'127.0.0.1');
+  const server=createApp({features:{assessments:true,fileUploads:true},modelProvider:{generate:async()=>{throw Error('No AI expected');}},materialApi:{authenticate,context}}).listen(0,'127.0.0.1');
   await once(server,'listening');const base=`http://127.0.0.1:${server.address().port}/api/v1/learning-sessions/owned/materials`;
   try{await work(base);}finally{server.closeAllConnections();await new Promise(r=>server.close(r));}
 }

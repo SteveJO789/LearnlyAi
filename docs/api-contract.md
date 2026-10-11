@@ -238,3 +238,6 @@ Pending/cancelled receipts: `GET /api/v1/users/me/files/uploads` supports the sa
 | 429 | Rate limited |
 | 502/503/504 | AI/dependency failure แบบควบคุมได้ |
 
+# Merge-safe feature availability
+
+`GET /api/v1/capabilities` returns `{data:{assessments:boolean,fileUploads:boolean}}` with `Cache-Control: no-store`, no DB/Storage or secrets. Both default false; file uploads require assessments. Protected disabled assessment/profile/progress, file/review/recovery/cancel/download/history and TEXT material-write endpoints authenticate first, then return `503 FEATURE_DISABLED` before infrastructure access. Existing session reads/interactions/recovery remain available. Without assessments, Create stores original text through interactions and opens Chat; no scores/mastery are simulated. See [activation and verification](pr78-merge-safety.md).

@@ -6,8 +6,10 @@ import { AssessmentView, assessmentCopy } from "../../components/assessment-view
 import CuteLoadingPopup from "../../components/CuteLoadingPopup";
 import { getLearningSession, LearningApiError } from "../../../lib/learning-sessions";
 import { createAssessment, getAssessment, submitAssessment, type AssessmentDto, type AssessmentPhase, type AssessmentTopic } from "../../../lib/assessments";
+import { useFeatures } from "../../../lib/features";
 
 export default function AssessmentSession({ sessionId, phase }: { sessionId: string; phase: AssessmentPhase }) {
+  const features = useFeatures();
   const { language } = useLanguage();
   const [data, setData] = useState<AssessmentDto | null>(null);
   const [loading, setLoading] = useState(true), [saving, setSaving] = useState(false);
@@ -20,6 +22,7 @@ export default function AssessmentSession({ sessionId, phase }: { sessionId: str
       Object.fromEntries(next.questions.map(question => [question.id, previous[question.id] ?? ""])));
   }
   useEffect(() => {
+    if (!features.assessments) return;
     let active = true;
     const controller = new AbortController();
     setLoading(true); setError(null);
@@ -37,7 +40,7 @@ export default function AssessmentSession({ sessionId, phase }: { sessionId: str
     })().catch(cause => { if (active) setError(cause instanceof Error ? cause.message : "Assessment could not be loaded."); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; controller.abort(); };
-  }, [sessionId, phase, retry]);
+  }, [sessionId, phase, retry, features.assessments]);
 
   async function create() {
     if (!topic || busy.current) return;
@@ -55,6 +58,7 @@ export default function AssessmentSession({ sessionId, phase }: { sessionId: str
     catch (cause) { setError(cause instanceof Error ? cause.message : "Answers could not be saved."); }
     finally { busy.current = false; setSaving(false); }
   }
+  if (!features.assessments) return <p role="status">{language === "th" ? "แบบทดสอบยังไม่เปิดใช้งาน" : "Assessments are not enabled."} <Link href={`/Chat/${encodeURIComponent(sessionId)}`}>{language === "th" ? "กลับไปเรียน" : "Return to lesson"}</Link></p>;
   return <>
     {(loading || saving) && <CuteLoadingPopup message={saving ? "กำลังบันทึกแบบทดสอบ..." : "กำลังเตรียมแบบทดสอบ..."} detail="กำลังโหลดข้อมูลบทเรียนและจัดห้องเรียนให้พร้อม 🌷" />}
     <AssessmentView language={language} phase={phase} assessment={data} loading={loading} saving={saving} error={error}

@@ -9,6 +9,7 @@ import { PrivateMaterialStorage, materialStorageKey } from "./private-material-s
 import { FileIngestion } from "./file-ingestion.js";
 import { RealFileTextExtractor } from "./real-file-text-extractor.js";
 import { MAX_FILE_BYTES, type FileEnvelope } from "./file-envelope.js";
+import { readFeatures, requireFeature, type Features } from "../../shared/features.js";
 
 export interface MaterialApiContext {
   texts: Pick<PrismaTextMaterials, "create" | "list">;
@@ -17,6 +18,7 @@ export interface MaterialApiContext {
   storage(bucket: string): Pick<PrivateMaterialStorage, "download">;
 }
 export interface MaterialRouterOptions {
+  features?: Features;
   /** Explicit test ports; defaults use verified Auth, Prisma, real extraction and private Storage. */
   authenticate?: RequestHandler;
   context?: (request: AuthenticatedRequest) => Promise<MaterialApiContext>;
@@ -41,6 +43,13 @@ async function defaultContext(request: AuthenticatedRequest): Promise<MaterialAp
 export function createMaterialRouter(options: MaterialRouterOptions = {}) {
   const router = Router({ mergeParams: true });
   router.use(options.authenticate ?? requireSupabaseUser);
+  const features = options.features ?? readFeatures();
+  // Gate before creating a DB/Storage context or parsing file bytes.
+  router.use((request, response, next) => {
+    if (request.method === "GET" && request.path === "/") return next();
+    const enabled = request.method === "POST" && request.path === "/" ? features.assessments : features.fileUploads;
+    return requireFeature(enabled)(request, response, next);
+  });
   const context = options.context ?? defaultContext;
   router.get("/", async (request: AuthenticatedRequest, response, next) => {
     try { response.json({ data: await (await context(request)).texts.list(identity(request.params.sessionId)) }); }

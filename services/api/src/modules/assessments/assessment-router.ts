@@ -7,8 +7,10 @@ import { PrismaAssessmentStore } from "./prisma-assessment-store.js";
 import type { AssessmentStore } from "./domain.js";
 import type { AssessmentPhase } from "./scoring.js";
 import { appUserIdForAuthUser } from "../../shared/app-user.js";
+import { readFeatures, requireFeature } from "../../shared/features.js";
 
 export interface AssessmentRouterOptions {
+  enabled?: boolean;
   authenticate?: RequestHandler;
   storeFactory?: (request: AuthenticatedRequest) => Promise<AssessmentStore>;
 }
@@ -41,6 +43,7 @@ export async function requestAssessmentStore(request: AuthenticatedRequest, opti
 export function createAssessmentRouter(options: AssessmentRouterOptions = {}) {
   const router = Router({ mergeParams: true });
   router.use(options.authenticate ?? requireSupabaseUser);
+  router.use(requireFeature(options.enabled ?? readFeatures().assessments));
   router.post("/:phase", async (request: AuthenticatedRequest, response, next) => {
     try {
       const { sessionId, phase } = parameters(request);
@@ -73,6 +76,7 @@ export function createAssessmentRouter(options: AssessmentRouterOptions = {}) {
 export function createLearningProfileRouter(options: AssessmentRouterOptions = {}) {
   const router = Router();
   router.use(options.authenticate ?? requireSupabaseUser);
+  router.use(["/learning-profile", "/progress"], requireFeature(options.enabled ?? readFeatures().assessments));
   router.get("/learning-profile", async (request: AuthenticatedRequest, response, next) => {
     try {
       const store = await requestAssessmentStore(request, options);

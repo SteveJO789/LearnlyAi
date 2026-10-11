@@ -123,10 +123,10 @@ const { LocalReviewedKnowledgeReader } = await load('dist/modules/knowledge/revi
 const { chunkReviewedPassage, reviewedChunkEmbeddingInput } = await load('dist/modules/knowledge/reviewed-chunks.js');
 const { reviewedProvenanceHash } = await load('dist/modules/knowledge/vector-knowledge-retriever.js');
 after(() => { globalThis.fetch = realFetch; mock.restoreAll(); for (const [key,value] of Object.entries(originalEnv)) { if(value === undefined) delete process.env[key]; else process.env[key] = value; } });
-async function withApp(scenario, run) {
+async function withApp(scenario, run, features = { assessments: true, fileUploads: true }) {
   reset(); const requests = [];
   const provider = new MockModelProvider({ scenario: request => { requests.push(request); return scenario(request); } });
-  const server = createApp({ modelProvider: provider }).listen(0, '127.0.0.1');
+  const server = createApp({ modelProvider: provider, features }).listen(0, '127.0.0.1');
   await once(server, 'listening');
   const base = `http://127.0.0.1:${server.address().port}/api/v1/learning-sessions`;
   const call = async (path='', { token='test-token-a', method='GET', body }={}) => {
@@ -139,6 +139,20 @@ async function session(call) {
   const r = await call('', { method: 'POST', body: { title: 'Synthetic RAG verification', subject: 'physics' } });
   assert.equal(r.status,201); return r.body.data.id;
 }
+test('disabled new infrastructure preserves text learning, restoration, legacy ownership and engine completion (offline DB/Auth)', async () => {
+  await withApp(mockTutorScenario, async ({ call }) => {
+    const id = await session(call);
+    assert.equal((await call(`/${id}/interactions`, { method: 'POST', body: { input: "Explain Ohm's law." } })).status, 200);
+    const restored = await call(`/${id}`);
+    assert.equal(restored.status, 200); assert.equal(restored.body.data.messages.length, 2);
+    assert.equal((await call(`/${id}`, { token: 'test-token-b' })).status, 404);
+    for (let step = 0; step < 3; step++) {
+      assert.equal((await call(`/${id}/interactions`, { method: 'POST', body: { action: 'ADVANCE', input: 'Continue' } })).status, 200);
+    }
+    assert.equal((await call(`/${id}`)).body.data.lifecycleState, 'COMPLETED');
+    assert.equal((await call('', { token: null })).status, 401);
+  }, { assessments: false, fileUploads: false });
+});
 for (const mode of ['trusted', 'stale', 'unavailable']) test(`configured vector mode reaches protected persisted learning with ${mode} index response (offline services)`, async () => {
   const previous = Object.fromEntries(vectorEnvKeys.map(key => [key, process.env[key]]));
   Object.assign(process.env, { KNOWLEDGE_RETRIEVAL_MODE: 'vector', KNOWLEDGE_EMBEDDING_MODEL: 'openai/text-embedding-3-small',

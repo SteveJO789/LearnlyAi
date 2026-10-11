@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { respondToLearning, type LearningAction, type TutorOutput } from "./api";
 import { getLearningSession, recoverLearningSession } from "../../../lib/learning-sessions";
 import { getAssessment } from "../../../lib/assessments";
+import { useFeatures } from "../../../lib/features";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
 import BlockView, { CitationList } from "./blocks";
 import CuteLoadingPopup from "../../components/CuteLoadingPopup";
@@ -36,6 +37,7 @@ function SidebarIcon() {
 export default function LearningSession({ sessionId, learningGoal, subject, initialInput }: Props) {
   const { t } = useLanguage();
   const router = useRouter();
+  const features = useFeatures();
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
@@ -66,6 +68,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
   }, [turns, loading, error]);
 
   useEffect(() => {
+    if (!features.loaded) return;
     let active = true;
     setHydrating(true);
     setError(null);
@@ -99,12 +102,12 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
         setSessionStage(session.stage);
         setSessionFailed(session.lifecycleState === "FAILED");
         if (session.lifecycleState === "FAILED") setError(t("chat.failedSession"));
-        if (session.state === "PRE_TEST" && session.stage === "EXPLAIN") {
+        if (features.assessments && session.state === "PRE_TEST" && session.stage === "EXPLAIN") {
           setPendingPre(true);
           void getAssessment(sessionId, "PRE").then(assessment => { if (active) setPendingPre(!assessment.submittedAt); })
             .catch(() => { if (active) setPendingPre(true); });
         } else setPendingPre(false);
-        if (session.stage === "ASSESS") {
+        if (features.assessments && session.stage === "ASSESS") {
           void getAssessment(sessionId, "POST").then(assessment => { if (active) setPostSubmitted(Boolean(assessment.submittedAt)); })
             .catch(() => { if (active) setPostSubmitted(false); });
         }
@@ -126,7 +129,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
     return () => {
       active = false;
     };
-  }, [sessionId, t, loadRetry]);
+  }, [sessionId, t, loadRetry, features.loaded, features.assessments]);
 
   const lastTurn = turns[turns.length - 1];
   const lastTutorTurn = [...turns]
@@ -187,7 +190,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
 
   function advance() {
     if (loading || sessionFailed) return;
-    if (sessionStage === "ASSESS" && !postSubmitted) { router.push(`/Assessment/${sessionId}?phase=POST`); return; }
+    if (features.assessments && sessionStage === "ASSESS" && !postSubmitted) { router.push(`/Assessment/${sessionId}?phase=POST`); return; }
     void run({ action: "ADVANCE", input: t("chat.continue") });
   }
 
