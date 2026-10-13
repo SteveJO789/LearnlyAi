@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-10",
+  "model": "deepseek/deepseek-v4.1-flash",
+  "category": "LIVE_TUTOR_NUMERIC_FOLLOWUP",
+  "numericRuns": [
+    {
+      "startedAt": "2026-10-10T04:54:36.858Z",
+      "finishedAt": "2026-10-10T04:54:48.576Z",
+      "calls": 3,
+      "accepted": 3,
+      "schemaValid": 3,
+      "engineBound": 3,
+      "citationIntegrity": 3,
+      "retrievalMatches": 3
+    },
+    {
+      "startedAt": "2026-10-10T05:00:03.243Z",
+      "finishedAt": "2026-10-10T05:00:14.817Z",
+      "calls": 3,
+      "accepted": 3,
+      "schemaValid": 3,
+      "engineBound": 3,
+      "citationIntegrity": 3,
+      "retrievalMatches": 3
+    },
+    {
+      "startedAt": "2026-10-10T05:04:02.495Z",
+      "finishedAt": "2026-10-10T05:04:10.262Z",
+      "calls": 3,
+      "accepted": 3,
+      "schemaValid": 3,
+      "engineBound": 3,
+      "citationIntegrity": 3,
+      "retrievalMatches": 3
+    }
+  ],
+  "currentFiveConversations": {
+    "startedAt": "2026-10-10T05:08:43.341Z",
+    "finishedAt": "2026-10-10T05:09:16.467Z",
+    "calls": 13,
+    "accepted": 13,
+    "schemaValid": 13,
+    "engineBound": 13,
+    "citationIntegrity": 13,
+    "retrievalMatches": 13
+  },
+  "totalCallsInGoal": 48,
+  "cumulativeBudget": {
+    "reservedUSD": 0.5915484,
+    "reportedCostUSD": 0.029573635720000012
+  },
+  "fixes": [
+    "numeric replies preserve recent learner language and reviewed topic context",
+    "current explicit language/mode supplied as server-selected task data",
+    "numeric result confirmation separated from demonstrated method/reasoning"
+  ],
+  "observations": [
+    "First numeric run: Thanks after Thai remained Thai despite English policy",
+    "Second run: language fixed, but numeric-only reply incorrectly described the learner method as demonstrated",
+    "Third run: Thai numeric feedback asks for reasoning; English acknowledgement retained"
+  ],
+  "limits": [
+    "Agent inspection, not independent educator review",
+    "A later generic hint still assumed a V-from-I/R problem without learner givens; no invented numeric values",
+    "Acknowledgement sometimes recaps the numeric result despite no-recap preference",
+    "Small corpus/one model; no Auth/DB/browser E2E",
+    "Original numeric runs remain separately retained, not overwritten"
+  ]
+}

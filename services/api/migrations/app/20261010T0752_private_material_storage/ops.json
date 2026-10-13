@@ -1,0 +1,358 @@
+[
+  {
+    "id": "column.public.SourceMaterial.storageBucket",
+    "label": "Add column \"storageBucket\" to \"SourceMaterial\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "storageBucket",
+        "table": "SourceMaterial"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"storageBucket\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "storageBucket"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"storageBucket\"",
+        "sql": "ALTER TABLE \"public\".\"SourceMaterial\" ADD COLUMN \"storageBucket\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"storageBucket\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "SourceMaterial",
+          "storageBucket"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "storage.private-material-bucket",
+    "label": "Create the private learner material bucket with MIME/size limits",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM storage.buckets WHERE id = 'learnly-materials') OR EXISTS (SELECT 1 FROM storage.buckets b WHERE b.id = 'learnly-materials' AND b.public IS FALSE AND b.file_size_limit = 3145728\n  AND ARRAY(SELECT unnest(b.allowed_mime_types) ORDER BY 1) = ARRAY['application/pdf','image/jpeg','image/png']::text[]) AS result",
+        "params": []
+      }
+    ],
+    "execute": [
+      {
+        "sql": "INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types) VALUES\n          ('learnly-materials', 'learnly-materials', false, 3145728, ARRAY['application/pdf','image/png','image/jpeg']) ON CONFLICT (id) DO NOTHING",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "sql": "SELECT EXISTS (SELECT 1 FROM storage.buckets b WHERE b.id = 'learnly-materials' AND b.public IS FALSE AND b.file_size_limit = 3145728\n  AND ARRAY(SELECT unnest(b.allowed_mime_types) ORDER BY 1) = ARRAY['application/pdf','image/jpeg','image/png']::text[]) AS result",
+        "params": []
+      }
+    ]
+  },
+  {
+    "id": "storage.policy.learnly_materials_select_own",
+    "label": "Protect private learner files: learnly_materials_select_own",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_select_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "sql": "CREATE POLICY \"learnly_materials_select_own\" ON storage.objects AS PERMISSIVE\n          FOR SELECT TO authenticated USING ((bucket_id = 'learnly-materials' AND owner_id = (SELECT auth.uid())::text\n  AND array_length(string_to_array(name, '/'), 1) = 3\n  AND split_part(name, '/', 1) = (SELECT auth.uid())::text\n  AND split_part(name, '/', 2) ~ '^[a-zA-Z0-9_-]{1,128}$'\n  AND split_part(name, '/', 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'\n  AND EXISTS (SELECT 1 FROM public.\"LearningSession\" s JOIN public.\"User\" u ON u.id = s.\"userId\"\n    WHERE s.id = split_part(name, '/', 2) AND u.\"authUserId\" = (SELECT auth.uid())::text)))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "sql": "SELECT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3 AND cmd = $4 AND permissive = $5) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_select_own",
+          "SELECT",
+          "PERMISSIVE"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "storage.policy.learnly_materials_insert_own",
+    "label": "Protect private learner files: learnly_materials_insert_own",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_insert_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "sql": "CREATE POLICY \"learnly_materials_insert_own\" ON storage.objects AS PERMISSIVE\n          FOR INSERT TO authenticated WITH CHECK (((bucket_id = 'learnly-materials' AND owner_id = (SELECT auth.uid())::text\n  AND array_length(string_to_array(name, '/'), 1) = 3\n  AND split_part(name, '/', 1) = (SELECT auth.uid())::text\n  AND split_part(name, '/', 2) ~ '^[a-zA-Z0-9_-]{1,128}$'\n  AND split_part(name, '/', 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'\n  AND EXISTS (SELECT 1 FROM public.\"LearningSession\" s JOIN public.\"User\" u ON u.id = s.\"userId\"\n    WHERE s.id = split_part(name, '/', 2) AND u.\"authUserId\" = (SELECT auth.uid())::text)) AND EXISTS (SELECT 1 FROM public.\"LearningSession\" active\n  WHERE active.id = split_part(name, '/', 2) AND active.\"lifecycleState\" = 'ACTIVE')))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "sql": "SELECT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3 AND cmd = $4 AND permissive = $5) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_insert_own",
+          "INSERT",
+          "PERMISSIVE"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "storage.policy.learnly_materials_delete_own",
+    "label": "Protect private learner files: learnly_materials_delete_own",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_delete_own"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "sql": "CREATE POLICY \"learnly_materials_delete_own\" ON storage.objects AS PERMISSIVE\n          FOR DELETE TO authenticated USING ((bucket_id = 'learnly-materials' AND owner_id = (SELECT auth.uid())::text\n  AND array_length(string_to_array(name, '/'), 1) = 3\n  AND split_part(name, '/', 1) = (SELECT auth.uid())::text\n  AND split_part(name, '/', 2) ~ '^[a-zA-Z0-9_-]{1,128}$'\n  AND split_part(name, '/', 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'\n  AND EXISTS (SELECT 1 FROM public.\"LearningSession\" s JOIN public.\"User\" u ON u.id = s.\"userId\"\n    WHERE s.id = split_part(name, '/', 2) AND u.\"authUserId\" = (SELECT auth.uid())::text)))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "sql": "SELECT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3 AND cmd = $4 AND permissive = $5) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_delete_own",
+          "DELETE",
+          "PERMISSIVE"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "storage.policy.learnly_materials_select_guard",
+    "label": "Protect private learner files: learnly_materials_select_guard",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_select_guard"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "sql": "CREATE POLICY \"learnly_materials_select_guard\" ON storage.objects AS RESTRICTIVE\n          FOR SELECT TO authenticated USING ((bucket_id IS DISTINCT FROM 'learnly-materials' OR (bucket_id = 'learnly-materials' AND owner_id = (SELECT auth.uid())::text\n  AND array_length(string_to_array(name, '/'), 1) = 3\n  AND split_part(name, '/', 1) = (SELECT auth.uid())::text\n  AND split_part(name, '/', 2) ~ '^[a-zA-Z0-9_-]{1,128}$'\n  AND split_part(name, '/', 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'\n  AND EXISTS (SELECT 1 FROM public.\"LearningSession\" s JOIN public.\"User\" u ON u.id = s.\"userId\"\n    WHERE s.id = split_part(name, '/', 2) AND u.\"authUserId\" = (SELECT auth.uid())::text))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "sql": "SELECT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3 AND cmd = $4 AND permissive = $5) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_select_guard",
+          "SELECT",
+          "RESTRICTIVE"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "storage.policy.learnly_materials_insert_guard",
+    "label": "Protect private learner files: learnly_materials_insert_guard",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_insert_guard"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "sql": "CREATE POLICY \"learnly_materials_insert_guard\" ON storage.objects AS RESTRICTIVE\n          FOR INSERT TO authenticated WITH CHECK ((bucket_id IS DISTINCT FROM 'learnly-materials' OR ((bucket_id = 'learnly-materials' AND owner_id = (SELECT auth.uid())::text\n  AND array_length(string_to_array(name, '/'), 1) = 3\n  AND split_part(name, '/', 1) = (SELECT auth.uid())::text\n  AND split_part(name, '/', 2) ~ '^[a-zA-Z0-9_-]{1,128}$'\n  AND split_part(name, '/', 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'\n  AND EXISTS (SELECT 1 FROM public.\"LearningSession\" s JOIN public.\"User\" u ON u.id = s.\"userId\"\n    WHERE s.id = split_part(name, '/', 2) AND u.\"authUserId\" = (SELECT auth.uid())::text)) AND EXISTS (SELECT 1 FROM public.\"LearningSession\" active\n  WHERE active.id = split_part(name, '/', 2) AND active.\"lifecycleState\" = 'ACTIVE'))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "sql": "SELECT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3 AND cmd = $4 AND permissive = $5) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_insert_guard",
+          "INSERT",
+          "RESTRICTIVE"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "storage.policy.learnly_materials_delete_guard",
+    "label": "Protect private learner files: learnly_materials_delete_guard",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_delete_guard"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "sql": "CREATE POLICY \"learnly_materials_delete_guard\" ON storage.objects AS RESTRICTIVE\n          FOR DELETE TO authenticated USING ((bucket_id IS DISTINCT FROM 'learnly-materials' OR (bucket_id = 'learnly-materials' AND owner_id = (SELECT auth.uid())::text\n  AND array_length(string_to_array(name, '/'), 1) = 3\n  AND split_part(name, '/', 1) = (SELECT auth.uid())::text\n  AND split_part(name, '/', 2) ~ '^[a-zA-Z0-9_-]{1,128}$'\n  AND split_part(name, '/', 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'\n  AND EXISTS (SELECT 1 FROM public.\"LearningSession\" s JOIN public.\"User\" u ON u.id = s.\"userId\"\n    WHERE s.id = split_part(name, '/', 2) AND u.\"authUserId\" = (SELECT auth.uid())::text))))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "sql": "SELECT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3 AND cmd = $4 AND permissive = $5) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_delete_guard",
+          "DELETE",
+          "RESTRICTIVE"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "storage.policy.learnly_materials_update_guard",
+    "label": "Protect private learner files: learnly_materials_update_guard",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_update_guard"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "sql": "CREATE POLICY \"learnly_materials_update_guard\" ON storage.objects AS RESTRICTIVE\n          FOR UPDATE TO authenticated USING (bucket_id IS DISTINCT FROM 'learnly-materials') WITH CHECK (bucket_id IS DISTINCT FROM 'learnly-materials')",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "sql": "SELECT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3 AND cmd = $4 AND permissive = $5) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_update_guard",
+          "UPDATE",
+          "RESTRICTIVE"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "storage.policy.learnly_materials_anon_guard",
+    "label": "Protect private learner files: learnly_materials_anon_guard",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_anon_guard"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "sql": "CREATE POLICY \"learnly_materials_anon_guard\" ON storage.objects AS RESTRICTIVE\n          FOR ALL TO anon USING (bucket_id IS DISTINCT FROM 'learnly-materials') WITH CHECK (bucket_id IS DISTINCT FROM 'learnly-materials')",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "sql": "SELECT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = $1 AND tablename = $2 AND policyname = $3 AND cmd = $4 AND permissive = $5) AS result",
+        "params": [
+          "storage",
+          "objects",
+          "learnly_materials_anon_guard",
+          "ALL",
+          "RESTRICTIVE"
+        ]
+      }
+    ]
+  }
+]

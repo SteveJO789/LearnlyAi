@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { respondToLearning, type LearningAction, type TutorOutput } from "./api";
-import { getLearningSession } from "../../../lib/learning-sessions";
+import { getLearningSession, recoverLearningSession } from "../../../lib/learning-sessions";
 import { getAssessment } from "../../../lib/assessments";
+import { useFeatures } from "../../../lib/features";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
 import BlockView, { CitationList } from "./blocks";
 import CuteLoadingPopup from "../../components/CuteLoadingPopup";
@@ -36,6 +37,7 @@ function SidebarIcon() {
 export default function LearningSession({ sessionId, learningGoal, subject, initialInput }: Props) {
   const { t } = useLanguage();
   const router = useRouter();
+  const features = useFeatures();
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
@@ -47,6 +49,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
   const [loadRetry, setLoadRetry] = useState(0);
   const [postSubmitted, setPostSubmitted] = useState(false);
   const [pendingPre, setPendingPre] = useState(false);
+  const [sessionFailed, setSessionFailed] = useState(false);
 
   const lastRequest = useRef<PendingRequest | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -65,6 +68,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
   }, [turns, loading, error]);
 
   useEffect(() => {
+    if (!features.loaded) return;
     let active = true;
     setHydrating(true);
     setError(null);
@@ -96,12 +100,14 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
 
         setTurns(restored);
         setSessionStage(session.stage);
-        if (session.state === "PRE_TEST" && session.stage === "EXPLAIN") {
+        setSessionFailed(session.lifecycleState === "FAILED");
+        if (session.lifecycleState === "FAILED") setError(t("chat.failedSession"));
+        if (features.assessments && session.state === "PRE_TEST" && session.stage === "EXPLAIN") {
           setPendingPre(true);
           void getAssessment(sessionId, "PRE").then(assessment => { if (active) setPendingPre(!assessment.submittedAt); })
             .catch(() => { if (active) setPendingPre(true); });
         } else setPendingPre(false);
-        if (session.stage === "ASSESS") {
+        if (features.assessments && session.stage === "ASSESS") {
           void getAssessment(sessionId, "POST").then(assessment => { if (active) setPostSubmitted(Boolean(assessment.submittedAt)); })
             .catch(() => { if (active) setPostSubmitted(false); });
         }
@@ -123,7 +129,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
     return () => {
       active = false;
     };
-  }, [sessionId, t, loadRetry]);
+  }, [sessionId, t, loadRetry, features.loaded, features.assessments]);
 
   const lastTurn = turns[turns.length - 1];
   const lastTutorTurn = [...turns]
@@ -163,7 +169,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
 
   function submit(text: string) {
     const input = text.trim();
-    if (!input || loading || hydrating || pendingPre) return;
+    if (!input || loading || hydrating || pendingPre || sessionFailed) return;
 
     setTurns((previous) => [...previous, { id: nextId(), role: "user", text: input }]);
     setDraft("");
@@ -173,25 +179,36 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
   // Only auto-send a Create-page question when this persisted session is empty.
   // This avoids duplicating the first message after a refresh.
   useEffect(() => {
-    if (hydrating || pendingPre || didAutoSend.current || turns.length > 0) return;
+    if (hydrating || pendingPre || sessionFailed || didAutoSend.current || turns.length > 0) return;
     const firstInput = restoredInput ?? initialInput;
     if (firstInput && firstInput.trim()) {
       didAutoSend.current = true;
       submit(firstInput);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrating, pendingPre, initialInput, restoredInput, turns.length]);
+  }, [hydrating, pendingPre, sessionFailed, initialInput, restoredInput, turns.length]);
 
   function advance() {
-    if (loading) return;
-    if (sessionStage === "ASSESS" && !postSubmitted) { router.push(`/Assessment/${sessionId}?phase=POST`); return; }
+    if (loading || sessionFailed) return;
+    if (features.assessments && sessionStage === "ASSESS" && !postSubmitted) { router.push(`/Assessment/${sessionId}?phase=POST`); return; }
     void run({ action: "ADVANCE", input: t("chat.continue") });
   }
 
-  function retry() {
+  async function retry() {
     if (loading) return;
-    if (!lastRequest.current) { setLoadRetry(value => value + 1); return; }
-    void run(lastRequest.current);
+    if (!lastRequest.current && !sessionFailed) { setLoadRetry(value => value + 1); return; }
+    const previous = lastRequest.current;
+    setLoading(true); setError(null);
+    try {
+      const session = await getLearningSession(sessionId);
+      if (session.lifecycleState === "FAILED") await recoverLearningSession(sessionId);
+      setSessionFailed(false);
+      if (previous) await run(previous);
+      else { setLoadRetry(value => value + 1); setLoading(false); }
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : t("chat.unknownError"));
+      setLoading(false);
+    }
   }
 
   function startNewSession() {
@@ -318,7 +335,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
                     <BlockView
                       key={`${block.id}-${index}`}
                       block={block}
-                      interactive={isLatest && !loading}
+                      interactive={isLatest && !loading && !sessionFailed}
                       onChoose={submit}
                     />
                   ))}
@@ -354,7 +371,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
               </div>
             )}
 
-            {lastTurn?.role === "tutor" && progress?.canAdvance && !loading && (
+            {lastTurn?.role === "tutor" && progress?.canAdvance && !loading && !sessionFailed && (
               <div>
                 <button
                   type="button"
@@ -394,7 +411,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
             />
             <button
               type="submit"
-              disabled={loading || pendingPre || draft.trim().length === 0}
+              disabled={loading || pendingPre || sessionFailed || draft.trim().length === 0}
               aria-label={t("chat.sendAriaLabel")}
               className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >

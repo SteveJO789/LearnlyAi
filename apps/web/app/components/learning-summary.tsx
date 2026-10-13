@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getLearningProfile, getLearningProgress, type LearningProfileDto, type LearningProgressDto } from "../../lib/assessments";
 import { listLearningSessions, type LearningSessionSummary } from "../../lib/learning-sessions";
 import { useLanguage } from "../lib/i18n/LanguageContext";
+import { useFeatures } from "../../lib/features";
 
 export const summaryCopy = {
   en: { title: "Your learning", loading: "Loading your progress…", retry: "Retry", empty: "No assessments yet. Start a lesson to see your results.",
@@ -46,11 +47,13 @@ export function LearningSummaryView({ language, profile, progress, sessions, loa
   </section>;
 }
 export default function LearningSummary() {
+  const features = useFeatures();
   const { language } = useLanguage();
   const [profile, setProfile] = useState<LearningProfileDto | null>(null), [progress, setProgress] = useState<LearningProgressDto | null>(null);
   const [sessions, setSessions] = useState<LearningSessionSummary[]>([]), [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null), [retry, setRetry] = useState(0);
   useEffect(() => {
+    if (!features.assessments) return;
     let active = true;
     const controller = new AbortController();
     setLoading(true); setError(null);
@@ -59,6 +62,7 @@ export default function LearningSummary() {
       .catch(cause => { if (active) setError(cause instanceof Error ? cause.message : "Learning progress could not be loaded."); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; controller.abort(); };
-  }, [retry]);
+  }, [retry, features.assessments]);
+  if (!features.assessments) return null;
   return <LearningSummaryView language={language} profile={profile} progress={progress} sessions={sessions} loading={loading} error={error} retry={() => setRetry(value => value + 1)} />;
 }

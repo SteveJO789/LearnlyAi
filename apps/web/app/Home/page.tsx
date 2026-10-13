@@ -38,7 +38,7 @@ function HomeFeatures({ t }: { t: (key: string) => string }) {
           ))}
         </div>
       </section>
-      <section className="mb-8 rounded-3xl hello-gradient bg-gradient-to-r from-pink-500 via-violet-500 to-sky-500 px-6 py-10 text-white sm:px-12 sm:py-14 shadow-xl">
+      <section className="mt-12 mb-8 rounded-3xl hello-gradient bg-gradient-to-r from-pink-500 via-violet-500 to-sky-500 px-6 py-10 text-white sm:px-12 sm:py-14 shadow-xl">
         <h2 className="text-3xl font-bold sm:text-4xl">{t("home.ctaTitle")}</h2>
         <p className="mt-3 max-w-2xl leading-relaxed text-white/90">{t("home.ctaBody")}</p>
         <Link href="/Create" className="mt-6 inline-flex rounded-xl bg-white px-6 py-4 font-semibold text-slate-900 transition hover:opacity-90">{t("home.start")} →</Link>
@@ -138,9 +138,15 @@ export default function HomePage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-background text-text relative">
+    <div className="relative isolate min-h-screen w-full max-w-full overflow-x-clip bg-background text-text">
       {/* เลเยอร์ท้องฟ้าการ์ตูน: แสงฟุ้งและดาวลอย (สโลว์โมชันแบบหน้า Create - อยู่หลังสุด z-0) */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden min-h-full">
+        <span className="home-shooting-star home-shooting-star-one" aria-hidden="true" />
+        <span className="home-shooting-star home-shooting-star-two" aria-hidden="true" />
+        <span className="home-shooting-star home-shooting-star-three" aria-hidden="true" />
+        <span className="home-shooting-star home-shooting-star-four" aria-hidden="true" />
+        <span className="home-shooting-star home-shooting-star-five" aria-hidden="true" />
+        <span className="home-shooting-star home-shooting-star-six" aria-hidden="true" />
         {/* กลุ่มแสงฟุ้งเกรเดียนต์เบื้องหลัง */}
         <div className="absolute left-[5%] top-[5%] h-96 w-96 rounded-full bg-pink-400/15 blur-[120px] animate-roam-1" />
         <div className="absolute right-[10%] top-[20%] h-[420px] w-[420px] rounded-full bg-violet-400/15 blur-[120px] animate-roam-2" />
@@ -195,19 +201,25 @@ export default function HomePage() {
             <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-pink-50 px-4 py-2 text-sm font-semibold text-pink-700 dark:bg-pink-950/50 dark:text-pink-200">
               ✦ {t("home.eyebrow")}
             </div>
-            <h1 className="max-w-[12ch] text-5xl font-bold leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
-              {t("home.welcome")}{" "}
-              <span className="hello-gradient bg-gradient-to-r from-pink-500 via-violet-500 to-sky-500 bg-clip-text text-transparent">
-                LearnlyAI
-              </span>
-            </h1>
+            
+<h1 className="max-w-[12ch] font-bold leading-[1.02] tracking-tight">
+  <span className="text-4xl sm:text-5xl lg:text-6xl">
+    {t("home.welcome")}{" "}
+  </span>
+  <span className="hello-gradient ml-2 bg-gradient-to-r from-pink-500 via-violet-500 to-sky-500 bg-clip-text text-5xl text-transparent sm:text-6xl lg:text-7xl">
+  LearnlyAI
+</span>
+</h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted sm:text-xl lg:text-2xl">{t("home.tagline")}</p>
             <Link href="/Create" className="mt-8 inline-flex items-center gap-3 rounded-xl bg-primary px-7 py-4 font-semibold text-primary-foreground shadow-lg transition hover:-translate-y-0.5 hover:opacity-95">
               {t("home.start")} →
             </Link>
           </div>
           
-          <div className="relative mx-auto aspect-square w-full max-w-[440px]">
+          <div className="mascot-scene group relative mx-auto aspect-square w-full max-w-[440px]" tabIndex={0} aria-label="LearnlyAI robot mascot">
+            <span className="mascot-sparkle mascot-sparkle-one" aria-hidden="true">✦</span>
+            <span className="mascot-sparkle mascot-sparkle-two" aria-hidden="true">✧</span>
+            <span className="mascot-sparkle mascot-sparkle-three" aria-hidden="true">✦</span>
             <div className="absolute inset-[8%] rounded-full bg-gradient-to-br from-pink-100 via-violet-50 to-sky-100 shadow-inner"/>
             <div className="absolute left-[8%] top-[24%] grid h-14 w-16 place-items-center rounded-2xl bg-white text-2xl shadow-lg">✦</div>
             <div className="absolute right-[7%] top-[25%] rounded-2xl bg-white px-4 py-3 shadow-lg">
@@ -215,13 +227,15 @@ export default function HomePage() {
                 <span className="h-3 w-2 rounded-t bg-pink-300"/><span className="h-5 w-2 rounded-t bg-violet-400"/><span className="h-8 w-2 rounded-t bg-sky-500"/>
               </div>
             </div>
-            <div className="absolute left-1/2 top-[13%] h-[51%] w-[51%] -translate-x-1/2 rounded-[38%] border-[10px] border-violet-200 bg-gradient-to-br from-white to-slate-100 shadow-xl">
+            <div className="mascot-head absolute left-1/2 top-[13%] h-[51%] w-[51%] -translate-x-1/2 rounded-[38%] border-[10px] border-violet-200 bg-gradient-to-br from-white to-slate-100 shadow-xl">
               <div className="absolute -left-5 top-[28%] h-14 w-5 rounded-l-full bg-violet-400"/>
               <div className="absolute -right-5 top-[28%] h-14 w-5 rounded-r-full bg-violet-400"/>
+              <span className="mascot-wave-hand" aria-hidden="true">✋</span>
               <div className="absolute inset-[11%] rounded-[35%] bg-gradient-to-br from-slate-900 to-indigo-950">
-                <div className="absolute left-[24%] top-[38%] h-4 w-5 rounded-full bg-pink-300 shadow-[0_0_14px_#f472b6]"/>
-                <div className="absolute right-[24%] top-[38%] h-4 w-5 rounded-full bg-pink-300 shadow-[0_0_14px_#f472b6]"/>
-                <div className="absolute bottom-[23%] left-1/2 h-3 w-8 -translate-x-1/2 rounded-b-full border-b-[4px] border-pink-300"/>
+                <div className="mascot-eye mascot-eye-left absolute left-[24%] top-[38%] h-4 w-5 rounded-full bg-pink-300 shadow-[0_0_14px_#f472b6]"/>
+                <div className="mascot-eye mascot-eye-right absolute right-[24%] top-[38%] h-4 w-5 rounded-full bg-pink-300 shadow-[0_0_14px_#f472b6]"/>
+                <div className="mascot-mouth absolute bottom-[23%] left-1/2 h-3 w-8 -translate-x-1/2 rounded-b-full border-b-[4px] border-pink-300"/>
+                <span className="mascot-cheek mascot-cheek-left" aria-hidden="true"/><span className="mascot-cheek mascot-cheek-right" aria-hidden="true"/>
               </div>
             </div>
             <div className="absolute bottom-[21%] left-[19%] h-[13%] w-[62%] -rotate-2 rounded-xl border-b-8 border-violet-300 hello-gradient bg-gradient-to-r from-pink-500 via-violet-500 to-sky-500 shadow-lg"/>

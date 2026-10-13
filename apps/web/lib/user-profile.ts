@@ -91,7 +91,7 @@ export async function syncCurrentUserProfile(): Promise<AppUserProfile> {
   const { data: existing, error: selectError } = await supabase
     .from("User")
     .select("id,email,displayName,avatarUrl")
-    .eq("id", user.id)
+    .eq("authUserId", user.id)
     .maybeSingle();
 
   if (selectError) throw selectError;
@@ -106,7 +106,7 @@ export async function syncCurrentUserProfile(): Promise<AppUserProfile> {
     const { data, error } = await supabase
       .from("User")
       .update(updates)
-      .eq("id", user.id)
+      .eq("authUserId", user.id)
       .select("id,email,displayName,avatarUrl")
       .single();
 
@@ -161,7 +161,7 @@ export async function getCurrentUserProfile(): Promise<AppUserProfile | null> {
   const { data, error } = await supabase
     .from("User")
     .select("id,email,displayName,avatarUrl")
-    .eq("id", user.id)
+    .eq("authUserId", user.id)
     .maybeSingle();
 
   if (error) throw error;
@@ -188,7 +188,7 @@ export async function updateCurrentUserProfile(input: {
       ...(input.avatarUrl !== undefined ? { avatarUrl: input.avatarUrl } : {}),
       updatedAt: new Date().toISOString(),
     })
-    .eq("id", user.id)
+    .eq("authUserId", user.id)
     .select("id,email,displayName,avatarUrl")
     .single();
 
@@ -218,7 +218,7 @@ export async function getCurrentUserThemePreferences(): Promise<UserThemePrefere
   const { data: existing, error: selectError } = await supabase
     .from("User")
     .select("id")
-    .eq("id", user.id)
+    .eq("authUserId", user.id)
     .maybeSingle();
 
   if (selectError) throw selectError;

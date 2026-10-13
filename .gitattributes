@@ -1,0 +1,3 @@
+# Preserve actual fixture bytes/xref offsets across Windows and Linux checkouts.
+services/api/test/fixtures/*.pdf binary
+services/api/test/fixtures/*.png binary

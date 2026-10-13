@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-10",
+  "status": "DURABLE_UPLOAD_COORDINATION_IMPLEMENTED_RUNTIME_INTEGRATION_PENDING",
+  "contract": {"from": "8626880030fb102dc56e134c700a5361c4189fc778f9fa79a0f825dd9c677bc8", "to": "26370da7801afacb9339a0042e2e9a52e649a78266738c309f99ea103867fa0a", "migration": "20261010T1119_durable_file_uploads", "newModel": "FileUpload: owned session FK, PENDING/CANCELLED check, internal prepared material JSON and createdAt; canonical RLS/API-context guards and explicit authenticated grants"},
+  "implemented": ["durable reservation must succeed before any Storage mutation", "unconfirmed reservation cannot create an untracked object", "ambiguous upload retains its journal without re-upload or blind delete", "owner-triggered resume revalidates intent then streams authenticated stored bytes with exact MIME/size/SHA256", "cancel commits under the same parent lock as finalization before deleting", "committed READY receipt wins over cancellation", "cancelled/missing intent cannot insert READY or change session progress", "cancelled cleanup can be explicitly retried after restart", "extractor results returned after deadline are rejected before reservation", "operator callback uses random material ID only"],
+  "apiCompile": "PASS",
+  "offlineApi": {"passed": 288, "failed": 0},
+  "fileAndStorage": {"passed": 26, "failed": 0, "scope": "Injected extractor/Storage/DB and bounded Response streams; no actual parser/OCR or live Storage claim"},
+  "persistentIntegration": {"passed": 11, "failed": 0, "scope": "Existing simulated Auth/DB regression"},
+  "realPostgres": {"scope": "Captured compiled adapter SQL + canonical migrations in empty clones; synthetic JWT claims; BEGIN/ROLLBACK", "assertions": ["durable PENDING metadata", "cancellation excludes finalization", "failed finalization preserves earlier reservation", "API-context guards for direct intent/material insert and intent update", "legacy ownership and cross-user read/write/update isolation", "journal session FK and state check", "exact/absent/conflicting/completed receipts", "atomic SourceMaterial/PRE gate and original FK"], "result": "PASS", "fixtureRemoved": true},
+  "freshBaseline": {"migrations": 3, "sqlSteps": 89, "canonicalChecks": 167, "result": "PASS", "fixtureRemoved": true, "actualPrismaExecutorVerified": false},
+  "migrationIntegrity": "PASS",
+  "codeCi": {"run": 205, "head": "9a1f2b6a5db9350128d124e00cb0e44e7e6c4877", "url": "https://github.com/SteveJO789/LearnlyAi/actions/runs/38049322385", "result": "PASS", "jobs": "API and Web dependency installation/typecheck/test/build; fresh source export/relocated runtime and persistent offline integration all executed successfully", "scope": "Code milestone; later documentation-only changes do not expand runtime/deployment coverage"},
+  "sourceOnlyExport": {"apiPassed": 287, "relocatedRuntimePassed": 4, "knowledgeFiles": 9, "scope": "Snapshot before final cleanup helper and last regression assertion; copied locked dependencies, not current-head/OCR/fresh npm proof", "temporaryExportRemoved": true},
+  "postAudit": {"productionFileUploadTableNotApplied": true, "fileFixtureRemoved": true, "migrationFixtureRemoved": true},
+  "reviewCorrections": ["After adding reservation INSERT, the renderer's first-INSERT selection no longer identified SourceMaterial; select intent/material INSERT by explicit table, then re-run actual SQL", "Privilege postcheck verifies SELECT, INSERT and UPDATE separately rather than relying on a comma-separated privilege test"],
+  "notVerified": ["Real PDF/image decoding or OCR", "Actual private Storage HTTP/RLS with real Auth", "Concurrent restart/network-loss through actual Prisma transport", "Authenticated upload/receipt-list/resume/download endpoints and frontend", "Pending intent retention/explicit abandonment UX", "Production migration/signing/deployment"],
+  "additionalPaidCalls": 0,
+  "productionSchemaOrUserDataChanged": false,
+  "cdPolicy": "ONLY develop, unchanged"
+}
