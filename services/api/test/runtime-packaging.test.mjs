@@ -7,7 +7,7 @@ test('Vercel include pattern fits platform schema and includes actual dynamic OC
   const root = fileURLToPath(new URL('../', import.meta.url));
   const config = JSON.parse(readFileSync(new URL('../vercel.json', import.meta.url), 'utf8'));
   const { includeFiles, excludeFiles } = config.functions['src/**'];
-  assert.deepEqual(config.git.deploymentEnabled, { '**': false, develop: true });
+  assert.deepEqual(config.git.deploymentEnabled, { '**': false, develop: true, main: true });
   // Public platform schema https://openapi.vercel.sh/vercel.json, maxLength 256.
   assert.ok(includeFiles.length <= 256);
   assert.equal(excludeFiles, '**/*.map');
