@@ -50,7 +50,9 @@ export default function LandingPage() {
   ] as const;
 
   return (
-    <div className="relative isolate min-h-screen overflow-hidden bg-white text-slate-900">\n      <LandingAmbientEffects />\n      <div className="relative z-10">
+    <div className="relative isolate min-h-screen overflow-hidden bg-white text-slate-900">
+      <LandingAmbientEffects />
+      <div className="relative z-10">
       <header className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-5 sm:px-10 lg:px-16">
         <Link
           href="/"
