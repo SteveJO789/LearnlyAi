@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "express",
-  "git": { "deploymentEnabled": { "**": false, "develop": true } },
+  "git": { "deploymentEnabled": { "**": false, "develop": true, "main": true } },
   "installCommand": "npm ci --no-audit --no-fund && npm --prefix ../../knowledge ci --no-audit --no-fund",
   "buildCommand": "npm run build && npm run knowledge:verify-runtime",
   "functions": {
