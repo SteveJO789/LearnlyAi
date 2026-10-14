@@ -41,7 +41,12 @@ export default function LearningPage() {
 
         {session && (
           <>
-            <h1 className="mt-6 text-3xl font-bold tracking-tight">{session.title}</h1>
+            <h1
+              className="whitespace-normal break-words font-bold tracking-tight text-center"
+              style={{ fontSize: "46px", lineHeight: "1.2" }}
+            >
+              {session.title}
+            </h1>
             {session.learningGoal && (
               <p className="mt-2 text-muted">{session.learningGoal}</p>
             )}
