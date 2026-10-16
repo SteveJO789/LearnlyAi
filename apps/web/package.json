@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
-    "test": "node scripts/run-tests.mjs"
+    "test": "node scripts/run-tests.mjs",
+    "test:e2e": "NODE_PATH=./node_modules playwright test -c playwright.config.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
@@ -23,6 +24,7 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@playwright/test": "1.55.0",
     "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

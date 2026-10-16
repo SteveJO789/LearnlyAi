@@ -1,4 +1,5 @@
 import type { UserDb } from "../../prisma/db.js";
+import { orderConversationMessages } from "./message-order.js";
 
 export type PersistedMessage = {
   id: string;
@@ -6,6 +7,8 @@ export type PersistedMessage = {
   role: "USER" | "TUTOR" | "SYSTEM";
   content: unknown;
   createdAt: string;
+  /** Exact database ordering clock; never included in the public DTO. */
+  orderingTimestamp?: string;
 };
 
 type RawMessage = {
@@ -14,6 +17,7 @@ type RawMessage = {
   role: string;
   contentJson: string;
   createdAt: string;
+  orderingTimestamp: string;
 };
 
 /**
@@ -39,6 +43,7 @@ export function decodePersistedMessageRow(row: RawMessage): PersistedMessage {
     role: row.role,
     content,
     createdAt: row.createdAt,
+    orderingTimestamp: row.orderingTimestamp,
   };
 }
 
@@ -60,7 +65,11 @@ export async function readPersistedMessages(
       to_char(
         m."createdAt" AT TIME ZONE 'UTC',
         'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'
-      ) AS "createdAt"
+      ) AS "createdAt",
+      to_char(
+        m."createdAt" AT TIME ZONE 'UTC',
+        'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'
+      ) AS "orderingTimestamp"
     FROM public."Message" m
     WHERE m."learningSessionId" = ${sessionId}
     ORDER BY m."createdAt" ASC, m."id" ASC
@@ -71,9 +80,10 @@ export async function readPersistedMessages(
       role: "pg/text@1",
       contentJson: "pg/text@1",
       createdAt: "pg/text@1",
+      orderingTimestamp: "pg/text@1",
     })
     .build();
 
   const rows = await client.query(plan).toArray();
-  return rows.map(decodePersistedMessageRow);
+  return orderConversationMessages(rows.map(decodePersistedMessageRow));
 }

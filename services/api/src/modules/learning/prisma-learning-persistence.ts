@@ -42,6 +42,7 @@ function toLearningMessage(row: PersistedMessage): LearningMessage {
     id: row.id,
     sessionId: row.learningSessionId,
     createdAt: row.createdAt,
+    orderingTimestamp: row.orderingTimestamp,
   };
 
   if (row.role === "USER") {
@@ -58,6 +59,8 @@ function toLearningMessage(row: PersistedMessage): LearningMessage {
       content: row.content as unknown as ValidatedTutorOutput,
     };
   }
+
+  if (row.role === "SYSTEM") return { ...base, role: "SYSTEM", content: row.content };
 
   throw new Error(`Unsupported persisted learning message role: ${row.role}`);
 }
@@ -168,7 +171,7 @@ class PrismaMessageRepository implements MessageRepository {
     const rows = await readPersistedMessages(this.options.client, sessionId);
 
     // Operational SYSTEM events stay in persisted history but are never tutoring context.
-    return rows.filter(row => row.role !== "SYSTEM").map(toLearningMessage);
+    return rows.map(toLearningMessage);
   }
 }
 

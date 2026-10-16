@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useLanguage } from "../lib/i18n/LanguageContext";
-import { getSupabaseClient } from "../../lib/supabase";
+import { SignOutFailure, signOutCurrentUser } from "../../lib/auth-state";
 
 // Shared top nav used by Home, Create, Lessons, and every Account/* page.
 // Pass `links` for the plain-link buttons (e.g. Create, Lessons, HOME) and
@@ -97,15 +97,26 @@ function AccountMenu() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState(false);
 
   async function handleLogout() {
-    setIsOpen(false);
+    if (isLoggingOut) return;
     setIsLoggingOut(true);
+    setLogoutError(false);
     try {
-      await getSupabaseClient().auth.signOut();
-    } finally {
+      await signOutCurrentUser();
+      setIsOpen(false);
       router.replace("/SignIn");
       router.refresh();
+    } catch (error) {
+      if (error instanceof SignOutFailure && error.localSessionCleared) {
+        setIsOpen(false);
+        router.replace("/SignIn?logout=unconfirmed");
+        router.refresh();
+      } else {
+        setLogoutError(true);
+      }
+    } finally {
       setIsLoggingOut(false);
     }
   }
@@ -154,8 +165,9 @@ function AccountMenu() {
             disabled={isLoggingOut}
             className="w-full py-2 text-center text-sm font-medium text-purple-400 hover:text-purple-600 hover:bg-purple-50/50 rounded-xl transition-all mt-1"
           >
-            {t("nav.logOut")}
+            {isLoggingOut ? "Logging out…" : logoutError ? "Retry log out" : t("nav.logOut")}
           </button>
+          {logoutError && <p role="alert" className="px-2 text-center text-xs text-red-700">Could not log out. Please retry.</p>}
         </div>
       )}
     </div>

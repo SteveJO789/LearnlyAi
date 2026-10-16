@@ -16,6 +16,12 @@ export type LearningSessionSummary = {
   completedAt: string | null;
 };
 
+export type LearningProgress = {
+  percent: number;
+  canAdvance: boolean;
+  nextAction: string | null;
+};
+
 export type PersistedLearningMessage = {
   id: string;
   role: "USER" | "TUTOR" | "SYSTEM";
@@ -24,6 +30,8 @@ export type PersistedLearningMessage = {
 };
 
 export type LearningSessionDetail = LearningSessionSummary & {
+  progress: LearningProgress;
+  version: number;
   messages: PersistedLearningMessage[];
   materials?: Array<{ id: string; type: string; status: string; normalizedText: string }>;
 };

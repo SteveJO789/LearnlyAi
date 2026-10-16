@@ -129,6 +129,44 @@ test("history, goal, and subject are reused, while ordinary responses stay at EX
   assert.equal((await persistence.sessions.findById(sampleRequest.sessionId)).version, 2);
 });
 
+test("turn clocks stay strictly ordered across frozen and backwards server clocks", async () => {
+  let clock = new Date("2026-10-01T12:00:00.000Z");
+  const { engine, persistence } = createHarness({ now: () => new Date(clock) });
+  await engine.process(sampleRequest);
+  clock = new Date("2026-09-01T00:00:00.000Z");
+  await engine.process({ ...sampleRequest, userInput: "second turn" });
+  await engine.process({ ...sampleRequest, userInput: "third turn" });
+  const messages = await persistence.messages.findBySessionId(sampleRequest.sessionId);
+  assert.deepEqual(messages.map(message => message.role), ["USER", "TUTOR", "USER", "TUTOR", "USER", "TUTOR"]);
+  const times = messages.map(message => Date.parse(message.createdAt));
+  assert.deepEqual(times, [...times].sort((a, b) => a - b));
+  assert.equal(new Set(times).size, times.length);
+  assert.equal((await persistence.sessions.findById(sampleRequest.sessionId)).updatedAt, messages.at(-1).createdAt);
+});
+
+test("the event clock includes persisted SYSTEM events while tutoring context excludes them", async () => {
+  const { engine, persistence, requests } = createHarness();
+  await engine.process(sampleRequest);
+  await persistence.messages.add({ id: "system-event", sessionId: sampleRequest.sessionId,
+    createdAt: "2026-10-05T00:00:00.000Z", role: "SYSTEM", content: { event: "SESSION_RECOVERED" } });
+  await engine.process({ ...sampleRequest, userInput: "after recovery" });
+  const messages = await persistence.messages.findBySessionId(sampleRequest.sessionId);
+  const systemIndex = messages.findIndex(message => message.role === "SYSTEM");
+  assert.ok(Date.parse(messages[systemIndex + 1].createdAt) > Date.parse(messages[systemIndex].createdAt));
+  assert.ok(!requests[1].messages.some(message => message.content.includes("SESSION_RECOVERED")));
+});
+
+test("a route-approved version is checked before a stale engine snapshot can call the model", async () => {
+  const { engine, persistence, requests } = createHarness();
+  await engine.process(sampleRequest);
+  const current = await persistence.sessions.findById(sampleRequest.sessionId);
+  await assert.rejects(engine.process({ ...sampleRequest, userInput: "stale route action" }, { expectedVersion: current.version - 1 }),
+    { code: "SESSION_CONFLICT" });
+  assert.equal(requests.length, 1);
+  assert.equal((await persistence.sessions.findById(sampleRequest.sessionId)).version, current.version);
+  assert.equal((await persistence.messages.findBySessionId(sampleRequest.sessionId)).length, 2);
+});
+
 test("separate session IDs never share conversation history", async () => {
   const { engine, requests } = createHarness();
   await engine.process(sampleRequest);

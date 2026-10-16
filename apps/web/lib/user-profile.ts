@@ -2,6 +2,7 @@
 
 import type { User } from "@supabase/supabase-js";
 
+import { isConfirmedAuthAbsence } from "./auth-state";
 import { getSupabaseClient } from "./supabase";
 
 export type AppearanceMode = "light" | "dark";
@@ -148,14 +149,46 @@ export async function syncCurrentUserProfile(): Promise<AppUserProfile> {
   return data as AppUserProfile;
 }
 
-export async function getCurrentUserProfile(): Promise<AppUserProfile | null> {
+async function loadCurrentUserProfile(sessionRetry: number): Promise<AppUserProfile | null> {
   const supabase = getSupabaseClient();
+  const {
+    data: { session: requestSession },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+  if (sessionError) throw sessionError;
+
   const {
     data: { user },
     error: userError,
   } = await supabase.auth.getUser();
 
-  if (userError) throw userError;
+  if (userError) {
+    if (isConfirmedAuthAbsence(userError)) {
+      const {
+        data: { session: currentSession },
+        error: currentSessionError,
+      } = await supabase.auth.getSession();
+      if (currentSessionError) throw currentSessionError;
+
+      // This Auth request may have completed after a cross-account switch or
+      // token refresh. Never let an old rejection clear the current session.
+      const sessionChanged = currentSession && (
+        !requestSession ||
+        currentSession.user.id !== requestSession.user.id ||
+        currentSession.access_token !== requestSession.access_token
+      );
+      if (sessionChanged) {
+        if (sessionRetry >= 2) throw new Error("The signed-in account changed while loading. Please retry.");
+        return loadCurrentUserProfile(sessionRetry + 1);
+      }
+
+      // Let Supabase clear its own browser session and notify other consumers.
+      await supabase.auth.signOut({ scope: "local" });
+      return null;
+    }
+    throw userError;
+  }
   if (!user) return null;
 
   const { data, error } = await supabase
@@ -165,7 +198,15 @@ export async function getCurrentUserProfile(): Promise<AppUserProfile | null> {
     .maybeSingle();
 
   if (error) throw error;
-  return data as AppUserProfile | null;
+  // A signed-in Auth user can legitimately be missing an app profile (for
+  // example after an interrupted callback). Repair it through the existing
+  // authUserId-scoped sync path; null now means Auth confirmed no user.
+  if (!data) return syncCurrentUserProfile();
+  return data as AppUserProfile;
+}
+
+export function getCurrentUserProfile(): Promise<AppUserProfile | null> {
+  return loadCurrentUserProfile(0);
 }
 
 export async function updateCurrentUserProfile(input: {
