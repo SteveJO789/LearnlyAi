@@ -105,6 +105,7 @@ async function pdfText(bytes: Uint8Array): Promise<ExtractedFileText> {
     isOffscreenCanvasSupported: false, isImageDecoderSupported: false, maxImageSize: 12000000,
     cMapUrl: join(root, "cmaps").replaceAll("\\", "/") + "/", cMapPacked: true,
     standardFontDataUrl: join(root, "standard_fonts").replaceAll("\\", "/") + "/" });
+  let extractionFailed = false;
   try {
     const document = await task.promise;
     if (!Number.isInteger(document.numPages) || document.numPages < 1) fail("INVALID_FILE");
@@ -113,10 +114,12 @@ async function pdfText(bytes: Uint8Array): Promise<ExtractedFileText> {
     let total = 0;
     for (let number = 1; number <= document.numPages; number++) {
       const page = await document.getPage(number), reader = page.streamTextContent().getReader();
-      let text = "", separator = "", textTooLarge = false;
+      let text = "", separator = "", textTooLarge = false, streamDone = false;
+      let streamFailure: unknown;
       try {
         for (;;) {
-          const { done, value } = await reader.read(); if (done) break;
+          const { done, value } = await reader.read();
+          if (done) { streamDone = true; break; }
           for (const item of value.items) {
             if (!("str" in item)) continue;
             if (!item.str) { if (item.hasEOL) separator = "\n"; continue; }
@@ -129,7 +132,20 @@ async function pdfText(bytes: Uint8Array): Promise<ExtractedFileText> {
           }
           if (textTooLarge) break;
         }
-      } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); page.cleanup(); }
+      } catch (error) {
+        streamFailure = error;
+        throw error;
+      } finally {
+        let cleanupFailure: unknown;
+        if (!streamDone) {
+          try { await reader.cancel(new Error("PDF text extraction stopped.")); }
+          catch (error) { cleanupFailure = error; }
+        }
+        try { reader.releaseLock(); } catch (error) { cleanupFailure ??= error; }
+        try { page.cleanup(); } catch (error) { cleanupFailure ??= error; }
+        // Preserve the size/read failure while still attempting every cleanup.
+        if (cleanupFailure && !streamFailure && !textTooLarge) throw cleanupFailure;
+      }
       if (textTooLarge) fail("EXTRACTED_TEXT_TOO_LARGE");
       text = text.trim(); total += text.length + (pages.length ? 2 : 0);
       if (total > 8000) fail("EXTRACTED_TEXT_TOO_LARGE");
@@ -138,9 +154,13 @@ async function pdfText(bytes: Uint8Array): Promise<ExtractedFileText> {
     if (!pages.some(page => page.text.trim())) fail("NO_EXTRACTABLE_TEXT");
     return { method: "PDF_TEXT", pages, confidence: null };
   } catch (error) {
+    extractionFailed = true;
     if ((error as Error).name === "PasswordException") fail("PDF_ENCRYPTED");
     throw error;
-  } finally { await task.destroy(); }
+  } finally {
+    try { await task.destroy(); }
+    catch (error) { if (!extractionFailed) throw error; }
+  }
 }
 
 async function imageText(bytes: Buffer, mimeType: string, root: string): Promise<ExtractedFileText> {

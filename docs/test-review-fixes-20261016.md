@@ -13,6 +13,7 @@ This change addresses reproducible conversation, Auth and availability defects f
 - Missing app profiles follow the existing ownership-aware sync path rather than being confused with missing Auth. Legacy app IDs remain unchanged.
 - Logout checks SDK errors. The installed SDK may remove the local session even when server logout fails: protected content remains hidden, and SignIn shows a fixed, non-sensitive notice that server revocation was not confirmed. Tokens are never restored to retain a protected page.
 - Upload availability distinguishes checking, disabled and failed checks with retry and accessible disabled controls. File learning remains fail-closed; text learning still works when capabilities are unavailable.
+- PDF text overflow uses PDF.js's required Error cancellation reason and preserves the controlled quota failure through cleanup. This fixes an intermittent worker crash found by PR CI, without changing the 8000-character/10-page limits, worker memory cap or deadline.
 
 ## Tests and evidence
 
