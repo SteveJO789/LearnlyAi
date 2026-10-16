@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import SiteHeader from "../components/SiteHeader";
+import RequireAuth from "../components/require-auth";
 import CuteLoadingPopup from "../components/CuteLoadingPopup";
 import CreateMagicCharacters from "./CreateMagicCharacters";
 import { useLanguage } from "../lib/i18n/LanguageContext";
@@ -13,7 +14,7 @@ import { startTextLesson } from "../../lib/start-text-lesson";
 import { getCurrentUserProfile, type AppUserProfile } from "../../lib/user-profile";
 import { uploadFileMaterial, reviewFileMaterial, listUploadReceipts, resumeFileUpload, validateSelectedFile, type FileMaterialDto, type UploadReceiptDto } from "../../lib/file-materials";
 
-export default function CreatePage() {
+function CreatePageContent() {
   const { t, language } = useLanguage();
   const router = useRouter();
   const features = useFeatures();
@@ -25,6 +26,8 @@ export default function CreatePage() {
   const [isStarting, setIsStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<AppUserProfile | null>(null);
+  const [profileError, setProfileError] = useState(false);
+  const [profileAttempt, setProfileAttempt] = useState(0);
   const [draftId, setDraftId] = useState<string | null>(null);
   const [material, setMaterial] = useState<FileMaterialDto | null>(null);
   const [receipts, setReceipts] = useState<UploadReceiptDto[]>([]);
@@ -34,10 +37,12 @@ export default function CreatePage() {
   const canStart = (question.trim().length > 0 || file !== null) && question.length <= 8000;
 
   useEffect(() => {
+    let active = true;
     getCurrentUserProfile()
-      .then((user) => { if (!user) router.replace("/SignIn"); else setProfile(user); })
-      .catch(() => router.replace("/SignIn"));
-  }, [router]);
+      .then((user) => { if (!active) return; if (!user) router.replace("/SignIn"); else { setProfile(user); setProfileError(false); } })
+      .catch(() => { if (active) setProfileError(true); });
+    return () => { active = false; };
+  }, [router, profileAttempt]);
   useEffect(() => () => uploadController.current?.abort(), []);
 
   async function handleStart() {
@@ -51,7 +56,13 @@ export default function CreatePage() {
 
     try {
       // Recheck the server before a mutation; no build-time public env flag.
-      const available = await getFeatures(AbortSignal.timeout(5000)).catch(() => disabledFeatures);
+      let available;
+      try {
+        available = await getFeatures(AbortSignal.timeout(5000));
+      } catch {
+        if (file) throw new Error(label("ตรวจสอบความพร้อมของการอัปโหลดไม่สำเร็จ กรุณาลองอีกครั้ง", "Could not check upload availability. Please retry."));
+        available = disabledFeatures;
+      }
       if (file && !available.fileUploads) throw new Error(label("การอัปโหลดไฟล์ยังไม่เปิดใช้งาน ใช้ข้อความเพื่อเริ่มเรียนได้", "File uploads are not enabled. Start with text instead."));
       let id = draftId;
       if (!id) {
@@ -144,6 +155,7 @@ export default function CreatePage() {
       />
 
       <main className="px-5 sm:px-12 lg:px-20 pb-24 relative z-10">
+        {profileError && <div role="alert" className="mx-auto mb-4 max-w-xl rounded-xl border border-danger/40 p-3 text-sm text-danger">Could not load your account profile. <button type="button" onClick={() => { setProfileError(false); setProfileAttempt((value) => value + 1); }} className="underline">Retry</button></div>}
         <div
           className="hello-gradient pointer-events-none max-w-full break-words bg-clip-text text-2xl font-medium leading-tight tracking-tight text-transparent sm:text-3xl lg:text-4xl"
           style={{
@@ -201,15 +213,16 @@ export default function CreatePage() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            disabled={isStarting || !!material || !features.fileUploads}
-            className="w-full break-all rounded-full border border-surface-border bg-surface px-4 py-4 text-sm text-muted hover:border-primary transition-colors cursor-pointer disabled:opacity-60"
+            disabled={isStarting || !!material || features.status !== "ready" || !features.fileUploads}
+            aria-describedby="upload-availability"
+            className="w-full break-all rounded-full border border-surface-border bg-surface px-4 py-4 text-sm text-muted hover:border-primary transition-colors disabled:cursor-not-allowed disabled:opacity-60"
           >
             {file ? `📎 ${file.name}` : t("create.uploadPlaceholder")}
           </button>
           <input
             ref={fileInputRef}
             type="file"
-            disabled={!features.fileUploads}
+            disabled={features.status !== "ready" || !features.fileUploads}
             accept="image/png,image/jpeg,application/pdf"
             className="hidden"
             onChange={(e) => {
@@ -218,7 +231,11 @@ export default function CreatePage() {
               catch (error) { setFile(null); setError(error instanceof Error ? error.message : label("ไฟล์ไม่รองรับ", "Unsupported file.")); }
             }}
           />
-          {!features.fileUploads && <p role="status" className="text-xs text-muted">{label("อัปโหลดไฟล์ยังไม่เปิดใช้งาน เริ่มเรียนด้วยข้อความได้", "Uploads are not enabled. You can start learning with text.")}</p>}
+          <p id="upload-availability" role={features.status === "error" ? "alert" : "status"} className={`text-xs ${features.status === "error" ? "text-danger" : "text-muted"}`}>
+            {features.status === "loading" && label("กำลังตรวจสอบการอัปโหลด…", "Checking upload availability…")}
+            {features.status === "error" && <>{label("ตรวจสอบความพร้อมใช้งานไม่สำเร็จ", "Could not check feature availability.")} <button type="button" onClick={features.retry} className="underline">Retry</button></>}
+            {features.status === "ready" && (features.fileUploads ? label("อัปโหลดไฟล์พร้อมใช้งาน", "Uploads are available.") : label("อัปโหลดไฟล์ยังไม่เปิดใช้งาน เริ่มเรียนด้วยข้อความได้", "Uploads are not enabled. You can start learning with text."))}
+          </p>
           {file && (
             <>
               <button
@@ -264,4 +281,8 @@ export default function CreatePage() {
       </main>
     </div>
   );
+}
+
+export default function CreatePage() {
+  return <RequireAuth><CreatePageContent /></RequireAuth>;
 }

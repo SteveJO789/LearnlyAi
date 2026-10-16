@@ -18,6 +18,7 @@
     "app/components/upload-history.tsx",
     "app/components/password-change-form.tsx",
     "app/Chat/[sessionId]/blocks.tsx",
+    "lib/chat-session.ts",
     "lib/assessments.ts",
     "lib/user-profile.ts",
     "lib/file-materials.ts",

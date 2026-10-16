@@ -19,6 +19,17 @@ test('capabilities are server-owned, no-store and fail closed for unavailable/ma
   globalThis.fetch = async () => Response.json({ data: { assessments: true, fileUploads: true } }, { status: 503 });
   await assert.rejects(getFeatures());
 });
+test('capabilities can be retried successfully after a transient failure', async () => {
+  let attempts = 0;
+  globalThis.fetch = async () => {
+    attempts++;
+    if (attempts === 1) throw new Error('temporary network failure');
+    return Response.json({ data: { assessments: false, fileUploads: true } });
+  };
+  await assert.rejects(getFeatures());
+  assert.deepEqual(await getFeatures(), { assessments: false, fileUploads: false });
+  assert.equal(attempts, 2);
+});
 test('text start uses the authenticated message path when new schema is disabled and preserves enabled assessment flow', async () => {
   supabase.getSupabaseClient = () => ({ auth: { getSession: async () => ({ data: { session: { access_token: 'fixture-token' } } }) } });
   const requests = [];

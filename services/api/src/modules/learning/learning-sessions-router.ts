@@ -19,6 +19,7 @@ import { logSessionLoadFailure } from "../../shared/safe-diagnostics.js";
 import { appUserIdForAuthUser } from "../../shared/app-user.js";
 import { createPersistentKnowledgeRetriever } from "./create-persistent-knowledge-retriever.js";
 import { readFeatures } from "../../shared/features.js";
+import { getStagePolicy } from "./stage-machine.js";
 
 type SessionRow = NonNullable<Awaited<ReturnType<UserDb["orm"]["public"]["LearningSession"]["first"]>>>;
 
@@ -29,6 +30,8 @@ export interface LearningSessionsRouterOptions extends Pick<CreateLearningEngine
 }
 
 function sessionSummary(row: SessionRow) {
+  const policy = getStagePolicy(row.stage);
+  const active = row.lifecycleState === "ACTIVE";
   return {
     id: row.id,
     title: row.title,
@@ -38,10 +41,29 @@ function sessionSummary(row: SessionRow) {
     lifecycleState: row.lifecycleState,
     stage: row.stage,
     progressPercent: row.progressPercent,
+    progress: {
+      percent: row.progressPercent,
+      canAdvance: active && policy.progress.canAdvance,
+      nextAction: active ? policy.progress.nextAction : null,
+    },
+    version: row.version,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
     completedAt: row.completedAt,
   };
+}
+
+function monotonicTimestamp(now: Date, previousUpdatedAt: string, messages: readonly PersistedMessage[]): string {
+  const nowMs = now.getTime();
+  const previousMs = Date.parse(previousUpdatedAt);
+  if (!Number.isFinite(nowMs) || !Number.isFinite(previousMs)) throw new Error("Invalid session event timestamp.");
+  let latestMessageMs = Number.NEGATIVE_INFINITY;
+  for (const message of messages) {
+    const value = Date.parse(message.orderingTimestamp ?? message.createdAt);
+    if (!Number.isFinite(value)) throw new Error("Invalid persisted message timestamp.");
+    latestMessageMs = Math.max(latestMessageMs, value);
+  }
+  return new Date(Math.max(nowMs, previousMs + 1, latestMessageMs + 1)).toISOString();
 }
 
 function messageDto(row: PersistedMessage) {
@@ -271,7 +293,8 @@ export function createLearningSessionsRouter(
         const row = await client.orm.public.LearningSession.where({ id: sessionId, userId: appUserId }).first();
         if (!row) { response.status(404).json({ error: { code: "NOT_FOUND", message: "Learning session was not found.", requestId: response.locals.requestId, details: [] } }); return; }
         if (row.lifecycleState !== "FAILED") throw new LearningError("SESSION_INACTIVE", [{ path: "/sessionId", message: "Only a failed session can be recovered." }]);
-        const at = new Date().toISOString();
+        const recoveryMessages = await readPersistedMessages(client, sessionId);
+        const at = monotonicTimestamp(new Date(), row.updatedAt, recoveryMessages);
         const restored = await withApiWrite(client, async tx => {
           const update = client.raw.sql`UPDATE public."LearningSession" SET "lifecycleState" = 'ACTIVE', "version" = "version" + 1, "updatedAt" = ${at}::timestamptz
             WHERE "id" = ${sessionId} AND "userId" = ${appUserId} AND "lifecycleState" = 'FAILED' AND "version" = ${row.version}`.affectedCount().build();
@@ -375,7 +398,7 @@ export function createLearningSessionsRouter(
           learningGoal: session.learningGoal ?? undefined,
           subject: session.subject ?? undefined,
           action,
-        });
+        }, { expectedVersion: session.version });
 
         response.status(200).json({ data: result });
       } catch (error) {

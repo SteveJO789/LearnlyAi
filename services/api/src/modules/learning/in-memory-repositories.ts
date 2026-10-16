@@ -1,4 +1,5 @@
 import type { LearningMessage, LearningSession } from "./domain.js";
+import { orderConversationMessages } from "./message-order.js";
 import type {
   LearningCommit, LearningPersistence, LearningSessionRepository, MessageRepository,
 } from "./repositories.js";
@@ -33,8 +34,7 @@ export class InMemoryMessageRepository implements MessageRepository {
   }
 
   async findBySessionId(sessionId: string): Promise<LearningMessage[]> {
-    // Map insertion order is the committed conversation order, including equal timestamps.
-    return structuredClone([...this.store.messages.values()].filter((message) => message.sessionId === sessionId));
+    return structuredClone(orderConversationMessages([...this.store.messages.values()].filter((message) => message.sessionId === sessionId)));
   }
 }
 

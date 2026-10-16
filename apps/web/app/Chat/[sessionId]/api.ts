@@ -1,4 +1,4 @@
-import { sendLearningInteraction } from "../../../lib/learning-sessions";
+import { LearningApiError as SessionLearningApiError, sendLearningInteraction } from "../../../lib/learning-sessions";
 
 export type LearningAction = "RESPOND" | "ADVANCE";
 
@@ -65,11 +65,13 @@ export type LearningRequest = {
 
 export class LearningApiError extends Error {
   readonly status?: number;
+  readonly code?: string;
 
-  constructor(message: string, status?: number) {
+  constructor(message: string, status?: number, code?: string) {
     super(message);
     this.name = "LearningApiError";
     this.status = status;
+    this.code = code;
   }
 }
 
@@ -83,10 +85,15 @@ export async function respondToLearning(
       action: request.action,
     });
   } catch (error) {
+    if (error instanceof SessionLearningApiError) {
+      throw new LearningApiError(error.message, error.status, error.code);
+    }
     throw new LearningApiError(
       error instanceof Error
         ? error.message
         : "เชื่อมต่อ Learning API ไม่ได้",
+      error instanceof LearningApiError ? error.status : undefined,
+      error instanceof LearningApiError ? error.code : undefined,
     );
   }
 }

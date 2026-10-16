@@ -16,7 +16,7 @@ export interface LearningRequest {
 export type LearningResult = ValidatedTutorOutput;
 
 export interface LearningEngine {
-  process(request: LearningRequest): Promise<LearningResult>;
+  process(request: LearningRequest, options?: { expectedVersion?: number }): Promise<LearningResult>;
 }
 
 export interface LearningSession {
@@ -36,7 +36,10 @@ export type LearningMessage = {
   id: string;
   sessionId: string;
   createdAt: string;
+  /** Exact persisted timestamp for ordering legacy PostgreSQL sub-millisecond rows. */
+  orderingTimestamp?: string;
 } & (
   | { role: "USER"; content: string }
   | { role: "TUTOR"; content: ValidatedTutorOutput }
+  | { role: "SYSTEM"; content: unknown }
 );

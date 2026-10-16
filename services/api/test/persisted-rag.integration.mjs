@@ -36,16 +36,25 @@ globalThis.fetch = async (url, init) => {
   return realFetch(url, init);
 };
 let store;
-function reset() { store = { User: [], LearningSession: [], Message: [], writes: 0, boundUsers: [] }; }
+function reset() { store = { User: [], LearningSession: [], Message: [], writes: 0, boundUsers: [], sessionReadBarrier: null }; }
 const clone = x => x === undefined ? undefined : structuredClone(x);
 function dbClient(userId) {
   const appId = () => store.User.find(row => row.authUserId === userId)?.id ?? userId;
   const visible = (table, row) => table === 'User' ? row.authUserId === userId : table === 'LearningSession' ? row.userId === appId() : store.LearningSession.some(s => s.id === row.learningSessionId && s.userId === appId());
-  function tableApi(table, filters = {}) {
+  function tableApi(table, filters = {}, projection = false) {
     const rows = () => store[table].filter(row => visible(table, row) && Object.entries(filters).every(([key,value]) => row[key] === value));
     return {
-      where: more => tableApi(table, { ...filters, ...more }), select: () => tableApi(table, filters),
-      orderBy: () => tableApi(table, filters), first: async () => clone(rows()[0] ?? null), all: async () => clone(rows()),
+      where: more => tableApi(table, { ...filters, ...more }, projection), select: () => tableApi(table, filters, true),
+      orderBy: () => tableApi(table, filters, projection), first: async () => {
+        const barrier = store.sessionReadBarrier;
+        if (table === 'LearningSession' && !projection && barrier && filters.id === barrier.sessionId) {
+          barrier.count++;
+          barrier.trace.push(`read:${barrier.count}`);
+          if (barrier.count === 3) barrier.secondRouteSnapshot();
+          if (barrier.count === 4) await barrier.waitForFirstCommit;
+        }
+        return clone(rows()[0] ?? null);
+      }, all: async () => clone(rows()),
       update: async values => { const row = rows()[0]; if (!row) return 0; Object.assign(row, clone(values)); store.writes++; return 1; },
       create: async row => { assert.ok(visible(table,row)); if (table === 'User') assert.ok(!store.User.some(user => user.authUserId === row.authUserId), 'authUserId must remain unique'); store[table].push(clone(row)); store.writes++; return clone(row); },
     };
@@ -68,10 +77,10 @@ function dbClient(userId) {
       if (/FROM public\."Assessment"/.test(plan.text)) return [];
       assert.match(plan.text, /SELECT[\s\S]+FROM public\."Message"/);
       const [sessionId] = plan.values;
-      return clone(store.Message.filter(m => m.learningSessionId === sessionId && visible('Message',m)).sort((a,b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id)).map(({content,...row}) => ({ ...row, contentJson: JSON.stringify(content) })));
+      return clone(store.Message.filter(m => m.learningSessionId === sessionId && visible('Message',m)).sort((a,b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id)).map(({content,...row}) => ({ ...row, orderingTimestamp: row.createdAt, contentJson: JSON.stringify(content) })));
     }}),
     transaction: async fn => {
-      const snapshot = clone(store);
+      const snapshot = clone(Object.fromEntries(Object.entries(store).filter(([key]) => key !== 'sessionReadBarrier')));
       let apiWrite = false;
       try { return await fn({ execute: async plan => {
         if (/set_config\('learnly.api_write'/.test(plan.text)) { apiWrite = true; return { affectedRows: 1 }; }
@@ -106,7 +115,7 @@ function dbClient(userId) {
         assert.ok(store.LearningSession.some(s => s.id === learningSessionId && s.userId === appId()));
         store.Message.push({ id,learningSessionId,role,content: JSON.parse(contentJson),createdAt });
         store.writes++; return { affectedRows: 1 };
-      }}); } catch(error) { store = snapshot; throw error; }
+      }}); } catch(error) { store = { ...snapshot, sessionReadBarrier: store.sessionReadBarrier }; throw error; }
     },
   };
 }
@@ -133,7 +142,7 @@ async function withApp(scenario, run, features = { assessments: true, fileUpload
     const response = await fetch(base+path, { method, headers: { ...(token ? { authorization: `Bearer ${token}` } : {}), ...(body ? { 'content-type': 'application/json' } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
     return { status: response.status, body: await response.json() };
   };
-  try { await run({ call,requests }); } finally { server.closeIdleConnections(); await new Promise((resolve,reject) => server.close(e => e ? reject(e) : resolve())); }
+  try { await run({ call,requests,fixture:store }); } finally { server.closeIdleConnections(); await new Promise((resolve,reject) => server.close(e => e ? reject(e) : resolve())); }
 }
 async function session(call) {
   const r = await call('', { method: 'POST', body: { title: 'Synthetic RAG verification', subject: 'physics' } });
@@ -142,17 +151,74 @@ async function session(call) {
 test('disabled new infrastructure preserves text learning, restoration, legacy ownership and engine completion (offline DB/Auth)', async () => {
   await withApp(mockTutorScenario, async ({ call }) => {
     const id = await session(call);
+    const initial = await call(`/${id}`);
+    assert.deepEqual(initial.body.data.progress, { percent: 0, canAdvance: true, nextAction: 'CONTINUE' });
+    assert.equal(initial.body.data.version, 0);
     assert.equal((await call(`/${id}/interactions`, { method: 'POST', body: { input: "Explain Ohm's law." } })).status, 200);
     const restored = await call(`/${id}`);
     assert.equal(restored.status, 200); assert.equal(restored.body.data.messages.length, 2);
+    assert.deepEqual(restored.body.data.messages.map(message => message.role), ['USER', 'TUTOR']);
     assert.equal((await call(`/${id}`, { token: 'test-token-b' })).status, 404);
     for (let step = 0; step < 3; step++) {
       assert.equal((await call(`/${id}/interactions`, { method: 'POST', body: { action: 'ADVANCE', input: 'Continue' } })).status, 200);
     }
-    assert.equal((await call(`/${id}`)).body.data.lifecycleState, 'COMPLETED');
+    const completed = await call(`/${id}`);
+    assert.equal(completed.body.data.lifecycleState, 'COMPLETED');
+    assert.deepEqual(completed.body.data.progress, { percent: 100, canAdvance: false, nextAction: null });
+    assert.deepEqual(completed.body.data.messages.map(message => message.role), ['USER', 'TUTOR', 'USER', 'TUTOR', 'USER', 'TUTOR', 'USER', 'TUTOR']);
     assert.equal((await call('', { token: null })).status, 401);
   }, { assessments: false, fileUploads: false });
 });
+
+test('stale route snapshot cannot advance ASSESS to REVIEW without the post-test (offline race)', async () => {
+  let holdNextModel = false;
+  let announceModelStart;
+  const modelStarted = new Promise(resolve => { announceModelStart = resolve; });
+  let releaseModel;
+  const modelGate = new Promise(resolve => { releaseModel = resolve; });
+  await withApp(async request => {
+    if (holdNextModel) { holdNextModel = false; announceModelStart(); await modelGate; }
+    return mockTutorScenario(request);
+  }, async ({ call,requests,fixture }) => {
+    const id = await session(call);
+    const prepare = await call(`/${id}/interactions`, { method: 'POST', body: { action: 'ADVANCE', input: 'Continue' } });
+    assert.equal(prepare.status, 200);
+    assert.equal((await call(`/${id}`)).body.data.stage, 'PRACTICE');
+
+    let announceSecondRouteSnapshot;
+    const secondRouteSnapshot = new Promise(resolve => { announceSecondRouteSnapshot = resolve; });
+    let releaseSecondEngineRead;
+    const firstCommit = new Promise(resolve => { releaseSecondEngineRead = resolve; });
+    fixture.sessionReadBarrier = { sessionId: id, count: 0, trace: [], secondRouteSnapshot: announceSecondRouteSnapshot, waitForFirstCommit: firstCommit };
+
+    holdNextModel = true;
+    const firstAdvance = call(`/${id}/interactions`, { method: 'POST', body: { action: 'ADVANCE', input: 'Continue' } });
+    let staleAdvance;
+    try {
+      await Promise.race([modelStarted, new Promise((_, reject) => setTimeout(() => reject(new Error(`model did not start: ${fixture.sessionReadBarrier.trace}`)), 3000))]);
+      staleAdvance = call(`/${id}/interactions`, { method: 'POST', body: { action: 'ADVANCE', input: 'Continue' } });
+      await Promise.race([secondRouteSnapshot, new Promise((_, reject) => setTimeout(() => reject(new Error(`second route did not snapshot: ${fixture.sessionReadBarrier.trace}`)), 3000))]);
+      releaseModel();
+      const firstResult = await firstAdvance;
+      assert.equal(firstResult.status, 200, JSON.stringify({ body: firstResult.body, trace: fixture.sessionReadBarrier.trace, session: fixture.LearningSession.find(row => row.id === id), requestCount: requests.length }));
+      releaseSecondEngineRead();
+      const staleResult = await staleAdvance;
+      assert.equal(staleResult.status, 409);
+      assert.equal(staleResult.body.error.code, 'SESSION_CONFLICT');
+      const detail = await call(`/${id}`);
+      assert.equal(detail.body.data.stage, 'ASSESS');
+      assert.equal(detail.body.data.state, 'POST_TEST');
+      assert.equal(detail.body.data.version, 2);
+      assert.equal(requests.length, 2, 'the stale route action must be rejected before the model call');
+      assert.deepEqual(detail.body.data.messages.map(message => message.role), ['USER', 'TUTOR', 'USER', 'TUTOR']);
+    } finally {
+      releaseModel();
+      releaseSecondEngineRead();
+      await Promise.allSettled([firstAdvance, ...(staleAdvance ? [staleAdvance] : [])]);
+    }
+  });
+});
+
 for (const mode of ['trusted', 'stale', 'unavailable']) test(`configured vector mode reaches protected persisted learning with ${mode} index response (offline services)`, async () => {
   const previous = Object.fromEntries(vectorEnvKeys.map(key => [key, process.env[key]]));
   Object.assign(process.env, { KNOWLEDGE_RETRIEVAL_MODE: 'vector', KNOWLEDGE_EMBEDDING_MODEL: 'openai/text-embedding-3-small',
