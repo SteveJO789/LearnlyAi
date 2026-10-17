@@ -49,7 +49,7 @@ export function createApp(options: AppOptions = {}): Express {
     });
   });
 
-  const checkReadiness = createReadinessCheck({ knowledgeRoot: options.knowledgeRoot, ...options.readiness });
+  const checkReadiness = createReadinessCheck({ knowledgeRoot: options.knowledgeRoot, ...options.readiness, features });
   app.get("/health/ready", async (_request, response) => {
     const data = await checkReadiness();
     response.status(data.status === "ready" ? 200 : 503).json({ data });

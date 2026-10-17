@@ -14,6 +14,7 @@ export async function checkVectorIndexReadiness(
   connect: (url: string) => Pick<Client, "connect" | "query" | "end" | "on"> = url => new Client({
     connectionString: url, connectionTimeoutMillis: 1500, query_timeout: 1500, statement_timeout: 1200,
   }),
+  expectedDatabase?: string,
 ): Promise<void> {
   const config = loadKnowledgeRetrievalConfig(env);
   if (config.mode !== "vector" || !env.DATABASE_URL) throw new Error("Vector index configuration is unavailable.");
@@ -30,6 +31,10 @@ export async function checkVectorIndexReadiness(
     await client.connect(); signal.throwIfAborted();
     // Read-only, fixed role, no claims or learner tables. End closes transaction even on failure.
     await client.query("BEGIN READ ONLY");
+    if (expectedDatabase) {
+      const database = await client.query<{ name: string }>("SELECT current_database() AS name");
+      if (database.rows[0]?.name !== expectedDatabase) throw new Error("Vector preflight target database mismatch.");
+    }
     await client.query("SET LOCAL ROLE authenticated");
     const result = await client.query<ReviewedIndexIdentity>(VECTOR_INDEX_READINESS_SQL,
       [passage.conceptId, config.model, passage.subject, passage.language]);

@@ -1,6 +1,9 @@
 import { fileURLToPath } from "node:url";
 import { Client } from "pg";
 import { LocalReviewedKnowledgeReader } from "../modules/knowledge/reviewed-knowledge-reader.js";
+import { verifyOcrModels } from "../modules/input/ocr-models.js";
+import { checkActivationSchema, checkVectorPrerequisites } from "./activation-schema-readiness.js";
+import type { Features } from "./features.js";
 import { checkVectorIndexReadiness } from "./vector-index-readiness.js";
 
 export type ReadinessProbe = (signal: AbortSignal) => Promise<void>;
@@ -11,6 +14,11 @@ export interface ReadinessOptions {
   timeoutMs?: number;
   knowledgeRoot?: string;
   vectorIndex?: ReadinessProbe;
+  vectorSchema?: ReadinessProbe;
+  assessmentSchema?: ReadinessProbe;
+  uploadsSchema?: ReadinessProbe;
+  ocrModels?: ReadinessProbe;
+  features?: Features;
 }
 
 /** Connectivity/configuration checks only; not an OAuth, RLS or provider smoke test. */
@@ -48,6 +56,27 @@ export function createReadinessCheck(options: ReadinessOptions = {}) {
     probes.vectorIndex = options.vectorIndex ?? (signal => checkVectorIndexReadiness(new LocalReviewedKnowledgeReader(
       options.knowledgeRoot ?? process.env.KNOWLEDGE_ROOT ?? fileURLToPath(new URL("../../runtime-knowledge/", import.meta.url)),
     ), signal));
+  }
+  if (process.env.KNOWLEDGE_RETRIEVAL_MODE !== undefined && process.env.KNOWLEDGE_RETRIEVAL_MODE !== "lexical") {
+    probes.vectorSchema = options.vectorSchema ?? (async signal => {
+      const result = await checkVectorPrerequisites({ signal });
+      if (result.status !== "PASS") throw new Error("Vector activation prerequisites are not ready.");
+    });
+  }
+  if (options.features?.assessments) {
+    probes.assessmentSchema = options.assessmentSchema ?? (async signal => {
+      const result = await checkActivationSchema({ signal, uploads: options.features?.fileUploads });
+      if (result.status !== "PASS") throw new Error("Assessment activation prerequisites are not ready.");
+    });
+  }
+  if (options.features?.fileUploads) {
+    // Upload schema inspection includes assessment tables, avoiding two catalog connections.
+    probes.uploadsSchema = options.uploadsSchema ?? (async signal => {
+      const result = await checkActivationSchema({ signal, uploads: true });
+      if (result.status !== "PASS") throw new Error("Upload activation prerequisites are not ready.");
+    });
+    probes.ocrModels = options.ocrModels ?? (async signal => { await verifyOcrModels(undefined, signal); });
+    if (!options.assessmentSchema) delete probes.assessmentSchema;
   }
   return async () => {
     const checks: Record<string, "ok" | "failed"> = { api: "ok" };

@@ -1,0 +1,458 @@
+{
+  "postgresMajor": 17,
+  "coreHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+  "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+  "provenance": "Generated from isolated verified canonical catalog fixture learnly_activation_executor_catalog_20261016200508_204677 on PostgreSQL 17; not migration-executor proof.",
+  "entries": [
+    {
+      "id": "check:AIRequest:AIRequest_status_check_f32a67f1",
+      "source": "\"status\" IN ('PENDING', 'SUCCESS', 'FAILED')",
+      "deparsed": "CHECK ((status = ANY (ARRAY['PENDING'::text, 'SUCCESS'::text, 'FAILED'::text])))"
+    },
+    {
+      "id": "check:Assessment:Assessment_phase_check_0c021859",
+      "source": "\"phase\" IN ('PRE', 'POST', 'TRANSFER')",
+      "deparsed": "CHECK ((phase = ANY (ARRAY['PRE'::text, 'POST'::text, 'TRANSFER'::text])))"
+    },
+    {
+      "id": "check:FileUpload:FileUpload_state_check_d8fae83c",
+      "source": "\"state\" IN ('PENDING', 'FINALIZED', 'CANCELLED')",
+      "deparsed": "CHECK ((state = ANY (ARRAY['PENDING'::text, 'FINALIZED'::text, 'CANCELLED'::text])))"
+    },
+    {
+      "id": "check:FileUpload:file_upload_cleanup_state_89133064",
+      "source": "\"cleanupAt\" IS NULL OR state = 'CANCELLED'",
+      "deparsed": "CHECK (((\"cleanupAt\" IS NULL) OR (state = 'CANCELLED'::text)))"
+    },
+    {
+      "id": "check:KnowledgeChunk:knowledge_chunk_hashes_baf6cdf2",
+      "source": "\"passageHash\" ~ '^[0-9a-f]{64}$' AND \"contentHash\" ~ '^[0-9a-f]{64}$' AND \"embeddingInputHash\" ~ '^[0-9a-f]{64}$' AND \"provenanceHash\" ~ '^[0-9a-f]{64}$'",
+      "deparsed": "CHECK (((\"passageHash\" ~ '^[0-9a-f]{64}$'::text) AND (\"contentHash\" ~ '^[0-9a-f]{64}$'::text) AND (\"embeddingInputHash\" ~ '^[0-9a-f]{64}$'::text) AND (\"provenanceHash\" ~ '^[0-9a-f]{64}$'::text)))"
+    },
+    {
+      "id": "check:KnowledgeChunk:knowledge_chunk_shape_ac4a864f",
+      "source": "dimensions = 1536 AND ordinal >= 0 AND (page IS NULL OR page > 0)",
+      "deparsed": "CHECK (((dimensions = 1536) AND (ordinal >= 0) AND ((page IS NULL) OR (page > 0))))"
+    },
+    {
+      "id": "check:LearningSession:LearningSession_lifecycleState_check_1f2ffd0e",
+      "source": "\"lifecycleState\" IN ('ACTIVE', 'COMPLETED', 'FAILED')",
+      "deparsed": "CHECK ((\"lifecycleState\" = ANY (ARRAY['ACTIVE'::text, 'COMPLETED'::text, 'FAILED'::text])))"
+    },
+    {
+      "id": "check:LearningSession:LearningSession_stage_check_df720be3",
+      "source": "\"stage\" IN ('DIAGNOSE', 'EXPLAIN', 'PRACTICE', 'ASSESS', 'REVIEW')",
+      "deparsed": "CHECK ((stage = ANY (ARRAY['DIAGNOSE'::text, 'EXPLAIN'::text, 'PRACTICE'::text, 'ASSESS'::text, 'REVIEW'::text])))"
+    },
+    {
+      "id": "check:LearningSession:LearningSession_state_check_d925cf7a",
+      "source": "\"state\" IN ('INPUT', 'CONTENT_ANALYSIS', 'PRE_TEST', 'LEARNING', 'TRANSFER', 'POST_TEST', 'COMPLETED')",
+      "deparsed": "CHECK ((state = ANY (ARRAY['INPUT'::text, 'CONTENT_ANALYSIS'::text, 'PRE_TEST'::text, 'LEARNING'::text, 'TRANSFER'::text, 'POST_TEST'::text, 'COMPLETED'::text])))"
+    },
+    {
+      "id": "check:Message:Message_role_check_25286c5d",
+      "source": "\"role\" IN ('USER', 'TUTOR', 'SYSTEM')",
+      "deparsed": "CHECK ((role = ANY (ARRAY['USER'::text, 'TUTOR'::text, 'SYSTEM'::text])))"
+    },
+    {
+      "id": "check:SourceMaterial:SourceMaterial_status_check_c104a595",
+      "source": "\"status\" IN ('UPLOADED', 'PROCESSING', 'READY', 'FAILED')",
+      "deparsed": "CHECK ((status = ANY (ARRAY['UPLOADED'::text, 'PROCESSING'::text, 'READY'::text, 'FAILED'::text])))"
+    },
+    {
+      "id": "check:SourceMaterial:SourceMaterial_type_check_74d9d9d9",
+      "source": "\"type\" IN ('TEXT', 'PDF', 'IMAGE')",
+      "deparsed": "CHECK ((type = ANY (ARRAY['TEXT'::text, 'PDF'::text, 'IMAGE'::text])))"
+    },
+    {
+      "id": "policy:public:AIRequest:ai_request_select_own_5424dd11:using",
+      "source": "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"AIRequest\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" ls\n     JOIN \"User\" u ON ((u.id = ls.\"userId\")))\n  WHERE ((ls.id = \"AIRequest\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:AIRequest:ai_request_select_own_5424dd11:withCheck",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:AssessmentAnswer:assessment_answer_insert_api_own_6ac7083b:using",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:AssessmentAnswer:assessment_answer_insert_api_own_6ac7083b:withCheck",
+      "source": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"Assessment\" a JOIN \"LearningSession\" s ON s.id = a.\"learningSessionId\" JOIN \"User\" u ON u.id = s.\"userId\" WHERE a.id = \"AssessmentAnswer\".\"assessmentId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+      "deparsed": "((current_setting('learnly.api_write'::text, true) = '1'::text) AND (EXISTS ( SELECT 1\n   FROM ((\"Assessment\" a\n     JOIN \"LearningSession\" s ON ((s.id = a.\"learningSessionId\")))\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((a.id = \"AssessmentAnswer\".\"assessmentId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+    },
+    {
+      "id": "policy:public:AssessmentAnswer:assessment_answer_select_own_c190452e:using",
+      "source": "(EXISTS ( SELECT 1 FROM ((\"Assessment\" a JOIN \"LearningSession\" ls ON ((ls.id = a.\"learningSessionId\"))) JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((a.id = \"AssessmentAnswer\".\"assessmentId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM ((\"Assessment\" a\n     JOIN \"LearningSession\" ls ON ((ls.id = a.\"learningSessionId\")))\n     JOIN \"User\" u ON ((u.id = ls.\"userId\")))\n  WHERE ((a.id = \"AssessmentAnswer\".\"assessmentId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:AssessmentAnswer:assessment_answer_select_own_c190452e:withCheck",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:Assessment:assessment_insert_api_own_277fff40:using",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:Assessment:assessment_insert_api_own_277fff40:withCheck",
+      "source": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"Assessment\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+      "deparsed": "((current_setting('learnly.api_write'::text, true) = '1'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"Assessment\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+    },
+    {
+      "id": "policy:public:Assessment:assessment_select_own_d47c911a:using",
+      "source": "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Assessment\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" ls\n     JOIN \"User\" u ON ((u.id = ls.\"userId\")))\n  WHERE ((ls.id = \"Assessment\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:Assessment:assessment_select_own_d47c911a:withCheck",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:Assessment:assessment_update_api_own_168c1514:using",
+      "source": "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"Assessment\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"Assessment\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:Assessment:assessment_update_api_own_168c1514:withCheck",
+      "source": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"Assessment\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+      "deparsed": "((current_setting('learnly.api_write'::text, true) = '1'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"Assessment\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+    },
+    {
+      "id": "policy:public:FileUpload:file_upload_insert_api_own_d6a3a6ba:using",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:FileUpload:file_upload_insert_api_own_d6a3a6ba:withCheck",
+      "source": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND s.\"lifecycleState\" = 'ACTIVE' AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+      "deparsed": "((current_setting('learnly.api_write'::text, true) = '1'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"FileUpload\".\"learningSessionId\") AND (s.\"lifecycleState\" = 'ACTIVE'::text) AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+    },
+    {
+      "id": "policy:public:FileUpload:file_upload_insert_guard_649e1632:using",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:FileUpload:file_upload_insert_guard_649e1632:withCheck",
+      "source": "(current_setting('learnly.api_write', true) = '1')",
+      "deparsed": "(current_setting('learnly.api_write'::text, true) = '1'::text)"
+    },
+    {
+      "id": "policy:public:FileUpload:file_upload_select_own_5472d21c:using",
+      "source": "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"FileUpload\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:FileUpload:file_upload_select_own_5472d21c:withCheck",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:FileUpload:file_upload_update_api_own_e13f9bb0:using",
+      "source": "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"FileUpload\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:FileUpload:file_upload_update_api_own_e13f9bb0:withCheck",
+      "source": "(EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"FileUpload\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"FileUpload\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:FileUpload:file_upload_update_guard_cd84f83e:using",
+      "source": "(current_setting('learnly.api_write', true) = '1')",
+      "deparsed": "(current_setting('learnly.api_write'::text, true) = '1'::text)"
+    },
+    {
+      "id": "policy:public:FileUpload:file_upload_update_guard_cd84f83e:withCheck",
+      "source": "(current_setting('learnly.api_write', true) = '1')",
+      "deparsed": "(current_setting('learnly.api_write'::text, true) = '1'::text)"
+    },
+    {
+      "id": "policy:public:KnowledgeChunk:knowledge_chunk_read_reviewed_72bac3b2:using",
+      "source": "reviewed = true",
+      "deparsed": "(reviewed = true)"
+    },
+    {
+      "id": "policy:public:KnowledgeChunk:knowledge_chunk_read_reviewed_72bac3b2:withCheck",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:LearningProfile:learning_profile_insert_api_own_62b5c283:using",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:LearningProfile:learning_profile_insert_api_own_62b5c283:withCheck",
+      "source": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"User\" u WHERE u.id = \"LearningProfile\".\"userId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+      "deparsed": "((current_setting('learnly.api_write'::text, true) = '1'::text) AND (EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningProfile\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+    },
+    {
+      "id": "policy:public:LearningProfile:learning_profile_select_own_13d05569:using",
+      "source": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningProfile\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningProfile\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:LearningProfile:learning_profile_select_own_13d05569:withCheck",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:LearningProfile:learning_profile_update_api_own_40a07354:using",
+      "source": "(EXISTS (SELECT 1 FROM \"User\" u WHERE u.id = \"LearningProfile\".\"userId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningProfile\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:LearningProfile:learning_profile_update_api_own_40a07354:withCheck",
+      "source": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"User\" u WHERE u.id = \"LearningProfile\".\"userId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+      "deparsed": "((current_setting('learnly.api_write'::text, true) = '1'::text) AND (EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningProfile\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+    },
+    {
+      "id": "policy:public:LearningSession:learning_session_insert_own_2be3816c:using",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:LearningSession:learning_session_insert_own_2be3816c:withCheck",
+      "source": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:LearningSession:learning_session_select_own_a34ec569:using",
+      "source": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:LearningSession:learning_session_select_own_a34ec569:withCheck",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:LearningSession:learning_session_update_own_056e8007:using",
+      "source": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:LearningSession:learning_session_update_own_056e8007:withCheck",
+      "source": "(EXISTS ( SELECT 1 FROM \"User\" u WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:Message:message_api_insert_guard_649e1632:using",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:Message:message_api_insert_guard_649e1632:withCheck",
+      "source": "(current_setting('learnly.api_write', true) = '1')",
+      "deparsed": "(current_setting('learnly.api_write'::text, true) = '1'::text)"
+    },
+    {
+      "id": "policy:public:Message:message_insert_own_4f346578:using",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:Message:message_insert_own_4f346578:withCheck",
+      "source": "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" ls\n     JOIN \"User\" u ON ((u.id = ls.\"userId\")))\n  WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:Message:message_select_own_968c3fb0:using",
+      "source": "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" ls\n     JOIN \"User\" u ON ((u.id = ls.\"userId\")))\n  WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:Message:message_select_own_968c3fb0:withCheck",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:LearningSession:session_api_insert_guard_649e1632:using",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:LearningSession:session_api_insert_guard_649e1632:withCheck",
+      "source": "(current_setting('learnly.api_write', true) = '1')",
+      "deparsed": "(current_setting('learnly.api_write'::text, true) = '1'::text)"
+    },
+    {
+      "id": "policy:public:LearningSession:session_api_update_guard_cca2e683:using",
+      "source": "true",
+      "deparsed": "true"
+    },
+    {
+      "id": "policy:public:LearningSession:session_api_update_guard_cca2e683:withCheck",
+      "source": "(current_setting('learnly.api_write', true) = '1')",
+      "deparsed": "(current_setting('learnly.api_write'::text, true) = '1'::text)"
+    },
+    {
+      "id": "policy:public:SourceMaterial:source_material_insert_api_own_bbb50d09:using",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:SourceMaterial:source_material_insert_api_own_bbb50d09:withCheck",
+      "source": "((current_setting('learnly.api_write', true) = '1') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+      "deparsed": "((current_setting('learnly.api_write'::text, true) = '1'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"SourceMaterial\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+    },
+    {
+      "id": "policy:public:SourceMaterial:source_material_review_update_guard_cd84f83e:using",
+      "source": "(current_setting('learnly.api_write', true) = '1')",
+      "deparsed": "(current_setting('learnly.api_write'::text, true) = '1'::text)"
+    },
+    {
+      "id": "policy:public:SourceMaterial:source_material_review_update_guard_cd84f83e:withCheck",
+      "source": "(current_setting('learnly.api_write', true) = '1')",
+      "deparsed": "(current_setting('learnly.api_write'::text, true) = '1'::text)"
+    },
+    {
+      "id": "policy:public:SourceMaterial:source_material_review_update_own_c072fcc3:using",
+      "source": "(\"status\" = 'READY' AND \"type\" IN ('PDF', 'IMAGE') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text AND s.\"lifecycleState\" = 'ACTIVE' AND s.\"stage\" = 'EXPLAIN' AND s.\"version\" = 0 AND s.\"state\" IN ('INPUT', 'PRE_TEST')))",
+      "deparsed": "((status = 'READY'::text) AND (type = ANY (ARRAY['PDF'::text, 'IMAGE'::text])) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"SourceMaterial\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text) AND (s.\"lifecycleState\" = 'ACTIVE'::text) AND (s.stage = 'EXPLAIN'::text) AND (s.version = 0) AND (s.state = ANY (ARRAY['INPUT'::text, 'PRE_TEST'::text]))))))"
+    },
+    {
+      "id": "policy:public:SourceMaterial:source_material_review_update_own_c072fcc3:withCheck",
+      "source": "(\"status\" = 'READY' AND \"type\" IN ('PDF', 'IMAGE') AND EXISTS (SELECT 1 FROM \"LearningSession\" s JOIN \"User\" u ON u.id = s.\"userId\" WHERE s.id = \"SourceMaterial\".\"learningSessionId\" AND u.\"authUserId\" = (SELECT auth.uid())::text AND s.\"lifecycleState\" = 'ACTIVE' AND s.\"stage\" = 'EXPLAIN' AND s.\"version\" = 0 AND s.\"state\" IN ('INPUT', 'PRE_TEST')))",
+      "deparsed": "((status = 'READY'::text) AND (type = ANY (ARRAY['PDF'::text, 'IMAGE'::text])) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"SourceMaterial\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text) AND (s.\"lifecycleState\" = 'ACTIVE'::text) AND (s.stage = 'EXPLAIN'::text) AND (s.version = 0) AND (s.state = ANY (ARRAY['INPUT'::text, 'PRE_TEST'::text]))))))"
+    },
+    {
+      "id": "policy:public:SourceMaterial:source_material_select_own_f7e3ac0e:using",
+      "source": "(EXISTS ( SELECT 1 FROM (\"LearningSession\" ls JOIN \"User\" u ON ((u.id = ls.\"userId\"))) WHERE ((ls.id = \"SourceMaterial\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+      "deparsed": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" ls\n     JOIN \"User\" u ON ((u.id = ls.\"userId\")))\n  WHERE ((ls.id = \"SourceMaterial\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+    },
+    {
+      "id": "policy:public:SourceMaterial:source_material_select_own_f7e3ac0e:withCheck",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:User:user_insert_own_770e92f4:using",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:User:user_insert_own_770e92f4:withCheck",
+      "source": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)",
+      "deparsed": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
+    },
+    {
+      "id": "policy:public:User:user_select_own_4f3aea31:using",
+      "source": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)",
+      "deparsed": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
+    },
+    {
+      "id": "policy:public:User:user_select_own_4f3aea31:withCheck",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:public:User:user_update_own_0788dd28:using",
+      "source": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)",
+      "deparsed": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
+    },
+    {
+      "id": "policy:public:User:user_update_own_0788dd28:withCheck",
+      "source": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)",
+      "deparsed": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_select_own:using",
+      "source": "(bucket_id = 'learnly-materials' AND owner_id = (SELECT auth.uid())::text\n  AND array_length(string_to_array(name, '/'), 1) = 3\n  AND split_part(name, '/', 1) = (SELECT auth.uid())::text\n  AND split_part(name, '/', 2) ~ '^[a-zA-Z0-9_-]{1,128}$'\n  AND split_part(name, '/', 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'\n  AND EXISTS (SELECT 1 FROM public.\"LearningSession\" s JOIN public.\"User\" u ON u.id = s.\"userId\"\n    WHERE s.id = split_part(name, '/', 2) AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+      "deparsed": "((bucket_id = 'learnly-materials'::text) AND (owner_id = (( SELECT auth.uid() AS uid))::text) AND (array_length(string_to_array(name, '/'::text), 1) = 3) AND (split_part(name, '/'::text, 1) = (( SELECT auth.uid() AS uid))::text) AND (split_part(name, '/'::text, 2) ~ '^[a-zA-Z0-9_-]{1,128}$'::text) AND (split_part(name, '/'::text, 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = split_part(objects.name, '/'::text, 2)) AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_select_own:withCheck",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_insert_own:using",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_insert_own:withCheck",
+      "source": "((bucket_id = 'learnly-materials' AND owner_id = (SELECT auth.uid())::text\n  AND array_length(string_to_array(name, '/'), 1) = 3\n  AND split_part(name, '/', 1) = (SELECT auth.uid())::text\n  AND split_part(name, '/', 2) ~ '^[a-zA-Z0-9_-]{1,128}$'\n  AND split_part(name, '/', 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'\n  AND EXISTS (SELECT 1 FROM public.\"LearningSession\" s JOIN public.\"User\" u ON u.id = s.\"userId\"\n    WHERE s.id = split_part(name, '/', 2) AND u.\"authUserId\" = (SELECT auth.uid())::text)) AND EXISTS (SELECT 1 FROM public.\"LearningSession\" active\n  WHERE active.id = split_part(name, '/', 2) AND active.\"lifecycleState\" = 'ACTIVE'))",
+      "deparsed": "((bucket_id = 'learnly-materials'::text) AND (owner_id = (( SELECT auth.uid() AS uid))::text) AND (array_length(string_to_array(name, '/'::text), 1) = 3) AND (split_part(name, '/'::text, 1) = (( SELECT auth.uid() AS uid))::text) AND (split_part(name, '/'::text, 2) ~ '^[a-zA-Z0-9_-]{1,128}$'::text) AND (split_part(name, '/'::text, 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = split_part(objects.name, '/'::text, 2)) AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))) AND (EXISTS ( SELECT 1\n   FROM \"LearningSession\" active\n  WHERE ((active.id = split_part(objects.name, '/'::text, 2)) AND (active.\"lifecycleState\" = 'ACTIVE'::text)))))"
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_delete_own:using",
+      "source": "(bucket_id = 'learnly-materials' AND owner_id = (SELECT auth.uid())::text\n  AND array_length(string_to_array(name, '/'), 1) = 3\n  AND split_part(name, '/', 1) = (SELECT auth.uid())::text\n  AND split_part(name, '/', 2) ~ '^[a-zA-Z0-9_-]{1,128}$'\n  AND split_part(name, '/', 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'\n  AND EXISTS (SELECT 1 FROM public.\"LearningSession\" s JOIN public.\"User\" u ON u.id = s.\"userId\"\n    WHERE s.id = split_part(name, '/', 2) AND u.\"authUserId\" = (SELECT auth.uid())::text))",
+      "deparsed": "((bucket_id = 'learnly-materials'::text) AND (owner_id = (( SELECT auth.uid() AS uid))::text) AND (array_length(string_to_array(name, '/'::text), 1) = 3) AND (split_part(name, '/'::text, 1) = (( SELECT auth.uid() AS uid))::text) AND (split_part(name, '/'::text, 2) ~ '^[a-zA-Z0-9_-]{1,128}$'::text) AND (split_part(name, '/'::text, 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = split_part(objects.name, '/'::text, 2)) AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_delete_own:withCheck",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_select_guard:using",
+      "source": "(bucket_id IS DISTINCT FROM 'learnly-materials' OR (bucket_id = 'learnly-materials' AND owner_id = (SELECT auth.uid())::text\n  AND array_length(string_to_array(name, '/'), 1) = 3\n  AND split_part(name, '/', 1) = (SELECT auth.uid())::text\n  AND split_part(name, '/', 2) ~ '^[a-zA-Z0-9_-]{1,128}$'\n  AND split_part(name, '/', 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'\n  AND EXISTS (SELECT 1 FROM public.\"LearningSession\" s JOIN public.\"User\" u ON u.id = s.\"userId\"\n    WHERE s.id = split_part(name, '/', 2) AND u.\"authUserId\" = (SELECT auth.uid())::text)))",
+      "deparsed": "((bucket_id IS DISTINCT FROM 'learnly-materials'::text) OR ((bucket_id = 'learnly-materials'::text) AND (owner_id = (( SELECT auth.uid() AS uid))::text) AND (array_length(string_to_array(name, '/'::text), 1) = 3) AND (split_part(name, '/'::text, 1) = (( SELECT auth.uid() AS uid))::text) AND (split_part(name, '/'::text, 2) ~ '^[a-zA-Z0-9_-]{1,128}$'::text) AND (split_part(name, '/'::text, 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = split_part(objects.name, '/'::text, 2)) AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))))"
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_select_guard:withCheck",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_insert_guard:using",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_insert_guard:withCheck",
+      "source": "(bucket_id IS DISTINCT FROM 'learnly-materials' OR ((bucket_id = 'learnly-materials' AND owner_id = (SELECT auth.uid())::text\n  AND array_length(string_to_array(name, '/'), 1) = 3\n  AND split_part(name, '/', 1) = (SELECT auth.uid())::text\n  AND split_part(name, '/', 2) ~ '^[a-zA-Z0-9_-]{1,128}$'\n  AND split_part(name, '/', 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'\n  AND EXISTS (SELECT 1 FROM public.\"LearningSession\" s JOIN public.\"User\" u ON u.id = s.\"userId\"\n    WHERE s.id = split_part(name, '/', 2) AND u.\"authUserId\" = (SELECT auth.uid())::text)) AND EXISTS (SELECT 1 FROM public.\"LearningSession\" active\n  WHERE active.id = split_part(name, '/', 2) AND active.\"lifecycleState\" = 'ACTIVE')))",
+      "deparsed": "((bucket_id IS DISTINCT FROM 'learnly-materials'::text) OR ((bucket_id = 'learnly-materials'::text) AND (owner_id = (( SELECT auth.uid() AS uid))::text) AND (array_length(string_to_array(name, '/'::text), 1) = 3) AND (split_part(name, '/'::text, 1) = (( SELECT auth.uid() AS uid))::text) AND (split_part(name, '/'::text, 2) ~ '^[a-zA-Z0-9_-]{1,128}$'::text) AND (split_part(name, '/'::text, 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = split_part(objects.name, '/'::text, 2)) AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))) AND (EXISTS ( SELECT 1\n   FROM \"LearningSession\" active\n  WHERE ((active.id = split_part(objects.name, '/'::text, 2)) AND (active.\"lifecycleState\" = 'ACTIVE'::text))))))"
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_delete_guard:using",
+      "source": "(bucket_id IS DISTINCT FROM 'learnly-materials' OR (bucket_id = 'learnly-materials' AND owner_id = (SELECT auth.uid())::text\n  AND array_length(string_to_array(name, '/'), 1) = 3\n  AND split_part(name, '/', 1) = (SELECT auth.uid())::text\n  AND split_part(name, '/', 2) ~ '^[a-zA-Z0-9_-]{1,128}$'\n  AND split_part(name, '/', 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'\n  AND EXISTS (SELECT 1 FROM public.\"LearningSession\" s JOIN public.\"User\" u ON u.id = s.\"userId\"\n    WHERE s.id = split_part(name, '/', 2) AND u.\"authUserId\" = (SELECT auth.uid())::text)))",
+      "deparsed": "((bucket_id IS DISTINCT FROM 'learnly-materials'::text) OR ((bucket_id = 'learnly-materials'::text) AND (owner_id = (( SELECT auth.uid() AS uid))::text) AND (array_length(string_to_array(name, '/'::text), 1) = 3) AND (split_part(name, '/'::text, 1) = (( SELECT auth.uid() AS uid))::text) AND (split_part(name, '/'::text, 2) ~ '^[a-zA-Z0-9_-]{1,128}$'::text) AND (split_part(name, '/'::text, 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = split_part(objects.name, '/'::text, 2)) AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))))"
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_delete_guard:withCheck",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_update_guard:using",
+      "source": "bucket_id IS DISTINCT FROM 'learnly-materials'",
+      "deparsed": "(bucket_id IS DISTINCT FROM 'learnly-materials'::text)"
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_update_guard:withCheck",
+      "source": "bucket_id IS DISTINCT FROM 'learnly-materials'",
+      "deparsed": "(bucket_id IS DISTINCT FROM 'learnly-materials'::text)"
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_anon_guard:using",
+      "source": "bucket_id IS DISTINCT FROM 'learnly-materials'",
+      "deparsed": "(bucket_id IS DISTINCT FROM 'learnly-materials'::text)"
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_anon_guard:withCheck",
+      "source": "bucket_id IS DISTINCT FROM 'learnly-materials'",
+      "deparsed": "(bucket_id IS DISTINCT FROM 'learnly-materials'::text)"
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_pending_intent_guard:using",
+      "source": null,
+      "deparsed": null
+    },
+    {
+      "id": "policy:storage:objects:learnly_materials_pending_intent_guard:withCheck",
+      "source": "(bucket_id IS DISTINCT FROM 'learnly-materials' OR EXISTS (\n  SELECT 1 FROM public.\"FileUpload\" f\n  JOIN public.\"LearningSession\" s ON s.id = f.\"learningSessionId\"\n  JOIN public.\"User\" u ON u.id = s.\"userId\"\n  WHERE f.state = 'PENDING' AND s.\"lifecycleState\" = 'ACTIVE'\n    AND u.\"authUserId\" = (SELECT auth.uid())::text\n    AND f.\"learningSessionId\" = split_part(storage.objects.name, '/', 2)\n    AND f.id = split_part(split_part(storage.objects.name, '/', 3), '.', 1)\n    AND f.material->>'id' = f.id\n    AND f.material->>'storageBucket' = storage.objects.bucket_id\n    AND f.material->>'storageKey' = storage.objects.name\n    AND f.material->'file'->>'extension' = split_part(storage.objects.name, '.', 2)\n    AND ((f.material->'file'->>'type' = 'PDF' AND f.material->'file'->>'mimeType' = 'application/pdf'\n      AND f.material->'file'->>'extension' = 'pdf')\n      OR (f.material->'file'->>'type' = 'IMAGE' AND ((f.material->'file'->>'mimeType' = 'image/png'\n        AND f.material->'file'->>'extension' = 'png') OR (f.material->'file'->>'mimeType' = 'image/jpeg'\n        AND f.material->'file'->>'extension' = 'jpg'))))\n    AND f.material->'file'->>'contentHash' ~ '^[a-f0-9]{64}$'\n    AND CASE WHEN f.material->'file'->>'sizeBytes' ~ '^[1-9][0-9]{0,6}$'\n      THEN (f.material->'file'->>'sizeBytes')::integer BETWEEN 1 AND 3145728 ELSE false END\n    AND NOT EXISTS (SELECT 1 FROM public.\"SourceMaterial\" m\n      WHERE m.id = f.id AND m.\"learningSessionId\" = f.\"learningSessionId\")\n))",
+      "deparsed": "((bucket_id IS DISTINCT FROM 'learnly-materials'::text) OR (EXISTS ( SELECT 1\n   FROM ((\"FileUpload\" f\n     JOIN \"LearningSession\" s ON ((s.id = f.\"learningSessionId\")))\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((f.state = 'PENDING'::text) AND (s.\"lifecycleState\" = 'ACTIVE'::text) AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text) AND (f.\"learningSessionId\" = split_part(objects.name, '/'::text, 2)) AND (f.id = split_part(split_part(objects.name, '/'::text, 3), '.'::text, 1)) AND ((f.material ->> 'id'::text) = f.id) AND ((f.material ->> 'storageBucket'::text) = objects.bucket_id) AND ((f.material ->> 'storageKey'::text) = objects.name) AND (((f.material -> 'file'::text) ->> 'extension'::text) = split_part(objects.name, '.'::text, 2)) AND (((((f.material -> 'file'::text) ->> 'type'::text) = 'PDF'::text) AND (((f.material -> 'file'::text) ->> 'mimeType'::text) = 'application/pdf'::text) AND (((f.material -> 'file'::text) ->> 'extension'::text) = 'pdf'::text)) OR ((((f.material -> 'file'::text) ->> 'type'::text) = 'IMAGE'::text) AND (((((f.material -> 'file'::text) ->> 'mimeType'::text) = 'image/png'::text) AND (((f.material -> 'file'::text) ->> 'extension'::text) = 'png'::text)) OR ((((f.material -> 'file'::text) ->> 'mimeType'::text) = 'image/jpeg'::text) AND (((f.material -> 'file'::text) ->> 'extension'::text) = 'jpg'::text))))) AND (((f.material -> 'file'::text) ->> 'contentHash'::text) ~ '^[a-f0-9]{64}$'::text) AND\n        CASE\n            WHEN (((f.material -> 'file'::text) ->> 'sizeBytes'::text) ~ '^[1-9][0-9]{0,6}$'::text) THEN (((((f.material -> 'file'::text) ->> 'sizeBytes'::text))::integer >= 1) AND ((((f.material -> 'file'::text) ->> 'sizeBytes'::text))::integer <= 3145728))\n            ELSE false\n        END AND (NOT (EXISTS ( SELECT 1\n           FROM \"SourceMaterial\" m\n          WHERE ((m.id = f.id) AND (m.\"learningSessionId\" = f.\"learningSessionId\")))))))))"
+    }
+  ]
+}

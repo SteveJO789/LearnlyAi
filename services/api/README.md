@@ -10,7 +10,7 @@ Module baseline:
 - `ai_orchestrator`, `rag`
 - `shared` สำหรับ config, database, errors และ logging
 
-Current implementation includes health endpoints, standalone learning engine slice and JWT-protected persistent learning-session routes. Supabase Auth manages Google/email login; Express validates its Bearer tokens. `/health/ready` is currently API-only, not a DB probe.
+Current implementation includes health endpoints, standalone learning engine slice and JWT-protected persistent learning-session routes. Supabase Auth manages Google/email login; Express validates its Bearer tokens.
 
 Frontend และ Backend ใช้ TypeScript ร่วมกัน แต่ต้องสื่อสารผ่าน HTTP/shared contracts ไม่ import business implementation ข้าม service
 
@@ -52,6 +52,15 @@ For a NEW database, `20261010T0331_fresh_supabase_mvp_baseline` provides a gener
 
 The in-memory `/api/v1/learning/respond` and `/api/learning/respond` endpoints are disabled by default and always unavailable on Vercel/production. For explicit local experiments only, set `APP_ENV=development` and `LEARNING_DEV_ROUTE_ENABLED=true`. Real Web usage goes through Bearer-authenticated `/api/v1/learning-sessions`.
 
-`/health/ready` returns 503 if DB connectivity, reviewed Knowledge or Auth configuration fails; it does not validate OAuth, RLS or model availability. `node scripts/check-readiness.mjs` prints the same sanitized dependency status and closes the database connection.
+`/health/ready` checks DB connectivity, reviewed Knowledge and Auth configuration. It adds structural assessment checks only when `LEARNLY_ASSESSMENTS_ENABLED=true`; when uploads are also enabled it checks the upload schema, private bucket/policy metadata and packaged OCR model integrity. Vector readiness remains separate and is checked only when vector retrieval is configured, including extension-schema access, provider configuration and reviewed-index coverage. Catalog expression checks use checked-in PostgreSQL 17 signatures bound to the current contract and profile; unknown PostgreSQL major versions block rather than learning signatures from the target database. These checks do not prove end-to-end Auth, RLS, Storage or OCR journeys. See the [feature activation runbook](docs/feature-activation.md) for rehearsal and activation evidence.
+
+Before enabling an assessment or upload feature against the local workspace test database, build the API and run the read-only preflight with an exact database name:
+
+```bash
+npm run build
+DATABASE_URL=postgresql://...@localhost:5432/learnly_test npm run activation:preflight -- --target=local --expect-database=learnly_test --stage=assessments
+```
+
+Use `--stage=uploads` to include assessment schema, upload columns/policies, the private `learnly-materials` bucket and local OCR model integrity; use `--stage=vector` separately for the vector extension and schema access, reviewed policy, grant, provider configuration and reviewed-index coverage. The CLI connects only to loopback for `--target=local`, verifies the URL database name, starts a read-only transaction and emits fixed sanitized result codes, including `NOT_RUN` for omitted stages. A later remote inspection must pass `--target=remote` and an exact `--expect-host` or `--expect-project` in addition to the database name. It does not migrate or modify the database, and a PASS is structural evidence only. Feature switches remain unchanged until an operator separately reviews the result and authorizes activation.
 
 `npm run test:persistent` verifies router/Auth/engine/citations/Prisma persistence integration with offline service simulations. Actual PostgreSQL ownership checks are separately reproducible with `scripts/verify-session-rls.sql`: inspect the fixed synthetic UUIDs for collisions, run only with authorized DB access, and retain its final rollback/zero-fixture result. It changes no existing learner records.
