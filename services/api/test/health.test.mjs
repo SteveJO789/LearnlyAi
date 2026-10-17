@@ -3,6 +3,7 @@ import { once } from "node:events";
 import test from "node:test";
 
 import { createApp } from "../dist/app.js";
+import { activationTargetError } from "../dist/shared/activation-schema-readiness.js";
 
 async function withTestServer(run, options = {}) {
   const server = createApp(options).listen(0, "127.0.0.1");
@@ -101,4 +102,36 @@ test('vector index failure is reported separately without exposing errors or cla
     assert.equal((await fetch(base + '/health/live')).status, 200);
   }, { readiness: { database: async () => {}, knowledge: async () => {}, authConfiguration: async () => {},
     vectorIndex: async () => { throw Error('raw-index-question-secret'); } } });
+});
+
+test("assessment readiness checks are added only when the feature is active", async () => {
+  let called = 0;
+  await withTestServer(async base => {
+    const response = await fetch(base + "/health/ready");
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).data.checks.assessmentSchema, "ok");
+    assert.equal(called, 1);
+  }, { features: { assessments: true, fileUploads: false }, readiness: {
+    database: async () => {}, knowledge: async () => {}, authConfiguration: async () => {},
+    assessmentSchema: async () => { called += 1; },
+  } });
+  await withTestServer(async base => {
+    const response = await fetch(base + "/health/ready");
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).data.checks.assessmentSchema, undefined);
+  }, { features: { assessments: false, fileUploads: false }, readiness: {
+    database: async () => {}, knowledge: async () => {}, authConfiguration: async () => {},
+    assessmentSchema: async () => { throw new Error("disabled probe ran"); },
+  } });
+});
+
+test("local activation preflight rejects non-loopback database targets before connecting", async () => {
+  assert.equal(activationTargetError({ connectionString: "postgresql://user:password@db.example.com/learnly_test",
+    target: "local", expectedDatabase: "learnly_test" }), "DATABASE_TARGET_MISMATCH");
+  assert.equal(activationTargetError({ connectionString: "postgresql://user:password@localhost/other",
+    target: "local", expectedDatabase: "learnly_test" }), "DATABASE_TARGET_MISMATCH");
+  assert.equal(activationTargetError({ connectionString: "postgresql://user:password@localhost/learnly_test",
+    target: "local", expectedDatabase: "learnly_test" }), undefined);
+  assert.equal(activationTargetError({ connectionString: "postgresql://user:password@projectref.supabase.co/postgres",
+    target: "remote", expectedDatabase: "postgres", expectedProject: "projectref" }), undefined);
 });

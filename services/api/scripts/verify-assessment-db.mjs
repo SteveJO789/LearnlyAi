@@ -5,6 +5,7 @@ import { once } from 'node:events';
 import { randomBytes } from 'node:crypto';
 import { SignJWT, jwtVerify } from 'jose';
 import { supabase } from '@prisma/orm-extension-supabase/runtime';
+import pgvector from '@prisma/orm-extension-pgvector/runtime';
 import contractJson from '../src/prisma/contract.json' with { type: 'json' };
 import { PrismaAssessmentStore } from '../dist/modules/assessments/prisma-assessment-store.js';
 import { withApiWrite } from '../dist/prisma/api-write.js';
@@ -33,7 +34,7 @@ function scoped(client) {
   } } };
 }
 try {
-root = await supabase({ contractJson, url: process.env.DATABASE_URL, jwtSecret: key,
+root = await supabase({ contractJson, extensions: [pgvector], url: process.env.DATABASE_URL, jwtSecret: key,
   poolOptions: { connectionTimeoutMillis: 3000 } });
 const clients = await Promise.all(tokens.map(async jwt => scoped(await root.asUser(jwt))));
 const stores = clients.map((client, index) => new PrismaAssessmentStore(client, [actorA, actorB][index]));
@@ -47,7 +48,7 @@ const { createApp } = await import('../dist/app.js');
       request.authToken = jwt; next();
     } catch { response.status(401).json({ error: { code: 'UNAUTHORIZED' } }); }
   };
-  server = createApp({ modelProvider: new MockModelProvider(), assessment: { authenticate,
+  server = createApp({ features: { assessments: true, fileUploads: true }, modelProvider: new MockModelProvider(), assessment: { authenticate,
     storeFactory: async request => stores[request.authUser.id === actorA ? 0 : 1] } }).listen(0, '127.0.0.1');
   await once(server, 'listening');
   const base = `http://127.0.0.1:${server.address().port}/api/v1/`;

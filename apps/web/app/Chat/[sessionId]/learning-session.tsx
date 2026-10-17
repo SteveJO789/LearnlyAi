@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { respondToLearning, type LearningAction, type TutorOutput } from "./api";
-import { getLearningSession, recoverLearningSession, type LearningProgress, type LearningSessionDetail } from "../../../lib/learning-sessions";
+import { getLearningSession, LearningApiError, recoverLearningSession, type LearningProgress, type LearningSessionDetail } from "../../../lib/learning-sessions";
 import { canAdvance as canAdvanceFromState, canRespond, clearAutoSendAttempt, confirmsActionCommit, confirmsActionFailure, isCurrentSessionVersion, markAutoSendAttempt, progressPercent, readAutoSendAttempt } from "../../../lib/chat-session";
 import { getAssessment } from "../../../lib/assessments";
 import { useFeatures } from "../../../lib/features";
@@ -118,10 +118,14 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
     const needsPre = features.assessments && session.state === "PRE_TEST" && session.stage === "EXPLAIN";
     const needsPost = features.assessments && session.stage === "ASSESS";
     if (needsPre || needsPost) setAssessmentCheckPending(true);
+    const assessmentIfPresent = (phase: "PRE" | "POST") => getAssessment(sessionId, phase).catch(cause => {
+      if (cause instanceof LearningApiError && cause.status === 404) return null;
+      throw cause;
+    });
     try {
       const [pre, post] = await Promise.all([
-        needsPre ? getAssessment(sessionId, "PRE") : Promise.resolve(null),
-        needsPost ? getAssessment(sessionId, "POST") : Promise.resolve(null),
+        needsPre ? assessmentIfPresent("PRE") : Promise.resolve(null),
+        needsPost ? assessmentIfPresent("POST") : Promise.resolve(null),
       ]);
       if (!isActive() || epoch !== hydrationEpoch.current || sessionSnapshot.current.version !== session.version) return false;
       setPendingPre(Boolean(needsPre && !pre?.submittedAt));

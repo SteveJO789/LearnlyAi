@@ -58,6 +58,15 @@ export default function AssessmentSession({ sessionId, phase }: { sessionId: str
     catch (cause) { setError(cause instanceof Error ? cause.message : "Answers could not be saved."); }
     finally { busy.current = false; setSaving(false); }
   }
+  if (features.status === "loading") return <p role="status" className="rounded-2xl border border-surface-border bg-surface p-5 text-muted">
+    {language === "th" ? "กำลังตรวจสอบว่าเปิดใช้แบบทดสอบหรือไม่…" : "Checking whether assessments are available…"}
+  </p>;
+  if (features.status === "error") return <div role="alert" className="rounded-2xl border border-danger/40 bg-surface p-5 text-danger">
+    <p>{language === "th" ? "ตรวจสอบการเปิดใช้แบบทดสอบไม่สำเร็จ กรุณาลองอีกครั้ง" : "Feature availability could not be checked. Please retry."}</p>
+    <button type="button" onClick={features.retry} className="mt-4 rounded-xl border border-danger/40 px-4 py-2">
+      {language === "th" ? "ลองอีกครั้ง" : "Retry"}
+    </button>
+  </div>;
   if (!features.assessments) return <p role="status">{language === "th" ? "แบบทดสอบยังไม่เปิดใช้งาน" : "Assessments are not enabled."} <Link href={`/Chat/${encodeURIComponent(sessionId)}`}>{language === "th" ? "กลับไปเรียน" : "Return to lesson"}</Link></p>;
   return <>
     {(loading || saving) && <CuteLoadingPopup message={saving ? "กำลังบันทึกแบบทดสอบ..." : "กำลังเตรียมแบบทดสอบ..."} detail="กำลังโหลดข้อมูลบทเรียนและจัดห้องเรียนให้พร้อม 🌷" />}
