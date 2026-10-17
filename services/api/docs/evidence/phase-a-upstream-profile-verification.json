@@ -1,0 +1,231 @@
+{
+  "target": "local",
+  "database": "learnly_activation_executor_phase_a_services_20261017",
+  "catalogProfile": "upstream",
+  "status": "BLOCKED",
+  "canonical": {
+    "exitCode": 4,
+    "result": {
+      "ok": false,
+      "code": "CONTRACT.MARKER_REQUIRED",
+      "summary": "Database schema does not satisfy contract (1 failure)",
+      "contract": {
+        "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+        "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+      },
+      "target": {
+        "expected": "postgres",
+        "actual": "postgres"
+      },
+      "schema": {
+        "issues": [
+          {
+            "path": [
+              "database",
+              "auth",
+              "schema_migrations",
+              "column:version"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "version",
+              "nativeType": "character varying(255)",
+              "nullable": false,
+              "resolvedNativeType": "character varying(255)"
+            },
+            "actual": {
+              "nodeKind": "sql-column",
+              "name": "version",
+              "nativeType": "character varying(14)",
+              "nullable": false,
+              "resolvedNativeType": "character varying(14)"
+            }
+          }
+        ],
+        "warnings": {
+          "issues": []
+        }
+      },
+      "meta": {
+        "strict": true
+      },
+      "timings": {
+        "total": 0
+      },
+      "unclaimed": []
+    },
+    "issueCount": 1
+  },
+  "findings": [
+    {
+      "id": "prisma.dbVerify",
+      "status": "BLOCKED",
+      "code": "PRISMA_SCHEMA_ISSUES"
+    },
+    {
+      "id": "catalog.activation.catalog.signatureVersion",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.target.database",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.schema.marker",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.schema.columns",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.schema.checks",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.security.rls",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.security.grants",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.security.columnGrants",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.security.roles",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.security.roleMembership",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.security.noPolicyBypass",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.security.trustedPolicies",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.uploads.storageSchemaUsage",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.uploads.storageObjectGrants",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.uploads.storageRls",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.uploads.noPolicyBypass",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.uploads.bucket",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.activation.uploads.storagePolicies",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.vector.catalog.signatureVersion",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.vector.target.database",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.vector.vector.marker",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.vector.vector.extension",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.vector.vector.extensionUsage",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.vector.vector.embeddingColumn",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.vector.vector.tableRls",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.vector.vector.noPolicyBypass",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.vector.vector.reviewedReadPolicy",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.vector.vector.trustedPolicies",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.vector.vector.readGrant",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.publicPolicies.target.database",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.publicPolicies.catalog.signatureVersion",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.publicPolicies.security.fullPublicRls",
+      "status": "PASS",
+      "code": "OK"
+    },
+    {
+      "id": "catalog.publicPolicies.security.fullPublicPolicies",
+      "status": "PASS",
+      "code": "OK"
+    }
+  ]
+}

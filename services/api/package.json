@@ -7,7 +7,7 @@
     "node": "24.x"
   },
   "scripts": {
-    "postinstall": "node scripts/install-migration-precheck-compat.mjs",
+    "postinstall": "node scripts/install-migration-precheck-compat.mjs && node scripts/install-schema-verification-compat.mjs",
     "dev": "node --env-file-if-exists=.env --watch src/server.ts",
     "build": "npm run knowledge:prepare-runtime && tsc -p tsconfig.json && node scripts/copy-contract.mjs && npm run ocr:prepare-models:download && node scripts/copy-input-runtime.mjs",
     "knowledge:prepare-runtime": "npm --prefix ../../knowledge run knowledge:prepare-runtime",
@@ -20,6 +20,7 @@
     "start": "node dist/server.js",
     "start:env": "node --env-file-if-exists=.env dist/server.js",
     "activation:preflight": "node scripts/activation-preflight.mjs",
+    "db:verify:full": "node scripts/verify-full-database.mjs",
     "lint": "tsc --noEmit",
     "test": "npm run build && node --test test/*.test.mjs",
     "test:persistent": "npm run build && node --experimental-test-module-mocks --test test/persisted-rag.integration.mjs",

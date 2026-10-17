@@ -1,0 +1,48 @@
+{
+  "scope": "PR #106 Phase A isolated database verification",
+  "parentCommit": "9661c89ca00b82840c45544c83bfb801006439a5",
+  "api": {
+    "pass": 365,
+    "fail": 0,
+    "build": "PASS",
+    "lint": "PASS"
+  },
+  "persistedIntegration": {
+    "pass": 16,
+    "fail": 0
+  },
+  "actualServices": {
+    "pass": 14,
+    "cleanup": "PASS"
+  },
+  "actualSchemaSecurityMutations": {
+    "pass": 15,
+    "allRestored": true
+  },
+  "fullStrict": {
+    "pass": true,
+    "schemaIssues": 0,
+    "catalogGates": 34,
+    "profile": "gotrue-pop6-v6.1.1"
+  },
+  "cleanNpmCi": {
+    "status": "PASS",
+    "packagesInstalled": 512,
+    "compatibilityTestsPassed": 13,
+    "idempotence": "PASS",
+    "tamperRejection": "PASS"
+  },
+  "sourceSha256": {
+    "scripts/install-schema-verification-compat.mjs": "c7a912db3718d72cbd0c871d90d7e04a8197af5a98aa2143b1a0c18f386d90fd",
+    "scripts/lib/supabase-catalog-profile.mjs": "bf48ca822cc99f26b055fafe9311eb26e874b06af6979518111ac42ffd87f64b",
+    "scripts/lib/supabase-verification-overlay.mjs": "6904203b203c7e8d1cd30a2e550d3184bd0eaf000a2b165e2672a9d01098aa98",
+    "scripts/verify-full-database.mjs": "3d795b6ed9f7db82789e2e4fc41bab7b40f9cd5d357adbc39d2d7a89d9527962",
+    "scripts/verify-phase-a-security.mjs": "b08fd5a5e3532339e487c2c841642bdc02a008ca9294b91b479d4a186f9f5462",
+    "prisma.verify.config.ts": "ac73514d8f4c3d0144a3628dfcc92ff6a6a04ab257fd8e5e39ad33e269871253",
+    "src/shared/activation-schema-readiness.ts": "2e534c696850887f2c00a44bf6f1d14cc3691a75e33054d62176584cf15f6720"
+  },
+  "productionDatabaseChanged": false,
+  "hostedMigrationsApplied": false,
+  "deploymentFeatureFlagsChanged": false,
+  "merged": false
+}

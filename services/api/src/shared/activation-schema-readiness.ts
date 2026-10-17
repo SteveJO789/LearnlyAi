@@ -314,6 +314,45 @@ function requiredPolicySpecs(tables: readonly string[]): PolicySpec[] {
   }));
 }
 
+/** Attests every policy owned by the public Prisma contract, independent of activation stage selection. */
+export async function inspectFullPublicPolicyRls(client: ClientLike): Promise<ActivationInspection> {
+  const findings: ActivationFinding[] = [];
+  const expectedTables = Object.keys(publicEntries.table);
+  const expectedPolicies = requiredPolicySpecs(expectedTables);
+  const versionResult = await client.query<CatalogRow>("SELECT current_setting('server_version_num')::integer AS version");
+  const serverMajor = Math.floor(Number(versionResult.rows[0]?.version) / 10000);
+  findings.push(finding("catalog.signatureVersion", serverMajor === signatureManifest.postgresMajor &&
+    signatureManifest.coreHash === expectedCore && signatureManifest.profileHash === expectedProfile,
+  "CATALOG_SIGNATURE_VERSION_UNSUPPORTED"));
+
+  const rls = await client.query<CatalogRow>(
+    `SELECT c.relname AS "tableName", c.relkind AS kind, c.relrowsecurity AS enabled
+       FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'public' AND c.relname = ANY($1::text[])`, [expectedTables],
+  );
+  const rlsByTable = new Map(rls.rows.map(row => [String(row.tableName), row]));
+  const rlsOk = rls.rows.length === expectedTables.length && expectedTables.every(table => {
+    const row = rlsByTable.get(table);
+    return ["r", "p"].includes(String(row?.kind)) && row?.enabled === true;
+  });
+  findings.push(finding("security.fullPublicRls", rlsOk, "RLS_DISABLED"));
+
+  const policies = await client.query<CatalogRow>(
+    `SELECT tablename AS "tableName", policyname AS name, permissive = 'PERMISSIVE' AS permissive,
+            roles::text[] AS roles, cmd, qual, with_check AS "withCheck"
+       FROM pg_policies WHERE schemaname = 'public'`,
+  );
+  const policiesOk = policies.rows.length === expectedPolicies.length && expectedPolicies.every(spec => {
+    const row = policies.rows.find(candidate => candidate.name === spec.name && candidate.tableName === spec.table);
+    if (!row || row.permissive !== spec.permissive || !Array.isArray(row.roles) ||
+      JSON.stringify([...row.roles].sort()) !== JSON.stringify([...spec.roles].sort()) || row.cmd !== spec.command) return false;
+    return matchesCatalogSignature(`policy:public:${spec.table}:${spec.name}:using`, spec.using, row.qual, serverMajor) &&
+      matchesCatalogSignature(`policy:public:${spec.table}:${spec.name}:withCheck`, spec.withCheck, row.withCheck, serverMajor);
+  });
+  findings.push(finding("security.fullPublicPolicies", policiesOk, "TRUSTED_POLICY_MISSING_OR_WEAK"));
+  return { status: findings.every(item => item.status === "PASS") ? "PASS" : "BLOCKED", findings };
+}
+
 // Keep this copy aligned with the immutable migration-owned definition in app/20261010T0752_private_material_storage/storage-policy.ts.
 // Full predicate signatures catch weakening while retaining a policy's name.
 const materialOwner = `(bucket_id = 'learnly-materials' AND owner_id = (SELECT auth.uid())::text
@@ -398,5 +437,31 @@ export async function checkVectorPrerequisites(options: { connectionString?: str
     const result = await inspectVectorPrerequisites(client, options.expectedDatabase);
     await client.query("ROLLBACK");
     return result;
+  } finally { options.signal?.removeEventListener("abort", abort); await close(); }
+}
+
+export async function checkFullPublicPolicyRls(options: { connectionString?: string; signal?: AbortSignal; expectedDatabase?: string } = {}): Promise<ActivationInspection> {
+  const connectionString = options.connectionString ?? process.env.DATABASE_URL;
+  if (!connectionString) throw new Error("Database configuration missing");
+  const client = new Client({ connectionString, connectionTimeoutMillis: 2000, query_timeout: 2500, statement_timeout: 2000 });
+  client.on("error", () => {});
+  let closing: Promise<void> | undefined;
+  const close = () => closing ??= client.end();
+  const abort = () => { void close().catch(() => {}); };
+  options.signal?.addEventListener("abort", abort, { once: true });
+  try {
+    options.signal?.throwIfAborted();
+    await client.connect();
+    options.signal?.throwIfAborted();
+    await client.query("BEGIN READ ONLY");
+    const actual = options.expectedDatabase
+      ? (await client.query<CatalogRow>("SELECT current_database() AS name")).rows[0]?.name : undefined;
+    if (options.expectedDatabase && actual !== options.expectedDatabase) {
+      return { status: "BLOCKED", findings: [finding("target.database", false, "DATABASE_TARGET_MISMATCH")] };
+    }
+    const result = await inspectFullPublicPolicyRls(client);
+    await client.query("ROLLBACK");
+    return options.expectedDatabase
+      ? { ...result, findings: [finding("target.database", true, "OK"), ...result.findings] } : result;
   } finally { options.signal?.removeEventListener("abort", abort); await close(); }
 }

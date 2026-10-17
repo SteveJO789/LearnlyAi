@@ -1,0 +1,2217 @@
+{
+  "kind": "result",
+  "envelope": {
+    "ok": true,
+    "commandId": "db.verify",
+    "result": {
+      "ok": false,
+      "code": "CONTRACT.MARKER_REQUIRED",
+      "summary": "Database schema does not satisfy contract (30 failures)",
+      "contract": {
+        "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+        "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+      },
+      "target": {
+        "expected": "postgres",
+        "actual": "postgres"
+      },
+      "schema": {
+        "issues": [
+          {
+            "path": [
+              "database",
+              "public",
+              "AIRequest",
+              "ai_request_select_own_5424dd11"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "ai_request_select_own_5424dd11",
+              "tableName": "AIRequest",
+              "namespaceId": "public",
+              "operation": "select",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "ai_request_select_own",
+              "using": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" ls\n     JOIN \"User\" u ON ((u.id = ls.\"userId\")))\n  WHERE ((ls.id = \"AIRequest\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "AIRequest"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "Assessment",
+              "assessment_insert_api_own_277fff40"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "assessment_insert_api_own_277fff40",
+              "tableName": "Assessment",
+              "namespaceId": "public",
+              "operation": "insert",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "assessment_insert_api_own",
+              "withCheck": "((current_setting('learnly.api_write'::text, true) = '1'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"Assessment\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "Assessment"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "Assessment",
+              "assessment_select_own_d47c911a"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "assessment_select_own_d47c911a",
+              "tableName": "Assessment",
+              "namespaceId": "public",
+              "operation": "select",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "assessment_select_own",
+              "using": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" ls\n     JOIN \"User\" u ON ((u.id = ls.\"userId\")))\n  WHERE ((ls.id = \"Assessment\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "Assessment"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "Assessment",
+              "assessment_update_api_own_168c1514"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "assessment_update_api_own_168c1514",
+              "tableName": "Assessment",
+              "namespaceId": "public",
+              "operation": "update",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "assessment_update_api_own",
+              "using": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"Assessment\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+              "withCheck": "((current_setting('learnly.api_write'::text, true) = '1'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"Assessment\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "Assessment"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "AssessmentAnswer",
+              "assessment_answer_insert_api_own_6ac7083b"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "assessment_answer_insert_api_own_6ac7083b",
+              "tableName": "AssessmentAnswer",
+              "namespaceId": "public",
+              "operation": "insert",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "assessment_answer_insert_api_own",
+              "withCheck": "((current_setting('learnly.api_write'::text, true) = '1'::text) AND (EXISTS ( SELECT 1\n   FROM ((\"Assessment\" a\n     JOIN \"LearningSession\" s ON ((s.id = a.\"learningSessionId\")))\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((a.id = \"AssessmentAnswer\".\"assessmentId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "AssessmentAnswer"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "AssessmentAnswer",
+              "assessment_answer_select_own_c190452e"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "assessment_answer_select_own_c190452e",
+              "tableName": "AssessmentAnswer",
+              "namespaceId": "public",
+              "operation": "select",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "assessment_answer_select_own",
+              "using": "(EXISTS ( SELECT 1\n   FROM ((\"Assessment\" a\n     JOIN \"LearningSession\" ls ON ((ls.id = a.\"learningSessionId\")))\n     JOIN \"User\" u ON ((u.id = ls.\"userId\")))\n  WHERE ((a.id = \"AssessmentAnswer\".\"assessmentId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "AssessmentAnswer"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "FileUpload",
+              "file_upload_insert_api_own_d6a3a6ba"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "file_upload_insert_api_own_d6a3a6ba",
+              "tableName": "FileUpload",
+              "namespaceId": "public",
+              "operation": "insert",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "file_upload_insert_api_own",
+              "withCheck": "((current_setting('learnly.api_write'::text, true) = '1'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"FileUpload\".\"learningSessionId\") AND (s.\"lifecycleState\" = 'ACTIVE'::text) AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "FileUpload"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "FileUpload",
+              "file_upload_insert_guard_649e1632"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "file_upload_insert_guard_649e1632",
+              "tableName": "FileUpload",
+              "namespaceId": "public",
+              "operation": "insert",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": false,
+              "prefix": "file_upload_insert_guard",
+              "withCheck": "(current_setting('learnly.api_write'::text, true) = '1'::text)"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "FileUpload"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "FileUpload",
+              "file_upload_select_own_5472d21c"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "file_upload_select_own_5472d21c",
+              "tableName": "FileUpload",
+              "namespaceId": "public",
+              "operation": "select",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "file_upload_select_own",
+              "using": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"FileUpload\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "FileUpload"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "FileUpload",
+              "file_upload_update_api_own_e13f9bb0"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "file_upload_update_api_own_e13f9bb0",
+              "tableName": "FileUpload",
+              "namespaceId": "public",
+              "operation": "update",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "file_upload_update_api_own",
+              "using": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"FileUpload\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+              "withCheck": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"FileUpload\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "FileUpload"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "FileUpload",
+              "file_upload_update_guard_cd84f83e"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "file_upload_update_guard_cd84f83e",
+              "tableName": "FileUpload",
+              "namespaceId": "public",
+              "operation": "update",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": false,
+              "prefix": "file_upload_update_guard",
+              "using": "(current_setting('learnly.api_write'::text, true) = '1'::text)",
+              "withCheck": "(current_setting('learnly.api_write'::text, true) = '1'::text)"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "FileUpload"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "KnowledgeChunk",
+              "knowledge_chunk_read_reviewed_72bac3b2"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "knowledge_chunk_read_reviewed_72bac3b2",
+              "tableName": "KnowledgeChunk",
+              "namespaceId": "public",
+              "operation": "select",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "knowledge_chunk_read_reviewed",
+              "using": "(reviewed = true)"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "KnowledgeChunk"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "LearningProfile",
+              "learning_profile_insert_api_own_62b5c283"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "learning_profile_insert_api_own_62b5c283",
+              "tableName": "LearningProfile",
+              "namespaceId": "public",
+              "operation": "insert",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "learning_profile_insert_api_own",
+              "withCheck": "((current_setting('learnly.api_write'::text, true) = '1'::text) AND (EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningProfile\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "LearningProfile"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "LearningProfile",
+              "learning_profile_select_own_13d05569"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "learning_profile_select_own_13d05569",
+              "tableName": "LearningProfile",
+              "namespaceId": "public",
+              "operation": "select",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "learning_profile_select_own",
+              "using": "(EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningProfile\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "LearningProfile"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "LearningProfile",
+              "learning_profile_update_api_own_40a07354"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "learning_profile_update_api_own_40a07354",
+              "tableName": "LearningProfile",
+              "namespaceId": "public",
+              "operation": "update",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "learning_profile_update_api_own",
+              "using": "(EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningProfile\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+              "withCheck": "((current_setting('learnly.api_write'::text, true) = '1'::text) AND (EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningProfile\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "LearningProfile"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "LearningSession",
+              "learning_session_insert_own_2be3816c"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "learning_session_insert_own_2be3816c",
+              "tableName": "LearningSession",
+              "namespaceId": "public",
+              "operation": "insert",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "learning_session_insert_own",
+              "withCheck": "(EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "LearningSession"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "LearningSession",
+              "learning_session_select_own_a34ec569"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "learning_session_select_own_a34ec569",
+              "tableName": "LearningSession",
+              "namespaceId": "public",
+              "operation": "select",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "learning_session_select_own",
+              "using": "(EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "LearningSession"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "LearningSession",
+              "learning_session_update_own_056e8007"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "learning_session_update_own_056e8007",
+              "tableName": "LearningSession",
+              "namespaceId": "public",
+              "operation": "update",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "learning_session_update_own",
+              "using": "(EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+              "withCheck": "(EXISTS ( SELECT 1\n   FROM \"User\" u\n  WHERE ((u.id = \"LearningSession\".\"userId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "LearningSession"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "LearningSession",
+              "session_api_insert_guard_649e1632"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "session_api_insert_guard_649e1632",
+              "tableName": "LearningSession",
+              "namespaceId": "public",
+              "operation": "insert",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": false,
+              "prefix": "session_api_insert_guard",
+              "withCheck": "(current_setting('learnly.api_write'::text, true) = '1'::text)"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "LearningSession"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "LearningSession",
+              "session_api_update_guard_cca2e683"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "session_api_update_guard_cca2e683",
+              "tableName": "LearningSession",
+              "namespaceId": "public",
+              "operation": "update",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": false,
+              "prefix": "session_api_update_guard",
+              "using": "true",
+              "withCheck": "(current_setting('learnly.api_write'::text, true) = '1'::text)"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "LearningSession"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "Message",
+              "message_api_insert_guard_649e1632"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "message_api_insert_guard_649e1632",
+              "tableName": "Message",
+              "namespaceId": "public",
+              "operation": "insert",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": false,
+              "prefix": "message_api_insert_guard",
+              "withCheck": "(current_setting('learnly.api_write'::text, true) = '1'::text)"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "Message"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "Message",
+              "message_insert_own_4f346578"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "message_insert_own_4f346578",
+              "tableName": "Message",
+              "namespaceId": "public",
+              "operation": "insert",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "message_insert_own",
+              "withCheck": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" ls\n     JOIN \"User\" u ON ((u.id = ls.\"userId\")))\n  WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "Message"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "Message",
+              "message_select_own_968c3fb0"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "message_select_own_968c3fb0",
+              "tableName": "Message",
+              "namespaceId": "public",
+              "operation": "select",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "message_select_own",
+              "using": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" ls\n     JOIN \"User\" u ON ((u.id = ls.\"userId\")))\n  WHERE ((ls.id = \"Message\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "Message"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "SourceMaterial",
+              "source_material_insert_api_own_bbb50d09"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "source_material_insert_api_own_bbb50d09",
+              "tableName": "SourceMaterial",
+              "namespaceId": "public",
+              "operation": "insert",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "source_material_insert_api_own",
+              "withCheck": "((current_setting('learnly.api_write'::text, true) = '1'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"SourceMaterial\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "SourceMaterial"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "SourceMaterial",
+              "source_material_review_update_guard_cd84f83e"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "source_material_review_update_guard_cd84f83e",
+              "tableName": "SourceMaterial",
+              "namespaceId": "public",
+              "operation": "update",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": false,
+              "prefix": "source_material_review_update_guard",
+              "using": "(current_setting('learnly.api_write'::text, true) = '1'::text)",
+              "withCheck": "(current_setting('learnly.api_write'::text, true) = '1'::text)"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "SourceMaterial"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "SourceMaterial",
+              "source_material_review_update_own_c072fcc3"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "source_material_review_update_own_c072fcc3",
+              "tableName": "SourceMaterial",
+              "namespaceId": "public",
+              "operation": "update",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "source_material_review_update_own",
+              "using": "((status = 'READY'::text) AND (type = ANY (ARRAY['PDF'::text, 'IMAGE'::text])) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"SourceMaterial\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text) AND (s.\"lifecycleState\" = 'ACTIVE'::text) AND (s.stage = 'EXPLAIN'::text) AND (s.version = 0) AND (s.state = ANY (ARRAY['INPUT'::text, 'PRE_TEST'::text]))))))",
+              "withCheck": "((status = 'READY'::text) AND (type = ANY (ARRAY['PDF'::text, 'IMAGE'::text])) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = \"SourceMaterial\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text) AND (s.\"lifecycleState\" = 'ACTIVE'::text) AND (s.stage = 'EXPLAIN'::text) AND (s.version = 0) AND (s.state = ANY (ARRAY['INPUT'::text, 'PRE_TEST'::text]))))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "SourceMaterial"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "SourceMaterial",
+              "source_material_select_own_f7e3ac0e"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "source_material_select_own_f7e3ac0e",
+              "tableName": "SourceMaterial",
+              "namespaceId": "public",
+              "operation": "select",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "source_material_select_own",
+              "using": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" ls\n     JOIN \"User\" u ON ((u.id = ls.\"userId\")))\n  WHERE ((ls.id = \"SourceMaterial\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "SourceMaterial"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "User",
+              "user_insert_own_770e92f4"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "user_insert_own_770e92f4",
+              "tableName": "User",
+              "namespaceId": "public",
+              "operation": "insert",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "user_insert_own",
+              "withCheck": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "User"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "User",
+              "user_select_own_4f3aea31"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "user_select_own_4f3aea31",
+              "tableName": "User",
+              "namespaceId": "public",
+              "operation": "select",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "user_select_own",
+              "using": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "User"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "public",
+              "User",
+              "user_update_own_0788dd28"
+            ],
+            "actual": {
+              "nodeKind": "postgres-policy",
+              "name": "user_update_own_0788dd28",
+              "tableName": "User",
+              "namespaceId": "public",
+              "operation": "update",
+              "roles": [
+                "authenticated"
+              ],
+              "permissive": true,
+              "prefix": "user_update_own",
+              "using": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)",
+              "withCheck": "(\"authUserId\" = (( SELECT auth.uid() AS uid))::text)"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "public",
+                "User"
+              ],
+              [
+                "database",
+                "authenticated"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "schema_migrations",
+              "column:version"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "version",
+              "nativeType": "character varying(255)",
+              "nullable": false,
+              "resolvedNativeType": "character varying(255)"
+            },
+            "actual": {
+              "nodeKind": "sql-column",
+              "name": "version",
+              "nativeType": "character varying(14)",
+              "nullable": false,
+              "resolvedNativeType": "character varying(14)"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_challenges"
+            ],
+            "expected": {
+              "nodeKind": "postgres-table",
+              "name": "webauthn_challenges",
+              "columns": {
+                "challenge_type": {
+                  "nodeKind": "sql-column",
+                  "name": "challenge_type",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "resolvedNativeType": "text"
+                },
+                "created_at": {
+                  "nodeKind": "sql-column",
+                  "name": "created_at",
+                  "nativeType": "timestamptz",
+                  "nullable": false,
+                  "resolvedNativeType": "timestamptz",
+                  "resolvedDefault": {
+                    "kind": "function",
+                    "expression": "now()"
+                  }
+                },
+                "expires_at": {
+                  "nodeKind": "sql-column",
+                  "name": "expires_at",
+                  "nativeType": "timestamptz",
+                  "nullable": false,
+                  "resolvedNativeType": "timestamptz"
+                },
+                "id": {
+                  "nodeKind": "sql-column",
+                  "name": "id",
+                  "nativeType": "uuid",
+                  "nullable": false,
+                  "resolvedNativeType": "uuid",
+                  "resolvedDefault": {
+                    "kind": "function",
+                    "expression": "gen_random_uuid()"
+                  }
+                },
+                "session_data": {
+                  "nodeKind": "sql-column",
+                  "name": "session_data",
+                  "nativeType": "jsonb",
+                  "nullable": false,
+                  "resolvedNativeType": "jsonb"
+                },
+                "user_id": {
+                  "nodeKind": "sql-column",
+                  "name": "user_id",
+                  "nativeType": "uuid",
+                  "nullable": true,
+                  "resolvedNativeType": "uuid"
+                }
+              },
+              "foreignKeys": [
+                {
+                  "nodeKind": "sql-foreign-key",
+                  "columns": [
+                    "user_id"
+                  ],
+                  "referencedTable": "users",
+                  "referencedColumns": [
+                    "id"
+                  ],
+                  "referencedSchema": "auth",
+                  "name": "webauthn_challenges_user_id_fkey",
+                  "onDelete": "cascade",
+                  "resolvedReferencedNamespace": "auth"
+                }
+              ],
+              "uniques": [],
+              "indexes": [
+                {
+                  "nodeKind": "sql-index",
+                  "name": "webauthn_challenges_expires_at_idx",
+                  "unique": false,
+                  "columns": [
+                    "expires_at"
+                  ]
+                },
+                {
+                  "nodeKind": "sql-index",
+                  "name": "webauthn_challenges_user_id_idx",
+                  "unique": false,
+                  "columns": [
+                    "user_id"
+                  ]
+                }
+              ],
+              "policies": [],
+              "rlsEnabled": false,
+              "primaryKey": {
+                "nodeKind": "sql-primary-key",
+                "columns": [
+                  "id"
+                ],
+                "name": "webauthn_challenges_pkey"
+              },
+              "checks": [
+                {
+                  "nodeKind": "sql-check-constraint",
+                  "name": "webauthn_challenges_challenge_type_check",
+                  "expression": "(challenge_type = ANY (ARRAY['signup'::text, 'registration'::text, 'authentication'::text]))"
+                }
+              ]
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_challenges",
+              "column:challenge_type"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "challenge_type",
+              "nativeType": "text",
+              "nullable": false,
+              "resolvedNativeType": "text"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_challenges",
+              "column:created_at"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "created_at",
+              "nativeType": "timestamptz",
+              "nullable": false,
+              "resolvedNativeType": "timestamptz",
+              "resolvedDefault": {
+                "kind": "function",
+                "expression": "now()"
+              }
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_challenges",
+              "column:created_at",
+              "default"
+            ],
+            "expected": {
+              "nodeKind": "sql-column-default",
+              "resolved": {
+                "kind": "function",
+                "expression": "now()"
+              },
+              "nativeTypeContext": "timestamptz"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_challenges",
+              "column:expires_at"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "expires_at",
+              "nativeType": "timestamptz",
+              "nullable": false,
+              "resolvedNativeType": "timestamptz"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_challenges",
+              "column:id"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "id",
+              "nativeType": "uuid",
+              "nullable": false,
+              "resolvedNativeType": "uuid",
+              "resolvedDefault": {
+                "kind": "function",
+                "expression": "gen_random_uuid()"
+              }
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_challenges",
+              "column:id",
+              "default"
+            ],
+            "expected": {
+              "nodeKind": "sql-column-default",
+              "resolved": {
+                "kind": "function",
+                "expression": "gen_random_uuid()"
+              },
+              "nativeTypeContext": "uuid"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_challenges",
+              "column:session_data"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "session_data",
+              "nativeType": "jsonb",
+              "nullable": false,
+              "resolvedNativeType": "jsonb"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_challenges",
+              "column:user_id"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "user_id",
+              "nativeType": "uuid",
+              "nullable": true,
+              "resolvedNativeType": "uuid"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_challenges",
+              "primary-key"
+            ],
+            "expected": {
+              "nodeKind": "sql-primary-key",
+              "columns": [
+                "id"
+              ],
+              "name": "webauthn_challenges_pkey"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "auth",
+                "webauthn_challenges",
+                "column:id"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_challenges",
+              "foreign-key:user_id->auth.users(id)"
+            ],
+            "expected": {
+              "nodeKind": "sql-foreign-key",
+              "columns": [
+                "user_id"
+              ],
+              "referencedTable": "users",
+              "referencedColumns": [
+                "id"
+              ],
+              "referencedSchema": "auth",
+              "name": "webauthn_challenges_user_id_fkey",
+              "onDelete": "cascade",
+              "resolvedReferencedNamespace": "auth"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "auth",
+                "webauthn_challenges",
+                "column:user_id"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_challenges",
+              "index:webauthn_challenges_expires_at_idx"
+            ],
+            "expected": {
+              "nodeKind": "sql-index",
+              "name": "webauthn_challenges_expires_at_idx",
+              "unique": false,
+              "columns": [
+                "expires_at"
+              ]
+            },
+            "dependsOn": [
+              [
+                "database",
+                "auth",
+                "webauthn_challenges",
+                "column:expires_at"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_challenges",
+              "index:webauthn_challenges_user_id_idx"
+            ],
+            "expected": {
+              "nodeKind": "sql-index",
+              "name": "webauthn_challenges_user_id_idx",
+              "unique": false,
+              "columns": [
+                "user_id"
+              ]
+            },
+            "dependsOn": [
+              [
+                "database",
+                "auth",
+                "webauthn_challenges",
+                "column:user_id"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_challenges",
+              "check:webauthn_challenges_challenge_type_check"
+            ],
+            "expected": {
+              "nodeKind": "sql-check-constraint",
+              "name": "webauthn_challenges_challenge_type_check",
+              "expression": "(challenge_type = ANY (ARRAY['signup'::text, 'registration'::text, 'authentication'::text]))"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials"
+            ],
+            "expected": {
+              "nodeKind": "postgres-table",
+              "name": "webauthn_credentials",
+              "columns": {
+                "aaguid": {
+                  "nodeKind": "sql-column",
+                  "name": "aaguid",
+                  "nativeType": "uuid",
+                  "nullable": true,
+                  "resolvedNativeType": "uuid"
+                },
+                "attestation_type": {
+                  "nodeKind": "sql-column",
+                  "name": "attestation_type",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "resolvedNativeType": "text",
+                  "resolvedDefault": {
+                    "kind": "literal",
+                    "value": ""
+                  }
+                },
+                "backed_up": {
+                  "nodeKind": "sql-column",
+                  "name": "backed_up",
+                  "nativeType": "bool",
+                  "nullable": false,
+                  "resolvedNativeType": "bool",
+                  "resolvedDefault": {
+                    "kind": "literal",
+                    "value": false
+                  }
+                },
+                "backup_eligible": {
+                  "nodeKind": "sql-column",
+                  "name": "backup_eligible",
+                  "nativeType": "bool",
+                  "nullable": false,
+                  "resolvedNativeType": "bool",
+                  "resolvedDefault": {
+                    "kind": "literal",
+                    "value": false
+                  }
+                },
+                "created_at": {
+                  "nodeKind": "sql-column",
+                  "name": "created_at",
+                  "nativeType": "timestamptz",
+                  "nullable": false,
+                  "resolvedNativeType": "timestamptz",
+                  "resolvedDefault": {
+                    "kind": "function",
+                    "expression": "now()"
+                  }
+                },
+                "credential_id": {
+                  "nodeKind": "sql-column",
+                  "name": "credential_id",
+                  "nativeType": "bytea",
+                  "nullable": false,
+                  "resolvedNativeType": "bytea"
+                },
+                "friendly_name": {
+                  "nodeKind": "sql-column",
+                  "name": "friendly_name",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "resolvedNativeType": "text",
+                  "resolvedDefault": {
+                    "kind": "literal",
+                    "value": ""
+                  }
+                },
+                "id": {
+                  "nodeKind": "sql-column",
+                  "name": "id",
+                  "nativeType": "uuid",
+                  "nullable": false,
+                  "resolvedNativeType": "uuid",
+                  "resolvedDefault": {
+                    "kind": "function",
+                    "expression": "gen_random_uuid()"
+                  }
+                },
+                "last_used_at": {
+                  "nodeKind": "sql-column",
+                  "name": "last_used_at",
+                  "nativeType": "timestamptz",
+                  "nullable": true,
+                  "resolvedNativeType": "timestamptz"
+                },
+                "public_key": {
+                  "nodeKind": "sql-column",
+                  "name": "public_key",
+                  "nativeType": "bytea",
+                  "nullable": false,
+                  "resolvedNativeType": "bytea"
+                },
+                "sign_count": {
+                  "nodeKind": "sql-column",
+                  "name": "sign_count",
+                  "nativeType": "int8",
+                  "nullable": false,
+                  "resolvedNativeType": "int8",
+                  "resolvedDefault": {
+                    "kind": "literal",
+                    "value": "0"
+                  }
+                },
+                "transports": {
+                  "nodeKind": "sql-column",
+                  "name": "transports",
+                  "nativeType": "jsonb",
+                  "nullable": false,
+                  "resolvedNativeType": "jsonb",
+                  "resolvedDefault": {
+                    "kind": "literal",
+                    "value": []
+                  }
+                },
+                "updated_at": {
+                  "nodeKind": "sql-column",
+                  "name": "updated_at",
+                  "nativeType": "timestamptz",
+                  "nullable": false,
+                  "resolvedNativeType": "timestamptz",
+                  "resolvedDefault": {
+                    "kind": "function",
+                    "expression": "now()"
+                  }
+                },
+                "user_id": {
+                  "nodeKind": "sql-column",
+                  "name": "user_id",
+                  "nativeType": "uuid",
+                  "nullable": false,
+                  "resolvedNativeType": "uuid"
+                }
+              },
+              "foreignKeys": [
+                {
+                  "nodeKind": "sql-foreign-key",
+                  "columns": [
+                    "user_id"
+                  ],
+                  "referencedTable": "users",
+                  "referencedColumns": [
+                    "id"
+                  ],
+                  "referencedSchema": "auth",
+                  "name": "webauthn_credentials_user_id_fkey",
+                  "onDelete": "cascade",
+                  "resolvedReferencedNamespace": "auth"
+                }
+              ],
+              "uniques": [],
+              "indexes": [
+                {
+                  "nodeKind": "sql-index",
+                  "name": "webauthn_credentials_credential_id_key",
+                  "unique": true,
+                  "columns": [
+                    "credential_id"
+                  ]
+                },
+                {
+                  "nodeKind": "sql-index",
+                  "name": "webauthn_credentials_user_id_idx",
+                  "unique": false,
+                  "columns": [
+                    "user_id"
+                  ]
+                }
+              ],
+              "policies": [],
+              "rlsEnabled": false,
+              "primaryKey": {
+                "nodeKind": "sql-primary-key",
+                "columns": [
+                  "id"
+                ],
+                "name": "webauthn_credentials_pkey"
+              }
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:aaguid"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "aaguid",
+              "nativeType": "uuid",
+              "nullable": true,
+              "resolvedNativeType": "uuid"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:attestation_type"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "attestation_type",
+              "nativeType": "text",
+              "nullable": false,
+              "resolvedNativeType": "text",
+              "resolvedDefault": {
+                "kind": "literal",
+                "value": ""
+              }
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:attestation_type",
+              "default"
+            ],
+            "expected": {
+              "nodeKind": "sql-column-default",
+              "resolved": {
+                "kind": "literal",
+                "value": ""
+              },
+              "nativeTypeContext": "text"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:backed_up"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "backed_up",
+              "nativeType": "bool",
+              "nullable": false,
+              "resolvedNativeType": "bool",
+              "resolvedDefault": {
+                "kind": "literal",
+                "value": false
+              }
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:backed_up",
+              "default"
+            ],
+            "expected": {
+              "nodeKind": "sql-column-default",
+              "resolved": {
+                "kind": "literal",
+                "value": false
+              },
+              "nativeTypeContext": "bool"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:backup_eligible"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "backup_eligible",
+              "nativeType": "bool",
+              "nullable": false,
+              "resolvedNativeType": "bool",
+              "resolvedDefault": {
+                "kind": "literal",
+                "value": false
+              }
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:backup_eligible",
+              "default"
+            ],
+            "expected": {
+              "nodeKind": "sql-column-default",
+              "resolved": {
+                "kind": "literal",
+                "value": false
+              },
+              "nativeTypeContext": "bool"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:created_at"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "created_at",
+              "nativeType": "timestamptz",
+              "nullable": false,
+              "resolvedNativeType": "timestamptz",
+              "resolvedDefault": {
+                "kind": "function",
+                "expression": "now()"
+              }
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:created_at",
+              "default"
+            ],
+            "expected": {
+              "nodeKind": "sql-column-default",
+              "resolved": {
+                "kind": "function",
+                "expression": "now()"
+              },
+              "nativeTypeContext": "timestamptz"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:credential_id"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "credential_id",
+              "nativeType": "bytea",
+              "nullable": false,
+              "resolvedNativeType": "bytea"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:friendly_name"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "friendly_name",
+              "nativeType": "text",
+              "nullable": false,
+              "resolvedNativeType": "text",
+              "resolvedDefault": {
+                "kind": "literal",
+                "value": ""
+              }
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:friendly_name",
+              "default"
+            ],
+            "expected": {
+              "nodeKind": "sql-column-default",
+              "resolved": {
+                "kind": "literal",
+                "value": ""
+              },
+              "nativeTypeContext": "text"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:id"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "id",
+              "nativeType": "uuid",
+              "nullable": false,
+              "resolvedNativeType": "uuid",
+              "resolvedDefault": {
+                "kind": "function",
+                "expression": "gen_random_uuid()"
+              }
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:id",
+              "default"
+            ],
+            "expected": {
+              "nodeKind": "sql-column-default",
+              "resolved": {
+                "kind": "function",
+                "expression": "gen_random_uuid()"
+              },
+              "nativeTypeContext": "uuid"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:last_used_at"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "last_used_at",
+              "nativeType": "timestamptz",
+              "nullable": true,
+              "resolvedNativeType": "timestamptz"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:public_key"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "public_key",
+              "nativeType": "bytea",
+              "nullable": false,
+              "resolvedNativeType": "bytea"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:sign_count"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "sign_count",
+              "nativeType": "int8",
+              "nullable": false,
+              "resolvedNativeType": "int8",
+              "resolvedDefault": {
+                "kind": "literal",
+                "value": "0"
+              }
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:sign_count",
+              "default"
+            ],
+            "expected": {
+              "nodeKind": "sql-column-default",
+              "resolved": {
+                "kind": "literal",
+                "value": "0"
+              },
+              "nativeTypeContext": "int8"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:transports"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "transports",
+              "nativeType": "jsonb",
+              "nullable": false,
+              "resolvedNativeType": "jsonb",
+              "resolvedDefault": {
+                "kind": "literal",
+                "value": []
+              }
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:transports",
+              "default"
+            ],
+            "expected": {
+              "nodeKind": "sql-column-default",
+              "resolved": {
+                "kind": "literal",
+                "value": []
+              },
+              "nativeTypeContext": "jsonb"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:updated_at"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "updated_at",
+              "nativeType": "timestamptz",
+              "nullable": false,
+              "resolvedNativeType": "timestamptz",
+              "resolvedDefault": {
+                "kind": "function",
+                "expression": "now()"
+              }
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:updated_at",
+              "default"
+            ],
+            "expected": {
+              "nodeKind": "sql-column-default",
+              "resolved": {
+                "kind": "function",
+                "expression": "now()"
+              },
+              "nativeTypeContext": "timestamptz"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "column:user_id"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "user_id",
+              "nativeType": "uuid",
+              "nullable": false,
+              "resolvedNativeType": "uuid"
+            }
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "primary-key"
+            ],
+            "expected": {
+              "nodeKind": "sql-primary-key",
+              "columns": [
+                "id"
+              ],
+              "name": "webauthn_credentials_pkey"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "auth",
+                "webauthn_credentials",
+                "column:id"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "foreign-key:user_id->auth.users(id)"
+            ],
+            "expected": {
+              "nodeKind": "sql-foreign-key",
+              "columns": [
+                "user_id"
+              ],
+              "referencedTable": "users",
+              "referencedColumns": [
+                "id"
+              ],
+              "referencedSchema": "auth",
+              "name": "webauthn_credentials_user_id_fkey",
+              "onDelete": "cascade",
+              "resolvedReferencedNamespace": "auth"
+            },
+            "dependsOn": [
+              [
+                "database",
+                "auth",
+                "webauthn_credentials",
+                "column:user_id"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "index:webauthn_credentials_credential_id_key"
+            ],
+            "expected": {
+              "nodeKind": "sql-index",
+              "name": "webauthn_credentials_credential_id_key",
+              "unique": true,
+              "columns": [
+                "credential_id"
+              ]
+            },
+            "dependsOn": [
+              [
+                "database",
+                "auth",
+                "webauthn_credentials",
+                "column:credential_id"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "auth",
+              "webauthn_credentials",
+              "index:webauthn_credentials_user_id_idx"
+            ],
+            "expected": {
+              "nodeKind": "sql-index",
+              "name": "webauthn_credentials_user_id_idx",
+              "unique": false,
+              "columns": [
+                "user_id"
+              ]
+            },
+            "dependsOn": [
+              [
+                "database",
+                "auth",
+                "webauthn_credentials",
+                "column:user_id"
+              ]
+            ]
+          },
+          {
+            "path": [
+              "database",
+              "storage",
+              "s3_multipart_uploads",
+              "column:metadata"
+            ],
+            "expected": {
+              "nodeKind": "sql-column",
+              "name": "metadata",
+              "nativeType": "jsonb",
+              "nullable": true,
+              "resolvedNativeType": "jsonb"
+            }
+          }
+        ],
+        "warnings": {
+          "issues": []
+        }
+      },
+      "meta": {
+        "strict": false
+      },
+      "timings": {
+        "total": 0
+      },
+      "unclaimed": []
+    },
+    "exitCode": 4,
+    "diagnostics": [
+      {
+        "code": "CONTRACT.SCHEMA_VERIFICATION_FAILED",
+        "severity": "error",
+        "summary": "Database schema does not satisfy contract (30 failures)",
+        "why": "The live schema differs: extra: database/public/AIRequest/ai_request_select_own_5424dd11; extra: database/public/Assessment/assessment_insert_api_own_277fff40; extra: database/public/Assessment/assessment_select_own_d47c911a; extra: database/public/Assessment/assessment_update_api_own_168c1514; extra: database/public/AssessmentAnswer/assessment_answer_insert_api_own_6ac7083b; extra: database/public/AssessmentAnswer/assessment_answer_select_own_c190452e; extra: database/public/FileUpload/file_upload_insert_api_own_d6a3a6ba; extra: database/public/FileUpload/file_upload_insert_guard_649e1632; extra: database/public/FileUpload/file_upload_select_own_5472d21c; extra: database/public/FileUpload/file_upload_update_api_own_e13f9bb0; extra: database/public/FileUpload/file_upload_update_guard_cd84f83e; extra: database/public/KnowledgeChunk/knowledge_chunk_read_reviewed_72bac3b2; extra: database/public/LearningProfile/learning_profile_insert_api_own_62b5c283; extra: database/public/LearningProfile/learning_profile_select_own_13d05569; extra: database/public/LearningProfile/learning_profile_update_api_own_40a07354; extra: database/public/LearningSession/learning_session_insert_own_2be3816c; extra: database/public/LearningSession/learning_session_select_own_a34ec569; extra: database/public/LearningSession/learning_session_update_own_056e8007; extra: database/public/LearningSession/session_api_insert_guard_649e1632; extra: database/public/LearningSession/session_api_update_guard_cca2e683; extra: database/public/Message/message_api_insert_guard_649e1632; extra: database/public/Message/message_insert_own_4f346578; extra: database/public/Message/message_select_own_968c3fb0; extra: database/public/SourceMaterial/source_material_insert_api_own_bbb50d09; extra: database/public/SourceMaterial/source_material_review_update_guard_cd84f83e; extra: database/public/SourceMaterial/source_material_review_update_own_c072fcc3; extra: database/public/SourceMaterial/source_material_select_own_f7e3ac0e; extra: database/public/User/user_insert_own_770e92f4; extra: database/public/User/user_select_own_4f3aea31; extra: database/public/User/user_update_own_0788dd28.",
+        "nextActions": [
+          {
+            "kind": "run-command",
+            "label": "Push the contract to the database",
+            "command": "{bin} db update"
+          },
+          {
+            "kind": "user-choice",
+            "label": "Or reconcile the differences by hand and verify again"
+          }
+        ],
+        "meta": {
+          "space": "pgvector",
+          "issues": [
+            "extra: database/public/AIRequest/ai_request_select_own_5424dd11",
+            "extra: database/public/Assessment/assessment_insert_api_own_277fff40",
+            "extra: database/public/Assessment/assessment_select_own_d47c911a",
+            "extra: database/public/Assessment/assessment_update_api_own_168c1514",
+            "extra: database/public/AssessmentAnswer/assessment_answer_insert_api_own_6ac7083b",
+            "extra: database/public/AssessmentAnswer/assessment_answer_select_own_c190452e",
+            "extra: database/public/FileUpload/file_upload_insert_api_own_d6a3a6ba",
+            "extra: database/public/FileUpload/file_upload_insert_guard_649e1632",
+            "extra: database/public/FileUpload/file_upload_select_own_5472d21c",
+            "extra: database/public/FileUpload/file_upload_update_api_own_e13f9bb0",
+            "extra: database/public/FileUpload/file_upload_update_guard_cd84f83e",
+            "extra: database/public/KnowledgeChunk/knowledge_chunk_read_reviewed_72bac3b2",
+            "extra: database/public/LearningProfile/learning_profile_insert_api_own_62b5c283",
+            "extra: database/public/LearningProfile/learning_profile_select_own_13d05569",
+            "extra: database/public/LearningProfile/learning_profile_update_api_own_40a07354",
+            "extra: database/public/LearningSession/learning_session_insert_own_2be3816c",
+            "extra: database/public/LearningSession/learning_session_select_own_a34ec569",
+            "extra: database/public/LearningSession/learning_session_update_own_056e8007",
+            "extra: database/public/LearningSession/session_api_insert_guard_649e1632",
+            "extra: database/public/LearningSession/session_api_update_guard_cca2e683",
+            "extra: database/public/Message/message_api_insert_guard_649e1632",
+            "extra: database/public/Message/message_insert_own_4f346578",
+            "extra: database/public/Message/message_select_own_968c3fb0",
+            "extra: database/public/SourceMaterial/source_material_insert_api_own_bbb50d09",
+            "extra: database/public/SourceMaterial/source_material_review_update_guard_cd84f83e",
+            "extra: database/public/SourceMaterial/source_material_review_update_own_c072fcc3",
+            "extra: database/public/SourceMaterial/source_material_select_own_f7e3ac0e",
+            "extra: database/public/User/user_insert_own_770e92f4",
+            "extra: database/public/User/user_select_own_4f3aea31",
+            "extra: database/public/User/user_update_own_0788dd28"
+          ]
+        },
+        "docsUrl": "https://docs.prisma.io/docs/orm/v8/reference/error-reference/CONTRACT.SCHEMA_VERIFICATION_FAILED"
+      },
+      {
+        "code": "CONTRACT.SCHEMA_VERIFICATION_FAILED",
+        "severity": "error",
+        "summary": "Database schema does not satisfy contract (44 failures)",
+        "why": "The live schema differs: mismatch: database/auth/schema_migrations/column:version; missing: database/auth/webauthn_challenges; missing: database/auth/webauthn_challenges/column:challenge_type; missing: database/auth/webauthn_challenges/column:created_at; missing: database/auth/webauthn_challenges/column:created_at/default; missing: database/auth/webauthn_challenges/column:expires_at; missing: database/auth/webauthn_challenges/column:id; missing: database/auth/webauthn_challenges/column:id/default; missing: database/auth/webauthn_challenges/column:session_data; missing: database/auth/webauthn_challenges/column:user_id; missing: database/auth/webauthn_challenges/primary-key; missing: database/auth/webauthn_challenges/foreign-key:user_id->auth.users(id); missing: database/auth/webauthn_challenges/index:webauthn_challenges_expires_at_idx; missing: database/auth/webauthn_challenges/index:webauthn_challenges_user_id_idx; missing: database/auth/webauthn_challenges/check:webauthn_challenges_challenge_type_check; missing: database/auth/webauthn_credentials; missing: database/auth/webauthn_credentials/column:aaguid; missing: database/auth/webauthn_credentials/column:attestation_type; missing: database/auth/webauthn_credentials/column:attestation_type/default; missing: database/auth/webauthn_credentials/column:backed_up; missing: database/auth/webauthn_credentials/column:backed_up/default; missing: database/auth/webauthn_credentials/column:backup_eligible; missing: database/auth/webauthn_credentials/column:backup_eligible/default; missing: database/auth/webauthn_credentials/column:created_at; missing: database/auth/webauthn_credentials/column:created_at/default; missing: database/auth/webauthn_credentials/column:credential_id; missing: database/auth/webauthn_credentials/column:friendly_name; missing: database/auth/webauthn_credentials/column:friendly_name/default; missing: database/auth/webauthn_credentials/column:id; missing: database/auth/webauthn_credentials/column:id/default; missing: database/auth/webauthn_credentials/column:last_used_at; missing: database/auth/webauthn_credentials/column:public_key; missing: database/auth/webauthn_credentials/column:sign_count; missing: database/auth/webauthn_credentials/column:sign_count/default; missing: database/auth/webauthn_credentials/column:transports; missing: database/auth/webauthn_credentials/column:transports/default; missing: database/auth/webauthn_credentials/column:updated_at; missing: database/auth/webauthn_credentials/column:updated_at/default; missing: database/auth/webauthn_credentials/column:user_id; missing: database/auth/webauthn_credentials/primary-key; missing: database/auth/webauthn_credentials/foreign-key:user_id->auth.users(id); missing: database/auth/webauthn_credentials/index:webauthn_credentials_credential_id_key; missing: database/auth/webauthn_credentials/index:webauthn_credentials_user_id_idx; missing: database/storage/s3_multipart_uploads/column:metadata.",
+        "nextActions": [
+          {
+            "kind": "run-command",
+            "label": "Push the contract to the database",
+            "command": "{bin} db update"
+          },
+          {
+            "kind": "user-choice",
+            "label": "Or reconcile the differences by hand and verify again"
+          }
+        ],
+        "meta": {
+          "space": "supabase",
+          "issues": [
+            "mismatch: database/auth/schema_migrations/column:version",
+            "missing: database/auth/webauthn_challenges",
+            "missing: database/auth/webauthn_challenges/column:challenge_type",
+            "missing: database/auth/webauthn_challenges/column:created_at",
+            "missing: database/auth/webauthn_challenges/column:created_at/default",
+            "missing: database/auth/webauthn_challenges/column:expires_at",
+            "missing: database/auth/webauthn_challenges/column:id",
+            "missing: database/auth/webauthn_challenges/column:id/default",
+            "missing: database/auth/webauthn_challenges/column:session_data",
+            "missing: database/auth/webauthn_challenges/column:user_id",
+            "missing: database/auth/webauthn_challenges/primary-key",
+            "missing: database/auth/webauthn_challenges/foreign-key:user_id->auth.users(id)",
+            "missing: database/auth/webauthn_challenges/index:webauthn_challenges_expires_at_idx",
+            "missing: database/auth/webauthn_challenges/index:webauthn_challenges_user_id_idx",
+            "missing: database/auth/webauthn_challenges/check:webauthn_challenges_challenge_type_check",
+            "missing: database/auth/webauthn_credentials",
+            "missing: database/auth/webauthn_credentials/column:aaguid",
+            "missing: database/auth/webauthn_credentials/column:attestation_type",
+            "missing: database/auth/webauthn_credentials/column:attestation_type/default",
+            "missing: database/auth/webauthn_credentials/column:backed_up",
+            "missing: database/auth/webauthn_credentials/column:backed_up/default",
+            "missing: database/auth/webauthn_credentials/column:backup_eligible",
+            "missing: database/auth/webauthn_credentials/column:backup_eligible/default",
+            "missing: database/auth/webauthn_credentials/column:created_at",
+            "missing: database/auth/webauthn_credentials/column:created_at/default",
+            "missing: database/auth/webauthn_credentials/column:credential_id",
+            "missing: database/auth/webauthn_credentials/column:friendly_name",
+            "missing: database/auth/webauthn_credentials/column:friendly_name/default",
+            "missing: database/auth/webauthn_credentials/column:id",
+            "missing: database/auth/webauthn_credentials/column:id/default",
+            "missing: database/auth/webauthn_credentials/column:last_used_at",
+            "missing: database/auth/webauthn_credentials/column:public_key",
+            "missing: database/auth/webauthn_credentials/column:sign_count",
+            "missing: database/auth/webauthn_credentials/column:sign_count/default",
+            "missing: database/auth/webauthn_credentials/column:transports",
+            "missing: database/auth/webauthn_credentials/column:transports/default",
+            "missing: database/auth/webauthn_credentials/column:updated_at",
+            "missing: database/auth/webauthn_credentials/column:updated_at/default",
+            "missing: database/auth/webauthn_credentials/column:user_id",
+            "missing: database/auth/webauthn_credentials/primary-key",
+            "missing: database/auth/webauthn_credentials/foreign-key:user_id->auth.users(id)",
+            "missing: database/auth/webauthn_credentials/index:webauthn_credentials_credential_id_key",
+            "missing: database/auth/webauthn_credentials/index:webauthn_credentials_user_id_idx",
+            "missing: database/storage/s3_multipart_uploads/column:metadata"
+          ]
+        },
+        "docsUrl": "https://docs.prisma.io/docs/orm/v8/reference/error-reference/CONTRACT.SCHEMA_VERIFICATION_FAILED"
+      }
+    ],
+    "nextActions": []
+  },
+  "commandId": "db.verify",
+  "timestamp": "2026-10-17T09:45:03.897Z"
+}

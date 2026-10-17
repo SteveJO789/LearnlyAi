@@ -13,6 +13,7 @@ import contractJson from '../src/prisma/contract.json' with { type: 'json' };
 import { PrismaAssessmentStore } from '../dist/modules/assessments/prisma-assessment-store.js';
 import { MockModelProvider } from '../dist/modules/ai/providers/mock-model-provider.js';
 import { textPdf } from '../test/real-file-fixtures.mjs';
+import { requireLocalAuth, requireLocalDatabase } from './journey-target-guard.mjs';
 
 const { Client } = pg;
 const databaseUrl = process.env.LEARNLY_JOURNEY_DATABASE_URL;
@@ -20,38 +21,9 @@ const authUrl = process.env.LEARNLY_JOURNEY_SUPABASE_URL;
 const publishableKey = process.env.LEARNLY_JOURNEY_PUBLISHABLE_KEY;
 const serviceRoleKey = process.env.LEARNLY_JOURNEY_SERVICE_ROLE_KEY;
 const realStorageMode = process.argv.includes('--real-storage');
-
-function requireLocalDatabase(value) {
-  let parsed;
-  try { parsed = new URL(value ?? ''); } catch { throw new Error('A local journey database URL is required'); }
-  const databaseName = decodeURIComponent(parsed.pathname.slice(1));
-  const loopback = ['127.0.0.1', 'localhost', '[::1]'].includes(parsed.hostname);
-  const namedJourneyDb = loopback && parsed.port === '55432' && /^learnly_activation_journey_[a-z0-9_]{1,48}$/u.test(databaseName);
-  const isolatedSupabaseDb = process.argv.includes('--local-supabase-fixture') && loopback &&
-    parsed.port === '55434' && databaseName === 'postgres';
-  if (!['postgres:', 'postgresql:'].includes(parsed.protocol) || (!namedJourneyDb && !isolatedSupabaseDb) || parsed.search || parsed.hash) {
-    throw new Error('Use loopback:55432 with a learnly_activation_journey_* DB, or explicitly pass --local-supabase-fixture for loopback:55434/postgres');
-  }
-  return { databaseName, value, isolatedSupabaseDb };
-}
-
-function requireLocalAuth(value) {
-  let parsed;
-  try { parsed = new URL(value ?? ''); } catch { throw new Error('A local Supabase URL is required'); }
-  const safeShape = !parsed.username && !parsed.password && parsed.pathname === '/' && parsed.search === '' && parsed.hash === '';
-  const localHttp = parsed.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(parsed.hostname) &&
-    ['54321', '8000'].includes(parsed.port);
-  const localGatewayTls = realStorageMode && parsed.origin === 'https://127.0.0.1:54443' && parsed.pathname === '/' &&
-    parsed.search === '' && parsed.hash === '' && process.env.NODE_EXTRA_CA_CERTS === '/workspace/learnly-activation-runtime/certs/local-cert.pem';
-  if (!safeShape || (!localHttp && !localGatewayTls)) {
-    throw new Error('Use local Auth HTTP, or the exact local HTTPS gateway with its pinned CA in --real-storage mode');
-  }
-  return parsed.origin;
-}
-
-const { databaseName, isolatedSupabaseDb } = requireLocalDatabase(databaseUrl);
+const { databaseName, isolatedSupabaseDb, phaseAFixtureDb } = requireLocalDatabase(databaseUrl, process.argv.slice(2));
 if (realStorageMode && !isolatedSupabaseDb) throw new Error('--real-storage requires the explicitly isolated Supabase database target');
-const localAuthUrl = requireLocalAuth(authUrl);
+const localAuthUrl = requireLocalAuth(authUrl, { realStorageMode, phaseAFixtureDb, extraCaCerts: process.env.NODE_EXTRA_CA_CERTS });
 if (!publishableKey || !serviceRoleKey) throw new Error('Local Supabase journey keys are required');
 process.env.DATABASE_URL = databaseUrl;
 process.env.SUPABASE_URL = localAuthUrl;

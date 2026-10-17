@@ -9,39 +9,6 @@ const APP_FRESH = 'd17a8bc493eb8d240a7a2d0c664b00ec49f5823963634f78f5385a01bd26b
 const PGVECTOR_HEAD = '3d2c56a2944685bd21b05bc8a8d73164397df51c014201902932fbe7e80ff1b8';
 const OBSERVED_ORIGIN = 'c7b3938544e5e74ca8b9f22476cc7dbb3d987938d552a6e2214b5edd941b8665';
 const PROFILE = '3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2';
-const APP_POLICY_VERIFY_ISSUES = new Set([
-  'database/public/AIRequest/ai_request_select_own_5424dd11',
-  'database/public/Assessment/assessment_insert_api_own_277fff40',
-  'database/public/Assessment/assessment_select_own_d47c911a',
-  'database/public/Assessment/assessment_update_api_own_168c1514',
-  'database/public/AssessmentAnswer/assessment_answer_insert_api_own_6ac7083b',
-  'database/public/AssessmentAnswer/assessment_answer_select_own_c190452e',
-  'database/public/FileUpload/file_upload_insert_api_own_d6a3a6ba',
-  'database/public/FileUpload/file_upload_insert_guard_649e1632',
-  'database/public/FileUpload/file_upload_select_own_5472d21c',
-  'database/public/FileUpload/file_upload_update_api_own_e13f9bb0',
-  'database/public/FileUpload/file_upload_update_guard_cd84f83e',
-  'database/public/KnowledgeChunk/knowledge_chunk_read_reviewed_72bac3b2',
-  'database/public/LearningProfile/learning_profile_insert_api_own_62b5c283',
-  'database/public/LearningProfile/learning_profile_select_own_13d05569',
-  'database/public/LearningProfile/learning_profile_update_api_own_40a07354',
-  'database/public/LearningSession/learning_session_insert_own_2be3816c',
-  'database/public/LearningSession/learning_session_select_own_a34ec569',
-  'database/public/LearningSession/learning_session_update_own_056e8007',
-  'database/public/LearningSession/session_api_insert_guard_649e1632',
-  'database/public/LearningSession/session_api_update_guard_cca2e683',
-  'database/public/Message/message_api_insert_guard_649e1632',
-  'database/public/Message/message_insert_own_4f346578',
-  'database/public/Message/message_select_own_968c3fb0',
-  'database/public/SourceMaterial/source_material_insert_api_own_bbb50d09',
-  'database/public/SourceMaterial/source_material_review_update_guard_cd84f83e',
-  'database/public/SourceMaterial/source_material_review_update_own_c072fcc3',
-  'database/public/SourceMaterial/source_material_select_own_f7e3ac0e',
-  'database/public/User/user_insert_own_770e92f4',
-  'database/public/User/user_select_own_4f3aea31',
-  'database/public/User/user_update_own_0788dd28',
-]);
-
 function redactDatabaseUrls(value) {
   return value.replace(/(?:postgres|postgresql):\/\/[^\s"'<>]+/giu, '[redacted database URL]');
 }
@@ -190,18 +157,12 @@ async function main() {
   const verifyJson = JSON.stringify(resultValue(markerVerify));
   assert(verifyJson.includes(TARGET), 'db verify output omitted the expected application contract marker.');
   assert(verifyJson.includes(PROFILE), 'db verify output omitted the expected application profile hash.');
-  const fullVerify = runPrisma(['db', 'verify', dbArg(freshUrl), '--json'], { expectFailure: true });
+  const fullVerify = runPrisma(['db', 'verify', dbArg(freshUrl), '--strict', '--json']);
   const fullVerifyResult = resultValue(fullVerify);
-  const fullVerifyIssues = fullVerifyResult?.schema?.issues ?? [];
-  const fullVerifyPaths = fullVerifyIssues.map(issue => issue.path?.join('/') ?? '').sort();
-  const appPolicyPaths = fullVerifyPaths.filter(path => path.startsWith('database/public/'));
-  const unknownAppPolicyPaths = appPolicyPaths.filter(path => !APP_POLICY_VERIFY_ISSUES.has(path));
-  const externalPaths = fullVerifyPaths.filter(path => !path.startsWith('database/public/'));
-  assert(fullVerifyResult?.ok === false && fullVerifyIssues.length > 0, 'Full db verify unexpectedly did not return a schema finding envelope.');
-  assert(appPolicyPaths.length === APP_POLICY_VERIFY_ISSUES.size && unknownAppPolicyPaths.length === 0,
-    `Full db verify app-policy path set changed: ${JSON.stringify({ count: appPolicyPaths.length, unknown: unknownAppPolicyPaths })}`);
-  assert(externalPaths.every(path => path.startsWith('database/auth/') || path.startsWith('database/storage/')),
-    `Full db verify reported an unexpected non-app issue path: ${JSON.stringify(externalPaths.filter(path => !path.startsWith('database/auth/') && !path.startsWith('database/storage/')))}`);
+  assert(fullVerifyResult?.ok === true && fullVerifyResult.mode === 'full' &&
+    fullVerifyResult.meta?.schemaVerification === 'performed' && fullVerifyResult.schema?.strict === true &&
+    (fullVerifyResult.schema?.issues ?? []).length === 0 && (fullVerifyResult.unclaimed ?? []).length === 0,
+  'Full strict schema verification did not pass; use an officially migrated, compatible local Auth/Storage foundation.');
 
   const logAfterApply = await readMigrationLog(freshUrl);
   assert(containsHash(logAfterApply, TARGET) && containsHash(logAfterApply, PGVECTOR_HEAD), 'Prisma migration ledger omitted an expected terminal hash.');
@@ -293,14 +254,14 @@ async function main() {
   assert(rollbackState.rows[0].vector_schema === 'public', 'Rollback changed the intentionally pre-existing public pgvector extension.');
 
   console.log(JSON.stringify({
-    status: 'PASS_WITH_FULL_VERIFY_BLOCKER',
+    status: 'PASS',
     cli: 'Prisma 8 RC canonical db migrate executor',
     target: { host: adminUrl.hostname, port: Number(adminUrl.port) },
     fresh: { database: freshName, routeEdges: planned.map(edge => `${edge.spaceId}:${edge.dirName || '(extension descriptor)'}`), appMarker: TARGET, appProfile: PROFILE, pgvectorMarker: PGVECTOR_HEAD, rerun: 'no-op' },
     wrongOrigin: { database: wrongOriginName, startingMarker: APP_FRESH, requestedOrigin: OBSERVED_ORIGIN, result: 'rejected without schema or marker change' },
     c7Suffix: { database: c7Name, verifiedOrigin: OBSERVED_ORIGIN, target: TARGET, startingState: 'all contract spaces initialized by canonical db update; c7 app signature then verified by db sign', syntheticLegacyRowsPreserved: true, markerAdvanced: true },
     failedTransaction: { database: failedName, startingOrigin: OBSERVED_ORIGIN, failure: 'Canonical CLI setup verified the already-installed pgvector contract, then the fixture relocated the extension to public; the reviewed app migration required extensions.vector', rollback: 'all pending app schema/marker/ledger work rolled back; CLI-created markers and relocated extension preserved' },
-    fullVerify: { status: 'BLOCKED', database: freshName, issueCount: fullVerifyIssues.length, appPolicyIssueCount: appPolicyPaths.length, appPolicyPaths, externalIssueCount: externalPaths.length, externalSchemas: [...new Set(externalPaths.map(path => path.split('/')[1]))].sort(), independentAppCatalogComparison: 'Sol confirmed all 90 manifest expressions and all 30 public policies match the generated dbupdate/schema-verified-sign baseline exactly.' },
+    fullVerify: { status: 'PASS', database: freshName, mode: 'full', strict: true, schemaVerification: 'performed', issueCount: 0 },
     note: 'Databases are intentionally retained for review. Auth and Storage schemas came from a clone of the local Supabase-compatible foundation; executor fixtures do not establish Auth/Storage HTTP-service acceptance.',
   }, null, 2));
 }
