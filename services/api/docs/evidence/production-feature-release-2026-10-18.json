@@ -1,0 +1,211 @@
+{
+  "date": "2026-10-18",
+  "productionApiCommit": "6fe8b03eaa73b54c959c40805361e5ae54e46389",
+  "catalogProfile": "supabase-auth-20260831180000-storage-73-multitenant-pg17",
+  "initialFindings": 74,
+  "actualDefectsWithinOriginalFindings": 0,
+  "representationOrServiceVersionMismatches": 74,
+  "resolvedOriginalFindings": 74,
+  "additionalLegacyPoliciesRemoved": 3,
+  "remainingBlockers": [],
+  "nativeFullStrict": {
+    "status": "PASS",
+    "spaces": {
+      "app": {
+        "strict": true,
+        "issues": 0,
+        "warnings": 0,
+        "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b"
+      },
+      "pgvector": {
+        "strict": true,
+        "issues": 0,
+        "warnings": 0,
+        "storageHash": "3d2c56a2944685bd21b05bc8a8d73164397df51c014201902932fbe7e80ff1b8"
+      },
+      "supabase": {
+        "strict": true,
+        "issues": 0,
+        "warnings": 0,
+        "storageHash": "2849dcde51ea1a0ece7c17f981a5aa0d1bb32ed9e6bc190e84d15aeb74a78341"
+      }
+    },
+    "unclaimed": 0,
+    "markerDrift": false
+  },
+  "exactCatalogChecks": {
+    "passed": 38,
+    "total": 38
+  },
+  "combinedStrictChecks": {
+    "passed": 39,
+    "total": 39
+  },
+  "productionHttp": {
+    "status": "PASS",
+    "uniqueChecks": [
+      {
+        "name": "Production capabilities reflect enabled operator flags",
+        "result": "PASS",
+        "assessments": true,
+        "fileUploads": true
+      },
+      {
+        "name": "Unauthenticated result access denied",
+        "result": "PASS"
+      },
+      {
+        "name": "Owned session and learner text persist through production API",
+        "result": "PASS"
+      },
+      {
+        "name": "PRE assessment persists a 3/3 result",
+        "result": "PASS"
+      },
+      {
+        "name": "Actual production model and persisted learning advance to POST assessment",
+        "result": "PASS"
+      },
+      {
+        "name": "POST zero score persists, exact retry is idempotent and changed answers conflict",
+        "result": "PASS"
+      },
+      {
+        "name": "Reloaded History, results and profile retain PRE 100%, POST 0%, delta -100",
+        "result": "PASS"
+      },
+      {
+        "name": "Second owner cannot read results; direct authenticated REST cannot alter saved score",
+        "result": "PASS",
+        "directWriteStatus": 403
+      },
+      {
+        "name": "Actual private upload, extraction, original download and foreign/public denial",
+        "result": "PASS",
+        "format": "pdf"
+      },
+      {
+        "name": "Actual private upload, extraction, original download and foreign/public denial",
+        "result": "PASS",
+        "format": "png"
+      },
+      {
+        "name": "Actual private upload, extraction, original download and foreign/public denial",
+        "result": "PASS",
+        "format": "jpg"
+      },
+      {
+        "name": "Editable extraction review, finalized upload receipts and file History persist",
+        "result": "PASS"
+      }
+    ]
+  },
+  "productionBrowser": {
+    "status": "PASS",
+    "checks": [
+      {
+        "name": "Actual Supabase password sign-in and Home profile hydration",
+        "result": "PASS"
+      },
+      {
+        "name": "History renders persisted PRE 100% and POST 0%",
+        "result": "PASS"
+      },
+      {
+        "name": "Zero score survives browser reload",
+        "result": "PASS"
+      },
+      {
+        "name": "Home and Profile render before/after comparison from real production API",
+        "result": "PASS"
+      },
+      {
+        "name": "Assessment detail restores submitted zero score",
+        "result": "PASS"
+      },
+      {
+        "name": "Uploaded file History shows reviewed text and downloads actual private original",
+        "result": "PASS"
+      },
+      {
+        "name": "Production Create page exposes enabled upload controls",
+        "result": "PASS"
+      }
+    ]
+  },
+  "tests": {
+    "api": {
+      "passed": 381,
+      "total": 381
+    },
+    "web": {
+      "passed": 54,
+      "total": 54
+    },
+    "browserFixtures": {
+      "passed": 23,
+      "total": 23
+    },
+    "lint": "PASS"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "actorsRemoved": 2,
+    "sessionsRemoved": 5,
+    "storageObjectsRemoved": 3,
+    "remaining": 0,
+    "originalData": [
+      {
+        "schema": "auth",
+        "table": "users",
+        "count": 8,
+        "countUnchanged": true,
+        "hashUnchanged": true
+      },
+      {
+        "schema": "public",
+        "table": "User",
+        "count": 10,
+        "countUnchanged": true,
+        "hashUnchanged": true
+      },
+      {
+        "schema": "public",
+        "table": "LearningSession",
+        "count": 16,
+        "countUnchanged": true,
+        "hashUnchanged": true
+      },
+      {
+        "schema": "public",
+        "table": "Message",
+        "count": 50,
+        "countUnchanged": true,
+        "hashUnchanged": true
+      }
+    ],
+    "temporaryEndpointsClosed": true,
+    "temporaryBrowserTrustRestored": true
+  },
+  "health": {
+    "status": "ready",
+    "checks": {
+      "api": "ok",
+      "authConfiguration": "ok",
+      "database": "ok",
+      "knowledge": "ok",
+      "ocrModels": "ok",
+      "uploadsSchema": "ok"
+    }
+  },
+  "capabilities": {
+    "assessments": true,
+    "fileUploads": true
+  },
+  "retrievalMode": "lexical",
+  "productionMigration": {
+    "status": "COMPLETE",
+    "appContract": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+    "ledgerEntries": 17
+  }
+}

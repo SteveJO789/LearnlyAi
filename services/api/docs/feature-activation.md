@@ -1,5 +1,7 @@
 # Feature activation
 
+Production activation completed on 2026-10-18. See the [Thai production release report](production-feature-release-2026-10-18.th.md) for the deployed flags, current catalog profile, strict verification, actual service/browser acceptance and temporary test cleanup. The rehearsal instructions below describe the safe defaults for other targets.
+
 This bundle prepares assessment and file learning for activation. Flags remain off by default. Use an isolated database and synthetic identities for rehearsal; this change does not apply a hosted migration or change deployment environment variables.
 
 | Capability | Operator setting | Required evidence |
