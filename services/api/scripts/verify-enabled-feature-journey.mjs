@@ -1,6 +1,8 @@
 // Local-only end-to-end fixture for the enabled assessment/text-learning path.
 // Uses a provisioned canonical database and local Supabase Auth; never rewrites
 // the Prisma contract marker or calls a paid model/provider.
+// Production rehearsal clone (loopback only): explicitly pass --production-rehearsal-fixture
+// and --expect-database=learnly_production_rehearsal_20261017 with the dedicated local gateway.
 // Real local run: NODE_EXTRA_CA_CERTS=/workspace/learnly-activation-runtime/certs/local-cert.pem
 //   node --env-file=/workspace/learnly-activation-runtime/local-status.env scripts/verify-enabled-feature-journey.mjs --local-supabase-fixture --real-storage
 import assert from 'node:assert/strict';
@@ -21,9 +23,10 @@ const authUrl = process.env.LEARNLY_JOURNEY_SUPABASE_URL;
 const publishableKey = process.env.LEARNLY_JOURNEY_PUBLISHABLE_KEY;
 const serviceRoleKey = process.env.LEARNLY_JOURNEY_SERVICE_ROLE_KEY;
 const realStorageMode = process.argv.includes('--real-storage');
-const { databaseName, isolatedSupabaseDb, phaseAFixtureDb } = requireLocalDatabase(databaseUrl, process.argv.slice(2));
+const { databaseName, isolatedSupabaseDb, phaseAFixtureDb, productionRehearsalDb } = requireLocalDatabase(databaseUrl, process.argv.slice(2));
 if (realStorageMode && !isolatedSupabaseDb) throw new Error('--real-storage requires the explicitly isolated Supabase database target');
-const localAuthUrl = requireLocalAuth(authUrl, { realStorageMode, phaseAFixtureDb, extraCaCerts: process.env.NODE_EXTRA_CA_CERTS });
+if (productionRehearsalDb && !realStorageMode) throw new Error('--production-rehearsal-fixture requires --real-storage');
+const localAuthUrl = requireLocalAuth(authUrl, { realStorageMode, phaseAFixtureDb, productionRehearsalDb, extraCaCerts: process.env.NODE_EXTRA_CA_CERTS });
 if (!publishableKey || !serviceRoleKey) throw new Error('Local Supabase journey keys are required');
 process.env.DATABASE_URL = databaseUrl;
 process.env.SUPABASE_URL = localAuthUrl;
@@ -153,7 +156,8 @@ try {
   assert.equal(marker.rowCount, 1, 'canonical application migration marker must exist exactly once');
   assert.equal(marker.rows[0].coreHash, contractJson.storage.storageHash, 'canonical storage marker must match the API contract');
   assert.equal(marker.rows[0].profileHash, contractJson.profileHash, 'canonical profile marker must match the API contract');
-  capture('Canonical Prisma contract marker matches storage and profile hashes', { databaseName, localSupabaseDb: isolatedSupabaseDb });
+  capture('Canonical Prisma contract marker matches storage and profile hashes', { databaseName, localSupabaseDb: isolatedSupabaseDb,
+    productionRehearsalFixture: productionRehearsalDb });
 
   phase = 'local-auth';
   for (const actor of actors) await createAuthActor(actor);

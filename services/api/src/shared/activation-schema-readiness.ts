@@ -60,8 +60,12 @@ function finding(id: string, ok: boolean, code: string): ActivationFinding {
 }
 
 /** Fixed, read-only catalog inspection. Results contain no database error text or credentials. */
-export async function inspectActivationSchema(client: ClientLike, options: { uploads?: boolean; expectedDatabase?: string } = {}): Promise<ActivationInspection> {
+export type ActivationCatalogMode = "operator" | "runtime";
+
+/** Operator mode is the complete release preflight. Runtime mode only checks metadata visible to the app role. */
+export async function inspectActivationSchema(client: ClientLike, options: { uploads?: boolean; expectedDatabase?: string; catalogMode?: ActivationCatalogMode } = {}): Promise<ActivationInspection> {
   const findings: ActivationFinding[] = [];
+  const runtimeMode = options.catalogMode === "runtime";
   const tables: readonly string[] = options.uploads ? uploadTables : assessmentTables;
   const versionResult = await client.query<CatalogRow>("SELECT current_setting('server_version_num')::integer AS version");
   const serverMajor = Math.floor(Number(versionResult.rows[0]?.version) / 10000);
@@ -79,10 +83,18 @@ export async function inspectActivationSchema(client: ClientLike, options: { upl
   const marker = markerResult.rows.length === 1 ? markerResult.rows[0] : undefined;
   findings.push(finding("schema.marker", marker?.coreHash === expectedCore && marker?.profileHash === expectedProfile, "SCHEMA_MARKER_MISMATCH"));
 
-  const columns = await client.query<CatalogRow>(
-    `SELECT table_name AS "tableName", column_name AS "columnName", data_type AS "dataType", udt_name AS "udtName", is_nullable AS "isNullable"
-       FROM information_schema.columns WHERE table_schema = 'public' AND table_name = ANY($1::text[])`, [tables],
-  );
+  const columns = runtimeMode
+    ? await client.query<CatalogRow>(
+      `SELECT c.relname AS "tableName", a.attname AS "columnName", type.typname AS "udtName",
+              CASE WHEN a.attnotnull THEN 'NO' ELSE 'YES' END AS "isNullable"
+         FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid JOIN pg_namespace n ON n.oid = c.relnamespace
+         JOIN pg_type type ON type.oid = a.atttypid
+        WHERE n.nspname = 'public' AND c.relname = ANY($1::text[]) AND a.attnum > 0 AND NOT a.attisdropped`, [tables],
+    )
+    : await client.query<CatalogRow>(
+      `SELECT table_name AS "tableName", column_name AS "columnName", data_type AS "dataType", udt_name AS "udtName", is_nullable AS "isNullable"
+         FROM information_schema.columns WHERE table_schema = 'public' AND table_name = ANY($1::text[])`, [tables],
+    );
   const colSet = new Set(columns.rows.map(row => `${row.tableName}.${row.columnName}`));
   const expectedColumns = tables.flatMap(table => Object.entries(publicEntries.table[table as keyof typeof publicEntries.table].columns)
     .map(([column, definition]) => ({ id: `${table}.${column}`, nativeType: definition.nativeType, nullable: definition.nullable })));
@@ -116,18 +128,32 @@ export async function inspectActivationSchema(client: ClientLike, options: { upl
   const rlsEnabled = new Set(rls.rows.filter(row => ["r", "p"].includes(String(row.kind)) && row.enabled === true).map(row => row.tableName));
   findings.push(finding("security.rls", tables.every(table => rlsEnabled.has(table)), "RLS_DISABLED"));
 
-  const grants = await client.query<CatalogRow>(
-    `SELECT table_name AS "tableName", privilege_type AS privilege FROM information_schema.table_privileges
-      WHERE table_schema = 'public' AND grantee = 'authenticated' AND table_name = ANY($1::text[])`, [tables],
-  );
-  const grantSet = new Set(grants.rows.map(row => `${row.tableName}.${row.privilege}`));
   const expected = options.uploads ? uploadGrants : assessmentGrants;
+  const grants = runtimeMode
+    ? await client.query<CatalogRow>(
+      `SELECT required.table_name AS "tableName", required.privilege FROM unnest($1::text[], $2::text[]) AS required(table_name, privilege)
+        JOIN pg_class c ON c.relname = required.table_name JOIN pg_namespace n ON n.oid = c.relnamespace AND n.nspname = 'public'
+        WHERE has_table_privilege('authenticated', c.oid, required.privilege)`,
+      [Object.entries(expected).flatMap(([table, privileges]) => privileges.map(() => table)),
+        Object.values(expected).flat()],
+    )
+    : await client.query<CatalogRow>(
+      `SELECT table_name AS "tableName", privilege_type AS privilege FROM information_schema.table_privileges
+        WHERE table_schema = 'public' AND grantee = 'authenticated' AND table_name = ANY($1::text[])`, [tables],
+    );
+  const grantSet = new Set(grants.rows.map(row => `${row.tableName}.${row.privilege}`));
   const grantsOk = Object.entries(expected).every(([table, privileges]) => privileges.every(privilege => grantSet.has(`${table}.${privilege}`)));
   findings.push(finding("security.grants", grantsOk, "APP_GRANTS_MISSING"));
-  const sourceMaterialColumnGrant = await client.query<CatalogRow>(
-    `SELECT CASE WHEN to_regclass('public."SourceMaterial"') IS NULL OR to_regrole('authenticated') IS NULL THEN false
-      ELSE has_column_privilege('authenticated', 'public."SourceMaterial"', 'metadata', 'UPDATE') END AS allowed`,
-  );
+  const sourceMaterialColumnGrant = runtimeMode
+    ? await client.query<CatalogRow>(
+      `SELECT EXISTS (SELECT 1 FROM pg_roles role JOIN pg_class c ON c.relname = 'SourceMaterial'
+          JOIN pg_namespace n ON n.oid = c.relnamespace AND n.nspname = 'public'
+        WHERE role.rolname = 'authenticated' AND has_column_privilege('authenticated', c.oid, 'metadata', 'UPDATE')) AS allowed`,
+    )
+    : await client.query<CatalogRow>(
+      `SELECT CASE WHEN to_regclass('public."SourceMaterial"') IS NULL OR to_regrole('authenticated') IS NULL THEN false
+        ELSE has_column_privilege('authenticated', 'public."SourceMaterial"', 'metadata', 'UPDATE') END AS allowed`,
+    );
   findings.push(finding("security.columnGrants", sourceMaterialColumnGrant.rows[0]?.allowed === true, "APP_COLUMN_GRANTS_MISSING"));
 
   const roleState = await client.query<CatalogRow>(
@@ -169,21 +195,36 @@ export async function inspectActivationSchema(client: ClientLike, options: { upl
   findings.push(finding("security.trustedPolicies", policiesOk, "TRUSTED_POLICY_MISSING_OR_WEAK"));
 
   if (options.uploads) {
-    const storageSchemaUsage = await client.query<CatalogRow>(
-      `SELECT CASE WHEN NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated')
-          OR to_regnamespace('storage') IS NULL THEN false
-        ELSE has_schema_privilege('authenticated', 'storage', 'USAGE') END AS allowed`,
-    );
+    const storageSchemaUsage = runtimeMode
+      ? await client.query<CatalogRow>(
+        `SELECT EXISTS (SELECT 1 FROM pg_roles role JOIN pg_namespace n ON n.nspname = 'storage'
+          WHERE role.rolname = 'authenticated' AND has_schema_privilege('authenticated', n.oid, 'USAGE')) AS allowed`,
+      )
+      : await client.query<CatalogRow>(
+        `SELECT CASE WHEN NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated')
+            OR to_regnamespace('storage') IS NULL THEN false
+          ELSE has_schema_privilege('authenticated', 'storage', 'USAGE') END AS allowed`,
+      );
     findings.push(finding("uploads.storageSchemaUsage", storageSchemaUsage.rows[0]?.allowed === true,
       "STORAGE_SCHEMA_USAGE_MISSING"));
-    const storageObjectGrants = await client.query<CatalogRow>(
-      `SELECT CASE WHEN NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated')
-          OR to_regclass('storage.objects') IS NULL THEN false
-        ELSE has_table_privilege('authenticated', 'storage.objects', 'SELECT')
-          AND has_table_privilege('authenticated', 'storage.objects', 'INSERT')
-          AND has_table_privilege('authenticated', 'storage.objects', 'UPDATE')
-          AND has_table_privilege('authenticated', 'storage.objects', 'DELETE') END AS allowed`,
-    );
+    const storageObjectGrants = runtimeMode
+      ? await client.query<CatalogRow>(
+        `SELECT EXISTS (SELECT 1 FROM pg_roles role JOIN pg_class c ON c.relname = 'objects'
+            JOIN pg_namespace n ON n.oid = c.relnamespace AND n.nspname = 'storage'
+          WHERE role.rolname = 'authenticated'
+            AND has_table_privilege('authenticated', c.oid, 'SELECT')
+            AND has_table_privilege('authenticated', c.oid, 'INSERT')
+            AND has_table_privilege('authenticated', c.oid, 'UPDATE')
+            AND has_table_privilege('authenticated', c.oid, 'DELETE')) AS allowed`,
+      )
+      : await client.query<CatalogRow>(
+        `SELECT CASE WHEN NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated')
+            OR to_regclass('storage.objects') IS NULL THEN false
+          ELSE has_table_privilege('authenticated', 'storage.objects', 'SELECT')
+            AND has_table_privilege('authenticated', 'storage.objects', 'INSERT')
+            AND has_table_privilege('authenticated', 'storage.objects', 'UPDATE')
+            AND has_table_privilege('authenticated', 'storage.objects', 'DELETE') END AS allowed`,
+      );
     findings.push(finding("uploads.storageObjectGrants", storageObjectGrants.rows[0]?.allowed === true,
       "STORAGE_OBJECT_GRANTS_MISSING"));
     const storageRls = await client.query<CatalogRow>(
@@ -195,14 +236,16 @@ export async function inspectActivationSchema(client: ClientLike, options: { upl
     findings.push(finding("uploads.storageRls", storageRls.rows[0]?.enabled === true, "STORAGE_RLS_DISABLED"));
     findings.push(finding("uploads.noPolicyBypass", !(storageRls.rows[0]?.actorOwnsTable === true && storageRls.rows[0]?.forced !== true),
       "STORAGE_OWNER_CAN_BYPASS_RLS"));
-    const bucketsExist = (await client.query<CatalogRow>("SELECT to_regclass('storage.buckets') IS NOT NULL AS \"exists\"")).rows[0]?.exists === true;
-    const bucket = bucketsExist ? await client.query<CatalogRow>(
-      "SELECT id, name, public, file_size_limit AS \"fileSizeLimit\", allowed_mime_types AS \"allowedMimeTypes\" FROM storage.buckets WHERE id = 'learnly-materials'",
-    ) : { rows: [] as CatalogRow[] };
-    const b = bucket.rows[0];
-    const mime = Array.isArray(b?.allowedMimeTypes) ? [...b.allowedMimeTypes].sort() : [];
-    findings.push(finding("uploads.bucket", b?.id === "learnly-materials" && b.public === false && Number(b.fileSizeLimit) === 3145728 &&
-      JSON.stringify(mime) === JSON.stringify(["application/pdf", "image/jpeg", "image/png"]), "UPLOAD_BUCKET_MISMATCH"));
+    if (!runtimeMode) {
+      const bucketsExist = (await client.query<CatalogRow>("SELECT to_regclass('storage.buckets') IS NOT NULL AS \"exists\"")).rows[0]?.exists === true;
+      const bucket = bucketsExist ? await client.query<CatalogRow>(
+        "SELECT id, name, public, file_size_limit AS \"fileSizeLimit\", allowed_mime_types AS \"allowedMimeTypes\" FROM storage.buckets WHERE id = 'learnly-materials'",
+      ) : { rows: [] as CatalogRow[] };
+      const b = bucket.rows[0];
+      const mime = Array.isArray(b?.allowedMimeTypes) ? [...b.allowedMimeTypes].sort() : [];
+      findings.push(finding("uploads.bucket", b?.id === "learnly-materials" && b.public === false && Number(b.fileSizeLimit) === 3145728 &&
+        JSON.stringify(mime) === JSON.stringify(["application/pdf", "image/jpeg", "image/png"]), "UPLOAD_BUCKET_MISMATCH"));
+    }
     const storagePolicies = await client.query<CatalogRow>(
       "SELECT policyname AS name, permissive = 'PERMISSIVE' AS permissive, roles::text[] AS roles, cmd, qual, with_check AS \"withCheck\" FROM pg_policies WHERE schemaname = 'storage' AND tablename = 'objects'",
     );
@@ -400,7 +443,7 @@ export const requiredStoragePolicies = [
   { name: "learnly_materials_pending_intent_guard", command: "INSERT", permissive: false, role: "authenticated", withCheck: pendingIntentGuard },
 ];
 
-export async function checkActivationSchema(options: { uploads?: boolean; connectionString?: string; signal?: AbortSignal; expectedDatabase?: string } = {}): Promise<ActivationInspection> {
+export async function checkActivationSchema(options: { uploads?: boolean; connectionString?: string; signal?: AbortSignal; expectedDatabase?: string; catalogMode?: ActivationCatalogMode } = {}): Promise<ActivationInspection> {
   const connectionString = options.connectionString ?? process.env.DATABASE_URL;
   if (!connectionString) throw new Error("Database configuration missing");
   const client = new Client({ connectionString, connectionTimeoutMillis: 2000, query_timeout: 2500, statement_timeout: 2000 });

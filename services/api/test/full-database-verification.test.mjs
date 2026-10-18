@@ -53,6 +53,36 @@ test("full verification rejects target identity before invoking Prisma or openin
   assert.equal(JSON.stringify(result).includes("secret"), false);
 });
 
+test("the modern catalog profile requires its supplemental security gate after native full strict verification", async () => {
+  const pass = async () => ({ status: "PASS", findings: [{ id: "pass", status: "PASS", code: "OK" }] });
+  let checked = false, cleaned = false;
+  const result = await verifyFullDatabase({
+    argv: ["--target=local", "--expect-database=learnly_test"],
+    env: { DATABASE_URL: "postgresql://unit:secret@127.0.0.1/learnly_test",
+      LEARNLY_SUPABASE_CATALOG_PROFILE: "supabase-auth-20260831180000-storage-73-multitenant-pg17" },
+    createOverlay: async () => ({ migrationsDir: "/tmp/learnly-supabase-catalog-verify-unit/migrations",
+      evidence: {}, cleanup: async () => { cleaned = true; } }),
+    runPrisma: (args, env) => {
+      assert.equal(args.includes("--strict"), true);
+      assert.equal(args.some(arg => arg.includes("prisma.verify.config.ts")), true);
+      assert.equal(env.LEARNLY_SUPABASE_VERIFY_MIGRATIONS_DIR, "/tmp/learnly-supabase-catalog-verify-unit/migrations");
+      return { exitCode: 0, events: [{ kind: "result", envelope: { ok: true, result: {
+        ok: true, mode: "full", meta: { schemaVerification: "performed" }, schema: { strict: true },
+      } } }], stdout: "", stderr: "" };
+    },
+    checks: { checkActivationSchema: pass, checkVectorPrerequisites: pass, checkFullPublicPolicyRls: pass },
+    verifyModernCatalog: async () => { checked = true; return { status: "BLOCKED", findings: [
+      { id: "catalog.modern.indexes", status: "BLOCKED", code: "SOURCE_SIGNATURE_MISMATCH" },
+    ] }; },
+  });
+  assert.equal(checked, true);
+  assert.equal(cleaned, true);
+  assert.equal(result.canonical.issueCount, 0);
+  assert.equal(result.status, "BLOCKED");
+  assert.equal(result.findings.some(f => f.id === "catalog.modern.indexes" && f.status === "BLOCKED"), true);
+  assert.equal(JSON.stringify(result).includes("secret"), false);
+});
+
 test("canonical Prisma schema issues and failures remain visible and block the gate", async () => {
   const calls = [];
   const pass = async () => ({ status: "PASS", findings: [{ id: "pass", status: "PASS", code: "OK" }] });

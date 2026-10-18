@@ -3,6 +3,9 @@ import { fileURLToPath } from "node:url";
 import { activationTargetError, checkActivationSchema, checkVectorPrerequisites, checkFullPublicPolicyRls } from "../dist/shared/activation-schema-readiness.js";
 import { resolveSupabaseCatalogProfile } from "./lib/supabase-catalog-profile.mjs";
 import { createSupabaseVerificationOverlay } from "./lib/supabase-verification-overlay.mjs";
+import { verifyModernSupabaseCatalogSupplement } from "./lib/verify-modern-supabase-catalog.mjs";
+
+const MODERN_SUPABASE_PROFILE = "supabase-auth-20260831180000-storage-73-multitenant-pg17";
 
 const API_ROOT = fileURLToPath(new URL("../", import.meta.url));
 const PRISMA = fileURLToPath(new URL("../node_modules/.bin/prisma", import.meta.url));
@@ -68,7 +71,8 @@ function blocked(id, code) { return { id, status: "BLOCKED", code }; }
 /** Injectable orchestration keeps target guarding and canonical failure handling testable without a database. */
 export async function verifyFullDatabase({ argv = process.argv.slice(2), env = process.env, runPrisma = defaultRunPrisma,
   checks = { checkActivationSchema, checkVectorPrerequisites, checkFullPublicPolicyRls },
-  createOverlay = createSupabaseVerificationOverlay } = {}) {
+  createOverlay = createSupabaseVerificationOverlay, verifyModernCatalog = verifyModernSupabaseCatalogSupplement,
+  modernCatalogExpected } = {}) {
   const args = parseArguments(argv);
   if (!args) return { status: "BLOCKED", findings: [blocked("verify.arguments", "INVALID_ARGUMENTS")] };
   const target = args.get("target"), expectedDatabase = args.get("expect-database");
@@ -123,6 +127,14 @@ export async function verifyFullDatabase({ argv = process.argv.slice(2), env = p
         findings.push(...inspection.findings.map(item => ({ ...item, id: `${id}.${item.id}` })));
       } catch {
         findings.push(blocked(id, "DATABASE_UNAVAILABLE"));
+      }
+    }
+    if (catalogProfile === MODERN_SUPABASE_PROFILE) {
+      try {
+        const inspection = await verifyModernCatalog({ connectionString, expected: modernCatalogExpected });
+        findings.push(...inspection.findings);
+      } catch {
+        findings.push(blocked("catalog.modern", "DATABASE_UNAVAILABLE"));
       }
     }
     return { target, database: expectedDatabase, catalogProfile, ...(overlay ? { overlay: overlay.evidence } : {}),

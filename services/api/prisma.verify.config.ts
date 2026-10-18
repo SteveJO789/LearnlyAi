@@ -10,8 +10,8 @@ if (command[0] !== 'db' || command[1] !== 'verify') {
   throw new Error('prisma.verify.config.ts only permits `prisma db verify`.');
 }
 const profile = resolveSupabaseCatalogProfile(process.env.LEARNLY_SUPABASE_CATALOG_PROFILE);
-if (profile.id !== 'gotrue-pop6-v6.1.1') {
-  throw new Error('prisma.verify.config.ts requires the explicit GoTrue Pop 6.1.1 catalog profile.');
+if (!['gotrue-pop6-v6.1.1', 'supabase-auth-20260831180000-storage-73-multitenant-pg17'].includes(profile.id)) {
+  throw new Error('prisma.verify.config.ts requires an explicit supported catalog profile.');
 }
 const migrationsDir = process.env.LEARNLY_SUPABASE_VERIFY_MIGRATIONS_DIR;
 if (!migrationsDir || !isSupabaseVerificationOverlayPath(migrationsDir)) {

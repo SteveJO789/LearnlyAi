@@ -65,14 +65,14 @@ export function createReadinessCheck(options: ReadinessOptions = {}) {
   }
   if (options.features?.assessments) {
     probes.assessmentSchema = options.assessmentSchema ?? (async signal => {
-      const result = await checkActivationSchema({ signal, uploads: options.features?.fileUploads });
+      const result = await checkActivationSchema({ signal, uploads: options.features?.fileUploads, catalogMode: "runtime" });
       if (result.status !== "PASS") throw new Error("Assessment activation prerequisites are not ready.");
     });
   }
   if (options.features?.fileUploads) {
     // Upload schema inspection includes assessment tables, avoiding two catalog connections.
     probes.uploadsSchema = options.uploadsSchema ?? (async signal => {
-      const result = await checkActivationSchema({ signal, uploads: true });
+      const result = await checkActivationSchema({ signal, uploads: true, catalogMode: "runtime" });
       if (result.status !== "PASS") throw new Error("Upload activation prerequisites are not ready.");
     });
     probes.ocrModels = options.ocrModels ?? (async signal => { await verifyOcrModels(undefined, signal); });

@@ -4,6 +4,10 @@ import { join, relative, resolve } from "node:path";
 import { canonicalizeJson } from "@prisma/orm-framework/components/utils";
 
 const UPSTREAM_HASH = "734893bc990ae5ec14dc7ad50a7d8b5873a864f056085a7ffd2f69c866989067";
+const SUPPORTED_PROFILE_HASHES = new Map([
+  ["gotrue-pop6-v6.1.1", "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212"],
+  ["supabase-auth-20260831180000-storage-73-multitenant-pg17", "2849dcde51ea1a0ece7c17f981a5aa0d1bb32ed9e6bc190e84d15aeb74a78341"],
+]);
 const OVERLAY_PREFIX = "learnly-supabase-catalog-verify-";
 
 async function inventory(root, current = root, files = new Map()) {
@@ -20,8 +24,7 @@ async function inventory(root, current = root, files = new Map()) {
 
 /** Builds an isolated disk view for canonical verification; never touches repository migrations. */
 export async function createSupabaseVerificationOverlay({ sourceMigrationsDir, profile }) {
-  if (profile?.id !== "gotrue-pop6-v6.1.1" || profile.contract?.storage?.storageHash !==
-    "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212") {
+  if (!SUPPORTED_PROFILE_HASHES.has(profile?.id) || profile.contract?.storage?.storageHash !== SUPPORTED_PROFILE_HASHES.get(profile.id)) {
     throw new Error("Unsupported Supabase verification profile");
   }
   const source = resolve(sourceMigrationsDir);
@@ -88,6 +91,7 @@ export async function createSupabaseVerificationOverlay({ sourceMigrationsDir, p
       async cleanup() { await rm(temporaryRoot, { recursive: true, force: true }); },
       evidence: {
         kind: "temporary-read-only-migration-overlay",
+        profileId: profile.id,
         sourceFileCount: originalFiles.size,
         preservedHistoricalFileCount: originalFiles.size - changedFiles.length,
         changedFiles,
