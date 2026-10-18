@@ -1,7 +1,7 @@
 import { parentPort, workerData, Worker } from "node:worker_threads";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { inflateSync } from "node:zlib";
 import { PNG } from "pngjs";
 import { decode } from "jpeg-js";
@@ -11,15 +11,19 @@ const require = createRequire(import.meta.url);
 const fail = (code: string): never => { throw Object.assign(new Error("File processing failed."), { code }); };
 globalThis.fetch = async () => { throw new Error("File extraction network access is disabled."); };
 type DiagnosticStage = "PDF_IMPORT" | "PDF_OPEN" | "PDF_TEXT" | "IMAGE_DECODE" | "OCR_INIT" | "OCR_RECOGNIZE" | "WORKER_ENTRYPOINT";
-const diagnosticDependencies = ["pdfjs-dist", "pdf.worker.mjs", "@napi-rs/canvas", "pngjs", "jpeg-js", "tesseract.js",
-  "tesseract.js-core", "DOMMatrix", "ImageData", "Path2D"] as const;
+const diagnosticDependencies = ["pdf.worker.mjs", "pdfjs-dist", "@napi-rs/canvas", "pngjs", "jpeg-js", "tesseract.js-core",
+  "tesseract.js", "DOMMatrix", "ImageData", "Path2D"] as const;
 function diagnostic(error: unknown, stage: DiagnosticStage) {
   const message = error && typeof error === "object" && "message" in error && typeof error.message === "string" ? error.message : "";
   const rawCode = error && typeof error === "object" && "code" in error ? error.code : undefined;
+  const classifiedCode = message.includes("Setting up fake worker failed") ? "PDF_WORKER_SETUP_FAILED"
+    : message.includes("Cannot find module") ? "DEPENDENCY_NOT_FOUND"
+      : message.includes("API version") || message.includes("Worker version") ? "PDF_WORKER_VERSION_MISMATCH"
+        : message.includes("DOMMatrix") ? "DOM_API_UNAVAILABLE" : "WORKER_FAILURE";
   return {
     stage,
     dependency: diagnosticDependencies.find(name => message.includes(name)) ?? null,
-    code: typeof rawCode === "string" && /^[A-Z0-9_]{1,80}$/u.test(rawCode) ? rawCode : "WORKER_FAILURE",
+    code: typeof rawCode === "string" && /^[A-Z0-9_]{1,80}$/u.test(rawCode) ? rawCode : classifiedCode,
   } as const;
 }
 let currentStage: DiagnosticStage = "WORKER_ENTRYPOINT";
@@ -114,6 +118,7 @@ async function pdfText(bytes: Uint8Array): Promise<ExtractedFileText> {
   currentStage = "PDF_IMPORT";
   const pdf = await import(modulePath) as typeof import("pdfjs-dist");
   currentStage = "PDF_OPEN";
+  pdf.GlobalWorkerOptions.workerSrc = pathToFileURL(require.resolve("pdfjs-dist/legacy/build/pdf.worker.mjs")).href;
   const root = dirname(require.resolve("pdfjs-dist/package.json"));
   const task = pdf.getDocument({ data: bytes, verbosity: 0, stopAtErrors: true, useWorkerFetch: false,
     disableFontFace: true, useSystemFonts: false, enableXfa: false, useWasm: false,

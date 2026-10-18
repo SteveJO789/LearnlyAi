@@ -18,8 +18,8 @@ const failures = {
 type Failure = keyof typeof failures;
 const controlled = (code: Failure) => new ApiError(code, failures[code][0], failures[code][1]);
 const diagnosticStages = ["PDF_IMPORT", "PDF_OPEN", "PDF_TEXT", "IMAGE_DECODE", "OCR_INIT", "OCR_RECOGNIZE", "WORKER_ENTRYPOINT"] as const;
-const diagnosticDependencies = ["pdfjs-dist", "pdf.worker.mjs", "@napi-rs/canvas", "pngjs", "jpeg-js", "tesseract.js",
-  "tesseract.js-core", "DOMMatrix", "ImageData", "Path2D"] as const;
+const diagnosticDependencies = ["pdf.worker.mjs", "pdfjs-dist", "@napi-rs/canvas", "pngjs", "jpeg-js", "tesseract.js-core",
+  "tesseract.js", "DOMMatrix", "ImageData", "Path2D"] as const;
 type DiagnosticStage = typeof diagnosticStages[number];
 type Diagnostic = { stage: DiagnosticStage; dependency: typeof diagnosticDependencies[number] | null; code: string };
 function safeDiagnostic(value: unknown, fallbackStage: DiagnosticStage, fallbackError?: unknown): Diagnostic {
@@ -30,9 +30,13 @@ function safeDiagnostic(value: unknown, fallbackStage: DiagnosticStage, fallback
   const dependency = diagnosticDependencies.includes(candidate.dependency as typeof diagnosticDependencies[number])
     ? candidate.dependency as typeof diagnosticDependencies[number]
     : diagnosticDependencies.find(name => message.includes(name)) ?? null;
+  const classifiedCode = message.includes("Setting up fake worker failed") ? "PDF_WORKER_SETUP_FAILED"
+    : message.includes("Cannot find module") ? "DEPENDENCY_NOT_FOUND"
+      : message.includes("API version") || message.includes("Worker version") ? "PDF_WORKER_VERSION_MISMATCH"
+        : message.includes("DOMMatrix") ? "DOM_API_UNAVAILABLE" : "WORKER_FAILURE";
   const code = typeof candidate.code === "string" && /^[A-Z0-9_]{1,80}$/u.test(candidate.code) ? candidate.code
     : fallbackError && typeof fallbackError === "object" && "code" in fallbackError && typeof fallbackError.code === "string" && /^[A-Z0-9_]{1,80}$/u.test(fallbackError.code)
-      ? fallbackError.code : "WORKER_FAILURE";
+      ? fallbackError.code : classifiedCode;
   return { stage, dependency, code };
 }
 function logWorkerFailure(value: unknown, fallbackStage: DiagnosticStage, fallbackError?: unknown): void {
