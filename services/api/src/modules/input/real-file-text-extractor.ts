@@ -1,3 +1,6 @@
+import { accessSync, constants, statSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 import { Worker } from "node:worker_threads";
 import { ApiError } from "../../shared/api-error.js";
 import { inspectFileEnvelope, type FileEnvelope } from "./file-envelope.js";
@@ -17,6 +20,7 @@ const failures = {
 } as const;
 type Failure = keyof typeof failures;
 const controlled = (code: Failure) => new ApiError(code, failures[code][0], failures[code][1]);
+const require = createRequire(import.meta.url);
 const diagnosticStages = ["PDF_IMPORT", "PDF_OPEN", "PDF_TEXT", "IMAGE_DECODE", "OCR_INIT", "OCR_RECOGNIZE", "WORKER_ENTRYPOINT"] as const;
 const diagnosticDependencies = ["pdf.worker.mjs", "pdfjs-dist", "@napi-rs/canvas", "pngjs", "jpeg-js", "tesseract.js-core",
   "tesseract.js", "DOMMatrix", "ImageData", "Path2D"] as const;
@@ -30,17 +34,52 @@ function safeDiagnostic(value: unknown, fallbackStage: DiagnosticStage, fallback
   const dependency = diagnosticDependencies.includes(candidate.dependency as typeof diagnosticDependencies[number])
     ? candidate.dependency as typeof diagnosticDependencies[number]
     : diagnosticDependencies.find(name => message.includes(name)) ?? null;
-  const classifiedCode = message.includes("Setting up fake worker failed") ? "PDF_WORKER_SETUP_FAILED"
-    : message.includes("Cannot find module") ? "DEPENDENCY_NOT_FOUND"
-      : message.includes("API version") || message.includes("Worker version") ? "PDF_WORKER_VERSION_MISMATCH"
-        : message.includes("DOMMatrix") ? "DOM_API_UNAVAILABLE" : "WORKER_FAILURE";
+  const classifiedCode = message.includes("ENOENT") || /no such file/iu.test(message) ? "OCR_ASSET_NOT_FOUND"
+    : message.includes("WebAssembly") || message.includes("CompileError") || message.includes("Aborted") ? "OCR_WASM_INIT_FAILED"
+      : message.includes("Setting up fake worker failed") ? "PDF_WORKER_SETUP_FAILED"
+        : message.includes("Cannot find module") ? "DEPENDENCY_NOT_FOUND"
+          : message.includes("API version") || message.includes("Worker version") ? "PDF_WORKER_VERSION_MISMATCH"
+            : message.includes("DOMMatrix") ? "DOM_API_UNAVAILABLE" : "WORKER_FAILURE";
   const code = typeof candidate.code === "string" && /^[A-Z0-9_]{1,80}$/u.test(candidate.code) ? candidate.code
     : fallbackError && typeof fallbackError === "object" && "code" in fallbackError && typeof fallbackError.code === "string" && /^[A-Z0-9_]{1,80}$/u.test(fallbackError.code)
       ? fallbackError.code : classifiedCode;
   return { stage, dependency, code };
 }
+const coreAssetVariants = [
+  { label: "core", stem: "tesseract-core" },
+  { label: "core-lstm", stem: "tesseract-core-lstm" },
+  { label: "core-simd", stem: "tesseract-core-simd" },
+  { label: "core-simd-lstm", stem: "tesseract-core-simd-lstm" },
+  { label: "core-relaxedsimd", stem: "tesseract-core-relaxedsimd" },
+  { label: "core-relaxedsimd-lstm", stem: "tesseract-core-relaxedsimd-lstm" },
+] as const;
+function coreAssetStatus(file: string): { state: "readable" | "missing" | "unreadable"; bytes: number } {
+  try {
+    accessSync(file, constants.R_OK);
+    const info = statSync(file);
+    return info.isFile() ? { state: "readable", bytes: info.size } : { state: "unreadable", bytes: 0 };
+  } catch (error) {
+    const code = error && typeof error === "object" && "code" in error ? error.code : undefined;
+    return { state: code === "ENOENT" || code === "ENOTDIR" ? "missing" : "unreadable", bytes: 0 };
+  }
+}
+function coreAssetDiagnostics() {
+  let packageRoot: string | undefined;
+  try { packageRoot = dirname(require.resolve("tesseract.js-core/package.json")); }
+  catch { /* A missing package is represented by fixed missing states below. */ }
+  return coreAssetVariants.map(({ label, stem }) => {
+    const js = packageRoot ? coreAssetStatus(join(packageRoot, `${stem}.js`)) : { state: "missing" as const, bytes: 0 };
+    const wasm = packageRoot ? coreAssetStatus(join(packageRoot, `${stem}.wasm`)) : { state: "missing" as const, bytes: 0 };
+    return { variant: label, jsState: js.state, jsBytes: js.bytes, wasmState: wasm.state, wasmBytes: wasm.bytes };
+  });
+}
 function logWorkerFailure(value: unknown, fallbackStage: DiagnosticStage, fallbackError?: unknown): void {
-  console.error("[file-extraction] failed", safeDiagnostic(value, fallbackStage, fallbackError));
+  const diagnostic = safeDiagnostic(value, fallbackStage, fallbackError);
+  if (diagnostic.dependency === "tesseract.js-core") {
+    console.error("[file-extraction] failed", { ...diagnostic, coreAssets: coreAssetDiagnostics() });
+  } else {
+    console.error("[file-extraction] failed", diagnostic);
+  }
 }
 let activeWorkers = 0;
 

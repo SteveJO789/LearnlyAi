@@ -16,10 +16,12 @@ const diagnosticDependencies = ["pdf.worker.mjs", "pdfjs-dist", "@napi-rs/canvas
 function diagnostic(error: unknown, stage: DiagnosticStage) {
   const message = error && typeof error === "object" && "message" in error && typeof error.message === "string" ? error.message : "";
   const rawCode = error && typeof error === "object" && "code" in error ? error.code : undefined;
-  const classifiedCode = message.includes("Setting up fake worker failed") ? "PDF_WORKER_SETUP_FAILED"
-    : message.includes("Cannot find module") ? "DEPENDENCY_NOT_FOUND"
-      : message.includes("API version") || message.includes("Worker version") ? "PDF_WORKER_VERSION_MISMATCH"
-        : message.includes("DOMMatrix") ? "DOM_API_UNAVAILABLE" : "WORKER_FAILURE";
+  const classifiedCode = message.includes("ENOENT") || /no such file/iu.test(message) ? "OCR_ASSET_NOT_FOUND"
+    : message.includes("WebAssembly") || message.includes("CompileError") || message.includes("Aborted") ? "OCR_WASM_INIT_FAILED"
+      : message.includes("Setting up fake worker failed") ? "PDF_WORKER_SETUP_FAILED"
+        : message.includes("Cannot find module") ? "DEPENDENCY_NOT_FOUND"
+          : message.includes("API version") || message.includes("Worker version") ? "PDF_WORKER_VERSION_MISMATCH"
+            : message.includes("DOMMatrix") ? "DOM_API_UNAVAILABLE" : "WORKER_FAILURE";
   return {
     stage,
     dependency: diagnosticDependencies.find(name => message.includes(name)) ?? null,
