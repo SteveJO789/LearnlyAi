@@ -17,6 +17,27 @@ const failures = {
 } as const;
 type Failure = keyof typeof failures;
 const controlled = (code: Failure) => new ApiError(code, failures[code][0], failures[code][1]);
+const diagnosticStages = ["PDF_IMPORT", "PDF_OPEN", "PDF_TEXT", "IMAGE_DECODE", "OCR_INIT", "OCR_RECOGNIZE", "WORKER_ENTRYPOINT"] as const;
+const diagnosticDependencies = ["pdfjs-dist", "pdf.worker.mjs", "@napi-rs/canvas", "pngjs", "jpeg-js", "tesseract.js",
+  "tesseract.js-core", "DOMMatrix", "ImageData", "Path2D"] as const;
+type DiagnosticStage = typeof diagnosticStages[number];
+type Diagnostic = { stage: DiagnosticStage; dependency: typeof diagnosticDependencies[number] | null; code: string };
+function safeDiagnostic(value: unknown, fallbackStage: DiagnosticStage, fallbackError?: unknown): Diagnostic {
+  const candidate = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  const stage = diagnosticStages.includes(candidate.stage as DiagnosticStage) ? candidate.stage as DiagnosticStage : fallbackStage;
+  const message = fallbackError && typeof fallbackError === "object" && "message" in fallbackError &&
+    typeof fallbackError.message === "string" ? fallbackError.message : "";
+  const dependency = diagnosticDependencies.includes(candidate.dependency as typeof diagnosticDependencies[number])
+    ? candidate.dependency as typeof diagnosticDependencies[number]
+    : diagnosticDependencies.find(name => message.includes(name)) ?? null;
+  const code = typeof candidate.code === "string" && /^[A-Z0-9_]{1,80}$/u.test(candidate.code) ? candidate.code
+    : fallbackError && typeof fallbackError === "object" && "code" in fallbackError && typeof fallbackError.code === "string" && /^[A-Z0-9_]{1,80}$/u.test(fallbackError.code)
+      ? fallbackError.code : "WORKER_FAILURE";
+  return { stage, dependency, code };
+}
+function logWorkerFailure(value: unknown, fallbackStage: DiagnosticStage, fallbackError?: unknown): void {
+  console.error("[file-extraction] failed", safeDiagnostic(value, fallbackStage, fallbackError));
+}
 let activeWorkers = 0;
 
 /** Per-request isolated CPU work. No worker pool/daemon, credentials or runtime model downloads. */
@@ -65,18 +86,30 @@ export class RealFileTextExtractor implements FileTextExtractor {
         }
         signal.addEventListener("abort", abort, { once: true });
         running.once("message", (value: unknown) => {
-          if (!value || typeof value !== "object") { finish(controlled("INVALID_FILE")); return; }
-          const message = value as { ok?: unknown; result?: ExtractedFileText; code?: unknown };
+          if (!value || typeof value !== "object") {
+            logWorkerFailure(undefined, "WORKER_ENTRYPOINT");
+            finish(controlled("INVALID_FILE")); return;
+          }
+          const message = value as { ok?: unknown; result?: ExtractedFileText; code?: unknown; diagnostic?: unknown };
           if (message.ok === true && message.result) {
             try { finish(undefined, normalizeFileExtraction(message.result, file).extraction); }
             catch (error) { finish(error instanceof ApiError ? error : controlled("INVALID_FILE")); }
           } else {
+            logWorkerFailure(message.diagnostic, "WORKER_ENTRYPOINT", { code: message.code });
             const code = typeof message.code === "string" && Object.hasOwn(failures, message.code) ? message.code as Failure : "INVALID_FILE";
             finish(controlled(code));
           }
         });
-        running.once("error", error => finish(controlled((error as NodeJS.ErrnoException).code === "ERR_WORKER_OUT_OF_MEMORY" ? "FILE_PROCESSING_LIMIT" : "INVALID_FILE")));
-        running.once("exit", () => { if (!settled) finish(controlled("INVALID_FILE")); });
+        running.once("error", error => {
+          logWorkerFailure(undefined, "WORKER_ENTRYPOINT", error);
+          finish(controlled((error as NodeJS.ErrnoException).code === "ERR_WORKER_OUT_OF_MEMORY" ? "FILE_PROCESSING_LIMIT" : "INVALID_FILE"));
+        });
+        running.once("exit", () => {
+          if (!settled) {
+            logWorkerFailure(undefined, "WORKER_ENTRYPOINT");
+            finish(controlled("INVALID_FILE"));
+          }
+        });
         if (signal.aborted) abort();
       });
       if (signal.aborted) throw controlled("FILE_PROCESSING_TIMEOUT");
