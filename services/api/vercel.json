@@ -7,7 +7,7 @@
   "buildCommand": "npm run build && npm run knowledge:verify-runtime",
   "functions": {
     "src/**": {
-      "includeFiles": "{runtime-*/**,src/contracts/**,node_modules/{tesseract*,pngjs,jpeg-js,pdfjs-dist,bmp-js,wasm-feature-detect,is-url,zlibjs,regenerator-runtime,idb-keyval}/**}",
+      "includeFiles": "{runtime-*/**,src/contracts/**,node_modules/{tesseract*,pngjs,jpeg-js,pdfjs-dist,bmp-js,wasm-feature-detect,is-url,zlibjs,regenerator-runtime,idb-keyval,@napi-rs/canvas*}/**}",
       "excludeFiles": "**/*.map"
     }
   }
