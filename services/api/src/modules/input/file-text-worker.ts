@@ -1,7 +1,7 @@
 import { parentPort, workerData, Worker } from "node:worker_threads";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { inflateSync } from "node:zlib";
 import { PNG } from "pngjs";
 import { decode } from "jpeg-js";
@@ -10,6 +10,25 @@ import type { ExtractedFileText } from "./file-ingestion.js";
 const require = createRequire(import.meta.url);
 const fail = (code: string): never => { throw Object.assign(new Error("File processing failed."), { code }); };
 globalThis.fetch = async () => { throw new Error("File extraction network access is disabled."); };
+type DiagnosticStage = "PDF_IMPORT" | "PDF_OPEN" | "PDF_TEXT" | "IMAGE_DECODE" | "OCR_INIT" | "OCR_RECOGNIZE" | "WORKER_ENTRYPOINT";
+const diagnosticDependencies = ["pdf.worker.mjs", "pdfjs-dist", "@napi-rs/canvas", "pngjs", "jpeg-js", "tesseract.js-core",
+  "tesseract.js", "DOMMatrix", "ImageData", "Path2D"] as const;
+function diagnostic(error: unknown, stage: DiagnosticStage) {
+  const message = error && typeof error === "object" && "message" in error && typeof error.message === "string" ? error.message : "";
+  const rawCode = error && typeof error === "object" && "code" in error ? error.code : undefined;
+  const classifiedCode = message.includes("ENOENT") || /no such file/iu.test(message) ? "OCR_ASSET_NOT_FOUND"
+    : message.includes("WebAssembly") || message.includes("CompileError") || message.includes("Aborted") ? "OCR_WASM_INIT_FAILED"
+      : message.includes("Setting up fake worker failed") ? "PDF_WORKER_SETUP_FAILED"
+        : message.includes("Cannot find module") ? "DEPENDENCY_NOT_FOUND"
+          : message.includes("API version") || message.includes("Worker version") ? "PDF_WORKER_VERSION_MISMATCH"
+            : message.includes("DOMMatrix") ? "DOM_API_UNAVAILABLE" : "WORKER_FAILURE";
+  return {
+    stage,
+    dependency: diagnosticDependencies.find(name => message.includes(name)) ?? null,
+    code: typeof rawCode === "string" && /^[A-Z0-9_]{1,80}$/u.test(rawCode) ? rawCode : classifiedCode,
+  } as const;
+}
+let currentStage: DiagnosticStage = "WORKER_ENTRYPOINT";
 
 function dimensions(width: number, height: number) {
   if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || width > 10000 || height > 10000 || width * height > 12000000) fail("IMAGE_TOO_LARGE");
@@ -98,25 +117,32 @@ function orient(image: { width: number; height: number; data: Uint8Array }, orie
 
 async function pdfText(bytes: Uint8Array): Promise<ExtractedFileText> {
   const modulePath = "pdfjs-dist/legacy/build/pdf.mjs";
+  currentStage = "PDF_IMPORT";
   const pdf = await import(modulePath) as typeof import("pdfjs-dist");
+  currentStage = "PDF_OPEN";
+  pdf.GlobalWorkerOptions.workerSrc = pathToFileURL(require.resolve("pdfjs-dist/legacy/build/pdf.worker.mjs")).href;
   const root = dirname(require.resolve("pdfjs-dist/package.json"));
   const task = pdf.getDocument({ data: bytes, verbosity: 0, stopAtErrors: true, useWorkerFetch: false,
     disableFontFace: true, useSystemFonts: false, enableXfa: false, useWasm: false,
     isOffscreenCanvasSupported: false, isImageDecoderSupported: false, maxImageSize: 12000000,
     cMapUrl: join(root, "cmaps").replaceAll("\\", "/") + "/", cMapPacked: true,
     standardFontDataUrl: join(root, "standard_fonts").replaceAll("\\", "/") + "/" });
+  let extractionFailed = false;
   try {
     const document = await task.promise;
     if (!Number.isInteger(document.numPages) || document.numPages < 1) fail("INVALID_FILE");
     if (document.numPages > 10) fail("PDF_TOO_MANY_PAGES");
+    currentStage = "PDF_TEXT";
     const pages: { page: number; text: string }[] = [];
     let total = 0;
     for (let number = 1; number <= document.numPages; number++) {
       const page = await document.getPage(number), reader = page.streamTextContent().getReader();
-      let text = "", separator = "", textTooLarge = false;
+      let text = "", separator = "", textTooLarge = false, streamDone = false;
+      let streamFailure: unknown;
       try {
         for (;;) {
-          const { done, value } = await reader.read(); if (done) break;
+          const { done, value } = await reader.read();
+          if (done) { streamDone = true; break; }
           for (const item of value.items) {
             if (!("str" in item)) continue;
             if (!item.str) { if (item.hasEOL) separator = "\n"; continue; }
@@ -129,7 +155,20 @@ async function pdfText(bytes: Uint8Array): Promise<ExtractedFileText> {
           }
           if (textTooLarge) break;
         }
-      } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); page.cleanup(); }
+      } catch (error) {
+        streamFailure = error;
+        throw error;
+      } finally {
+        let cleanupFailure: unknown;
+        if (!streamDone) {
+          try { await reader.cancel(new Error("PDF text extraction stopped.")); }
+          catch (error) { cleanupFailure = error; }
+        }
+        try { reader.releaseLock(); } catch (error) { cleanupFailure ??= error; }
+        try { page.cleanup(); } catch (error) { cleanupFailure ??= error; }
+        // Preserve the size/read failure while still attempting every cleanup.
+        if (cleanupFailure && !streamFailure && !textTooLarge) throw cleanupFailure;
+      }
       if (textTooLarge) fail("EXTRACTED_TEXT_TOO_LARGE");
       text = text.trim(); total += text.length + (pages.length ? 2 : 0);
       if (total > 8000) fail("EXTRACTED_TEXT_TOO_LARGE");
@@ -138,12 +177,17 @@ async function pdfText(bytes: Uint8Array): Promise<ExtractedFileText> {
     if (!pages.some(page => page.text.trim())) fail("NO_EXTRACTABLE_TEXT");
     return { method: "PDF_TEXT", pages, confidence: null };
   } catch (error) {
+    extractionFailed = true;
     if ((error as Error).name === "PasswordException") fail("PDF_ENCRYPTED");
     throw error;
-  } finally { await task.destroy(); }
+  } finally {
+    try { await task.destroy(); }
+    catch (error) { if (!extractionFailed) throw error; }
+  }
 }
 
 async function imageText(bytes: Buffer, mimeType: string, root: string): Promise<ExtractedFileText> {
+  currentStage = "IMAGE_DECODE";
   const decoded = mimeType === "image/png" ? decodedPng(bytes) : decode(bytes, {
     useTArray: true, formatAsRGBA: true, tolerantDecoding: false, maxResolutionInMP: 12, maxMemoryUsageInMB: 80,
   });
@@ -153,6 +197,7 @@ async function imageText(bytes: Buffer, mimeType: string, root: string): Promise
   const normalized = new PNG({ width: image.width, height: image.height });
   normalized.data = Buffer.from(image.data);
   const png = PNG.sync.write(normalized);
+  currentStage = "OCR_INIT";
   const { createWorker, OEM, PSM } = await import("tesseract.js");
   const engine = await createWorker("tha+eng", OEM.LSTM_ONLY, { langPath: root, gzip: false, cacheMethod: "none",
     workerPath: fileURLToPath(new URL("./ocr-offline-worker.js", import.meta.url)),
@@ -161,6 +206,7 @@ async function imageText(bytes: Buffer, mimeType: string, root: string): Promise
   if (!(thread instanceof Worker)) fail("INVALID_FILE");
   try {
     await engine.setParameters({ tessedit_pageseg_mode: PSM.AUTO, user_defined_dpi: "300" });
+    currentStage = "OCR_RECOGNIZE";
     const { data } = await engine.recognize(png, {}, { text: true });
     if (!data.text.trim()) fail("NO_EXTRACTABLE_TEXT");
     if (data.text.length > 8000) fail("EXTRACTED_TEXT_TOO_LARGE");
@@ -173,5 +219,6 @@ try {
   const result = file.type === "PDF" ? await pdfText(bytes) : await imageText(Buffer.from(bytes), file.mimeType, ocrRoot!);
   parentPort!.postMessage({ ok: true, result });
 } catch (error) {
-  parentPort!.postMessage({ ok: false, code: (error as { code?: string }).code ?? "INVALID_FILE" });
+  const details = diagnostic(error, currentStage);
+  parentPort!.postMessage({ ok: false, code: details.code, diagnostic: details });
 } finally { parentPort?.close(); }

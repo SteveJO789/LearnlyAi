@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import LoadingOverlay from "../components/LoadingOverlay";
+import { clearLogoutNotice, LOGOUT_LOCAL_ONLY_NOTICE, LOGOUT_NOTICE_EVENT, LOGOUT_UNCONFIRMED_NOTICE, takeLogoutNotice } from "../../lib/auth-state";
 import { getSupabaseClient } from "../../lib/supabase";
 import { syncCurrentUserProfile } from "../../lib/user-profile";
 
@@ -13,6 +14,28 @@ export default function SigninForm() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [logoutNotice, setLogoutNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedNotice = takeLogoutNotice();
+    if (storedNotice) setLogoutNotice(storedNotice);
+    if (new URLSearchParams(window.location.search).get("logout") === "unconfirmed") {
+      setLogoutNotice(LOGOUT_LOCAL_ONLY_NOTICE);
+      const url = new URL(window.location.href);
+      url.searchParams.delete("logout");
+      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    }
+    const onLogoutNotice = (event: Event) => {
+      const message = (event as CustomEvent<unknown>).detail;
+      const stored = takeLogoutNotice();
+      if (stored) setLogoutNotice(stored);
+      else if (message === LOGOUT_LOCAL_ONLY_NOTICE || message === LOGOUT_UNCONFIRMED_NOTICE) {
+        setLogoutNotice(message);
+      }
+    };
+    window.addEventListener(LOGOUT_NOTICE_EVENT, onLogoutNotice);
+    return () => window.removeEventListener(LOGOUT_NOTICE_EVENT, onLogoutNotice);
+  }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -29,6 +52,8 @@ export default function SigninForm() {
         setError(notConfirmed ? "Please verify your email before signing in." : "Incorrect email or password. Please try again.");
         return;
       }
+      clearLogoutNotice();
+      setLogoutNotice(null);
       await syncCurrentUserProfile();
       router.push("/Home");
     } catch (configurationError) {
@@ -49,6 +74,9 @@ export default function SigninForm() {
       if (oauthError) {
         setIsLoading(false);
         setError(oauthError.message);
+      } else {
+        clearLogoutNotice();
+        setLogoutNotice(null);
       }
     } catch (configurationError) {
       setIsLoading(false);
@@ -60,6 +88,7 @@ export default function SigninForm() {
     <>
       {isLoading && <LoadingOverlay message="Logging in..." />}
       <form className="auth-form" onSubmit={handleSubmit}>
+        {logoutNotice && <p role="status" className="auth-error">{logoutNotice}</p>}
         <label className="auth-field">
           <span className="auth-field-icon" aria-hidden="true">✉</span>
           <span className="sr-only">Email address</span>

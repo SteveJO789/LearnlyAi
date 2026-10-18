@@ -9,6 +9,7 @@ import { normalizeLearningRequest } from "./learning-request.js";
 import type { LearningPersistence, SourceMaterialRepository } from "./repositories.js";
 import { determineStage, getStagePolicy } from "./stage-machine.js";
 import { knowledgeSourceMaterials } from "./knowledge-source-material.js";
+import { orderConversationMessages } from "./message-order.js";
 
 export interface LearningEngineDependencies {
   orchestrator: TutorOrchestrator;
@@ -29,13 +30,28 @@ export class DefaultLearningEngine implements LearningEngine {
     this.now = dependencies.now ?? (() => new Date());
   }
 
-  async process(input: LearningRequest): Promise<LearningResult> {
+  async process(input: LearningRequest, options: { expectedVersion?: number } = {}): Promise<LearningResult> {
     const request = normalizeLearningRequest(input);
     const { persistence, orchestrator } = this.dependencies;
     const previous = await persistence.sessions.findById(request.sessionId);
+    if (options.expectedVersion !== undefined && (previous?.version ?? null) !== options.expectedVersion) {
+      throw new LearningError("SESSION_CONFLICT");
+    }
+    const messages = await persistence.messages.findBySessionId(request.sessionId);
     const stage = determineStage(previous, request.action, this.dependencies.initialStage);
     const policy = getStagePolicy(stage);
-    const timestamp = this.now().toISOString();
+    const now = this.now().getTime();
+    if (!Number.isFinite(now)) throw new Error("Invalid server event timestamp.");
+    const previousTime = previous ? Date.parse(previous.updatedAt) : Number.NEGATIVE_INFINITY;
+    if (!Number.isFinite(previousTime) && previous) throw new Error("Invalid session event timestamp.");
+    const latestConversationTime = messages.reduce((latest, message) => {
+      const timestamp = Date.parse(message.orderingTimestamp ?? message.createdAt);
+      if (!Number.isFinite(timestamp)) throw new Error("Invalid persisted message timestamp.");
+      return Math.max(latest, timestamp);
+    }, Number.NEGATIVE_INFINITY);
+    const userTime = Math.max(now, previousTime + 1, latestConversationTime + 1);
+    const userTimestamp = new Date(userTime).toISOString();
+    const tutorTimestamp = new Date(userTime + 1).toISOString();
     const session: LearningSession = {
       id: request.sessionId,
       state: stage === "REVIEW" ? "COMPLETED" : stage === "DIAGNOSE" ? "PRE_TEST" : stage === "ASSESS" ? "POST_TEST" : "LEARNING",
@@ -45,10 +61,10 @@ export class DefaultLearningEngine implements LearningEngine {
       subject: request.subject ?? previous?.subject,
       progress: policy.progress,
       version: (previous?.version ?? 0) + 1,
-      createdAt: previous?.createdAt ?? timestamp,
-      updatedAt: timestamp,
+      createdAt: previous?.createdAt ?? userTimestamp,
+      updatedAt: tutorTimestamp,
     };
-    const context = await this.buildContext(request, session, policy.outputStage);
+    const context = await this.buildContext(request, session, policy.outputStage, messages);
     let result: LearningResult;
     try {
       result = await orchestrator.generate(context);
@@ -56,7 +72,7 @@ export class DefaultLearningEngine implements LearningEngine {
       const boundaryError = error instanceof AIBoundaryError ? error : normalizeProviderFailure(error);
       // Retain the last successful stage; never persist rejected model content.
       const failedSession: LearningSession = previous
-        ? { ...previous, lifecycleState: "FAILED", version: session.version, updatedAt: timestamp }
+        ? { ...previous, lifecycleState: "FAILED", version: session.version, updatedAt: tutorTimestamp }
         : { ...session, lifecycleState: "FAILED" };
       // A concurrent successful commit wins over this stale failure.
       await persistence.commit({ session: failedSession, messages: [], expectedVersion: previous?.version ?? null });
@@ -66,8 +82,8 @@ export class DefaultLearningEngine implements LearningEngine {
       session,
       expectedVersion: previous?.version ?? null,
       messages: [
-        { id: this.idFactory(), sessionId: session.id, createdAt: timestamp, role: "USER", content: request.userInput },
-        { id: result.responseId, sessionId: session.id, createdAt: timestamp, role: "TUTOR", content: result },
+        { id: this.idFactory(), sessionId: session.id, createdAt: userTimestamp, role: "USER", content: request.userInput },
+        { id: result.responseId, sessionId: session.id, createdAt: tutorTimestamp, role: "TUTOR", content: result },
       ],
     });
     if (!committed) throw new LearningError("SESSION_CONFLICT");
@@ -78,14 +94,16 @@ export class DefaultLearningEngine implements LearningEngine {
     request: LearningRequest,
     session: LearningSession,
     outputStage: TutorContext["outputStage"],
+    messages: Awaited<ReturnType<LearningPersistence["messages"]["findBySessionId"]>>,
   ): Promise<TutorContext> {
     const { persistence, materials, knowledgeRetriever } = this.dependencies;
-    const messages = await persistence.messages.findBySessionId(session.id);
+    const orderedMessages = orderConversationMessages(messages);
+    const tutoringMessages = orderedMessages.filter(message => message.role !== "SYSTEM");
     const retrieve = async () => {
       try {
         const references = await knowledgeRetriever?.retrieve({
           studentInput: request.userInput, subject: session.subject,
-          previousStudentInputs: messages.filter(message => message.role === "USER")
+          previousStudentInputs: orderedMessages.filter(message => message.role === "USER")
             .slice(-4).map(message => message.content as string),
         }) ?? [];
         return knowledgeSourceMaterials(references);
@@ -111,7 +129,7 @@ export class DefaultLearningEngine implements LearningEngine {
       studentInput: request.userInput,
       learningGoal: session.learningGoal,
       subject: session.subject,
-      previousMessages: messages.slice(-20).map((message) => ({
+      previousMessages: tutoringMessages.slice(-20).map((message) => ({
         role: message.role === "USER" ? "user" : "assistant",
         content: message.role === "USER" ? message.content : JSON.stringify(message.content),
       })),

@@ -1,0 +1,82 @@
+{
+  "category": "LOCAL_ENABLED_FEATURE_PRISMA_RLS_JOURNEY",
+  "databaseName": "learnly_activation_executor_phase_a_services_20261017",
+  "evidence": [
+    {
+      "name": "Canonical Prisma contract marker matches storage and profile hashes",
+      "result": "PASS",
+      "databaseName": "learnly_activation_executor_phase_a_services_20261017",
+      "localSupabaseDb": true
+    },
+    {
+      "name": "Two local Auth identities map to distinct legacy application User IDs",
+      "result": "PASS"
+    },
+    {
+      "name": "Assessment and file-upload API capabilities enabled only in this local app instance",
+      "result": "PASS"
+    },
+    {
+      "name": "Create session and persist learner text material under the legacy owner ID",
+      "result": "PASS",
+      "sessionId": "eab1399c-dc8b-4978-afad-48dc56edf020"
+    },
+    {
+      "name": "Direct local Storage object access is denied to the second owner",
+      "result": "PASS",
+      "httpStatus": 400
+    },
+    {
+      "name": "File upload journal finalizes in PostgreSQL; review metadata and owner-gated download persist",
+      "result": "PASS",
+      "fileId": "543469ce-c4d6-4794-9b47-216e08d4a67a",
+      "storageBoundary": "Actual private Supabase Storage over the local HTTPS gateway; PDF.js extraction and PostgreSQL/RLS persistence"
+    },
+    {
+      "name": "Cancellation racing an in-flight Storage upload leaves a cleaned CANCELLED durable receipt",
+      "result": "PASS"
+    },
+    {
+      "name": "PRE assessment persists score and answer rows through the API",
+      "result": "PASS"
+    },
+    {
+      "name": "Text learning interactions advance persisted session through PRACTICE to ASSESS",
+      "result": "PASS"
+    },
+    {
+      "name": "POST zero score, exact retry idempotency, conflict rejection, persisted profile/progress",
+      "result": "PASS"
+    },
+    {
+      "name": "Second local identity cannot read another learner session, assessment or profile",
+      "result": "PASS"
+    },
+    {
+      "name": "Direct authenticated SQL cannot alter own or another owner assessment score",
+      "result": "PASS",
+      "ownWriteRows": 0,
+      "ownWriteSqlState": "42501",
+      "foreignWriteRows": 0,
+      "foreignWriteSqlState": null
+    },
+    {
+      "name": "Answer uniqueness SQLSTATE 23505 rolls back assessment score/answers/profile atomically",
+      "result": "PASS"
+    },
+    {
+      "name": "Completed lesson restores in History with persisted transcript and learner text",
+      "result": "PASS"
+    }
+  ],
+  "limitations": [
+    "Local Supabase Auth and local database only; no production account, data or model provider",
+    "Cancellation race uses the deterministic Storage adapter after real Storage upload/download coverage"
+  ],
+  "cleanup": {
+    "databaseRowsRemoved": true,
+    "storageKeysVerifiedAbsent": 1,
+    "authUsersRemoved": 2,
+    "allCleanupSucceeded": true
+  }
+}

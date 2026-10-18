@@ -1,0 +1,59 @@
+{
+  "scopeNotice": "Historical independent review of ownership adapter and exact RLS gate before catalog profile revision; listed hashes refer to that review. Final catalog profile/overlay and canonical local adoption were reviewed and reverified by the primary agent.",
+  "historicalIndependentReview": {
+    "timestamp": "2026-10-17T10:06:11.660Z",
+    "reviewer": "independent Sol policy audit/review",
+    "status": "PASS",
+    "blockingFindings": [],
+    "sources": [
+      {
+        "file": "scripts/install-schema-verification-compat.mjs",
+        "sha256": "c7a912db3718d72cbd0c871d90d7e04a8197af5a98aa2143b1a0c18f386d90fd"
+      },
+      {
+        "file": "scripts/verify-full-database.mjs",
+        "sha256": "2bfb14c198f76e31844af1b16a8e2a227215bf2e8a476c0425b0f43b2e8729bd"
+      },
+      {
+        "file": "src/shared/activation-schema-readiness.ts",
+        "sha256": "2e534c696850887f2c00a44bf6f1d14cc3691a75e33054d62176584cf15f6720"
+      },
+      {
+        "file": "scripts/verify-phase-a-security.mjs",
+        "sha256": "c1db0e09b1d0cf4c9d0009b93f5320109ad1c0d84f0df86897bd6ad444d53814"
+      },
+      {
+        "file": "node_modules/@prisma/orm-toolchain/dist/aggregate-CZyUi3Gt.mjs",
+        "sha256": "996dca3c8b7aba8495040b1a11203f2b39f13e192c1cc141327fd5dd4e82ac29"
+      }
+    ],
+    "review": [
+      "Actual-only policy projection is bounded to Postgres rc12 exact path/node coordinates with exactly one owning sibling; missing/mismatch, current-owner, unknown and ambiguous ownership remain visible.",
+      "Original structural handling restored; no unsafe blanket parent-path suppression.",
+      "Installer pins original/patched bundle hashes, fails closed on package version or runtime tampering, restores canonical migration paths unchanged.",
+      "Actual full strict Prisma result is mandatory and successful schema-without-issues envelope is supported only with performed full schema verification and strict=true.",
+      "Read-only exact PG17 signatures attest all 30 public policies, cardinality and metadata plus all expected public RLS enablement. Existing Storage/activation/vector checks remain required.",
+      "Actual security clone baseline/final gates pass strict=true with zero canonical issues and empty row counts; 15 security/schema mutations all block and restore."
+    ],
+    "evidence": {
+      "securityReport": "/workspace/reports/learnlyai-phase-a-security-adversarial-2026-10-17.json",
+      "securityCaseCount": 15,
+      "allDetectedAndRestored": true,
+      "baselineStrict": true,
+      "restoredStrict": true,
+      "allEmpty": true
+    },
+    "limitations": [
+      "Raw Prisma wire-named same-name policy body/role changes and storage/schema grants remain outside raw CLI detection; combined exact catalog gates demonstrably detect these.",
+      "All mutation proof restricted to exclusive empty loopback QA clone; hosted/production targets untouched."
+    ]
+  },
+  "finalValidation": {
+    "catalogProfile": "gotrue-pop6-v6.1.1",
+    "fullStrict": "PASS",
+    "securityCases": 15,
+    "allDetectedAndRestored": true,
+    "actualServiceJourney": 14,
+    "allPassed": true
+  }
+}

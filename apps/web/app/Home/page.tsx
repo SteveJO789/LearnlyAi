@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import "./style.css";
 
 import SiteHeader from "../components/SiteHeader";
+import RequireAuth from "../components/require-auth";
 import { useLanguage } from "../lib/i18n/LanguageContext";
 import LearningSummary from "../components/learning-summary";
 import {
@@ -109,10 +110,12 @@ function HomeDemo({ t }: { t: (key: string) => string }) {
  );
 }
 
-export default function HomePage() {
+function HomePageContent() {
   const { t } = useLanguage();
   const router = useRouter();
   const [profile, setProfile] = useState<AppUserProfile | null>(null);
+  const [profileError, setProfileError] = useState(false);
+  const [profileAttempt, setProfileAttempt] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -125,17 +128,16 @@ export default function HomePage() {
           return;
         }
         setProfile(currentProfile);
+        setProfileError(false);
       })
       .catch(() => {
-        if (active) {
-          router.replace("/SignIn");
-        }
+        if (active) setProfileError(true);
       });
 
     return () => {
       active = false;
     };
-  }, [router]);
+  }, [router, profileAttempt]);
 
   return (
     <div className="relative isolate min-h-screen w-full max-w-full overflow-x-clip bg-background text-text">
@@ -193,6 +195,7 @@ export default function HomePage() {
       />
 
       <main className="px-5 sm:px-12 lg:px-20 relative z-10">
+        {profileError && <div role="alert" className="mb-4 rounded-xl border border-danger/40 p-3 text-sm text-danger">Could not load your account profile. <button type="button" onClick={() => { setProfileError(false); setProfileAttempt((value) => value + 1); }} className="underline">Retry</button></div>}
         <section className="relative grid items-center gap-6 pb-12 pt-8 sm:pb-16 lg:min-h-[500px] lg:grid-cols-[1.05fr_0.95fr] lg:gap-4">
           <div className="relative z-10 min-w-0 pt-2 lg:pt-0">
             <div className="hello-gradient mb-5 max-w-full break-words bg-gradient-to-r from-pink-500 via-violet-500 to-sky-500 bg-clip-text text-left text-2xl font-semibold leading-tight tracking-tight text-transparent sm:text-3xl lg:text-4xl">
@@ -252,4 +255,8 @@ export default function HomePage() {
       </main>
     </div>
   );
+}
+
+export default function HomePage() {
+  return <RequireAuth><HomePageContent /></RequireAuth>;
 }

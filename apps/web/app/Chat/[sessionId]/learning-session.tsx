@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { respondToLearning, type LearningAction, type TutorOutput } from "./api";
-import { getLearningSession, recoverLearningSession } from "../../../lib/learning-sessions";
+import { getLearningSession, LearningApiError, recoverLearningSession, type LearningProgress, type LearningSessionDetail } from "../../../lib/learning-sessions";
+import { canAdvance as canAdvanceFromState, canRespond, clearAutoSendAttempt, confirmsActionCommit, confirmsActionFailure, isCurrentSessionVersion, markAutoSendAttempt, progressPercent, readAutoSendAttempt } from "../../../lib/chat-session";
 import { getAssessment } from "../../../lib/assessments";
 import { useFeatures } from "../../../lib/features";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
@@ -15,8 +16,6 @@ import CuteLoadingPopup from "../../components/CuteLoadingPopup";
 type UserTurn = { id: string; role: "user"; text: string };
 type TutorTurn = { id: string; role: "tutor"; output: TutorOutput };
 type Turn = UserTurn | TutorTurn;
-
-type PendingRequest = { action: LearningAction; input: string };
 
 type Props = {
   sessionId: string;
@@ -45,13 +44,21 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sessionStage, setSessionStage] = useState("EXPLAIN");
+  const [sessionProgress, setSessionProgress] = useState<LearningProgress | null>(null);
+  const [lifecycleState, setLifecycleState] = useState("UNKNOWN");
   const [restoredInput, setRestoredInput] = useState<string | undefined>();
-  const [loadRetry, setLoadRetry] = useState(0);
   const [postSubmitted, setPostSubmitted] = useState(false);
   const [pendingPre, setPendingPre] = useState(false);
   const [sessionFailed, setSessionFailed] = useState(false);
+  const [assessmentCheckPending, setAssessmentCheckPending] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
 
-  const lastRequest = useRef<PendingRequest | null>(null);
+  const actionLock = useRef(false);
+  const hydrationEpoch = useRef(0);
+  const activeSessionId = useRef(sessionId);
+  activeSessionId.current = sessionId;
+  const sessionSnapshot = useRef<{ version: number | null; messageIds: Set<string> }>({ version: null, messageIds: new Set() });
+  const unknownAction = useRef<{ baseVersion: number | null; baseMessageIds: Set<string>; input: string } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const turnCounter = useRef(0);
   const didAutoSend = useRef(false);
@@ -67,17 +74,8 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [turns, loading, error]);
 
-  useEffect(() => {
-    if (!features.loaded) return;
-    let active = true;
-    setHydrating(true);
-    setError(null);
-
-    getLearningSession(sessionId)
-      .then((session) => {
-        if (!active) return;
-
-        const restored = session.messages.flatMap<Turn>((message): Turn[] => {
+  const hydrate = useCallback(async (session: LearningSessionDetail, isActive: () => boolean) => {
+    const restored = session.messages.flatMap<Turn>((message): Turn[] => {
           if (message.role === "USER" && typeof message.content === "string") {
             return [{ id: message.id, role: "user" as const, text: message.content }];
           }
@@ -98,116 +96,283 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
           return [];
         });
 
-        setTurns(restored);
-        setSessionStage(session.stage);
-        setSessionFailed(session.lifecycleState === "FAILED");
-        if (session.lifecycleState === "FAILED") setError(t("chat.failedSession"));
-        if (features.assessments && session.state === "PRE_TEST" && session.stage === "EXPLAIN") {
-          setPendingPre(true);
-          void getAssessment(sessionId, "PRE").then(assessment => { if (active) setPendingPre(!assessment.submittedAt); })
-            .catch(() => { if (active) setPendingPre(true); });
-        } else setPendingPre(false);
-        if (features.assessments && session.stage === "ASSESS") {
-          void getAssessment(sessionId, "POST").then(assessment => { if (active) setPostSubmitted(Boolean(assessment.submittedAt)); })
-            .catch(() => { if (active) setPostSubmitted(false); });
-        }
-        setRestoredInput(session.materials?.find(material => material.type === "TEXT" && material.status === "READY")?.normalizedText);
-        turnCounter.current = restored.length;
-      })
+    const unresolved = unknownAction.current;
+    if (!isActive() || !isCurrentSessionVersion(sessionSnapshot.current.version, session.version) ||
+      (unresolved && unresolved.baseVersion !== null && session.version <= unresolved.baseVersion)) return false;
+    const epoch = ++hydrationEpoch.current;
+    setTurns(restored);
+    setSessionStage(session.stage);
+    setSessionProgress(session.progress ?? null);
+    setLifecycleState(session.lifecycleState);
+    setSessionFailed(session.lifecycleState === "FAILED");
+    sessionSnapshot.current = { version: session.version, messageIds: new Set(session.messages.map(message => message.id)) };
+    const autoSendBaseVersion = readAutoSendAttempt(sessionId);
+    if (typeof autoSendBaseVersion === "number" && session.version > autoSendBaseVersion &&
+      session.messages.some(message => message.role === "USER")) clearAutoSendAttempt(sessionId);
+    setPendingPre(false);
+    setPostSubmitted(false);
+    setAssessmentCheckPending(false);
+    setRestoredInput(session.materials?.find(material => material.type === "TEXT" && material.status === "READY")?.normalizedText);
+    turnCounter.current = restored.length;
+
+    const needsPre = features.assessments && session.state === "PRE_TEST" && session.stage === "EXPLAIN";
+    const needsPost = features.assessments && session.stage === "ASSESS";
+    if (needsPre || needsPost) setAssessmentCheckPending(true);
+    const assessmentIfPresent = (phase: "PRE" | "POST") => getAssessment(sessionId, phase).catch(cause => {
+      if (cause instanceof LearningApiError && cause.status === 404) return null;
+      throw cause;
+    });
+    try {
+      const [pre, post] = await Promise.all([
+        needsPre ? assessmentIfPresent("PRE") : Promise.resolve(null),
+        needsPost ? assessmentIfPresent("POST") : Promise.resolve(null),
+      ]);
+      if (!isActive() || epoch !== hydrationEpoch.current || sessionSnapshot.current.version !== session.version) return false;
+      setPendingPre(Boolean(needsPre && !pre?.submittedAt));
+      setPostSubmitted(Boolean(post?.submittedAt));
+    } finally {
+      if (isActive() && epoch === hydrationEpoch.current && sessionSnapshot.current.version === session.version) {
+        setAssessmentCheckPending(false);
+      }
+    }
+    if (session.lifecycleState === "FAILED" && isActive()) setError(t("chat.failedSession"));
+    return true;
+  }, [features.assessments, sessionId, t]);
+
+  const refreshSession = useCallback(async (isActive: () => boolean) => {
+    const session = await getLearningSession(sessionId);
+    if (isActive()) {
+      const applied = await hydrate(session, isActive);
+      if (!applied || !isActive()) return;
+      const pending = unknownAction.current;
+      const outcomeConfirmed = !pending || confirmsActionCommit({
+        baseVersion: pending.baseVersion,
+        baseMessageIds: pending.baseMessageIds,
+        detail: session,
+        submittedInput: pending.input,
+      }) || confirmsActionFailure({
+        baseVersion: pending.baseVersion,
+        baseMessageIds: pending.baseMessageIds,
+        detail: session,
+        submittedInput: pending.input,
+      });
+      if (!outcomeConfirmed) {
+        setError("The action outcome is still unknown. Reload the session to confirm before continuing.");
+        setLoadFailed(true);
+        return;
+      }
+      if (pending) unknownAction.current = null;
+      setError(session.lifecycleState === "FAILED" ? t("chat.failedSession") : null);
+      setLoadFailed(false);
+    }
+  }, [hydrate, sessionId, t]);
+
+  useEffect(() => {
+    if (!features.loaded) return;
+    let active = true;
+    const isActive = () => active;
+    setHydrating(true);
+    if (!unknownAction.current) {
+      setError(null);
+      setLoadFailed(false);
+    }
+    setPendingPre(false);
+    setPostSubmitted(false);
+    setAssessmentCheckPending(false);
+    void refreshSession(isActive)
       .catch((loadError) => {
         if (!active) return;
-        setError(
-          loadError instanceof Error
-            ? loadError.message
-            : t("chat.unknownError"),
-        );
+        setLoadFailed(true);
+        setError(loadError instanceof Error ? loadError.message : t("chat.unknownError"));
       })
-      .finally(() => {
-        if (active) setHydrating(false);
-      });
+      .finally(() => { if (active) setHydrating(false); });
+    return () => { active = false; };
+  }, [sessionId, t, features.loaded, refreshSession]);
 
-    return () => {
-      active = false;
-    };
-  }, [sessionId, t, loadRetry, features.loaded, features.assessments]);
-
-  const lastTurn = turns[turns.length - 1];
   const lastTutorTurn = [...turns]
     .reverse()
     .find((turn): turn is TutorTurn => turn.role === "tutor");
-  const progress = lastTutorTurn?.output.progress;
-  const percent =
-    progress && Number.isFinite(progress.percent)
-      ? Math.min(100, Math.max(0, Math.round(progress.percent)))
-      : null;
+  const percent = progressPercent(sessionProgress);
 
   function nextId() {
     turnCounter.current += 1;
     return `turn-${turnCounter.current}`;
   }
 
-  async function run(request: PendingRequest) {
-    lastRequest.current = request;
+  async function run(action: LearningAction, input: string) {
+    if (actionLock.current) return;
+    actionLock.current = true;
+    const requestSessionId = sessionId;
+    const isCurrentSession = () => activeSessionId.current === requestSessionId;
+    const baseVersion = sessionSnapshot.current.version;
+    const baseMessageIds = new Set(sessionSnapshot.current.messageIds);
+    unknownAction.current = { baseVersion, baseMessageIds, input };
     setLoading(true);
     setError(null);
 
     try {
-      const output = await respondToLearning({
-        sessionId,
-        input: request.input,
-        action: request.action,
+      await respondToLearning({
+        sessionId: requestSessionId,
+        input,
+        action,
       });
-      setTurns((previous) => [...previous, { id: nextId(), role: "tutor", output }]);
-      setSessionStage(output.stage === "POST_TEST" ? "ASSESS" : output.stage === "COMPLETED" ? "REVIEW" :
-        output.stage === "PRE_TEST" ? "DIAGNOSE" : (output.progress?.percent ?? 0) >= 50 ? "PRACTICE" : "EXPLAIN");
+      if (!isCurrentSession()) return;
+      try {
+        const detail = await getLearningSession(requestSessionId);
+        if (!isCurrentSession()) return;
+        const committed = confirmsActionCommit({ baseVersion, baseMessageIds, detail, submittedInput: input });
+        const applied = await hydrate(detail, isCurrentSession);
+        if (committed) unknownAction.current = null;
+        if ((!applied || !committed) && isCurrentSession()) {
+          setLoadFailed(true);
+          setError("Your response was saved, but the latest session state could not be confirmed. Reload this page to continue.");
+        }
+      } catch (syncError) {
+        if (!isCurrentSession()) return;
+        setLoadFailed(true);
+        setError(`Your response was saved, but the latest session could not be loaded. Reload this page to continue. ${syncError instanceof Error ? syncError.message : ""}`.trim());
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("chat.unknownError"));
+      if (!isCurrentSession()) return;
+      const message = err instanceof Error ? err.message : t("chat.unknownError");
+      try {
+        const detail = await getLearningSession(requestSessionId);
+        if (!isCurrentSession()) return;
+        const applied = await hydrate(detail, isCurrentSession);
+        if (!applied) throw new Error("A newer session state is already loaded.");
+        const definitiveRejection = typeof err === "object" && err !== null &&
+          "status" in err && typeof err.status === "number" && err.status >= 400 && err.status < 500;
+        const committed = confirmsActionCommit({ baseVersion, baseMessageIds, detail, submittedInput: input });
+        const failedWithoutCommit = confirmsActionFailure({ baseVersion, baseMessageIds, detail, submittedInput: input });
+        if (definitiveRejection || committed || failedWithoutCommit) {
+          if (definitiveRejection) clearAutoSendAttempt(requestSessionId);
+          unknownAction.current = null;
+          setLoadFailed(false);
+          setError(message);
+        } else {
+          unknownAction.current = { baseVersion, baseMessageIds, input };
+          setLoadFailed(true);
+          setError(`${message} The action outcome is still unknown. Reload the session to confirm before continuing.`);
+        }
+      } catch {
+        if (!isCurrentSession()) return;
+        const definitiveRejection = typeof err === "object" && err !== null &&
+          "status" in err && typeof err.status === "number" && err.status >= 400 && err.status < 500;
+        if (definitiveRejection) {
+          unknownAction.current = null;
+          clearAutoSendAttempt(requestSessionId);
+        }
+        setLoadFailed(true);
+        setError(`${message} Session state could not be confirmed. Reload this page before continuing.`);
+      }
     } finally {
-      setLoading(false);
+      actionLock.current = false;
+      if (isCurrentSession()) setLoading(false);
     }
   }
 
   function submit(text: string) {
     const input = text.trim();
-    if (!input || loading || hydrating || pendingPre || sessionFailed) return;
+    if (!input || actionLock.current || !canRespond({ hydrating, loading, loadError: loadFailed, lifecycleState, stage: sessionStage, assessmentCheckPending, pendingPre })) return;
 
     setTurns((previous) => [...previous, { id: nextId(), role: "user", text: input }]);
     setDraft("");
-    void run({ action: "RESPOND", input });
+    void run("RESPOND", input);
   }
 
   // Only auto-send a Create-page question when this persisted session is empty.
   // This avoids duplicating the first message after a refresh.
   useEffect(() => {
-    if (hydrating || pendingPre || sessionFailed || didAutoSend.current || turns.length > 0) return;
+    if (hydrating || pendingPre || assessmentCheckPending || sessionFailed || loadFailed || didAutoSend.current || turns.length > 0) return;
     const firstInput = restoredInput ?? initialInput;
     if (firstInput && firstInput.trim()) {
+      const storedAttempt = readAutoSendAttempt(sessionId);
+      if (storedAttempt === "unavailable") {
+        didAutoSend.current = true;
+        setDraft(firstInput);
+        setError("Automatic send could not be recorded safely. Review the message and send it manually.");
+        return;
+      }
+      if (storedAttempt !== null) {
+        didAutoSend.current = true;
+        setDraft(firstInput);
+        setError("A first message may already have been sent. Review the session before sending it again.");
+        return;
+      }
+      const baseVersion = sessionSnapshot.current.version;
+      if (baseVersion === null || !markAutoSendAttempt(sessionId, baseVersion)) {
+        didAutoSend.current = true;
+        setDraft(firstInput);
+        setError("Automatic send could not be recorded safely. Review the message and send it manually.");
+        return;
+      }
       didAutoSend.current = true;
       submit(firstInput);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrating, pendingPre, sessionFailed, initialInput, restoredInput, turns.length]);
+  }, [hydrating, pendingPre, assessmentCheckPending, sessionFailed, loadFailed, initialInput, restoredInput, turns.length]);
 
   function advance() {
-    if (loading || sessionFailed) return;
+    if (actionLock.current || !canAdvanceFromState({ hydrating, loading, loadError: loadFailed, lifecycleState, stage: sessionStage,
+      assessmentCheckPending, pendingPre, progress: sessionProgress })) return;
     if (features.assessments && sessionStage === "ASSESS" && !postSubmitted) { router.push(`/Assessment/${sessionId}?phase=POST`); return; }
-    void run({ action: "ADVANCE", input: t("chat.continue") });
+    const input = t("chat.continue");
+    setTurns((previous) => [...previous, { id: nextId(), role: "user", text: input }]);
+    void run("ADVANCE", input);
   }
 
   async function retry() {
-    if (loading) return;
-    if (!lastRequest.current && !sessionFailed) { setLoadRetry(value => value + 1); return; }
-    const previous = lastRequest.current;
+    if (loading || hydrating) return;
+    const requestSessionId = sessionId;
+    const isCurrentSession = () => activeSessionId.current === requestSessionId;
     setLoading(true); setError(null);
     try {
-      const session = await getLearningSession(sessionId);
-      if (session.lifecycleState === "FAILED") await recoverLearningSession(sessionId);
-      setSessionFailed(false);
-      if (previous) await run(previous);
-      else { setLoadRetry(value => value + 1); setLoading(false); }
+      const session = await getLearningSession(requestSessionId);
+      if (!isCurrentSession()) return;
+      const pending = unknownAction.current;
+      if (pending && confirmsActionFailure({
+        baseVersion: pending.baseVersion,
+        baseMessageIds: pending.baseMessageIds,
+        detail: session,
+        submittedInput: pending.input,
+      })) unknownAction.current = null;
+      if (session.lifecycleState === "FAILED") {
+        await recoverLearningSession(requestSessionId);
+        if (isCurrentSession()) clearAutoSendAttempt(requestSessionId);
+      }
+      if (!isCurrentSession()) return;
+      const refreshed = await getLearningSession(requestSessionId);
+      if (!isCurrentSession()) return;
+      const applied = await hydrate(refreshed, isCurrentSession);
+      if (!applied) {
+        if (unknownAction.current) {
+          setError("The action outcome is still unknown. Reload the session to confirm before continuing.");
+          setLoadFailed(true);
+          return;
+        }
+        throw new Error("A newer session state is already loaded. Reload before continuing.");
+      }
+      const unresolvedAction = unknownAction.current;
+      const outcomeConfirmed = !unresolvedAction || confirmsActionCommit({
+        baseVersion: unresolvedAction.baseVersion,
+        baseMessageIds: unresolvedAction.baseMessageIds,
+        detail: refreshed,
+        submittedInput: unresolvedAction.input,
+      });
+      if (outcomeConfirmed) {
+        unknownAction.current = null;
+        setError(refreshed.lifecycleState === "FAILED" ? t("chat.failedSession") : null);
+        setLoadFailed(false);
+      } else {
+        setError("The action outcome is still unknown. Reload the session to confirm before continuing.");
+        setLoadFailed(true);
+      }
     } catch (cause) {
+      if (!isCurrentSession()) return;
+      setLoadFailed(true);
       setError(cause instanceof Error ? cause.message : t("chat.unknownError"));
-      setLoading(false);
+    } finally {
+      if (isCurrentSession()) setLoading(false);
     }
   }
 
@@ -335,7 +500,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
                     <BlockView
                       key={`${block.id}-${index}`}
                       block={block}
-                      interactive={isLatest && !loading && !sessionFailed}
+                      interactive={isLatest && canRespond({ hydrating, loading, loadError: loadFailed, lifecycleState, stage: sessionStage, assessmentCheckPending, pendingPre })}
                       onChoose={submit}
                     />
                   ))}
@@ -371,7 +536,8 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
               </div>
             )}
 
-            {lastTurn?.role === "tutor" && progress?.canAdvance && !loading && !sessionFailed && (
+            {canAdvanceFromState({ hydrating, loading, loadError: loadFailed, lifecycleState, assessmentCheckPending, pendingPre,
+              stage: sessionStage, progress: sessionProgress }) && (
               <div>
                 <button
                   type="button"
@@ -397,6 +563,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
           >
             <textarea
               value={draft}
+              disabled={!canRespond({ hydrating, loading, loadError: loadFailed, lifecycleState, stage: sessionStage, assessmentCheckPending, pendingPre })}
               onChange={(event) => setDraft(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
@@ -411,7 +578,7 @@ export default function LearningSession({ sessionId, learningGoal, subject, init
             />
             <button
               type="submit"
-              disabled={loading || pendingPre || sessionFailed || draft.trim().length === 0}
+              disabled={!canRespond({ hydrating, loading, loadError: loadFailed, lifecycleState, stage: sessionStage, assessmentCheckPending, pendingPre }) || draft.trim().length === 0}
               aria-label={t("chat.sendAriaLabel")}
               className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >

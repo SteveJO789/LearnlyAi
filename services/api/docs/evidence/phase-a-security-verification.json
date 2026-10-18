@@ -1,0 +1,2257 @@
+{
+  "fixture": "learnly_activation_executor_phase_a_security_20261017",
+  "catalogProfile": "gotrue-pop6-v6.1.1",
+  "timestamp": "2026-10-17T10:25:35.270Z",
+  "method": "Actual strict full Prisma CLI plus exact catalog gates; sequential committed mutations on an exclusive empty clone, restored in finally.",
+  "status": "PASS",
+  "cases": [
+    {
+      "id": "auth-version-width-profile-mismatch-15",
+      "mutation": "ALTER TABLE auth.schema_migrations ALTER COLUMN version TYPE varchar(15)",
+      "restoration": "ALTER TABLE auth.schema_migrations ALTER COLUMN version TYPE varchar(14)",
+      "gate": {
+        "status": "BLOCKED",
+        "catalogProfile": "gotrue-pop6-v6.1.1",
+        "canonical": {
+          "catalogProfile": "gotrue-pop6-v6.1.1",
+          "exitCode": 4,
+          "result": {
+            "ok": false,
+            "code": "CONTRACT.MARKER_REQUIRED",
+            "summary": "Database schema does not satisfy contract (1 failure)",
+            "contract": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "target": {
+              "expected": "postgres",
+              "actual": "postgres"
+            },
+            "schema": {
+              "issues": [
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "schema_migrations",
+                    "column:version"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "version",
+                    "nativeType": "character varying(14)",
+                    "nullable": false,
+                    "resolvedNativeType": "character varying(14)"
+                  },
+                  "actual": {
+                    "nodeKind": "sql-column",
+                    "name": "version",
+                    "nativeType": "character varying(15)",
+                    "nullable": false,
+                    "resolvedNativeType": "character varying(15)"
+                  }
+                }
+              ],
+              "warnings": {
+                "issues": []
+              }
+            },
+            "meta": {
+              "strict": true
+            },
+            "timings": {
+              "total": 0
+            },
+            "unclaimed": []
+          },
+          "issueCount": 1
+        },
+        "blocked": [
+          {
+            "id": "prisma.dbVerify",
+            "status": "BLOCKED",
+            "code": "PRISMA_SCHEMA_ISSUES"
+          }
+        ],
+        "findingCount": 34
+      },
+      "detected": true,
+      "restored": true
+    },
+    {
+      "id": "auth-credential-table-missing",
+      "mutation": "ALTER TABLE auth.webauthn_credentials RENAME TO phase_a_hidden_credentials",
+      "restoration": "ALTER TABLE auth.phase_a_hidden_credentials RENAME TO webauthn_credentials",
+      "gate": {
+        "status": "BLOCKED",
+        "catalogProfile": "gotrue-pop6-v6.1.1",
+        "canonical": {
+          "catalogProfile": "gotrue-pop6-v6.1.1",
+          "exitCode": 4,
+          "result": {
+            "ok": false,
+            "code": "CONTRACT.MARKER_REQUIRED",
+            "summary": "Database schema does not satisfy contract (28 failures)",
+            "contract": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "target": {
+              "expected": "postgres",
+              "actual": "postgres"
+            },
+            "schema": {
+              "issues": [
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials"
+                  ],
+                  "expected": {
+                    "nodeKind": "postgres-table",
+                    "name": "webauthn_credentials",
+                    "columns": {
+                      "aaguid": {
+                        "nodeKind": "sql-column",
+                        "name": "aaguid",
+                        "nativeType": "uuid",
+                        "nullable": true,
+                        "resolvedNativeType": "uuid"
+                      },
+                      "attestation_type": {
+                        "nodeKind": "sql-column",
+                        "name": "attestation_type",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text",
+                        "resolvedDefault": {
+                          "kind": "literal",
+                          "value": ""
+                        }
+                      },
+                      "backed_up": {
+                        "nodeKind": "sql-column",
+                        "name": "backed_up",
+                        "nativeType": "bool",
+                        "nullable": false,
+                        "resolvedNativeType": "bool",
+                        "resolvedDefault": {
+                          "kind": "literal",
+                          "value": false
+                        }
+                      },
+                      "backup_eligible": {
+                        "nodeKind": "sql-column",
+                        "name": "backup_eligible",
+                        "nativeType": "bool",
+                        "nullable": false,
+                        "resolvedNativeType": "bool",
+                        "resolvedDefault": {
+                          "kind": "literal",
+                          "value": false
+                        }
+                      },
+                      "created_at": {
+                        "nodeKind": "sql-column",
+                        "name": "created_at",
+                        "nativeType": "timestamptz",
+                        "nullable": false,
+                        "resolvedNativeType": "timestamptz",
+                        "resolvedDefault": {
+                          "kind": "function",
+                          "expression": "now()"
+                        }
+                      },
+                      "credential_id": {
+                        "nodeKind": "sql-column",
+                        "name": "credential_id",
+                        "nativeType": "bytea",
+                        "nullable": false,
+                        "resolvedNativeType": "bytea"
+                      },
+                      "friendly_name": {
+                        "nodeKind": "sql-column",
+                        "name": "friendly_name",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text",
+                        "resolvedDefault": {
+                          "kind": "literal",
+                          "value": ""
+                        }
+                      },
+                      "id": {
+                        "nodeKind": "sql-column",
+                        "name": "id",
+                        "nativeType": "uuid",
+                        "nullable": false,
+                        "resolvedNativeType": "uuid",
+                        "resolvedDefault": {
+                          "kind": "function",
+                          "expression": "gen_random_uuid()"
+                        }
+                      },
+                      "last_used_at": {
+                        "nodeKind": "sql-column",
+                        "name": "last_used_at",
+                        "nativeType": "timestamptz",
+                        "nullable": true,
+                        "resolvedNativeType": "timestamptz"
+                      },
+                      "public_key": {
+                        "nodeKind": "sql-column",
+                        "name": "public_key",
+                        "nativeType": "bytea",
+                        "nullable": false,
+                        "resolvedNativeType": "bytea"
+                      },
+                      "sign_count": {
+                        "nodeKind": "sql-column",
+                        "name": "sign_count",
+                        "nativeType": "int8",
+                        "nullable": false,
+                        "resolvedNativeType": "int8",
+                        "resolvedDefault": {
+                          "kind": "literal",
+                          "value": "0"
+                        }
+                      },
+                      "transports": {
+                        "nodeKind": "sql-column",
+                        "name": "transports",
+                        "nativeType": "jsonb",
+                        "nullable": false,
+                        "resolvedNativeType": "jsonb",
+                        "resolvedDefault": {
+                          "kind": "literal",
+                          "value": []
+                        }
+                      },
+                      "updated_at": {
+                        "nodeKind": "sql-column",
+                        "name": "updated_at",
+                        "nativeType": "timestamptz",
+                        "nullable": false,
+                        "resolvedNativeType": "timestamptz",
+                        "resolvedDefault": {
+                          "kind": "function",
+                          "expression": "now()"
+                        }
+                      },
+                      "user_id": {
+                        "nodeKind": "sql-column",
+                        "name": "user_id",
+                        "nativeType": "uuid",
+                        "nullable": false,
+                        "resolvedNativeType": "uuid"
+                      }
+                    },
+                    "foreignKeys": [
+                      {
+                        "nodeKind": "sql-foreign-key",
+                        "columns": [
+                          "user_id"
+                        ],
+                        "referencedTable": "users",
+                        "referencedColumns": [
+                          "id"
+                        ],
+                        "referencedSchema": "auth",
+                        "name": "webauthn_credentials_user_id_fkey",
+                        "onDelete": "cascade",
+                        "resolvedReferencedNamespace": "auth"
+                      }
+                    ],
+                    "uniques": [],
+                    "indexes": [
+                      {
+                        "nodeKind": "sql-index",
+                        "name": "webauthn_credentials_credential_id_key",
+                        "unique": true,
+                        "columns": [
+                          "credential_id"
+                        ]
+                      },
+                      {
+                        "nodeKind": "sql-index",
+                        "name": "webauthn_credentials_user_id_idx",
+                        "unique": false,
+                        "columns": [
+                          "user_id"
+                        ]
+                      }
+                    ],
+                    "policies": [],
+                    "rlsEnabled": false,
+                    "primaryKey": {
+                      "nodeKind": "sql-primary-key",
+                      "columns": [
+                        "id"
+                      ],
+                      "name": "webauthn_credentials_pkey"
+                    }
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:aaguid"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "aaguid",
+                    "nativeType": "uuid",
+                    "nullable": true,
+                    "resolvedNativeType": "uuid"
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:attestation_type"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "attestation_type",
+                    "nativeType": "text",
+                    "nullable": false,
+                    "resolvedNativeType": "text",
+                    "resolvedDefault": {
+                      "kind": "literal",
+                      "value": ""
+                    }
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:attestation_type",
+                    "default"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column-default",
+                    "resolved": {
+                      "kind": "literal",
+                      "value": ""
+                    },
+                    "nativeTypeContext": "text"
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:backed_up"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "backed_up",
+                    "nativeType": "bool",
+                    "nullable": false,
+                    "resolvedNativeType": "bool",
+                    "resolvedDefault": {
+                      "kind": "literal",
+                      "value": false
+                    }
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:backed_up",
+                    "default"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column-default",
+                    "resolved": {
+                      "kind": "literal",
+                      "value": false
+                    },
+                    "nativeTypeContext": "bool"
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:backup_eligible"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "backup_eligible",
+                    "nativeType": "bool",
+                    "nullable": false,
+                    "resolvedNativeType": "bool",
+                    "resolvedDefault": {
+                      "kind": "literal",
+                      "value": false
+                    }
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:backup_eligible",
+                    "default"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column-default",
+                    "resolved": {
+                      "kind": "literal",
+                      "value": false
+                    },
+                    "nativeTypeContext": "bool"
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:created_at"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "created_at",
+                    "nativeType": "timestamptz",
+                    "nullable": false,
+                    "resolvedNativeType": "timestamptz",
+                    "resolvedDefault": {
+                      "kind": "function",
+                      "expression": "now()"
+                    }
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:created_at",
+                    "default"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column-default",
+                    "resolved": {
+                      "kind": "function",
+                      "expression": "now()"
+                    },
+                    "nativeTypeContext": "timestamptz"
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:credential_id"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "credential_id",
+                    "nativeType": "bytea",
+                    "nullable": false,
+                    "resolvedNativeType": "bytea"
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:friendly_name"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "friendly_name",
+                    "nativeType": "text",
+                    "nullable": false,
+                    "resolvedNativeType": "text",
+                    "resolvedDefault": {
+                      "kind": "literal",
+                      "value": ""
+                    }
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:friendly_name",
+                    "default"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column-default",
+                    "resolved": {
+                      "kind": "literal",
+                      "value": ""
+                    },
+                    "nativeTypeContext": "text"
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:id"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "id",
+                    "nativeType": "uuid",
+                    "nullable": false,
+                    "resolvedNativeType": "uuid",
+                    "resolvedDefault": {
+                      "kind": "function",
+                      "expression": "gen_random_uuid()"
+                    }
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:id",
+                    "default"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column-default",
+                    "resolved": {
+                      "kind": "function",
+                      "expression": "gen_random_uuid()"
+                    },
+                    "nativeTypeContext": "uuid"
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:last_used_at"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "last_used_at",
+                    "nativeType": "timestamptz",
+                    "nullable": true,
+                    "resolvedNativeType": "timestamptz"
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:public_key"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "public_key",
+                    "nativeType": "bytea",
+                    "nullable": false,
+                    "resolvedNativeType": "bytea"
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:sign_count"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "sign_count",
+                    "nativeType": "int8",
+                    "nullable": false,
+                    "resolvedNativeType": "int8",
+                    "resolvedDefault": {
+                      "kind": "literal",
+                      "value": "0"
+                    }
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:sign_count",
+                    "default"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column-default",
+                    "resolved": {
+                      "kind": "literal",
+                      "value": "0"
+                    },
+                    "nativeTypeContext": "int8"
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:transports"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "transports",
+                    "nativeType": "jsonb",
+                    "nullable": false,
+                    "resolvedNativeType": "jsonb",
+                    "resolvedDefault": {
+                      "kind": "literal",
+                      "value": []
+                    }
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:transports",
+                    "default"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column-default",
+                    "resolved": {
+                      "kind": "literal",
+                      "value": []
+                    },
+                    "nativeTypeContext": "jsonb"
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:updated_at"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "updated_at",
+                    "nativeType": "timestamptz",
+                    "nullable": false,
+                    "resolvedNativeType": "timestamptz",
+                    "resolvedDefault": {
+                      "kind": "function",
+                      "expression": "now()"
+                    }
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:updated_at",
+                    "default"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column-default",
+                    "resolved": {
+                      "kind": "function",
+                      "expression": "now()"
+                    },
+                    "nativeTypeContext": "timestamptz"
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:user_id"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "user_id",
+                    "nativeType": "uuid",
+                    "nullable": false,
+                    "resolvedNativeType": "uuid"
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "primary-key"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-primary-key",
+                    "columns": [
+                      "id"
+                    ],
+                    "name": "webauthn_credentials_pkey"
+                  },
+                  "dependsOn": [
+                    [
+                      "database",
+                      "auth",
+                      "webauthn_credentials",
+                      "column:id"
+                    ]
+                  ]
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "foreign-key:user_id->auth.users(id)"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-foreign-key",
+                    "columns": [
+                      "user_id"
+                    ],
+                    "referencedTable": "users",
+                    "referencedColumns": [
+                      "id"
+                    ],
+                    "referencedSchema": "auth",
+                    "name": "webauthn_credentials_user_id_fkey",
+                    "onDelete": "cascade",
+                    "resolvedReferencedNamespace": "auth"
+                  },
+                  "dependsOn": [
+                    [
+                      "database",
+                      "auth",
+                      "webauthn_credentials",
+                      "column:user_id"
+                    ]
+                  ]
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "index:webauthn_credentials_credential_id_key"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-index",
+                    "name": "webauthn_credentials_credential_id_key",
+                    "unique": true,
+                    "columns": [
+                      "credential_id"
+                    ]
+                  },
+                  "dependsOn": [
+                    [
+                      "database",
+                      "auth",
+                      "webauthn_credentials",
+                      "column:credential_id"
+                    ]
+                  ]
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "index:webauthn_credentials_user_id_idx"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-index",
+                    "name": "webauthn_credentials_user_id_idx",
+                    "unique": false,
+                    "columns": [
+                      "user_id"
+                    ]
+                  },
+                  "dependsOn": [
+                    [
+                      "database",
+                      "auth",
+                      "webauthn_credentials",
+                      "column:user_id"
+                    ]
+                  ]
+                }
+              ],
+              "warnings": {
+                "issues": []
+              }
+            },
+            "meta": {
+              "strict": true
+            },
+            "timings": {
+              "total": 0
+            },
+            "unclaimed": []
+          },
+          "issueCount": 28
+        },
+        "blocked": [
+          {
+            "id": "prisma.dbVerify",
+            "status": "BLOCKED",
+            "code": "PRISMA_SCHEMA_ISSUES"
+          }
+        ],
+        "findingCount": 34
+      },
+      "detected": true,
+      "restored": true
+    },
+    {
+      "id": "auth-credential-column-missing",
+      "mutation": "ALTER TABLE auth.webauthn_credentials RENAME COLUMN credential_id TO phase_a_bad_credential_id",
+      "restoration": "ALTER TABLE auth.webauthn_credentials RENAME COLUMN phase_a_bad_credential_id TO credential_id",
+      "gate": {
+        "status": "BLOCKED",
+        "catalogProfile": "gotrue-pop6-v6.1.1",
+        "canonical": {
+          "catalogProfile": "gotrue-pop6-v6.1.1",
+          "exitCode": 4,
+          "result": {
+            "ok": false,
+            "code": "CONTRACT.MARKER_REQUIRED",
+            "summary": "Database schema does not satisfy contract (2 failures)",
+            "contract": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "target": {
+              "expected": "postgres",
+              "actual": "postgres"
+            },
+            "schema": {
+              "issues": [
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "column:credential_id"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "credential_id",
+                    "nativeType": "bytea",
+                    "nullable": false,
+                    "resolvedNativeType": "bytea"
+                  }
+                },
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "index:webauthn_credentials_credential_id_key"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-index",
+                    "name": "webauthn_credentials_credential_id_key",
+                    "unique": true,
+                    "columns": [
+                      "credential_id"
+                    ]
+                  },
+                  "actual": {
+                    "nodeKind": "sql-index",
+                    "name": "webauthn_credentials_credential_id_key",
+                    "unique": true,
+                    "columns": [
+                      "phase_a_bad_credential_id"
+                    ]
+                  },
+                  "dependsOn": [
+                    [
+                      "database",
+                      "auth",
+                      "webauthn_credentials",
+                      "column:credential_id"
+                    ]
+                  ]
+                }
+              ],
+              "warnings": {
+                "issues": []
+              }
+            },
+            "meta": {
+              "strict": true
+            },
+            "timings": {
+              "total": 0
+            },
+            "unclaimed": []
+          },
+          "issueCount": 2
+        },
+        "blocked": [
+          {
+            "id": "prisma.dbVerify",
+            "status": "BLOCKED",
+            "code": "PRISMA_SCHEMA_ISSUES"
+          }
+        ],
+        "findingCount": 34
+      },
+      "detected": true,
+      "restored": true
+    },
+    {
+      "id": "auth-credential-foreign-key-missing",
+      "mutation": "ALTER TABLE auth.webauthn_credentials DROP CONSTRAINT \"webauthn_credentials_user_id_fkey\"",
+      "restoration": "ALTER TABLE auth.webauthn_credentials ADD CONSTRAINT \"webauthn_credentials_user_id_fkey\" FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE",
+      "gate": {
+        "status": "BLOCKED",
+        "catalogProfile": "gotrue-pop6-v6.1.1",
+        "canonical": {
+          "catalogProfile": "gotrue-pop6-v6.1.1",
+          "exitCode": 4,
+          "result": {
+            "ok": false,
+            "code": "CONTRACT.MARKER_REQUIRED",
+            "summary": "Database schema does not satisfy contract (1 failure)",
+            "contract": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "target": {
+              "expected": "postgres",
+              "actual": "postgres"
+            },
+            "schema": {
+              "issues": [
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_credentials",
+                    "foreign-key:user_id->auth.users(id)"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-foreign-key",
+                    "columns": [
+                      "user_id"
+                    ],
+                    "referencedTable": "users",
+                    "referencedColumns": [
+                      "id"
+                    ],
+                    "referencedSchema": "auth",
+                    "name": "webauthn_credentials_user_id_fkey",
+                    "onDelete": "cascade",
+                    "resolvedReferencedNamespace": "auth"
+                  }
+                }
+              ],
+              "warnings": {
+                "issues": []
+              }
+            },
+            "meta": {
+              "strict": true
+            },
+            "timings": {
+              "total": 0
+            },
+            "unclaimed": []
+          },
+          "issueCount": 1
+        },
+        "blocked": [
+          {
+            "id": "prisma.dbVerify",
+            "status": "BLOCKED",
+            "code": "PRISMA_SCHEMA_ISSUES"
+          }
+        ],
+        "findingCount": 34
+      },
+      "detected": true,
+      "restored": true
+    },
+    {
+      "id": "auth-challenge-check-missing",
+      "mutation": "ALTER TABLE auth.webauthn_challenges DROP CONSTRAINT \"webauthn_challenges_challenge_type_check\"",
+      "restoration": "ALTER TABLE auth.webauthn_challenges ADD CONSTRAINT \"webauthn_challenges_challenge_type_check\" CHECK ((challenge_type = ANY (ARRAY['signup'::text, 'registration'::text, 'authentication'::text])))",
+      "gate": {
+        "status": "BLOCKED",
+        "catalogProfile": "gotrue-pop6-v6.1.1",
+        "canonical": {
+          "catalogProfile": "gotrue-pop6-v6.1.1",
+          "exitCode": 4,
+          "result": {
+            "ok": false,
+            "code": "CONTRACT.MARKER_REQUIRED",
+            "summary": "Database schema does not satisfy contract (1 failure)",
+            "contract": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "target": {
+              "expected": "postgres",
+              "actual": "postgres"
+            },
+            "schema": {
+              "issues": [
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_challenges",
+                    "check:webauthn_challenges_challenge_type_check"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-check-constraint",
+                    "name": "webauthn_challenges_challenge_type_check",
+                    "expression": "(challenge_type = ANY (ARRAY['signup'::text, 'registration'::text, 'authentication'::text]))"
+                  }
+                }
+              ],
+              "warnings": {
+                "issues": []
+              }
+            },
+            "meta": {
+              "strict": true
+            },
+            "timings": {
+              "total": 0
+            },
+            "unclaimed": []
+          },
+          "issueCount": 1
+        },
+        "blocked": [
+          {
+            "id": "prisma.dbVerify",
+            "status": "BLOCKED",
+            "code": "PRISMA_SCHEMA_ISSUES"
+          }
+        ],
+        "findingCount": 34
+      },
+      "detected": true,
+      "restored": true
+    },
+    {
+      "id": "auth-challenge-same-name-check-true",
+      "mutation": "ALTER TABLE auth.webauthn_challenges DROP CONSTRAINT \"webauthn_challenges_challenge_type_check\"; ALTER TABLE auth.webauthn_challenges ADD CONSTRAINT \"webauthn_challenges_challenge_type_check\" CHECK (true)",
+      "restoration": "ALTER TABLE auth.webauthn_challenges DROP CONSTRAINT \"webauthn_challenges_challenge_type_check\"; ALTER TABLE auth.webauthn_challenges ADD CONSTRAINT \"webauthn_challenges_challenge_type_check\" CHECK ((challenge_type = ANY (ARRAY['signup'::text, 'registration'::text, 'authentication'::text])))",
+      "gate": {
+        "status": "BLOCKED",
+        "catalogProfile": "gotrue-pop6-v6.1.1",
+        "canonical": {
+          "catalogProfile": "gotrue-pop6-v6.1.1",
+          "exitCode": 4,
+          "result": {
+            "ok": false,
+            "code": "CONTRACT.MARKER_REQUIRED",
+            "summary": "Database schema does not satisfy contract (1 failure)",
+            "contract": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "target": {
+              "expected": "postgres",
+              "actual": "postgres"
+            },
+            "schema": {
+              "issues": [
+                {
+                  "path": [
+                    "database",
+                    "auth",
+                    "webauthn_challenges",
+                    "check:webauthn_challenges_challenge_type_check"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-check-constraint",
+                    "name": "webauthn_challenges_challenge_type_check",
+                    "expression": "(challenge_type = ANY (ARRAY['signup'::text, 'registration'::text, 'authentication'::text]))"
+                  },
+                  "actual": {
+                    "nodeKind": "sql-check-constraint",
+                    "name": "webauthn_challenges_challenge_type_check",
+                    "expression": "true"
+                  }
+                }
+              ],
+              "warnings": {
+                "issues": []
+              }
+            },
+            "meta": {
+              "strict": true
+            },
+            "timings": {
+              "total": 0
+            },
+            "unclaimed": []
+          },
+          "issueCount": 1
+        },
+        "blocked": [
+          {
+            "id": "prisma.dbVerify",
+            "status": "BLOCKED",
+            "code": "PRISMA_SCHEMA_ISSUES"
+          }
+        ],
+        "findingCount": 34
+      },
+      "detected": true,
+      "restored": true
+    },
+    {
+      "id": "storage-multipart-metadata-missing",
+      "mutation": "ALTER TABLE storage.s3_multipart_uploads RENAME COLUMN metadata TO phase_a_hidden_metadata",
+      "restoration": "ALTER TABLE storage.s3_multipart_uploads RENAME COLUMN phase_a_hidden_metadata TO metadata",
+      "gate": {
+        "status": "BLOCKED",
+        "catalogProfile": "gotrue-pop6-v6.1.1",
+        "canonical": {
+          "catalogProfile": "gotrue-pop6-v6.1.1",
+          "exitCode": 4,
+          "result": {
+            "ok": false,
+            "code": "CONTRACT.MARKER_REQUIRED",
+            "summary": "Database schema does not satisfy contract (1 failure)",
+            "contract": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "target": {
+              "expected": "postgres",
+              "actual": "postgres"
+            },
+            "schema": {
+              "issues": [
+                {
+                  "path": [
+                    "database",
+                    "storage",
+                    "s3_multipart_uploads",
+                    "column:metadata"
+                  ],
+                  "expected": {
+                    "nodeKind": "sql-column",
+                    "name": "metadata",
+                    "nativeType": "jsonb",
+                    "nullable": true,
+                    "resolvedNativeType": "jsonb"
+                  }
+                }
+              ],
+              "warnings": {
+                "issues": []
+              }
+            },
+            "meta": {
+              "strict": true
+            },
+            "timings": {
+              "total": 0
+            },
+            "unclaimed": []
+          },
+          "issueCount": 1
+        },
+        "blocked": [
+          {
+            "id": "prisma.dbVerify",
+            "status": "BLOCKED",
+            "code": "PRISMA_SCHEMA_ISSUES"
+          }
+        ],
+        "findingCount": 34
+      },
+      "detected": true,
+      "restored": true
+    },
+    {
+      "id": "ai-request-same-name-owner-policy-true",
+      "mutation": "ALTER POLICY ai_request_select_own_5424dd11 ON public.\"AIRequest\" USING (true)",
+      "restoration": "ALTER POLICY ai_request_select_own_5424dd11 ON public.\"AIRequest\" USING ((EXISTS ( SELECT 1\n   FROM (\"LearningSession\" ls\n     JOIN \"User\" u ON ((u.id = ls.\"userId\")))\n  WHERE ((ls.id = \"AIRequest\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))))",
+      "gate": {
+        "status": "BLOCKED",
+        "catalogProfile": "gotrue-pop6-v6.1.1",
+        "canonical": {
+          "catalogProfile": "gotrue-pop6-v6.1.1",
+          "exitCode": 0,
+          "result": {
+            "ok": true,
+            "summary": "Database marker and schema match contract",
+            "mode": "full",
+            "contract": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "marker": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "target": {
+              "expected": "postgres"
+            },
+            "codecCoverageSkipped": true,
+            "schema": {
+              "summary": "Database schema satisfies contract",
+              "strict": true,
+              "warnings": []
+            },
+            "unclaimed": [],
+            "meta": {
+              "contractPath": "",
+              "schemaVerification": "performed"
+            },
+            "timings": {
+              "total": 271
+            }
+          },
+          "issueCount": 0
+        },
+        "blocked": [
+          {
+            "id": "catalog.publicPolicies.security.fullPublicPolicies",
+            "status": "BLOCKED",
+            "code": "TRUSTED_POLICY_MISSING_OR_WEAK"
+          }
+        ],
+        "findingCount": 34
+      },
+      "detected": true,
+      "restored": true
+    },
+    {
+      "id": "ai-request-same-name-roles-public",
+      "mutation": "ALTER POLICY ai_request_select_own_5424dd11 ON public.\"AIRequest\" TO public",
+      "restoration": "ALTER POLICY ai_request_select_own_5424dd11 ON public.\"AIRequest\" TO authenticated",
+      "gate": {
+        "status": "BLOCKED",
+        "catalogProfile": "gotrue-pop6-v6.1.1",
+        "canonical": {
+          "catalogProfile": "gotrue-pop6-v6.1.1",
+          "exitCode": 0,
+          "result": {
+            "ok": true,
+            "summary": "Database marker and schema match contract",
+            "mode": "full",
+            "contract": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "marker": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "target": {
+              "expected": "postgres"
+            },
+            "codecCoverageSkipped": true,
+            "schema": {
+              "summary": "Database schema satisfies contract",
+              "strict": true,
+              "warnings": []
+            },
+            "unclaimed": [],
+            "meta": {
+              "contractPath": "",
+              "schemaVerification": "performed"
+            },
+            "timings": {
+              "total": 233
+            }
+          },
+          "issueCount": 0
+        },
+        "blocked": [
+          {
+            "id": "catalog.publicPolicies.security.fullPublicPolicies",
+            "status": "BLOCKED",
+            "code": "TRUSTED_POLICY_MISSING_OR_WEAK"
+          }
+        ],
+        "findingCount": 34
+      },
+      "detected": true,
+      "restored": true
+    },
+    {
+      "id": "owned-table-extra-policy",
+      "mutation": "CREATE POLICY phase_a_extra_owned_read ON public.\"AIRequest\" FOR SELECT TO authenticated USING (true)",
+      "restoration": "DROP POLICY phase_a_extra_owned_read ON public.\"AIRequest\"",
+      "gate": {
+        "status": "BLOCKED",
+        "catalogProfile": "gotrue-pop6-v6.1.1",
+        "canonical": {
+          "catalogProfile": "gotrue-pop6-v6.1.1",
+          "exitCode": 4,
+          "result": {
+            "ok": false,
+            "code": "CONTRACT.SCHEMA_VERIFICATION_FAILED",
+            "summary": "Database schema does not satisfy contract (1 failure)",
+            "contract": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "target": {
+              "expected": "postgres",
+              "actual": "postgres"
+            },
+            "schema": {
+              "issues": [
+                {
+                  "path": [
+                    "database",
+                    "public",
+                    "AIRequest",
+                    "phase_a_extra_owned_read"
+                  ],
+                  "actual": {
+                    "nodeKind": "postgres-policy",
+                    "name": "phase_a_extra_owned_read",
+                    "tableName": "AIRequest",
+                    "namespaceId": "public",
+                    "operation": "select",
+                    "roles": [
+                      "authenticated"
+                    ],
+                    "permissive": true,
+                    "using": "true"
+                  },
+                  "dependsOn": [
+                    [
+                      "database",
+                      "authenticated"
+                    ]
+                  ]
+                }
+              ],
+              "warnings": {
+                "issues": []
+              }
+            },
+            "meta": {
+              "strict": true
+            },
+            "timings": {
+              "total": 0
+            },
+            "unclaimed": []
+          },
+          "issueCount": 1
+        },
+        "blocked": [
+          {
+            "id": "prisma.dbVerify",
+            "status": "BLOCKED",
+            "code": "PRISMA_SCHEMA_ISSUES"
+          },
+          {
+            "id": "catalog.publicPolicies.security.fullPublicPolicies",
+            "status": "BLOCKED",
+            "code": "TRUSTED_POLICY_MISSING_OR_WEAK"
+          }
+        ],
+        "findingCount": 34
+      },
+      "detected": true,
+      "restored": true
+    },
+    {
+      "id": "unknown-table-extra-policy",
+      "mutation": "CREATE TABLE public.phase_a_unknown_table (id text); ALTER TABLE public.phase_a_unknown_table ENABLE ROW LEVEL SECURITY; CREATE POLICY phase_a_unknown_read ON public.phase_a_unknown_table FOR SELECT TO authenticated USING (true)",
+      "restoration": "DROP TABLE public.phase_a_unknown_table",
+      "gate": {
+        "status": "BLOCKED",
+        "catalogProfile": "gotrue-pop6-v6.1.1",
+        "canonical": {
+          "catalogProfile": "gotrue-pop6-v6.1.1",
+          "exitCode": 4,
+          "result": {
+            "ok": false,
+            "code": "CONTRACT.SCHEMA_VERIFICATION_FAILED",
+            "summary": "Database schema does not satisfy contract (3 failures)",
+            "contract": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "target": {
+              "expected": "postgres",
+              "actual": "postgres"
+            },
+            "schema": {
+              "issues": [
+                {
+                  "path": [
+                    "database",
+                    "public",
+                    "phase_a_unknown_table",
+                    "phase_a_unknown_read"
+                  ],
+                  "actual": {
+                    "nodeKind": "postgres-policy",
+                    "name": "phase_a_unknown_read",
+                    "tableName": "phase_a_unknown_table",
+                    "namespaceId": "public",
+                    "operation": "select",
+                    "roles": [
+                      "authenticated"
+                    ],
+                    "permissive": true,
+                    "using": "true"
+                  },
+                  "dependsOn": [
+                    [
+                      "database",
+                      "public",
+                      "phase_a_unknown_table"
+                    ],
+                    [
+                      "database",
+                      "authenticated"
+                    ]
+                  ]
+                },
+                {
+                  "path": [
+                    "database",
+                    "public",
+                    "phase_a_unknown_table",
+                    "phase_a_unknown_read"
+                  ],
+                  "actual": {
+                    "nodeKind": "postgres-policy",
+                    "name": "phase_a_unknown_read",
+                    "tableName": "phase_a_unknown_table",
+                    "namespaceId": "public",
+                    "operation": "select",
+                    "roles": [
+                      "authenticated"
+                    ],
+                    "permissive": true,
+                    "using": "true"
+                  },
+                  "dependsOn": [
+                    [
+                      "database",
+                      "public",
+                      "phase_a_unknown_table"
+                    ],
+                    [
+                      "database",
+                      "authenticated"
+                    ]
+                  ]
+                }
+              ],
+              "warnings": {
+                "issues": []
+              }
+            },
+            "meta": {
+              "strict": true
+            },
+            "timings": {
+              "total": 0
+            },
+            "unclaimed": [
+              "phase_a_unknown_table"
+            ]
+          },
+          "issueCount": 2
+        },
+        "blocked": [
+          {
+            "id": "prisma.dbVerify",
+            "status": "BLOCKED",
+            "code": "PRISMA_SCHEMA_ISSUES"
+          },
+          {
+            "id": "catalog.publicPolicies.security.fullPublicPolicies",
+            "status": "BLOCKED",
+            "code": "TRUSTED_POLICY_MISSING_OR_WEAK"
+          }
+        ],
+        "findingCount": 34
+      },
+      "detected": true,
+      "restored": true
+    },
+    {
+      "id": "knowledge-chunk-rls-disabled",
+      "mutation": "ALTER TABLE public.\"KnowledgeChunk\" DISABLE ROW LEVEL SECURITY",
+      "restoration": "ALTER TABLE public.\"KnowledgeChunk\" ENABLE ROW LEVEL SECURITY",
+      "gate": {
+        "status": "BLOCKED",
+        "catalogProfile": "gotrue-pop6-v6.1.1",
+        "canonical": {
+          "catalogProfile": "gotrue-pop6-v6.1.1",
+          "exitCode": 4,
+          "result": {
+            "ok": false,
+            "code": "CONTRACT.SCHEMA_VERIFICATION_FAILED",
+            "summary": "Database schema does not satisfy contract (1 failure)",
+            "contract": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "target": {
+              "expected": "postgres",
+              "actual": "postgres"
+            },
+            "schema": {
+              "issues": [
+                {
+                  "path": [
+                    "database",
+                    "public",
+                    "KnowledgeChunk"
+                  ],
+                  "expected": {
+                    "nodeKind": "postgres-table",
+                    "name": "KnowledgeChunk",
+                    "columns": {
+                      "content": {
+                        "nodeKind": "sql-column",
+                        "name": "content",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "contentHash": {
+                        "nodeKind": "sql-column",
+                        "name": "contentHash",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "dimensions": {
+                        "nodeKind": "sql-column",
+                        "name": "dimensions",
+                        "nativeType": "int4",
+                        "nullable": false,
+                        "resolvedNativeType": "int4"
+                      },
+                      "documentId": {
+                        "nodeKind": "sql-column",
+                        "name": "documentId",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "documentVersion": {
+                        "nodeKind": "sql-column",
+                        "name": "documentVersion",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "embedding": {
+                        "nodeKind": "sql-column",
+                        "name": "embedding",
+                        "nativeType": "vector(1536)",
+                        "nullable": false,
+                        "resolvedNativeType": "vector(1536)"
+                      },
+                      "embeddingInputHash": {
+                        "nodeKind": "sql-column",
+                        "name": "embeddingInputHash",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "embeddingModel": {
+                        "nodeKind": "sql-column",
+                        "name": "embeddingModel",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "id": {
+                        "nodeKind": "sql-column",
+                        "name": "id",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "language": {
+                        "nodeKind": "sql-column",
+                        "name": "language",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "ordinal": {
+                        "nodeKind": "sql-column",
+                        "name": "ordinal",
+                        "nativeType": "int4",
+                        "nullable": false,
+                        "resolvedNativeType": "int4"
+                      },
+                      "page": {
+                        "nodeKind": "sql-column",
+                        "name": "page",
+                        "nativeType": "int4",
+                        "nullable": true,
+                        "resolvedNativeType": "int4"
+                      },
+                      "passageHash": {
+                        "nodeKind": "sql-column",
+                        "name": "passageHash",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "passageId": {
+                        "nodeKind": "sql-column",
+                        "name": "passageId",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "provenanceHash": {
+                        "nodeKind": "sql-column",
+                        "name": "provenanceHash",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "reviewed": {
+                        "nodeKind": "sql-column",
+                        "name": "reviewed",
+                        "nativeType": "bool",
+                        "nullable": false,
+                        "resolvedNativeType": "bool",
+                        "resolvedDefault": {
+                          "kind": "literal",
+                          "value": false
+                        }
+                      },
+                      "sources": {
+                        "nodeKind": "sql-column",
+                        "name": "sources",
+                        "nativeType": "json",
+                        "nullable": false,
+                        "resolvedNativeType": "json"
+                      },
+                      "subject": {
+                        "nodeKind": "sql-column",
+                        "name": "subject",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      }
+                    },
+                    "foreignKeys": [],
+                    "uniques": [],
+                    "indexes": [
+                      {
+                        "nodeKind": "sql-index",
+                        "name": "KnowledgeChunk_documentId_idx_825ef746",
+                        "unique": false,
+                        "prefix": "KnowledgeChunk_documentId_idx",
+                        "columns": [
+                          "documentId"
+                        ]
+                      },
+                      {
+                        "nodeKind": "sql-index",
+                        "name": "KnowledgeChunk_embeddingModel_subject_language_idx_1c48278e",
+                        "unique": false,
+                        "prefix": "KnowledgeChunk_embeddingModel_subject_language_idx",
+                        "columns": [
+                          "embeddingModel",
+                          "subject",
+                          "language"
+                        ]
+                      }
+                    ],
+                    "policies": [
+                      {
+                        "nodeKind": "postgres-policy",
+                        "name": "knowledge_chunk_read_reviewed_72bac3b2",
+                        "tableName": "KnowledgeChunk",
+                        "namespaceId": "public",
+                        "operation": "select",
+                        "roles": [
+                          "authenticated"
+                        ],
+                        "permissive": true,
+                        "prefix": "knowledge_chunk_read_reviewed",
+                        "using": "reviewed = true"
+                      }
+                    ],
+                    "rlsEnabled": true,
+                    "primaryKey": {
+                      "nodeKind": "sql-primary-key",
+                      "columns": [
+                        "id"
+                      ]
+                    },
+                    "checks": [
+                      {
+                        "nodeKind": "sql-check-constraint",
+                        "name": "knowledge_chunk_hashes_baf6cdf2",
+                        "expression": "\"passageHash\" ~ '^[0-9a-f]{64}$' AND \"contentHash\" ~ '^[0-9a-f]{64}$' AND \"embeddingInputHash\" ~ '^[0-9a-f]{64}$' AND \"provenanceHash\" ~ '^[0-9a-f]{64}$'",
+                        "prefix": "knowledge_chunk_hashes"
+                      },
+                      {
+                        "nodeKind": "sql-check-constraint",
+                        "name": "knowledge_chunk_shape_ac4a864f",
+                        "expression": "dimensions = 1536 AND ordinal >= 0 AND (page IS NULL OR page > 0)",
+                        "prefix": "knowledge_chunk_shape"
+                      }
+                    ]
+                  },
+                  "actual": {
+                    "nodeKind": "postgres-table",
+                    "name": "KnowledgeChunk",
+                    "columns": {
+                      "content": {
+                        "nodeKind": "sql-column",
+                        "name": "content",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "contentHash": {
+                        "nodeKind": "sql-column",
+                        "name": "contentHash",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "dimensions": {
+                        "nodeKind": "sql-column",
+                        "name": "dimensions",
+                        "nativeType": "int4",
+                        "nullable": false,
+                        "resolvedNativeType": "int4"
+                      },
+                      "documentId": {
+                        "nodeKind": "sql-column",
+                        "name": "documentId",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "documentVersion": {
+                        "nodeKind": "sql-column",
+                        "name": "documentVersion",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "embedding": {
+                        "nodeKind": "sql-column",
+                        "name": "embedding",
+                        "nativeType": "vector(1536)",
+                        "nullable": false,
+                        "resolvedNativeType": "vector(1536)"
+                      },
+                      "embeddingInputHash": {
+                        "nodeKind": "sql-column",
+                        "name": "embeddingInputHash",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "embeddingModel": {
+                        "nodeKind": "sql-column",
+                        "name": "embeddingModel",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "id": {
+                        "nodeKind": "sql-column",
+                        "name": "id",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "language": {
+                        "nodeKind": "sql-column",
+                        "name": "language",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "ordinal": {
+                        "nodeKind": "sql-column",
+                        "name": "ordinal",
+                        "nativeType": "int4",
+                        "nullable": false,
+                        "resolvedNativeType": "int4"
+                      },
+                      "page": {
+                        "nodeKind": "sql-column",
+                        "name": "page",
+                        "nativeType": "int4",
+                        "nullable": true,
+                        "resolvedNativeType": "int4"
+                      },
+                      "passageHash": {
+                        "nodeKind": "sql-column",
+                        "name": "passageHash",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "passageId": {
+                        "nodeKind": "sql-column",
+                        "name": "passageId",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "provenanceHash": {
+                        "nodeKind": "sql-column",
+                        "name": "provenanceHash",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      },
+                      "reviewed": {
+                        "nodeKind": "sql-column",
+                        "name": "reviewed",
+                        "nativeType": "bool",
+                        "nullable": false,
+                        "default": "false",
+                        "resolvedNativeType": "bool",
+                        "resolvedDefault": {
+                          "kind": "literal",
+                          "value": false
+                        }
+                      },
+                      "sources": {
+                        "nodeKind": "sql-column",
+                        "name": "sources",
+                        "nativeType": "json",
+                        "nullable": false,
+                        "resolvedNativeType": "json"
+                      },
+                      "subject": {
+                        "nodeKind": "sql-column",
+                        "name": "subject",
+                        "nativeType": "text",
+                        "nullable": false,
+                        "resolvedNativeType": "text"
+                      }
+                    },
+                    "foreignKeys": [],
+                    "uniques": [],
+                    "indexes": [
+                      {
+                        "nodeKind": "sql-index",
+                        "name": "KnowledgeChunk_documentId_idx_825ef746",
+                        "unique": false,
+                        "prefix": "KnowledgeChunk_documentId_idx",
+                        "columns": [
+                          "documentId"
+                        ]
+                      },
+                      {
+                        "nodeKind": "sql-index",
+                        "name": "KnowledgeChunk_embeddingModel_subject_language_idx_1c48278e",
+                        "unique": false,
+                        "prefix": "KnowledgeChunk_embeddingModel_subject_language_idx",
+                        "columns": [
+                          "embeddingModel",
+                          "subject",
+                          "language"
+                        ]
+                      }
+                    ],
+                    "policies": [
+                      {
+                        "nodeKind": "postgres-policy",
+                        "name": "knowledge_chunk_read_reviewed_72bac3b2",
+                        "tableName": "KnowledgeChunk",
+                        "namespaceId": "public",
+                        "operation": "select",
+                        "roles": [
+                          "authenticated"
+                        ],
+                        "permissive": true,
+                        "prefix": "knowledge_chunk_read_reviewed",
+                        "using": "(reviewed = true)"
+                      }
+                    ],
+                    "rlsEnabled": false,
+                    "primaryKey": {
+                      "nodeKind": "sql-primary-key",
+                      "columns": [
+                        "id"
+                      ],
+                      "name": "KnowledgeChunk_pkey"
+                    },
+                    "checks": [
+                      {
+                        "nodeKind": "sql-check-constraint",
+                        "name": "knowledge_chunk_hashes_baf6cdf2",
+                        "expression": "((\"passageHash\" ~ '^[0-9a-f]{64}$'::text) AND (\"contentHash\" ~ '^[0-9a-f]{64}$'::text) AND (\"embeddingInputHash\" ~ '^[0-9a-f]{64}$'::text) AND (\"provenanceHash\" ~ '^[0-9a-f]{64}$'::text))",
+                        "prefix": "knowledge_chunk_hashes"
+                      },
+                      {
+                        "nodeKind": "sql-check-constraint",
+                        "name": "knowledge_chunk_shape_ac4a864f",
+                        "expression": "((dimensions = 1536) AND (ordinal >= 0) AND ((page IS NULL) OR (page > 0)))",
+                        "prefix": "knowledge_chunk_shape"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "warnings": {
+                "issues": []
+              }
+            },
+            "meta": {
+              "strict": true
+            },
+            "timings": {
+              "total": 0
+            },
+            "unclaimed": []
+          },
+          "issueCount": 1
+        },
+        "blocked": [
+          {
+            "id": "prisma.dbVerify",
+            "status": "BLOCKED",
+            "code": "PRISMA_SCHEMA_ISSUES"
+          },
+          {
+            "id": "catalog.vector.vector.tableRls",
+            "status": "BLOCKED",
+            "code": "VECTOR_TABLE_OR_RLS_MISSING"
+          },
+          {
+            "id": "catalog.publicPolicies.security.fullPublicRls",
+            "status": "BLOCKED",
+            "code": "RLS_DISABLED"
+          }
+        ],
+        "findingCount": 34
+      },
+      "detected": true,
+      "restored": true
+    },
+    {
+      "id": "storage-same-name-insert-guard-true",
+      "mutation": "ALTER POLICY learnly_materials_insert_guard ON storage.objects WITH CHECK (true)",
+      "restoration": "ALTER POLICY learnly_materials_insert_guard ON storage.objects WITH CHECK (((bucket_id IS DISTINCT FROM 'learnly-materials'::text) OR ((bucket_id = 'learnly-materials'::text) AND (owner_id = (( SELECT auth.uid() AS uid))::text) AND (array_length(string_to_array(name, '/'::text), 1) = 3) AND (split_part(name, '/'::text, 1) = (( SELECT auth.uid() AS uid))::text) AND (split_part(name, '/'::text, 2) ~ '^[a-zA-Z0-9_-]{1,128}$'::text) AND (split_part(name, '/'::text, 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = split_part(objects.name, '/'::text, 2)) AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))) AND (EXISTS ( SELECT 1\n   FROM \"LearningSession\" active\n  WHERE ((active.id = split_part(objects.name, '/'::text, 2)) AND (active.\"lifecycleState\" = 'ACTIVE'::text)))))))",
+      "gate": {
+        "status": "BLOCKED",
+        "catalogProfile": "gotrue-pop6-v6.1.1",
+        "canonical": {
+          "catalogProfile": "gotrue-pop6-v6.1.1",
+          "exitCode": 0,
+          "result": {
+            "ok": true,
+            "summary": "Database marker and schema match contract",
+            "mode": "full",
+            "contract": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "marker": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "target": {
+              "expected": "postgres"
+            },
+            "codecCoverageSkipped": true,
+            "schema": {
+              "summary": "Database schema satisfies contract",
+              "strict": true,
+              "warnings": []
+            },
+            "unclaimed": [],
+            "meta": {
+              "contractPath": "",
+              "schemaVerification": "performed"
+            },
+            "timings": {
+              "total": 220
+            }
+          },
+          "issueCount": 0
+        },
+        "blocked": [
+          {
+            "id": "catalog.activation.uploads.storagePolicies",
+            "status": "BLOCKED",
+            "code": "STORAGE_POLICY_MISSING_OR_WEAK"
+          }
+        ],
+        "findingCount": 34
+      },
+      "detected": true,
+      "restored": true
+    },
+    {
+      "id": "storage-schema-usage-revoked",
+      "mutation": "REVOKE USAGE ON SCHEMA \"storage\" FROM authenticated",
+      "restoration": "GRANT USAGE ON SCHEMA \"storage\" TO authenticated",
+      "gate": {
+        "status": "BLOCKED",
+        "catalogProfile": "gotrue-pop6-v6.1.1",
+        "canonical": {
+          "catalogProfile": "gotrue-pop6-v6.1.1",
+          "exitCode": 0,
+          "result": {
+            "ok": true,
+            "summary": "Database marker and schema match contract",
+            "mode": "full",
+            "contract": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "marker": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "target": {
+              "expected": "postgres"
+            },
+            "codecCoverageSkipped": true,
+            "schema": {
+              "summary": "Database schema satisfies contract",
+              "strict": true,
+              "warnings": []
+            },
+            "unclaimed": [],
+            "meta": {
+              "contractPath": "",
+              "schemaVerification": "performed"
+            },
+            "timings": {
+              "total": 225
+            }
+          },
+          "issueCount": 0
+        },
+        "blocked": [
+          {
+            "id": "catalog.activation.uploads.storageSchemaUsage",
+            "status": "BLOCKED",
+            "code": "STORAGE_SCHEMA_USAGE_MISSING"
+          }
+        ],
+        "findingCount": 34
+      },
+      "detected": true,
+      "restored": true
+    },
+    {
+      "id": "extensions-schema-usage-revoked",
+      "mutation": "REVOKE USAGE ON SCHEMA \"extensions\" FROM authenticated",
+      "restoration": "GRANT USAGE ON SCHEMA \"extensions\" TO authenticated",
+      "gate": {
+        "status": "BLOCKED",
+        "catalogProfile": "gotrue-pop6-v6.1.1",
+        "canonical": {
+          "catalogProfile": "gotrue-pop6-v6.1.1",
+          "exitCode": 0,
+          "result": {
+            "ok": true,
+            "summary": "Database marker and schema match contract",
+            "mode": "full",
+            "contract": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "marker": {
+              "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+            },
+            "target": {
+              "expected": "postgres"
+            },
+            "codecCoverageSkipped": true,
+            "schema": {
+              "summary": "Database schema satisfies contract",
+              "strict": true,
+              "warnings": []
+            },
+            "unclaimed": [],
+            "meta": {
+              "contractPath": "",
+              "schemaVerification": "performed"
+            },
+            "timings": {
+              "total": 246
+            }
+          },
+          "issueCount": 0
+        },
+        "blocked": [
+          {
+            "id": "catalog.vector.vector.extensionUsage",
+            "status": "BLOCKED",
+            "code": "VECTOR_EXTENSION_SCHEMA_USAGE_MISSING"
+          }
+        ],
+        "findingCount": 34
+      },
+      "detected": true,
+      "restored": true
+    }
+  ],
+  "emptyBefore": {
+    "public.AIRequest": 0,
+    "public.Assessment": 0,
+    "public.AssessmentAnswer": 0,
+    "public.FileUpload": 0,
+    "public.KnowledgeChunk": 0,
+    "public.LearningProfile": 0,
+    "public.LearningSession": 0,
+    "public.Message": 0,
+    "public.SourceMaterial": 0,
+    "public.User": 0,
+    "auth.users": 0,
+    "storage.objects": 0
+  },
+  "baseline": {
+    "status": "PASS",
+    "catalogProfile": "gotrue-pop6-v6.1.1",
+    "canonical": {
+      "catalogProfile": "gotrue-pop6-v6.1.1",
+      "exitCode": 0,
+      "result": {
+        "ok": true,
+        "summary": "Database marker and schema match contract",
+        "mode": "full",
+        "contract": {
+          "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+          "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+        },
+        "marker": {
+          "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+          "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+        },
+        "target": {
+          "expected": "postgres"
+        },
+        "codecCoverageSkipped": true,
+        "schema": {
+          "summary": "Database schema satisfies contract",
+          "strict": true,
+          "warnings": []
+        },
+        "unclaimed": [],
+        "meta": {
+          "contractPath": "",
+          "schemaVerification": "performed"
+        },
+        "timings": {
+          "total": 290
+        }
+      },
+      "issueCount": 0
+    },
+    "blocked": [],
+    "findingCount": 34
+  },
+  "restorationDefinitions": {
+    "credentialForeignKey": {
+      "name": "webauthn_credentials_user_id_fkey",
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    "challengeCheck": {
+      "name": "webauthn_challenges_challenge_type_check",
+      "definition": "CHECK ((challenge_type = ANY (ARRAY['signup'::text, 'registration'::text, 'authentication'::text])))"
+    },
+    "aiUsing": "(EXISTS ( SELECT 1\n   FROM (\"LearningSession\" ls\n     JOIN \"User\" u ON ((u.id = ls.\"userId\")))\n  WHERE ((ls.id = \"AIRequest\".\"learningSessionId\") AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text))))",
+    "storageWithCheck": "((bucket_id IS DISTINCT FROM 'learnly-materials'::text) OR ((bucket_id = 'learnly-materials'::text) AND (owner_id = (( SELECT auth.uid() AS uid))::text) AND (array_length(string_to_array(name, '/'::text), 1) = 3) AND (split_part(name, '/'::text, 1) = (( SELECT auth.uid() AS uid))::text) AND (split_part(name, '/'::text, 2) ~ '^[a-zA-Z0-9_-]{1,128}$'::text) AND (split_part(name, '/'::text, 3) ~ '^[a-zA-Z0-9_-]{1,128}\\.(pdf|png|jpg)$'::text) AND (EXISTS ( SELECT 1\n   FROM (\"LearningSession\" s\n     JOIN \"User\" u ON ((u.id = s.\"userId\")))\n  WHERE ((s.id = split_part(objects.name, '/'::text, 2)) AND (u.\"authUserId\" = (( SELECT auth.uid() AS uid))::text)))) AND (EXISTS ( SELECT 1\n   FROM \"LearningSession\" active\n  WHERE ((active.id = split_part(objects.name, '/'::text, 2)) AND (active.\"lifecycleState\" = 'ACTIVE'::text))))))"
+  },
+  "versionColumn": {
+    "baselineWidth": 14,
+    "profileExpectedWidth": 14,
+    "mutationWidth": 15,
+    "interpretation": "Official GoTrue Pop 6.1.1 runtime catalog width; the mutation tests an explicit-profile mismatch, not a real database defect.",
+    "restoredWidth": 14
+  },
+  "restored": {
+    "status": "PASS",
+    "catalogProfile": "gotrue-pop6-v6.1.1",
+    "canonical": {
+      "catalogProfile": "gotrue-pop6-v6.1.1",
+      "exitCode": 0,
+      "result": {
+        "ok": true,
+        "summary": "Database marker and schema match contract",
+        "mode": "full",
+        "contract": {
+          "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+          "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+        },
+        "marker": {
+          "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+          "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+        },
+        "target": {
+          "expected": "postgres"
+        },
+        "codecCoverageSkipped": true,
+        "schema": {
+          "summary": "Database schema satisfies contract",
+          "strict": true,
+          "warnings": []
+        },
+        "unclaimed": [],
+        "meta": {
+          "contractPath": "",
+          "schemaVerification": "performed"
+        },
+        "timings": {
+          "total": 278
+        }
+      },
+      "issueCount": 0
+    },
+    "blocked": [],
+    "findingCount": 34
+  },
+  "emptyAfter": {
+    "public.AIRequest": 0,
+    "public.Assessment": 0,
+    "public.AssessmentAnswer": 0,
+    "public.FileUpload": 0,
+    "public.KnowledgeChunk": 0,
+    "public.LearningProfile": 0,
+    "public.LearningSession": 0,
+    "public.Message": 0,
+    "public.SourceMaterial": 0,
+    "public.User": 0,
+    "auth.users": 0,
+    "storage.objects": 0
+  }
+}

@@ -1,0 +1,545 @@
+{
+  "scope": "Canonical external-contract metadata adoption on two exact local clones; no schema, policy or grants changes",
+  "databases": [
+    {
+      "database": "learnly_activation_executor_phase_a_services_20261017",
+      "profile": "gotrue-pop6-v6.1.1",
+      "profileHash": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212",
+      "overlay": {
+        "kind": "temporary-read-only-migration-overlay",
+        "sourceFileCount": 88,
+        "preservedHistoricalFileCount": 87,
+        "changedFiles": [
+          "supabase/refs/head.json"
+        ],
+        "addedFiles": [
+          "snapshots/af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212/contract.json",
+          "snapshots/af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212/contract.d.ts"
+        ],
+        "profileStorageHash": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212"
+      },
+      "commands": [
+        {
+          "args": [
+            "db",
+            "verify",
+            "--schema-only",
+            "--strict"
+          ],
+          "exit": 0,
+          "envelope": {
+            "ok": true,
+            "commandId": "db.verify",
+            "result": {
+              "ok": true,
+              "summary": "Database schema satisfies contract",
+              "contract": {
+                "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+                "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+              },
+              "target": {
+                "expected": "postgres",
+                "actual": "postgres"
+              },
+              "schema": {
+                "issues": [],
+                "warnings": {
+                  "issues": []
+                }
+              },
+              "meta": {
+                "strict": true
+              },
+              "timings": {
+                "total": 0
+              },
+              "unclaimed": []
+            },
+            "exitCode": 0,
+            "diagnostics": [],
+            "nextActions": []
+          },
+          "stderr": "Prisma collects anonymous CLI usage data, enabled by default. What's collected and why: https://www.prisma.io/docs/cli. Opt out: run \"prisma telemetry disable\", set DO_NOT_TRACK=1 or PRISMA_DISABLE_TELEMETRY=1.\n"
+        },
+        {
+          "args": [
+            "db",
+            "migrate",
+            "--show",
+            "--to=f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b"
+          ],
+          "exit": 0,
+          "envelope": {
+            "ok": true,
+            "commandId": "db.migrate",
+            "result": {
+              "ok": true,
+              "migrations": [
+                {
+                  "spaceId": "supabase",
+                  "dirName": "",
+                  "migrationHash": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212",
+                  "from": "734893bc990ae5ec14dc7ad50a7d8b5873a864f056085a7ffd2f69c866989067",
+                  "to": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212"
+                }
+              ],
+              "summary": "1 migration will run"
+            },
+            "exitCode": 0,
+            "diagnostics": [],
+            "nextActions": []
+          },
+          "stderr": "Prisma collects anonymous CLI usage data, enabled by default. What's collected and why: https://www.prisma.io/docs/cli. Opt out: run \"prisma telemetry disable\", set DO_NOT_TRACK=1 or PRISMA_DISABLE_TELEMETRY=1.\n"
+        },
+        {
+          "args": [
+            "db",
+            "migrate",
+            "--to=f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b"
+          ],
+          "exit": 0,
+          "envelope": {
+            "ok": true,
+            "commandId": "db.migrate",
+            "result": {
+              "ok": true,
+              "migrationsApplied": 1,
+              "migrationsTotal": 1,
+              "markerHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "applied": [
+                {
+                  "spaceId": "supabase",
+                  "dirName": "",
+                  "migrationHash": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212",
+                  "from": "734893bc990ae5ec14dc7ad50a7d8b5873a864f056085a7ffd2f69c866989067",
+                  "to": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212",
+                  "operationsExecuted": 0
+                }
+              ],
+              "summary": "Applied 1 migration(s) (0 operation(s)) across 3 contract space(s)",
+              "perSpace": [
+                {
+                  "spaceId": "pgvector",
+                  "kind": "extension",
+                  "operations": [],
+                  "marker": {
+                    "storageHash": "3d2c56a2944685bd21b05bc8a8d73164397df51c014201902932fbe7e80ff1b8"
+                  }
+                },
+                {
+                  "spaceId": "supabase",
+                  "kind": "extension",
+                  "operations": [],
+                  "marker": {
+                    "storageHash": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212"
+                  }
+                },
+                {
+                  "spaceId": "app",
+                  "kind": "app",
+                  "operations": [],
+                  "marker": {
+                    "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b"
+                  }
+                }
+              ],
+              "pathDecision": {
+                "fromHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+                "toHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+                "alternativeCount": 0,
+                "tieBreakReasons": [],
+                "refName": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+                "requiredInvariants": [],
+                "satisfiedInvariants": [],
+                "selectedPath": []
+              },
+              "timings": {
+                "total": 318
+              },
+              "advancedRef": null
+            },
+            "exitCode": 0,
+            "diagnostics": [],
+            "nextActions": [
+              {
+                "kind": "run-command",
+                "label": "Check every space against the database",
+                "command": "{bin} migration status"
+              }
+            ]
+          },
+          "stderr": "Prisma collects anonymous CLI usage data, enabled by default. What's collected and why: https://www.prisma.io/docs/cli. Opt out: run \"prisma telemetry disable\", set DO_NOT_TRACK=1 or PRISMA_DISABLE_TELEMETRY=1.\n"
+        },
+        {
+          "args": [
+            "db",
+            "verify",
+            "--strict"
+          ],
+          "exit": 0,
+          "envelope": {
+            "ok": true,
+            "commandId": "db.verify",
+            "result": {
+              "ok": true,
+              "summary": "Database marker and schema match contract",
+              "mode": "full",
+              "contract": {
+                "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+                "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+              },
+              "marker": {
+                "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+                "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+              },
+              "target": {
+                "expected": "postgres"
+              },
+              "codecCoverageSkipped": true,
+              "schema": {
+                "summary": "Database schema satisfies contract",
+                "strict": true,
+                "warnings": []
+              },
+              "unclaimed": [],
+              "meta": {
+                "contractPath": "",
+                "schemaVerification": "performed"
+              },
+              "timings": {
+                "total": 237
+              }
+            },
+            "exitCode": 0,
+            "diagnostics": [],
+            "nextActions": []
+          },
+          "stderr": "Prisma collects anonymous CLI usage data, enabled by default. What's collected and why: https://www.prisma.io/docs/cli. Opt out: run \"prisma telemetry disable\", set DO_NOT_TRACK=1 or PRISMA_DISABLE_TELEMETRY=1.\n"
+        }
+      ],
+      "schemaSecurityHashBefore": "2836b37bf6ba62c8a0941f85442824aa79bf7b7d1847204a1c67d26e7a428f61",
+      "markersBefore": [
+        {
+          "space": "app",
+          "core_hash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+          "profile_hash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+          "updated_at": "2026-10-16T20:28:08.782Z"
+        },
+        {
+          "space": "pgvector",
+          "core_hash": "3d2c56a2944685bd21b05bc8a8d73164397df51c014201902932fbe7e80ff1b8",
+          "profile_hash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+          "updated_at": "2026-10-16T20:28:08.782Z"
+        },
+        {
+          "space": "supabase",
+          "core_hash": "734893bc990ae5ec14dc7ad50a7d8b5873a864f056085a7ffd2f69c866989067",
+          "profile_hash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+          "updated_at": "2026-10-16T20:28:08.782Z"
+        }
+      ],
+      "ledgerCountBefore": 9,
+      "schemaSecurityHashAfter": "2836b37bf6ba62c8a0941f85442824aa79bf7b7d1847204a1c67d26e7a428f61",
+      "markersAfter": [
+        {
+          "space": "app",
+          "core_hash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+          "profile_hash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+          "updated_at": "2026-10-16T20:28:08.782Z"
+        },
+        {
+          "space": "pgvector",
+          "core_hash": "3d2c56a2944685bd21b05bc8a8d73164397df51c014201902932fbe7e80ff1b8",
+          "profile_hash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+          "updated_at": "2026-10-16T20:28:08.782Z"
+        },
+        {
+          "space": "supabase",
+          "core_hash": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212",
+          "profile_hash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+          "updated_at": "2026-10-17T10:23:50.189Z"
+        }
+      ],
+      "ledgerCountAfter": 10,
+      "newProfileLedger": [
+        {
+          "space": "supabase",
+          "migration_name": "",
+          "migration_hash": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212",
+          "operation_count": 0
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "database": "learnly_activation_executor_phase_a_security_20261017",
+      "profile": "gotrue-pop6-v6.1.1",
+      "profileHash": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212",
+      "overlay": {
+        "kind": "temporary-read-only-migration-overlay",
+        "sourceFileCount": 88,
+        "preservedHistoricalFileCount": 87,
+        "changedFiles": [
+          "supabase/refs/head.json"
+        ],
+        "addedFiles": [
+          "snapshots/af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212/contract.json",
+          "snapshots/af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212/contract.d.ts"
+        ],
+        "profileStorageHash": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212"
+      },
+      "commands": [
+        {
+          "args": [
+            "db",
+            "verify",
+            "--schema-only",
+            "--strict"
+          ],
+          "exit": 0,
+          "envelope": {
+            "ok": true,
+            "commandId": "db.verify",
+            "result": {
+              "ok": true,
+              "summary": "Database schema satisfies contract",
+              "contract": {
+                "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+                "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+              },
+              "target": {
+                "expected": "postgres",
+                "actual": "postgres"
+              },
+              "schema": {
+                "issues": [],
+                "warnings": {
+                  "issues": []
+                }
+              },
+              "meta": {
+                "strict": true
+              },
+              "timings": {
+                "total": 0
+              },
+              "unclaimed": []
+            },
+            "exitCode": 0,
+            "diagnostics": [],
+            "nextActions": []
+          },
+          "stderr": "Prisma collects anonymous CLI usage data, enabled by default. What's collected and why: https://www.prisma.io/docs/cli. Opt out: run \"prisma telemetry disable\", set DO_NOT_TRACK=1 or PRISMA_DISABLE_TELEMETRY=1.\n"
+        },
+        {
+          "args": [
+            "db",
+            "migrate",
+            "--show",
+            "--to=f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b"
+          ],
+          "exit": 0,
+          "envelope": {
+            "ok": true,
+            "commandId": "db.migrate",
+            "result": {
+              "ok": true,
+              "migrations": [
+                {
+                  "spaceId": "supabase",
+                  "dirName": "",
+                  "migrationHash": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212",
+                  "from": "734893bc990ae5ec14dc7ad50a7d8b5873a864f056085a7ffd2f69c866989067",
+                  "to": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212"
+                }
+              ],
+              "summary": "1 migration will run"
+            },
+            "exitCode": 0,
+            "diagnostics": [],
+            "nextActions": []
+          },
+          "stderr": "Prisma collects anonymous CLI usage data, enabled by default. What's collected and why: https://www.prisma.io/docs/cli. Opt out: run \"prisma telemetry disable\", set DO_NOT_TRACK=1 or PRISMA_DISABLE_TELEMETRY=1.\n"
+        },
+        {
+          "args": [
+            "db",
+            "migrate",
+            "--to=f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b"
+          ],
+          "exit": 0,
+          "envelope": {
+            "ok": true,
+            "commandId": "db.migrate",
+            "result": {
+              "ok": true,
+              "migrationsApplied": 1,
+              "migrationsTotal": 1,
+              "markerHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+              "applied": [
+                {
+                  "spaceId": "supabase",
+                  "dirName": "",
+                  "migrationHash": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212",
+                  "from": "734893bc990ae5ec14dc7ad50a7d8b5873a864f056085a7ffd2f69c866989067",
+                  "to": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212",
+                  "operationsExecuted": 0
+                }
+              ],
+              "summary": "Applied 1 migration(s) (0 operation(s)) across 3 contract space(s)",
+              "perSpace": [
+                {
+                  "spaceId": "pgvector",
+                  "kind": "extension",
+                  "operations": [],
+                  "marker": {
+                    "storageHash": "3d2c56a2944685bd21b05bc8a8d73164397df51c014201902932fbe7e80ff1b8"
+                  }
+                },
+                {
+                  "spaceId": "supabase",
+                  "kind": "extension",
+                  "operations": [],
+                  "marker": {
+                    "storageHash": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212"
+                  }
+                },
+                {
+                  "spaceId": "app",
+                  "kind": "app",
+                  "operations": [],
+                  "marker": {
+                    "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b"
+                  }
+                }
+              ],
+              "pathDecision": {
+                "fromHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+                "toHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+                "alternativeCount": 0,
+                "tieBreakReasons": [],
+                "refName": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+                "requiredInvariants": [],
+                "satisfiedInvariants": [],
+                "selectedPath": []
+              },
+              "timings": {
+                "total": 319
+              },
+              "advancedRef": null
+            },
+            "exitCode": 0,
+            "diagnostics": [],
+            "nextActions": [
+              {
+                "kind": "run-command",
+                "label": "Check every space against the database",
+                "command": "{bin} migration status"
+              }
+            ]
+          },
+          "stderr": "Prisma collects anonymous CLI usage data, enabled by default. What's collected and why: https://www.prisma.io/docs/cli. Opt out: run \"prisma telemetry disable\", set DO_NOT_TRACK=1 or PRISMA_DISABLE_TELEMETRY=1.\n"
+        },
+        {
+          "args": [
+            "db",
+            "verify",
+            "--strict"
+          ],
+          "exit": 0,
+          "envelope": {
+            "ok": true,
+            "commandId": "db.verify",
+            "result": {
+              "ok": true,
+              "summary": "Database marker and schema match contract",
+              "mode": "full",
+              "contract": {
+                "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+                "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+              },
+              "marker": {
+                "storageHash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+                "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2"
+              },
+              "target": {
+                "expected": "postgres"
+              },
+              "codecCoverageSkipped": true,
+              "schema": {
+                "summary": "Database schema satisfies contract",
+                "strict": true,
+                "warnings": []
+              },
+              "unclaimed": [],
+              "meta": {
+                "contractPath": "",
+                "schemaVerification": "performed"
+              },
+              "timings": {
+                "total": 252
+              }
+            },
+            "exitCode": 0,
+            "diagnostics": [],
+            "nextActions": []
+          },
+          "stderr": "Prisma collects anonymous CLI usage data, enabled by default. What's collected and why: https://www.prisma.io/docs/cli. Opt out: run \"prisma telemetry disable\", set DO_NOT_TRACK=1 or PRISMA_DISABLE_TELEMETRY=1.\n"
+        }
+      ],
+      "schemaSecurityHashBefore": "4e372fa1824140fe7e4427cd950ad4a2fbe1db2a4ed7ce7b5d59c5e06d8616a4",
+      "markersBefore": [
+        {
+          "space": "app",
+          "core_hash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+          "profile_hash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+          "updated_at": "2026-10-16T20:28:08.782Z"
+        },
+        {
+          "space": "pgvector",
+          "core_hash": "3d2c56a2944685bd21b05bc8a8d73164397df51c014201902932fbe7e80ff1b8",
+          "profile_hash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+          "updated_at": "2026-10-16T20:28:08.782Z"
+        },
+        {
+          "space": "supabase",
+          "core_hash": "734893bc990ae5ec14dc7ad50a7d8b5873a864f056085a7ffd2f69c866989067",
+          "profile_hash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+          "updated_at": "2026-10-16T20:28:08.782Z"
+        }
+      ],
+      "ledgerCountBefore": 9,
+      "schemaSecurityHashAfter": "4e372fa1824140fe7e4427cd950ad4a2fbe1db2a4ed7ce7b5d59c5e06d8616a4",
+      "markersAfter": [
+        {
+          "space": "app",
+          "core_hash": "f099e7f519b2f869ca1c2cbbff3f96852f44830005b5af5a15022f4b813ce52b",
+          "profile_hash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+          "updated_at": "2026-10-16T20:28:08.782Z"
+        },
+        {
+          "space": "pgvector",
+          "core_hash": "3d2c56a2944685bd21b05bc8a8d73164397df51c014201902932fbe7e80ff1b8",
+          "profile_hash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+          "updated_at": "2026-10-16T20:28:08.782Z"
+        },
+        {
+          "space": "supabase",
+          "core_hash": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212",
+          "profile_hash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+          "updated_at": "2026-10-17T10:24:52.410Z"
+        }
+      ],
+      "ledgerCountAfter": 10,
+      "newProfileLedger": [
+        {
+          "space": "supabase",
+          "migration_name": "",
+          "migration_hash": "af8551fb983a08dfc85ce28b82b7084e836639ee6c9e8e1cec63d68330ddf212",
+          "operation_count": 0
+        }
+      ],
+      "status": "PASS"
+    }
+  ]
+}

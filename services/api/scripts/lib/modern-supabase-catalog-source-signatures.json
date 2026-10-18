@@ -1,0 +1,330 @@
+{
+  "sourceFixture": {
+    "profileId": "supabase-auth-20260831180000-storage-73-multitenant-pg17",
+    "postgresMajor": 17,
+    "provenance": {
+      "basePackage": "@prisma/orm-extension-supabase@8.0.0-rc.12",
+      "baseStorageHash": "734893bc990ae5ec14dc7ad50a7d8b5873a864f056085a7ffd2f69c866989067",
+      "storageSourceCommit": "36a3a23f69896201f62ecd711d6f648520484403",
+      "storageBoundary": "0073-revoke-grants-to-unused-operations",
+      "storageMigrationLedgerProof": "official-storage-73-exact-evidence.json: all73 source hashes exactly match production ledger using SHA1(fileName+SQL)",
+      "authSourceCommit": "4eee58f296d9698a1c2c0ae14d7a0b379c7622d3",
+      "authSourceTag": "v2.197.0",
+      "authBoundary": "20260831180000",
+      "authHistoryProof": "All75 current official migration ids are present in production82; seven earlier2017/2018 ids retained. Auth ledger has no source checksums; current executable image version is not established by this metadata.",
+      "runtimeImageClaim": "Do not infer exact running container versions from schema migration boundary. Profile describes explicit source/schema envelope."
+    },
+    "executionEvidenceSha256": "4d0c5f40f5b03b6de18d021e3e5f2f5037dd10d53b4976549d205a046a0d5e7a",
+    "roleTopology": "Function owners from fixture admin are construction details; expected hosted owner must be independently declared supabase_storage_admin. Canonical expressions come only from executed official source.",
+    "kind": "official-source-only",
+    "status": "PASS",
+    "expectedStorageOwner": "supabase_storage_admin",
+    "sourceSqlSha256": {
+      "0011-add-trigger-to-auto-update-updated_at-column.sql": "922302d623209192a5a85c6bdd0bf21b64cc3bded6e1d048c66d98c7dfdd83eb",
+      "0037-add-bucket-name-length-trigger.sql": "87302c6579e5d6fca31e665ba1496471e2b9b61bc76dd95979ec57d1fa1bf58f",
+      "0055-prevent-direct-deletes.sql": "ec334dd0d3533b6ea53de3ed5fef2160fedb786a4555881d8f7bf6b84ee4d30d",
+      "0062-object-versioning-core.sql": "45969060b55102f56af317b0d7981434be58927de1ff76e1e1789139a3f2defc",
+      "0065-objects-key-version-index.sql": "426ed592dbded48288f4c619a6d01ea7f76ea5031b4378ff5a9c8fcd2b9667f1",
+      "0066-objects-current-version-index.sql": "2b0a54803b59d6888ee7f39112fd9308b804795deae5232db59664a2ff030913",
+      "0067-objects-null-version-index.sql": "40b424187dae61ce84463c2fc65fd6f86552c3aa8af50436fc18ffbf89e19636",
+      "0068-bucket-lifecycle-configuration.sql": "03a3832e3b2cbda93f36ce0de5b962d881fefe5d497321a09e9833e118c04139",
+      "0069-validate-bucket-lifecycle-constraints.sql": "393f7b36e34a577167a77b226aabf478b529cedf0b2a66b1ac2ea9bdeaf82a7e",
+      "0071-objects-delete-marker-index.sql": "d5d0a454b5d6a7c4d9d800721e053f33f1615d89ed7e5cbc440667a88c2a0d82",
+      "auth/20260821000000_add_scim_users.up.sql": "306bd1e7fb017ff092c23892479aa5276159fddcaca2ec137412939e365efd35",
+      "auth/20260821010000_add_scim_tokens.up.sql": "26ba18f30879470c9a072dc17ffebb5fbfbc74c21fea04ceb59698467138d2ba",
+      "auth/20260824000001_add_recovery_codes_tables.up.sql": "164b783002f178746e92eca36ec24a70cf3c70ea9553920b6a9869907f17f006"
+    }
+  },
+  "generatedColumns": [
+    {
+      "schema": "auth",
+      "table": "scim_users",
+      "column": "user_name",
+      "generated": "s",
+      "expression": "lower((resource ->> 'userName'::text))",
+      "formatType": "text",
+      "nullable": false
+    },
+    {
+      "schema": "auth",
+      "table": "scim_users",
+      "column": "external_id",
+      "generated": "s",
+      "expression": "(resource ->> 'externalId'::text)",
+      "formatType": "text",
+      "nullable": true
+    },
+    {
+      "schema": "auth",
+      "table": "scim_users",
+      "column": "active",
+      "generated": "s",
+      "expression": "COALESCE(((resource ->> 'active'::text))::boolean, true)",
+      "formatType": "boolean",
+      "nullable": false
+    }
+  ],
+  "indexes": [
+    {
+      "schema": "storage",
+      "table": "objects",
+      "name": "objects_bucket_id_name_version_key",
+      "method": "btree",
+      "unique": true,
+      "nullsNotDistinct": true,
+      "valid": true,
+      "ready": true,
+      "definition": "CREATE UNIQUE INDEX objects_bucket_id_name_version_key ON storage.objects USING btree (bucket_id, name COLLATE \"C\", version) NULLS NOT DISTINCT"
+    },
+    {
+      "schema": "storage",
+      "table": "objects",
+      "name": "idx_objects_current_version",
+      "method": "btree",
+      "unique": true,
+      "nullsNotDistinct": false,
+      "valid": true,
+      "ready": true,
+      "definition": "CREATE UNIQUE INDEX idx_objects_current_version ON storage.objects USING btree (bucket_id, name COLLATE \"C\") WHERE (archived_at IS NULL)"
+    },
+    {
+      "schema": "storage",
+      "table": "objects",
+      "name": "idx_objects_null_version",
+      "method": "btree",
+      "unique": true,
+      "nullsNotDistinct": false,
+      "valid": true,
+      "ready": true,
+      "definition": "CREATE UNIQUE INDEX idx_objects_null_version ON storage.objects USING btree (bucket_id, name COLLATE \"C\") WHERE (NOT is_versioned)"
+    },
+    {
+      "schema": "storage",
+      "table": "objects",
+      "name": "idx_objects_delete_markers",
+      "method": "btree",
+      "unique": false,
+      "nullsNotDistinct": false,
+      "valid": true,
+      "ready": true,
+      "definition": "CREATE INDEX idx_objects_delete_markers ON storage.objects USING btree (bucket_id, name COLLATE \"C\") WHERE is_delete_marker"
+    },
+    {
+      "schema": "auth",
+      "table": "scim_users",
+      "name": "scim_users_user_name_idx",
+      "method": "btree",
+      "unique": false,
+      "nullsNotDistinct": false,
+      "valid": true,
+      "ready": true,
+      "definition": "CREATE INDEX scim_users_user_name_idx ON auth.scim_users USING btree (sso_provider_id, user_name COLLATE \"C\", id) WHERE (deleted_at IS NULL)"
+    }
+  ],
+  "constraints": [
+    {
+      "schema": "auth",
+      "table": "scim_tokens",
+      "name": "scim_tokens_token_hash_check",
+      "validated": true,
+      "deferrable": false,
+      "deferred": false,
+      "definition": "CHECK ((token_hash ~ '^[0-9a-f]{64}$'::text))"
+    },
+    {
+      "schema": "auth",
+      "table": "scim_tokens",
+      "name": "scim_tokens_expires_at_future",
+      "validated": true,
+      "deferrable": false,
+      "deferred": false,
+      "definition": "CHECK (((expires_at IS NULL) OR (expires_at > created_at)))"
+    },
+    {
+      "schema": "auth",
+      "table": "scim_tokens",
+      "name": "scim_tokens_revoked_after_created",
+      "validated": true,
+      "deferrable": false,
+      "deferred": false,
+      "definition": "CHECK (((revoked_at IS NULL) OR (revoked_at >= created_at)))"
+    },
+    {
+      "schema": "auth",
+      "table": "mfa_recovery_code_sets",
+      "name": "mfa_recovery_code_sets_failed_verification_count_check",
+      "validated": true,
+      "deferrable": false,
+      "deferred": false,
+      "definition": "CHECK ((failed_verification_count >= 0))"
+    },
+    {
+      "schema": "storage",
+      "table": "buckets",
+      "name": "buckets_versioning_status_check",
+      "validated": true,
+      "deferrable": false,
+      "deferred": false,
+      "definition": "CHECK ((versioning_status = ANY (ARRAY['DISABLED'::text, 'ENABLED'::text, 'SUSPENDED'::text])))"
+    },
+    {
+      "schema": "storage",
+      "table": "buckets",
+      "name": "buckets_versioning_standard_only_check",
+      "validated": true,
+      "deferrable": false,
+      "deferred": false,
+      "definition": "CHECK (((type = 'STANDARD'::storage.buckettype) OR (versioning_status = 'DISABLED'::text)))"
+    },
+    {
+      "schema": "storage",
+      "table": "buckets",
+      "name": "buckets_versioning_dark_check",
+      "validated": true,
+      "deferrable": false,
+      "deferred": false,
+      "definition": "CHECK ((versioning_status = 'DISABLED'::text))"
+    },
+    {
+      "schema": "storage",
+      "table": "buckets",
+      "name": "buckets_lifecycle_configuration_pair_check",
+      "validated": true,
+      "deferrable": false,
+      "deferred": false,
+      "definition": "CHECK (((lifecycle_configuration IS NULL) = (lifecycle_configuration_generation IS NULL)))"
+    },
+    {
+      "schema": "storage",
+      "table": "buckets",
+      "name": "buckets_lifecycle_configuration_shape_check",
+      "validated": true,
+      "deferrable": false,
+      "deferred": false,
+      "definition": "CHECK (((lifecycle_configuration IS NULL) OR ((jsonb_typeof(lifecycle_configuration) = 'object'::text) AND (lifecycle_configuration ? 'rules'::text) AND\nCASE\n    WHEN (jsonb_typeof((lifecycle_configuration -> 'rules'::text)) = 'array'::text) THEN ((jsonb_array_length((lifecycle_configuration -> 'rules'::text)) >= 1) AND (jsonb_array_length((lifecycle_configuration -> 'rules'::text)) <= 1000))\n    ELSE false\nEND)))"
+    },
+    {
+      "schema": "storage",
+      "table": "buckets",
+      "name": "buckets_lifecycle_configuration_standard_only_check",
+      "validated": true,
+      "deferrable": false,
+      "deferred": false,
+      "definition": "CHECK (((type = 'STANDARD'::storage.buckettype) OR ((lifecycle_configuration IS NULL) AND (lifecycle_configuration_generation IS NULL))))"
+    }
+  ],
+  "functions": [
+    {
+      "schema": "storage",
+      "name": "protect_delete",
+      "identityArgs": "",
+      "securityDefiner": false,
+      "owner": "supabase_storage_admin",
+      "proconfig": null,
+      "language": "plpgsql",
+      "returnType": "trigger",
+      "prosrc": "\nBEGIN\n    -- Check if storage.allow_delete_query is set to 'true'\n    IF COALESCE(current_setting('storage.allow_delete_query', true), 'false') != 'true' THEN\n        RAISE EXCEPTION 'Direct deletion from storage tables is not allowed. Use the Storage API instead.'\n            USING HINT = 'This prevents accidental data loss from orphaned objects.',\n                  ERRCODE = '42501';\n    END IF;\n    RETURN NULL;\nEND;\n"
+    },
+    {
+      "schema": "storage",
+      "name": "protect_bucket_control_columns",
+      "identityArgs": "",
+      "securityDefiner": false,
+      "owner": "supabase_storage_admin",
+      "proconfig": [
+        "search_path=pg_catalog"
+      ],
+      "language": "plpgsql",
+      "returnType": "trigger",
+      "prosrc": "\nDECLARE\n  configuration_changed boolean;\nBEGIN\n  IF TG_OP = 'INSERT' THEN\n    IF NEW.lifecycle_configuration IS NOT NULL\n       OR NEW.lifecycle_configuration_generation IS NOT NULL THEN\n      IF NOT pg_has_role(current_user, TG_ARGV[0], 'MEMBER') THEN\n        RAISE EXCEPTION 'only members of the configured storage service role may insert lifecycle policy state'\n          USING ERRCODE = '42501',\n                HINT = format(\n                  'Insert with both lifecycle columns NULL and configure lifecycle through the Storage API afterward, or insert as a member of %I.',\n                  TG_ARGV[0]\n                );\n      END IF;\n    END IF;\n\n    RETURN NEW;\n  END IF;\n\n  configuration_changed =\n    OLD.lifecycle_configuration IS DISTINCT FROM NEW.lifecycle_configuration\n    OR OLD.lifecycle_configuration_generation IS DISTINCT FROM NEW.lifecycle_configuration_generation;\n\n  IF NOT configuration_changed THEN\n    RETURN NEW;\n  END IF;\n\n  IF NEW.type IS DISTINCT FROM 'STANDARD' THEN\n    RAISE EXCEPTION 'bucket versioning and lifecycle controls require a Standard bucket'\n      USING ERRCODE = '0A000';\n  END IF;\n\n  IF NEW.lifecycle_configuration IS NULL\n     AND NEW.lifecycle_configuration_generation IS NULL THEN\n    RETURN NEW;\n  END IF;\n\n  IF NEW.lifecycle_configuration IS NULL\n     OR NEW.lifecycle_configuration_generation IS NULL\n     OR OLD.lifecycle_configuration IS NOT DISTINCT FROM NEW.lifecycle_configuration\n     OR OLD.lifecycle_configuration_generation IS NOT DISTINCT FROM NEW.lifecycle_configuration_generation THEN\n    RAISE EXCEPTION 'a changed lifecycle policy requires a new non-null generation'\n      USING ERRCODE = '22023';\n  END IF;\n\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema": "storage",
+      "name": "enforce_bucket_lifecycle_service_role",
+      "identityArgs": "",
+      "securityDefiner": false,
+      "owner": "supabase_storage_admin",
+      "proconfig": [
+        "search_path=pg_catalog"
+      ],
+      "language": "plpgsql",
+      "returnType": "trigger",
+      "prosrc": "\nBEGIN\n  IF current_user::text IS DISTINCT FROM TG_ARGV[0]\n     AND (\n       OLD.lifecycle_configuration IS DISTINCT FROM NEW.lifecycle_configuration\n       OR OLD.lifecycle_configuration_generation IS DISTINCT FROM NEW.lifecycle_configuration_generation\n     ) THEN\n    -- AFTER runs only after caller RLS has accepted the proposed row. The API\n    -- recognizes this specific error after rolling back its permission probe;\n    -- direct non-service writes still fail and cannot persist the change.\n    RAISE EXCEPTION 'bucket control columns may only be changed by the configured storage service role'\n      USING ERRCODE = 'PST01',\n            SCHEMA = TG_TABLE_SCHEMA,\n            TABLE = TG_TABLE_NAME,\n            CONSTRAINT = TG_NAME;\n  END IF;\n\n  RETURN NULL;\nEND;\n"
+    },
+    {
+      "schema": "storage",
+      "name": "enforce_bucket_name_length",
+      "identityArgs": "",
+      "securityDefiner": false,
+      "owner": "supabase_storage_admin",
+      "proconfig": null,
+      "language": "plpgsql",
+      "returnType": "trigger",
+      "prosrc": "\nbegin\n    if length(new.name) > 100 then\n        raise exception 'bucket name \"%\" is too long (% characters). Max is 100.', new.name, length(new.name);\n    end if;\n    return new;\nend;\n"
+    },
+    {
+      "schema": "storage",
+      "name": "update_updated_at_column",
+      "identityArgs": "",
+      "securityDefiner": false,
+      "owner": "supabase_storage_admin",
+      "proconfig": null,
+      "language": "plpgsql",
+      "returnType": "trigger",
+      "prosrc": "\nBEGIN\n    NEW.updated_at = now();\n    RETURN NEW; \nEND;\n"
+    }
+  ],
+  "triggers": [
+    {
+      "schema": "storage",
+      "table": "buckets",
+      "name": "enforce_bucket_name_length_trigger",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER enforce_bucket_name_length_trigger BEFORE INSERT OR UPDATE OF name ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.enforce_bucket_name_length()"
+    },
+    {
+      "schema": "storage",
+      "table": "buckets",
+      "name": "protect_bucket_control_insert",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER protect_bucket_control_insert BEFORE INSERT ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.protect_bucket_control_columns('service_role')"
+    },
+    {
+      "schema": "storage",
+      "table": "buckets",
+      "name": "protect_bucket_control_update",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER protect_bucket_control_update BEFORE UPDATE OF lifecycle_configuration, lifecycle_configuration_generation ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.protect_bucket_control_columns()"
+    },
+    {
+      "schema": "storage",
+      "table": "buckets",
+      "name": "protect_bucket_control_update_role",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER protect_bucket_control_update_role AFTER UPDATE OF lifecycle_configuration, lifecycle_configuration_generation ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.enforce_bucket_lifecycle_service_role('service_role')"
+    },
+    {
+      "schema": "storage",
+      "table": "buckets",
+      "name": "protect_buckets_delete",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER protect_buckets_delete BEFORE DELETE ON storage.buckets FOR EACH STATEMENT EXECUTE FUNCTION storage.protect_delete()"
+    },
+    {
+      "schema": "storage",
+      "table": "objects",
+      "name": "protect_objects_delete",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER protect_objects_delete BEFORE DELETE ON storage.objects FOR EACH STATEMENT EXECUTE FUNCTION storage.protect_delete()"
+    },
+    {
+      "schema": "storage",
+      "table": "objects",
+      "name": "update_objects_updated_at",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER update_objects_updated_at BEFORE UPDATE ON storage.objects FOR EACH ROW EXECUTE FUNCTION storage.update_updated_at_column()"
+    }
+  ],
+  "profileId": "supabase-auth-20260831180000-storage-73-multitenant-pg17",
+  "postgresMajor": 17
+}

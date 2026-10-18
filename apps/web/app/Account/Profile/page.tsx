@@ -6,11 +6,12 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 
 import SiteHeader from "../../components/SiteHeader";
+import RequireAuth from "../../components/require-auth";
 import LearningSummary from "../../components/learning-summary";
 import { useLanguage } from "../../lib/i18n/LanguageContext";
 import {
   getCurrentUserThemePreferences,
-  syncCurrentUserProfile,
+  getCurrentUserProfile,
   updateCurrentUserProfile,
   updateCurrentUserThemePreferences,
   type ColorTheme,
@@ -145,13 +146,19 @@ function ProfileContent() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSaving, setIsSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [profileLoadError, setProfileLoadError] = useState(false);
+  const [profileAttempt, setProfileAttempt] = useState(0);
 
   useEffect(() => {
     let active = true;
 
-    syncCurrentUserProfile()
+    getCurrentUserProfile()
       .then((profile) => {
         if (!active) return;
+        if (!profile) {
+          router.replace("/SignIn");
+          return;
+        }
         const nextUserInfo: UserProfile = {
           name: profile.displayName,
           email: profile.email ?? "",
@@ -160,15 +167,16 @@ function ProfileContent() {
         };
         setInitialUserInfo(nextUserInfo);
         setUserInfo(nextUserInfo);
+        setProfileLoadError(false);
       })
       .catch(() => {
-        if (active) router.replace("/SignIn");
+        if (active) setProfileLoadError(true);
       });
 
     return () => {
       active = false;
     };
-  }, [router]);
+  }, [router, profileAttempt]);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -265,6 +273,7 @@ function ProfileContent() {
 
       {/* Main Content */}
       <main className="px-10 py-4 max-w-[1400px] mx-auto">
+        {profileLoadError && <div role="alert" className="mb-4 rounded-xl border border-danger/40 p-3 text-sm text-danger">Could not load your account profile. <button type="button" onClick={() => { setProfileLoadError(false); setProfileAttempt((value) => value + 1); }} className="underline">Retry</button></div>}
         <h1 className="mb-2 text-[48px] font-bold tracking-tight whitespace-nowrap">
           {t("settings.pageTitle")}
         </h1>
@@ -603,7 +612,7 @@ function ProfileContent() {
 export default function ProfilePage() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <ProfileContent />
+      <RequireAuth><ProfileContent /></RequireAuth>
     </Suspense>
   );
 }

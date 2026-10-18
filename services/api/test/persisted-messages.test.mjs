@@ -29,6 +29,17 @@ test("decodes a persisted tutor JSON object without losing its blocks", () => {
   assert.deepEqual(result.content, content);
 });
 
+test("preserves precise database ordering time separately from public millisecond timestamps", () => {
+  const result = decodePersistedMessageRow({
+    ...base,
+    orderingTimestamp: "2026-10-08T15:42:00.000123Z",
+    role: "USER",
+    contentJson: JSON.stringify("Explain Ohm's law"),
+  });
+  assert.equal(result.createdAt, base.createdAt);
+  assert.equal(result.orderingTimestamp, "2026-10-08T15:42:00.000123Z");
+});
+
 test("rejects invalid JSON and unsupported roles", () => {
   assert.throws(() => decodePersistedMessageRow({ ...base, role: "USER", contentJson: "{invalid" }), /not valid JSON/);
   assert.throws(() => decodePersistedMessageRow({ ...base, role: "OTHER", contentJson: "{}" }), /Unsupported persisted message role/);

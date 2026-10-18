@@ -1,3 +1,6 @@
+import { accessSync, constants, statSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 import { Worker } from "node:worker_threads";
 import { ApiError } from "../../shared/api-error.js";
 import { inspectFileEnvelope, type FileEnvelope } from "./file-envelope.js";
@@ -17,6 +20,67 @@ const failures = {
 } as const;
 type Failure = keyof typeof failures;
 const controlled = (code: Failure) => new ApiError(code, failures[code][0], failures[code][1]);
+const require = createRequire(import.meta.url);
+const diagnosticStages = ["PDF_IMPORT", "PDF_OPEN", "PDF_TEXT", "IMAGE_DECODE", "OCR_INIT", "OCR_RECOGNIZE", "WORKER_ENTRYPOINT"] as const;
+const diagnosticDependencies = ["pdf.worker.mjs", "pdfjs-dist", "@napi-rs/canvas", "pngjs", "jpeg-js", "tesseract.js-core",
+  "tesseract.js", "DOMMatrix", "ImageData", "Path2D"] as const;
+type DiagnosticStage = typeof diagnosticStages[number];
+type Diagnostic = { stage: DiagnosticStage; dependency: typeof diagnosticDependencies[number] | null; code: string };
+function safeDiagnostic(value: unknown, fallbackStage: DiagnosticStage, fallbackError?: unknown): Diagnostic {
+  const candidate = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  const stage = diagnosticStages.includes(candidate.stage as DiagnosticStage) ? candidate.stage as DiagnosticStage : fallbackStage;
+  const message = fallbackError && typeof fallbackError === "object" && "message" in fallbackError &&
+    typeof fallbackError.message === "string" ? fallbackError.message : "";
+  const dependency = diagnosticDependencies.includes(candidate.dependency as typeof diagnosticDependencies[number])
+    ? candidate.dependency as typeof diagnosticDependencies[number]
+    : diagnosticDependencies.find(name => message.includes(name)) ?? null;
+  const classifiedCode = message.includes("ENOENT") || /no such file/iu.test(message) ? "OCR_ASSET_NOT_FOUND"
+    : message.includes("WebAssembly") || message.includes("CompileError") || message.includes("Aborted") ? "OCR_WASM_INIT_FAILED"
+      : message.includes("Setting up fake worker failed") ? "PDF_WORKER_SETUP_FAILED"
+        : message.includes("Cannot find module") ? "DEPENDENCY_NOT_FOUND"
+          : message.includes("API version") || message.includes("Worker version") ? "PDF_WORKER_VERSION_MISMATCH"
+            : message.includes("DOMMatrix") ? "DOM_API_UNAVAILABLE" : "WORKER_FAILURE";
+  const code = typeof candidate.code === "string" && /^[A-Z0-9_]{1,80}$/u.test(candidate.code) ? candidate.code
+    : fallbackError && typeof fallbackError === "object" && "code" in fallbackError && typeof fallbackError.code === "string" && /^[A-Z0-9_]{1,80}$/u.test(fallbackError.code)
+      ? fallbackError.code : classifiedCode;
+  return { stage, dependency, code };
+}
+const coreAssetVariants = [
+  { label: "core", stem: "tesseract-core" },
+  { label: "core-lstm", stem: "tesseract-core-lstm" },
+  { label: "core-simd", stem: "tesseract-core-simd" },
+  { label: "core-simd-lstm", stem: "tesseract-core-simd-lstm" },
+  { label: "core-relaxedsimd", stem: "tesseract-core-relaxedsimd" },
+  { label: "core-relaxedsimd-lstm", stem: "tesseract-core-relaxedsimd-lstm" },
+] as const;
+function coreAssetStatus(file: string): { state: "readable" | "missing" | "unreadable"; bytes: number } {
+  try {
+    accessSync(file, constants.R_OK);
+    const info = statSync(file);
+    return info.isFile() ? { state: "readable", bytes: info.size } : { state: "unreadable", bytes: 0 };
+  } catch (error) {
+    const code = error && typeof error === "object" && "code" in error ? error.code : undefined;
+    return { state: code === "ENOENT" || code === "ENOTDIR" ? "missing" : "unreadable", bytes: 0 };
+  }
+}
+function coreAssetDiagnostics() {
+  let packageRoot: string | undefined;
+  try { packageRoot = dirname(require.resolve("tesseract.js-core/package.json")); }
+  catch { /* A missing package is represented by fixed missing states below. */ }
+  return coreAssetVariants.map(({ label, stem }) => {
+    const js = packageRoot ? coreAssetStatus(join(packageRoot, `${stem}.js`)) : { state: "missing" as const, bytes: 0 };
+    const wasm = packageRoot ? coreAssetStatus(join(packageRoot, `${stem}.wasm`)) : { state: "missing" as const, bytes: 0 };
+    return { variant: label, jsState: js.state, jsBytes: js.bytes, wasmState: wasm.state, wasmBytes: wasm.bytes };
+  });
+}
+function logWorkerFailure(value: unknown, fallbackStage: DiagnosticStage, fallbackError?: unknown): void {
+  const diagnostic = safeDiagnostic(value, fallbackStage, fallbackError);
+  if (diagnostic.dependency === "tesseract.js-core") {
+    console.error("[file-extraction] failed", { ...diagnostic, coreAssets: coreAssetDiagnostics() });
+  } else {
+    console.error("[file-extraction] failed", diagnostic);
+  }
+}
 let activeWorkers = 0;
 
 /** Per-request isolated CPU work. No worker pool/daemon, credentials or runtime model downloads. */
@@ -65,18 +129,30 @@ export class RealFileTextExtractor implements FileTextExtractor {
         }
         signal.addEventListener("abort", abort, { once: true });
         running.once("message", (value: unknown) => {
-          if (!value || typeof value !== "object") { finish(controlled("INVALID_FILE")); return; }
-          const message = value as { ok?: unknown; result?: ExtractedFileText; code?: unknown };
+          if (!value || typeof value !== "object") {
+            logWorkerFailure(undefined, "WORKER_ENTRYPOINT");
+            finish(controlled("INVALID_FILE")); return;
+          }
+          const message = value as { ok?: unknown; result?: ExtractedFileText; code?: unknown; diagnostic?: unknown };
           if (message.ok === true && message.result) {
             try { finish(undefined, normalizeFileExtraction(message.result, file).extraction); }
             catch (error) { finish(error instanceof ApiError ? error : controlled("INVALID_FILE")); }
           } else {
+            logWorkerFailure(message.diagnostic, "WORKER_ENTRYPOINT", { code: message.code });
             const code = typeof message.code === "string" && Object.hasOwn(failures, message.code) ? message.code as Failure : "INVALID_FILE";
             finish(controlled(code));
           }
         });
-        running.once("error", error => finish(controlled((error as NodeJS.ErrnoException).code === "ERR_WORKER_OUT_OF_MEMORY" ? "FILE_PROCESSING_LIMIT" : "INVALID_FILE")));
-        running.once("exit", () => { if (!settled) finish(controlled("INVALID_FILE")); });
+        running.once("error", error => {
+          logWorkerFailure(undefined, "WORKER_ENTRYPOINT", error);
+          finish(controlled((error as NodeJS.ErrnoException).code === "ERR_WORKER_OUT_OF_MEMORY" ? "FILE_PROCESSING_LIMIT" : "INVALID_FILE"));
+        });
+        running.once("exit", () => {
+          if (!settled) {
+            logWorkerFailure(undefined, "WORKER_ENTRYPOINT");
+            finish(controlled("INVALID_FILE"));
+          }
+        });
         if (signal.aborted) abort();
       });
       if (signal.aborted) throw controlled("FILE_PROCESSING_TIMEOUT");

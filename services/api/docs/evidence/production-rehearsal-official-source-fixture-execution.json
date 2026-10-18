@@ -1,0 +1,749 @@
+{
+  "kind": "official-source-only-service-fixture",
+  "database": "learnly_service_source_fixture_20261017",
+  "productionAccess": false,
+  "migrations": [
+    {
+      "space": "auth",
+      "file": "00_init_auth_schema.up.sql",
+      "sha256": "4c3ab2565f2836d8fa0a54fd9d153facaee0c4c6258fa0a794c93446ddc10f71"
+    },
+    {
+      "space": "auth",
+      "file": "20210710035447_alter_users.up.sql",
+      "sha256": "b87f889d4839b7e092f186ad244f3f5294ab5c0f50ef2feb40cab1307be8c9cd"
+    },
+    {
+      "space": "auth",
+      "file": "20210722035447_adds_confirmed_at.up.sql",
+      "sha256": "32499502e5d57594d2373e6f00d7b436a9b275c85b889680913f00d6ebc3ae73"
+    },
+    {
+      "space": "auth",
+      "file": "20210730183235_add_email_change_confirmed.up.sql",
+      "sha256": "88da41a1dbae8077a26a4811c4d80b925162e5423c803467d3bff78407b4d995"
+    },
+    {
+      "space": "auth",
+      "file": "20210909172000_create_identities_table.up.sql",
+      "sha256": "4c2d6a94d34d34f98f1fa83537a0068f4813e49a19cfc2fd4e9199e5a941cc84"
+    },
+    {
+      "space": "auth",
+      "file": "20210927181326_add_refresh_token_parent.up.sql",
+      "sha256": "73fb1d320fb85e231e322d0da6184adcda838c755a2b3f1e0894c249a59ba4e3"
+    },
+    {
+      "space": "auth",
+      "file": "20211122151130_create_user_id_idx.up.sql",
+      "sha256": "0fbc4d8b62329aa444ea5820eef86e32a57a709964a2c65bc0463083b7130b02"
+    },
+    {
+      "space": "auth",
+      "file": "20211124214934_update_auth_functions.up.sql",
+      "sha256": "abf8d29849e04db2b6a84ea9c8c58daafdabdd3e3520051efb9ec362f4679992"
+    },
+    {
+      "space": "auth",
+      "file": "20211202183645_update_auth_uid.up.sql",
+      "sha256": "a70a3afa97c67fbb31aacbea496da0d01b9a809dc4b861f3187cb7e3ba5fda2d"
+    },
+    {
+      "space": "auth",
+      "file": "20220114185221_update_user_idx.up.sql",
+      "sha256": "89eb7cb7f44efcbf48ed854faca0347dea80cebff1693a8dc532d581729de0cd"
+    },
+    {
+      "space": "auth",
+      "file": "20220114185340_add_banned_until.up.sql",
+      "sha256": "8aea70090fdeeafc4bbf206a799551e3f7bce0e6749d8c7cc8033e983e750e38"
+    },
+    {
+      "space": "auth",
+      "file": "20220224000811_update_auth_functions.up.sql",
+      "sha256": "5b72022d73e64a8e474d2122ac42f299bb7ce4d59755cdcc78e72abfe5d47dc0"
+    },
+    {
+      "space": "auth",
+      "file": "20220323170000_add_user_reauthentication.up.sql",
+      "sha256": "5fb66f473dd37e7141c5165254a6706cae3d2cab3632b92fb0f8f7cb58f7655d"
+    },
+    {
+      "space": "auth",
+      "file": "20220429102000_add_unique_idx.up.sql",
+      "sha256": "4f9ce72459f72a601c4901eed0d4f5b9e9731c31f8d643736a118739c29538ee"
+    },
+    {
+      "space": "auth",
+      "file": "20220531120530_add_auth_jwt_function.up.sql",
+      "sha256": "91d2d5e47f19e65a63ec411f6cbb18755ec1792cb4249694dc261ef59cc78a10"
+    },
+    {
+      "space": "auth",
+      "file": "20220614074223_add_ip_address_to_audit_log.postgres.up.sql",
+      "sha256": "0e2cbe2fc509b97f27803c04e723215c3944a7f84c043dd8f7cd7118c199a5dc"
+    },
+    {
+      "space": "auth",
+      "file": "20220811173540_add_sessions_table.up.sql",
+      "sha256": "840c19639d972143bc3fc05a16e77da45c076edcba229c94b019a2db1f0eb192"
+    },
+    {
+      "space": "auth",
+      "file": "20221003041349_add_mfa_schema.up.sql",
+      "sha256": "c8c52b388e13c77062d54036884b1e2e1716a6712ea1f1d0cdd07de5451cb605"
+    },
+    {
+      "space": "auth",
+      "file": "20221003041400_add_aal_and_factor_id_to_sessions.up.sql",
+      "sha256": "3ed43e2a1392b28d4295265199265b2d9be22d005c597367db5613f95b304ab1"
+    },
+    {
+      "space": "auth",
+      "file": "20221011041400_add_mfa_indexes.up.sql",
+      "sha256": "32ab5cd482674c98fd5926e7c0995fc216d2cc2b1ff77554b6c45b4bd758dd6f"
+    },
+    {
+      "space": "auth",
+      "file": "20221020193600_add_sessions_user_id_index.up.sql",
+      "sha256": "7b33e11e8092ea07d2f4e899558b46e0a5573f0c43a56532f1f640c2c7eb7802"
+    },
+    {
+      "space": "auth",
+      "file": "20221021073300_add_refresh_tokens_session_id_revoked_index.up.sql",
+      "sha256": "63887b7bd3045561c4930575d4fa324fc9090630193989a9736dd84328d1ec55"
+    },
+    {
+      "space": "auth",
+      "file": "20221021082433_add_saml.up.sql",
+      "sha256": "af0bbfdb64dd32f512712f45b44e0dce4e9af8ce7874e01c3a804f95eeb3a387"
+    },
+    {
+      "space": "auth",
+      "file": "20221027105023_add_identities_user_id_idx.up.sql",
+      "sha256": "1e7c07b825b2ee8bdfe8fee06588525b97f3771efc6c365c7057c0f7abfbd30a"
+    },
+    {
+      "space": "auth",
+      "file": "20221114143122_add_session_not_after_column.up.sql",
+      "sha256": "7bf30a94308028f0c8140166e9a6f3d77356daa1147e5740a27cc983e39b854c"
+    },
+    {
+      "space": "auth",
+      "file": "20221114143410_remove_parent_foreign_key_refresh_tokens.up.sql",
+      "sha256": "5e804d7c82e0e6dca6f72e2350951e87714f6890fe63c2388dcbfa9aea687f2f"
+    },
+    {
+      "space": "auth",
+      "file": "20221125140132_backfill_email_identity.up.sql",
+      "sha256": "60cfea2750a2c79c0d69bb3a08edee0efb830c12212cac0ffdb5d44937c2839d"
+    },
+    {
+      "space": "auth",
+      "file": "20221208132122_backfill_email_last_sign_in_at.up.sql",
+      "sha256": "c8487fa68eac6f0b4133f1a3fec950b3d8f9782a6c4be52e3b3155646b2a70bf"
+    },
+    {
+      "space": "auth",
+      "file": "20221215195500_modify_users_email_unique_index.up.sql",
+      "sha256": "0a2cdcd4101a418ec7b482800327fc90238b498db01a657dbbeefdba8b8f3866"
+    },
+    {
+      "space": "auth",
+      "file": "20221215195800_add_identities_email_column.up.sql",
+      "sha256": "3ddff50750549b790eecbeac2194966ca98354564f4fba537cda70d96b575d39"
+    },
+    {
+      "space": "auth",
+      "file": "20221215195900_remove_sso_sessions.up.sql",
+      "sha256": "f79ad2aaaa4f748836595a9ef10b3df0234e53032c339f0c74e3181271af1801"
+    },
+    {
+      "space": "auth",
+      "file": "20230116124310_alter_phone_type.up.sql",
+      "sha256": "4f01441b120a5c06a1bd844fcdb77094ee428987418f4c3b68bcbd36b3e6d345"
+    },
+    {
+      "space": "auth",
+      "file": "20230116124412_add_deleted_at.up.sql",
+      "sha256": "144a735e50373686e04d0cd3d46b997262162dda14965870342f65cd0b5a7845"
+    },
+    {
+      "space": "auth",
+      "file": "20230131181311_backfill_invite_identities.up.sql",
+      "sha256": "f88443609f6d15d3d1bff00e69a6c7a455fa331cb30747c8448d5e219729a2df"
+    },
+    {
+      "space": "auth",
+      "file": "20230322519590_add_flow_state_table.up.sql",
+      "sha256": "cc19edd9bf9dc333381a5843c440a28cca3f492eba3ed77f0bc052df371d15f6"
+    },
+    {
+      "space": "auth",
+      "file": "20230402418590_add_authentication_method_to_flow_state_table.up.sql",
+      "sha256": "8f10e836a25f85ccdac620c36f871effc84e7d6020bd38fd002ddd119847fd84"
+    },
+    {
+      "space": "auth",
+      "file": "20230411005111_remove_duplicate_idx.up.sql",
+      "sha256": "cc1b7b8a172693abafa64d0273240fa8181fdf5dde565e15b94adb38ec40c2e9"
+    },
+    {
+      "space": "auth",
+      "file": "20230508135423_add_cleanup_indexes.up.sql",
+      "sha256": "89d4747491836d2bc33cc340029624d88ed9cf7e32574c3a9fbbe2431a27b5c8"
+    },
+    {
+      "space": "auth",
+      "file": "20230523124323_add_mfa_challenge_cleanup_index.up.sql",
+      "sha256": "af534c2184d12d00bef8fbd8b593f5a4c8b3297854bd205fb4e3bcdba9d6ca56"
+    },
+    {
+      "space": "auth",
+      "file": "20230818113222_add_flow_state_to_relay_state.up.sql",
+      "sha256": "cc6587385b84deba61c31e0749eb8064f9cdf5aa6db5239713fa31966de4f2dd"
+    },
+    {
+      "space": "auth",
+      "file": "20230914180801_add_mfa_factors_user_id_idx.up.sql",
+      "sha256": "844c575a40f9609987638bb29716deaaad3b9c1c1e8c399204d870018f867684"
+    },
+    {
+      "space": "auth",
+      "file": "20231027141322_add_session_refresh_columns.up.sql",
+      "sha256": "d4aa51107599c755003464121d4c0d99e617543bfee9a816fd76df0b399aafe0"
+    },
+    {
+      "space": "auth",
+      "file": "20231114161723_add_sessions_tag.up.sql",
+      "sha256": "e32711d98cd7c3f5920ca2a79df9c597433dac1b7e8b56df7b0becb96319d147"
+    },
+    {
+      "space": "auth",
+      "file": "20231117164230_add_id_pkey_identities.up.sql",
+      "sha256": "8822b2807b672d38b212618193efdb6fc2cf787e564a495940c1a8844155d7b0"
+    },
+    {
+      "space": "auth",
+      "file": "20240115144230_remove_ip_address_from_saml_relay_state.up.sql",
+      "sha256": "9e104ca8b63695f6427ff057b5b7801ef7e4cc3baf32d4289e61b0015128d651"
+    },
+    {
+      "space": "auth",
+      "file": "20240214120130_add_is_anonymous_column.up.sql",
+      "sha256": "e36f403a8aad16ccbcc44e1d4198cf21451a906b45ceaedb74bfcd28e79caf21"
+    },
+    {
+      "space": "auth",
+      "file": "20240306115329_add_issued_at_to_flow_state.up.sql",
+      "sha256": "bf1f44b3cb07768436f31c74baabfd2f39c738609aff8b21cfa5a432abcc8a99"
+    },
+    {
+      "space": "auth",
+      "file": "20240314092811_add_saml_name_id_format.up.sql",
+      "sha256": "282677b538df87612bef2780d25b08508980648e3e33e6a90f8602d35d4e96bf"
+    },
+    {
+      "space": "auth",
+      "file": "20240427152123_add_one_time_tokens_table.up.sql",
+      "sha256": "bfc4d6e779ce15c0e9170d1ab149b431108f2085a5aa4663d4288158348f3693"
+    },
+    {
+      "space": "auth",
+      "file": "20240612123726_enable_rls_update_grants.up.sql",
+      "sha256": "4339a09e7c90d7a46d2527097bc47c382300d72faaec901a8792319bd9a28f10"
+    },
+    {
+      "space": "auth",
+      "file": "20240729123726_add_mfa_phone_config.up.sql",
+      "sha256": "b273758317267b6b4d126489ba93550c8d0e0584e52c08b3cc101de6fe1b857c"
+    },
+    {
+      "space": "auth",
+      "file": "20240802193726_add_mfa_factors_column_last_challenged_at.up.sql",
+      "sha256": "0e5aa195cf80e377cdca00b4e01e2c82769c03dc9ffb487dce8891944bc014dd"
+    },
+    {
+      "space": "auth",
+      "file": "20240806073726_drop_uniqueness_constraint_on_phone.up.sql",
+      "sha256": "41b86596488620d17e513354fa9ffda041214d9014dc34e46f68d42019d1c2ee"
+    },
+    {
+      "space": "auth",
+      "file": "20241009103726_add_web_authn.up.sql",
+      "sha256": "4efc5df9a393ce28ef639f1523a1dbc018066daddca7fb58d2bf02214e532bd0"
+    },
+    {
+      "space": "auth",
+      "file": "20250717082212_add_disabled_to_sso_providers.up.sql",
+      "sha256": "4b3b6073f80799f41370cbba6706a1ea8770803746f7662ee0f82e72740af4bb"
+    },
+    {
+      "space": "auth",
+      "file": "20250731150234_add_oauth_clients_table.up.sql",
+      "sha256": "33651d28b6ea6aa1cd84b5d50cdf8181cfb9fb314b76670554bef58dbf69c168"
+    },
+    {
+      "space": "auth",
+      "file": "20250804100000_add_oauth_authorizations_consents.up.sql",
+      "sha256": "64b4730434c00864a069404a636bc2281c3920fab451517b138e6f6f056d986f"
+    },
+    {
+      "space": "auth",
+      "file": "20250901200500_add_oauth_client_type.up.sql",
+      "sha256": "e986446884eb9b5b0f26dd667385a31da8291f8748a543669cd960c405835d1b"
+    },
+    {
+      "space": "auth",
+      "file": "20250903112500_remove_oauth_client_id_column.up.sql",
+      "sha256": "fb2df11538de2c165560c3b6bdae3d4da543a3ac136f8a0e6dc4fbd56d223c30"
+    },
+    {
+      "space": "auth",
+      "file": "20250904133000_add_oauth_client_id_to_session.up.sql",
+      "sha256": "3c4b49f787b54d4e09b48b4500226b59edc73e3f60826538e9e3552db9542faf"
+    },
+    {
+      "space": "auth",
+      "file": "20250925093508_add_last_webauthn_challenge_data.up.sql",
+      "sha256": "0d1df54678aadbd03777c82e3d9e4a917717d806e884a6c69f3c0206c1963017"
+    },
+    {
+      "space": "auth",
+      "file": "20251007112900_add_session_refresh_token_columns.up.sql",
+      "sha256": "030486cbfbd1b3cc95f029eb45d33270c22706fe33249a04240dccffc656ce2e"
+    },
+    {
+      "space": "auth",
+      "file": "20251104100000_add_nonce_to_oauth_authorizations.up.sql",
+      "sha256": "830c36f9e0fd02a278e361be02fb1121ff472f3f3514f108b55ff3bc52ed122d"
+    },
+    {
+      "space": "auth",
+      "file": "20251111201300_add_scopes_to_sessions.up.sql",
+      "sha256": "ed17a54ec423ca409b384e26805ec7e10b346a22573f5729f9580126b9715271"
+    },
+    {
+      "space": "auth",
+      "file": "20251201000000_add_oauth_client_states_table.up.sql",
+      "sha256": "c0d1ef106dfc6b6aaf7d2ef3a7f0f723fb5b416d3e7ca5c2bc2f69e998ec8547"
+    },
+    {
+      "space": "auth",
+      "file": "20260115000000_add_flow_state_oauth_context.up.sql",
+      "sha256": "d32bfb5fd5add82dbb72b8b4007aee6ba75950392399ea659cea295328e3d01d"
+    },
+    {
+      "space": "auth",
+      "file": "20260121000000_add_token_endpoint_auth_method.up.sql",
+      "sha256": "835b50dd682d8f5ffdadedf178d4d77ddf2b03597743f7c07df48389bc61dacf"
+    },
+    {
+      "space": "auth",
+      "file": "20260219120000_add_custom_oauth_providers.up.sql",
+      "sha256": "94deeedce0822faac2c6f36c00591da9c2b8ad9530ba7b51ad75c083e9c77deb"
+    },
+    {
+      "space": "auth",
+      "file": "20260302000000_add_passkeys.up.sql",
+      "sha256": "b86a89a447ea91d77fe452b3c0584783f533a0cb7e23f85e62fb1ea12c23031e"
+    },
+    {
+      "space": "auth",
+      "file": "20260625000000_add_custom_claims_allowlist.up.sql",
+      "sha256": "6fe5c9be092ce6d4c577d137b58b04d00dbbfa71462636d8d6f7b91b1ca440f2"
+    },
+    {
+      "space": "auth",
+      "file": "20260821000000_add_scim_users.up.sql",
+      "sha256": "306bd1e7fb017ff092c23892479aa5276159fddcaca2ec137412939e365efd35"
+    },
+    {
+      "space": "auth",
+      "file": "20260821010000_add_scim_tokens.up.sql",
+      "sha256": "26ba18f30879470c9a072dc17ffebb5fbfbc74c21fea04ceb59698467138d2ba"
+    },
+    {
+      "space": "auth",
+      "file": "20260824000000_add_recovery_codes_factor_type.up.sql",
+      "sha256": "cb8614c41cfe831b22c3eb972b104f417e81fdab5972948cc06a2323fca8b77c"
+    },
+    {
+      "space": "auth",
+      "file": "20260824000001_add_recovery_codes_tables.up.sql",
+      "sha256": "164b783002f178746e92eca36ec24a70cf3c70ea9553920b6a9869907f17f006"
+    },
+    {
+      "space": "auth",
+      "file": "20260831180000_add_expires_at_to_one_time_tokens.up.sql",
+      "sha256": "36417f03a1b9496d1f7e365350c07809308305634f6b464aae0760e9e9ae7029"
+    },
+    {
+      "space": "storage",
+      "file": "0001-initialmigration.sql",
+      "sha256": "822ae07d4783158bc1912bb623e5107cc9002d519e1143a9c200ed6ee18b6d0f"
+    },
+    {
+      "space": "storage",
+      "file": "0002-storage-schema.sql",
+      "sha256": "19562682ff1b77cda9ba096671b873e7e226b10f0b0564bd4823e6c1754393b6"
+    },
+    {
+      "space": "storage",
+      "file": "0003-pathtoken-column.sql",
+      "sha256": "db57ad79bd7ecf1ea6a8099b38bf376886d6b2181ba65b9e9c0556ed245dea8b"
+    },
+    {
+      "space": "storage",
+      "file": "0004-add-migrations-rls.sql",
+      "sha256": "05b32aad858e4644202e6ac43413cfee30e61d7e9ad51c42b082cfb21235c7bd"
+    },
+    {
+      "space": "storage",
+      "file": "0005-add-size-functions.sql",
+      "sha256": "ce7f8b2e360f49df2a0f7d8ed0fd4bc63c6907f2890e84cfc377d9050118fb06"
+    },
+    {
+      "space": "storage",
+      "file": "0006-change-column-name-in-get-size.sql",
+      "sha256": "d4acac148b3a952336a9f739cdbdee22a573bca5cda247a8272beacd0b6a1aa0"
+    },
+    {
+      "space": "storage",
+      "file": "0007-add-rls-to-buckets.sql",
+      "sha256": "c87aa8ea3c6509171728880538cc26e7233896a8f927af3bc5b351a1706610e3"
+    },
+    {
+      "space": "storage",
+      "file": "0008-add-public-to-buckets.sql",
+      "sha256": "1d881092aea62e83493f1a9c4cb4f101f3035a08d62be84a7e7970ee0c6f0f48"
+    },
+    {
+      "space": "storage",
+      "file": "0009-fix-search-function.sql",
+      "sha256": "841c3ee6ed4885bc59f55db8d6eec293c6188a670d049737552c03a0ba714dc9"
+    },
+    {
+      "space": "storage",
+      "file": "00010-search-files-search-function.sql",
+      "sha256": "41d2b264437766b360ad421c4b1b80e5bb34c1503779408eefe5827238b2a098"
+    },
+    {
+      "space": "storage",
+      "file": "0011-add-trigger-to-auto-update-updated_at-column.sql",
+      "sha256": "922302d623209192a5a85c6bdd0bf21b64cc3bded6e1d048c66d98c7dfdd83eb"
+    },
+    {
+      "space": "storage",
+      "file": "0012-add-automatic-avif-detection-flag.sql",
+      "sha256": "55ba2318864bfc0cc1f4db871d0874c70d445fa8f2b12e4543960403bd88ee9a"
+    },
+    {
+      "space": "storage",
+      "file": "0013-add-bucket-custom-limits.sql",
+      "sha256": "07d0b1e8299b70eeeda0841969772aecdbd0788eda9dbada7806afdc8ed9d06e"
+    },
+    {
+      "space": "storage",
+      "file": "0014-use-bytes-for-max-size.sql",
+      "sha256": "9e34ab4fc380e1cdd4748bcac368cd628c247962bdd58f8311a44f1b29e918ec"
+    },
+    {
+      "space": "storage",
+      "file": "0015-add-can-insert-object-function.sql",
+      "sha256": "572c4c802fce193ed5d63eba166922b5469d863d1eae460dd06cdcb1594bab9a"
+    },
+    {
+      "space": "storage",
+      "file": "0016-add-version.sql",
+      "sha256": "a4c7a068bb3212a015879859f3c7b8e1ed92998a671fbf3a9bdfd827cf5e0e67"
+    },
+    {
+      "space": "storage",
+      "file": "0017-drop-owner-foreign-key.sql",
+      "sha256": "00edfd4aefba445959c977fd1a510bd7900dcf9679bbc24615d43ad9768dd0da"
+    },
+    {
+      "space": "storage",
+      "file": "0018-add_owner_id_column_deprecate_owner.sql",
+      "sha256": "c895bce18e7900b793a61a8bac57e02d18a51ac3683ddcf6e169919164025c8f"
+    },
+    {
+      "space": "storage",
+      "file": "0019-alter-default-value-objects-id.sql",
+      "sha256": "97345b8589da8fc5af940ffc6675b8616d21431f7e8bc5a9287d861e8b51e526"
+    },
+    {
+      "space": "storage",
+      "file": "0020-list-objects-with-delimiter.sql",
+      "sha256": "aaab6b1331cd5a0a9172982dfc7c4951a4e7a2b5b063417c4ab8d67d0ff1d0fe"
+    },
+    {
+      "space": "storage",
+      "file": "0021-s3-multipart-uploads.sql",
+      "sha256": "d8f5094ea9696065da7764479ff5cee29a8575404a05f31342495f98d1685319"
+    },
+    {
+      "space": "storage",
+      "file": "0022-s3-multipart-uploads-big-ints.sql",
+      "sha256": "700352759f3d889c23046b7bba351138d6e10bd8791768c504f68c7ffd98d8f4"
+    },
+    {
+      "space": "storage",
+      "file": "0023-optimize-search-function.sql",
+      "sha256": "d7ac7494c872ebecb7fa23f28519e4d39f12a078589bea279baec3c1b5b2625e"
+    },
+    {
+      "space": "storage",
+      "file": "0024-operation-function.sql",
+      "sha256": "698fe461ed74e3aad76cbde00cfaad164d8e42ee3a09b3ae78206383131e4be7"
+    },
+    {
+      "space": "storage",
+      "file": "0025-custom-metadata.sql",
+      "sha256": "76fd2bf4d248c2fb0de10d37e0053416cb0ff4527eceed7e517768895a8eb78e"
+    },
+    {
+      "space": "storage",
+      "file": "0026-objects-prefixes.sql",
+      "sha256": "7bc1859424c6a3365652c0a515029a74611db34e9c4c15815dc9184e630ce3c0"
+    },
+    {
+      "space": "storage",
+      "file": "0027-search-v2.sql",
+      "sha256": "94f974e15beb7cd31a488b5ba7b93e77cba814a886906d3ac31a288b4274e95a"
+    },
+    {
+      "space": "storage",
+      "file": "0028-object-bucket-name-sorting.sql",
+      "sha256": "489fb03c0f0ab5a840159862293be426509551d01e3116d4d8d344ac346a8cde"
+    },
+    {
+      "space": "storage",
+      "file": "0029-create-prefixes.sql",
+      "sha256": "f4322a848c2594de79f5d23138c4f4535fe6c42c470d1f36c1ddf7d1908e0472"
+    },
+    {
+      "space": "storage",
+      "file": "0030-update-object-levels.sql",
+      "sha256": "9db4e414c38eeafb74f064e01041b830ac65381335b6a924c6bbadb0c2d6ce68"
+    },
+    {
+      "space": "storage",
+      "file": "0031-objects-level-index.sql",
+      "sha256": "1774c6f25b4f901dc9658a4ada698e5044baef436d65bbeccba39f3ec39f371a"
+    },
+    {
+      "space": "storage",
+      "file": "0032-backward-compatible-index-on-objects.sql",
+      "sha256": "4dce2ff86cf07dcb246ab26d2126d46b91a209aa6a9a8bdb8c7d94e3b6836a70"
+    },
+    {
+      "space": "storage",
+      "file": "0033-backward-compatible-index-on-prefixes.sql",
+      "sha256": "911a2e28d8a6b4556b19067902f0d98db40e9609f052484de614a81c824637be"
+    },
+    {
+      "space": "storage",
+      "file": "0034-optimize-search-function-v1.sql",
+      "sha256": "c96dac7648248e7be31ad6e62a84810564f8e22d331013e541e111e62adeab44"
+    },
+    {
+      "space": "storage",
+      "file": "0035-add-insert-trigger-prefixes.sql",
+      "sha256": "ae70ba3d823686797d98577d47a6439fbbc68ed7d3faf2b6877805b1ad9b0079"
+    },
+    {
+      "space": "storage",
+      "file": "0036-optimise-existing-functions.sql",
+      "sha256": "07cdc57294abdec92dc795963f819ee821a81b966be86d87033a7d425f5cfeb8"
+    },
+    {
+      "space": "storage",
+      "file": "0037-add-bucket-name-length-trigger.sql",
+      "sha256": "87302c6579e5d6fca31e665ba1496471e2b9b61bc76dd95979ec57d1fa1bf58f"
+    },
+    {
+      "space": "storage",
+      "file": "0038-iceberg-catalog-flag-on-buckets.sql",
+      "sha256": "1990ef579540844e013580a03bf87ea5d37c37686dcad11e81503d8e443805b9"
+    },
+    {
+      "space": "storage",
+      "file": "0039-add-search-v2-sort-support.sql",
+      "sha256": "2291cbc6a9b993f13b199bea3466c2ba7d9355ff71c20ecb8d705b063a899cfd"
+    },
+    {
+      "space": "storage",
+      "file": "0040-fix-prefix-race-conditions-optimized.sql",
+      "sha256": "41f89116ea7e5613ebf7d8dde5901615c61b51193651b6c74638136eb7efc18e"
+    },
+    {
+      "space": "storage",
+      "file": "0041-add-object-level-update-trigger.sql",
+      "sha256": "38660947af9046b085c4f118ef618bb89ebc4b60ab1fec2095326bc023f09c6f"
+    },
+    {
+      "space": "storage",
+      "file": "0042-rollback-prefix-triggers.sql",
+      "sha256": "24679c76007dc978f323e197f71f83e2b6733814c348c4b6d60e4db06163f89f"
+    },
+    {
+      "space": "storage",
+      "file": "0043-fix-object-level.sql",
+      "sha256": "e5544d66aa7142d51dfe9cfc9eaf5008bc91eb8e59ea603e8f2d6e99a82ce800"
+    },
+    {
+      "space": "storage",
+      "file": "0044-vector-bucket-type.sql",
+      "sha256": "a6d094603db7e2c7403b7af40356cbf8559842566d9fbdd78befa7c152633d3f"
+    },
+    {
+      "space": "storage",
+      "file": "0045-vector-buckets.sql",
+      "sha256": "e0c697bd27b5362d0cca5140b195253f1e683aa1975f67261d43988fc2b89b44"
+    },
+    {
+      "space": "storage",
+      "file": "0046-buckets-objects-grants.sql",
+      "sha256": "17cb1614d8028d3a17b234ca50e0677f2c0d094706f9e16e9a3d25ba74b4ac2c"
+    },
+    {
+      "space": "storage",
+      "file": "0047-iceberg-table-metadata.sql",
+      "sha256": "0d13ec23e5e11b9a5d916129e6d40cf1b043a742f49147fd507f5b7b8e2945cf"
+    },
+    {
+      "space": "storage",
+      "file": "0048-iceberg-catalog-ids.sql",
+      "sha256": "e4f553f2a6751fe16956d18ec1b0e3aeac6b0d320c8aa00778c19dca7920bb8a"
+    },
+    {
+      "space": "storage",
+      "file": "0049-buckets-objects-grants-postgres.sql",
+      "sha256": "6491c61da34e9d37b06b9a48849cec131720b363ba10aed47d4c6e7caa25a136"
+    },
+    {
+      "space": "storage",
+      "file": "0050-search-v2-optimised.sql",
+      "sha256": "669dc711aad19b0208449279725868dcf0a2ebb9fd784e21709fe04346f254ee"
+    },
+    {
+      "space": "storage",
+      "file": "0051-index-backward-compatible-search.sql",
+      "sha256": "986b49c9afd56b26cc988340ea8232cd97010db8633187a80420297985abf91b"
+    },
+    {
+      "space": "storage",
+      "file": "0052-drop-not-used-indexes-and-functions.sql",
+      "sha256": "430124dff4889f43c2104dcad14d2516ac0ddb5fc6280d81536b5e8f6954960a"
+    },
+    {
+      "space": "storage",
+      "file": "0053-drop-index-lower-name.sql",
+      "sha256": "05c90c28b853c0d4eab3ace7a71f001a50acb40b21643ecb759e593bf5b79aa7"
+    },
+    {
+      "space": "storage",
+      "file": "0054-drop-index-object-level.sql",
+      "sha256": "6fe0a0cf45cc1b55a8eec3224dc78c38c0ba68436a6760ea6230771668e3e14d"
+    },
+    {
+      "space": "storage",
+      "file": "0055-prevent-direct-deletes.sql",
+      "sha256": "ec334dd0d3533b6ea53de3ed5fef2160fedb786a4555881d8f7bf6b84ee4d30d"
+    },
+    {
+      "space": "storage",
+      "file": "0056-fix-optimized-search-function.sql",
+      "sha256": "ea67346e94fbd5098568aa20c95425da27d3ab60c7a02d1f036e3df47cd887c3"
+    },
+    {
+      "space": "storage",
+      "file": "0057-s3-multipart-uploads-metadata.sql",
+      "sha256": "46005bc435e5ec8fc5a55a73cfae7ead29d63a7cfd3e0a2fce922fe6939f8482"
+    },
+    {
+      "space": "storage",
+      "file": "0058-operation-ergonomics.sql",
+      "sha256": "ccf8810a70bf78f3fff0f8601596dba221197fb81d572cd8119bea164771382a"
+    },
+    {
+      "space": "storage",
+      "file": "0059-drop-unused-functions.sql",
+      "sha256": "499f0d892dcfd4b791a7e84300fd14132424a84047df1eb7848896bace224816"
+    },
+    {
+      "space": "storage",
+      "file": "0060-optimize-existing-functions-again.sql",
+      "sha256": "afa17616e4b842690f51227d5890f1ef7d00f8f8e7035eb6173ec7793e53a3a6"
+    },
+    {
+      "space": "storage",
+      "file": "0061-mark-filename-immutable.sql",
+      "sha256": "7e1f854f81d3775e338ecfed200c30711d2c38e304ac372ca580864f940f2f5a"
+    },
+    {
+      "space": "storage",
+      "file": "0062-object-versioning-core.sql",
+      "sha256": "45969060b55102f56af317b0d7981434be58927de1ff76e1e1789139a3f2defc"
+    },
+    {
+      "space": "storage",
+      "file": "0063-fix-search-name-relative-to-prefix.sql",
+      "sha256": "4656900fd7953a821f45802baa85b83456a7334a0923fd53dee6c886cccf69b3"
+    },
+    {
+      "space": "storage",
+      "file": "0064-fix-search-by-timestamp-sqli.sql",
+      "sha256": "4351d651632bb62841d75f0a85ea8b23b62e141a53fd08d0426ce60f44672d20"
+    },
+    {
+      "space": "storage",
+      "file": "0065-objects-key-version-index.sql",
+      "sha256": "426ed592dbded48288f4c619a6d01ea7f76ea5031b4378ff5a9c8fcd2b9667f1"
+    },
+    {
+      "space": "storage",
+      "file": "0066-objects-current-version-index.sql",
+      "sha256": "2b0a54803b59d6888ee7f39112fd9308b804795deae5232db59664a2ff030913"
+    },
+    {
+      "space": "storage",
+      "file": "0067-objects-null-version-index.sql",
+      "sha256": "40b424187dae61ce84463c2fc65fd6f86552c3aa8af50436fc18ffbf89e19636"
+    },
+    {
+      "space": "storage",
+      "file": "0068-bucket-lifecycle-configuration.sql",
+      "sha256": "03a3832e3b2cbda93f36ce0de5b962d881fefe5d497321a09e9833e118c04139"
+    },
+    {
+      "space": "storage",
+      "file": "0069-validate-bucket-lifecycle-constraints.sql",
+      "sha256": "393f7b36e34a577167a77b226aabf478b529cedf0b2a66b1ac2ea9bdeaf82a7e"
+    },
+    {
+      "space": "storage",
+      "file": "0070-list-objects-with-versions.sql",
+      "sha256": "91ea7e1303a5e2443323bdb652a189084287599a68d0abc1e44ff4d7a617f164"
+    },
+    {
+      "space": "storage",
+      "file": "0071-objects-delete-marker-index.sql",
+      "sha256": "d5d0a454b5d6a7c4d9d800721e053f33f1615d89ed7e5cbc440667a88c2a0d82"
+    },
+    {
+      "space": "storage",
+      "file": "0072-drop-bucketid-objname-index.sql",
+      "sha256": "5b98355d75c7e3c0c87c2cc746ff17006a5f081c8641b457beec74fc0691da04"
+    },
+    {
+      "space": "storage",
+      "file": "0073-revoke-grants-to-unused-operations.sql",
+      "sha256": "d652d1f599fb879baebbdd20d2d43ff96cc6e5d1aa086a0e87feff2ad76bd750"
+    }
+  ],
+  "postgres": "PostgreSQL 17.11 (Debian 17.11-1.pgdg12+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit",
+  "status": "PASS"
+}

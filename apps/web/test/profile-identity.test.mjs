@@ -11,7 +11,7 @@ function fixture(existing=true){
   const auth={id:'auth-user-fixture',email:'fixture@example.invalid',user_metadata:{full_name:'OAuth display name'}};
   let row=existing?{id:'legacy-app-primary-key',authUserId:auth.id,email:auth.email,displayName:'Saved custom name',avatarUrl:'https://example.invalid/custom.png'}:null;
   const filters=[];let inserts=0;
-  supabase.getSupabaseClient=()=>({auth:{getUser:async()=>({data:{user:auth},error:null}),updateUser:async()=>({error:null})},
+  supabase.getSupabaseClient=()=>({auth:{getSession:async()=>({data:{session:{user:auth,access_token:'fixture-access-token'}},error:null}),getUser:async()=>({data:{user:auth},error:null}),updateUser:async()=>({error:null})},
     from:table=>{
       assert.equal(table,'User');let filter,updates,insert;
       const query={select:()=>query,eq:(key,value)=>{filter={key,value};filters.push(filter);return query;},
@@ -42,9 +42,16 @@ test('new account profile creation retains the existing canonical auth-id primar
   const f=fixture(false);const created=await profile.syncCurrentUserProfile();
   assert.equal(created.id,f.auth.id);assert.equal(f.row().authUserId,f.auth.id);assert.equal(f.inserts(),1);
 });
+test('authenticated profile read repairs a missing app row while absent Auth still returns null',async()=>{
+  const f=fixture(false);const created=await profile.getCurrentUserProfile();
+  assert.equal(created.id,f.auth.id);assert.equal(f.row().authUserId,f.auth.id);assert.equal(f.inserts(),1);
+  let dbCalls=0;
+  supabase.getSupabaseClient=()=>({auth:{getSession:async()=>({data:{session:null},error:null}),getUser:async()=>({data:{user:null},error:null})},from:()=>{dbCalls++;throw new Error('Unexpected DB call');}});
+  assert.equal(await profile.getCurrentUserProfile(),null);assert.equal(dbCalls,0);
+});
 test('unauthenticated profile reads return null and writes never call the data API',async()=>{
   let calls=0;
-  supabase.getSupabaseClient=()=>({auth:{getUser:async()=>({data:{user:null},error:null})},from:()=>{calls++;throw new Error('Unexpected DB call');}});
+  supabase.getSupabaseClient=()=>({auth:{getSession:async()=>({data:{session:null},error:null}),getUser:async()=>({data:{user:null},error:null})},from:()=>{calls++;throw new Error('Unexpected DB call');}});
   assert.equal(await profile.getCurrentUserProfile(),null);
   await assert.rejects(profile.syncCurrentUserProfile(),/authenticated/);await assert.rejects(profile.updateCurrentUserProfile({displayName:'name'}),/authenticated/);
   assert.equal(calls,0);

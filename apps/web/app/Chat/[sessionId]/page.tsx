@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import LearningSession from "./learning-session";
+import RequireAuth from "../../components/require-auth";
 
 export const metadata: Metadata = {
   title: "Learning session — Learnly AI",
@@ -23,12 +24,14 @@ export default async function LearnPage({ params, searchParams }: LearnPageProps
   const query = await searchParams;
 
   return (
-    <LearningSession
-      key={sessionId}
-      sessionId={sessionId}
-      learningGoal={firstValue(query.goal)}
-      subject={firstValue(query.subject)}
-      initialInput={firstValue(query.input)}
-    />
+    <RequireAuth>
+      <LearningSession
+        key={sessionId}
+        sessionId={sessionId}
+        learningGoal={firstValue(query.goal)}
+        subject={firstValue(query.subject)}
+        initialInput={firstValue(query.input)}
+      />
+    </RequireAuth>
   );
 }

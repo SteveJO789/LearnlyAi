@@ -33,7 +33,10 @@ uploads/
 .devin/
 .verification-results/
 .web-test-build/
+test-results/
+playwright-report/
 
-# Generated, checksum-verified OCR language assets (prepare explicitly before OCR builds)
+# Generated, checksum-verified OCR language/core assets (prepare explicitly before OCR builds)
 services/api/runtime-ocr/
+services/api/runtime-ocr-core/
 services/api/runtime-workers/

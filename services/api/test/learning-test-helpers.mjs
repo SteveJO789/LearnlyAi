@@ -22,7 +22,7 @@ export function createHarness(options = {}) {
   const engine = new DefaultLearningEngine({
     orchestrator: new DefaultTutorOrchestrator(provider), persistence,
     idFactory: () => `test-id-${++id}`,
-    now: () => new Date("2026-09-27T00:00:00Z"),
+    now: options.now ?? (() => new Date("2026-09-27T00:00:00Z")),
     initialStage: options.initialStage,
     materials: options.materials,
     knowledgeRetriever: options.knowledgeRetriever,
