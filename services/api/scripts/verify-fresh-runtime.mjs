@@ -51,6 +51,7 @@ try {
   run(api, ["node_modules/typescript/bin/tsc", "-p", "tsconfig.json"]);
   run(api, ["scripts/copy-contract.mjs"]);
   assert.equal(existsSync(join(api, "runtime-ocr")), false);
+  assert.equal(existsSync(join(api, "runtime-ocr-core")), false);
   assert.equal(existsSync(join(api, "runtime-workers")), false);
   run(api, ["scripts/prepare-ocr-models.mjs", "--download"]);
   run(api, ["scripts/copy-input-runtime.mjs"]);
@@ -58,7 +59,7 @@ try {
   // Relocate only deployable API files; no repository or Knowledge authoring inputs.
   const isolated = join(scratch, "isolated-api");
   mkdirSync(isolated);
-  for (const path of ["package.json", "dist", "runtime-knowledge", "runtime-ocr", "runtime-workers", "test/runtime-knowledge.test.mjs", "test/learning-test-helpers.mjs",
+  for (const path of ["package.json", "dist", "runtime-knowledge", "runtime-ocr", "runtime-ocr-core", "runtime-workers", "test/runtime-knowledge.test.mjs", "test/learning-test-helpers.mjs",
     "test/real-file-extraction.test.mjs", "test/real-file-fixtures.mjs", "test/fixtures"]) {
     cpSync(join(api, path), join(isolated, path), { recursive: true });
   }

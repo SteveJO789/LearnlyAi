@@ -3,8 +3,10 @@ import { lstat, mkdir, readFile, rename, unlink, writeFile } from "node:fs/promi
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import manifest from "./ocr-models.json" with { type: "json" };
+import coreManifest from "./ocr-core-assets.json" with { type: "json" };
 
 const defaultRoot = fileURLToPath(new URL("../../../runtime-ocr/", import.meta.url));
+const defaultCoreRoot = fileURLToPath(new URL("../../../runtime-ocr-core/", import.meta.url));
 const base = `https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/${manifest.revision}/`;
 const digest = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");
 
@@ -30,7 +32,8 @@ export async function readVerifiedOcrArtifact(response: Response, file: { bytes:
   if (length !== file.bytes || digest(bytes) !== file.sha256) throw new Error("OCR artifact integrity mismatch.");
   return bytes;
 }
-async function artifact(root: string, file: typeof manifest.files[number], signal?: AbortSignal): Promise<boolean> {
+type Artifact = Readonly<{ name: string; bytes: number; sha256: string }>;
+async function artifact(root: string, file: Artifact, signal?: AbortSignal): Promise<boolean> {
   try {
     signal?.throwIfAborted();
     const path = join(root, file.name), info = await lstat(path);
@@ -41,18 +44,36 @@ async function artifact(root: string, file: typeof manifest.files[number], signa
     throw error;
   }
 }
-async function assertDirectory(root: string): Promise<void> {
+async function assertDirectory(root: string, description = "OCR model"): Promise<void> {
   const info = await lstat(root);
-  if (!info.isDirectory() || info.isSymbolicLink()) throw new Error("OCR model directory must be a regular local directory.");
+  if (!info.isDirectory() || info.isSymbolicLink()) throw new Error(`${description} directory must be a regular local directory.`);
 }
 
-/** Runtime is offline: all pinned model bytes + licence must already be packaged. */
-export async function verifyOcrModels(root = defaultRoot, signal?: AbortSignal) {
+async function verifyLanguageModels(root: string, signal?: AbortSignal) {
   signal?.throwIfAborted();
   await assertDirectory(root);
   for (const file of manifest.files) if (!await artifact(root, file, signal)) throw new Error("Packaged OCR models are missing or fail integrity validation.");
   signal?.throwIfAborted();
   return Object.freeze({ root, revision: manifest.revision, languages: "tha+eng", gzip: false, license: manifest.license });
+}
+
+/** Runtime is offline: every pinned OCR core JS/WASM pair and licence must already be packaged. */
+export async function verifyOcrCoreAssets(root = defaultCoreRoot, signal?: AbortSignal) {
+  signal?.throwIfAborted();
+  await assertDirectory(root, "OCR core asset");
+  if (coreManifest.packageVersion !== "7.0.0") throw new Error("Unsupported pinned OCR core version.");
+  for (const file of coreManifest.files) if (!await artifact(root, file, signal)) {
+    throw new Error("Packaged OCR core assets are missing or fail integrity validation.");
+  }
+  signal?.throwIfAborted();
+  return Object.freeze({ root, packageVersion: coreManifest.packageVersion });
+}
+
+/** Runtime is offline: all pinned model bytes + core WASM assets + licence must already be packaged. */
+export async function verifyOcrModels(root = defaultRoot, signal?: AbortSignal) {
+  const models = await verifyLanguageModels(root, signal);
+  await verifyOcrCoreAssets(defaultCoreRoot, signal);
+  return models;
 }
 
 /** Build-time only. Missing/corrupt bytes never trigger a download without an explicit flag. */
@@ -80,5 +101,5 @@ export async function prepareOcrModels(options: { root?: string; download?: bool
       if (temporary) await unlink(temporary).catch(() => {});
     }
   }
-  return verifyOcrModels(root);
+  return verifyLanguageModels(root);
 }

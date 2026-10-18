@@ -7,6 +7,7 @@ import { Worker } from 'node:worker_threads';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { test } from 'node:test';
 import { mathPng, textPdf } from './real-file-fixtures.mjs';
+import { verifyOcrCoreAssets } from '../dist/modules/input/ocr-models.js';
 
 test('Vercel include pattern fits platform schema and includes actual dynamic OCR/PDF dependencies and runtime assets', () => {
   const root = fileURLToPath(new URL('../', import.meta.url));
@@ -83,14 +84,18 @@ test('isolated packaged file worker runs offline OCR with its included WASM and 
   const config = JSON.parse(readFileSync(new URL('../vercel.json', import.meta.url), 'utf8'));
   const includeFiles = config.functions['src/**'].includeFiles;
   const included = new Set(globSync(includeFiles, { cwd: root }).map(path => path.replaceAll('\\', '/')));
+  const coreManifest = JSON.parse(readFileSync(new URL('../src/modules/input/ocr-core-assets.json', import.meta.url), 'utf8'));
+  // Omit tesseract.js-core entirely: deployed OCR must use the separately pinned assets.
   const packageRoots = ['node_modules/pngjs', 'node_modules/jpeg-js', 'node_modules/tesseract.js',
-    'node_modules/tesseract.js-core', 'node_modules/bmp-js', 'node_modules/wasm-feature-detect',
+    'node_modules/bmp-js', 'node_modules/wasm-feature-detect',
     'node_modules/is-url', 'node_modules/zlibjs', 'node_modules/regenerator-runtime', 'node_modules/idb-keyval'];
   for (const packageRoot of packageRoots) assert.ok(included.has(`${packageRoot}/package.json`), packageRoot);
   assert.ok([...included].some(path => /^node_modules\/tesseract\.js-core\/.*\.wasm$/u.test(path)),
     'Vercel include pattern must select Tesseract WASM');
   for (const path of ['runtime-workers/file-text-worker.js', 'runtime-workers/ocr-offline-worker.js',
     'runtime-ocr/eng.traineddata', 'runtime-ocr/tha.traineddata']) assert.ok(included.has(path), path);
+  assert.ok(included.has('runtime-ocr-core/package.json'));
+  for (const file of coreManifest.files) assert.ok(included.has(`runtime-ocr-core/${file.name}`), file.name);
 
   const tempRoot = mkdtempSync(join(tmpdir(), 'learnly-ocr-package-'));
   let worker;
@@ -103,6 +108,18 @@ test('isolated packaged file worker runs offline OCR with its included WASM and 
       cpSync(join(root, workerPath), join(tempRoot, workerPath));
     }
     cpSync(join(root, 'runtime-ocr'), join(tempRoot, 'runtime-ocr'), { recursive: true });
+    cpSync(join(root, 'runtime-ocr-core'), join(tempRoot, 'runtime-ocr-core'), { recursive: true });
+    await verifyOcrCoreAssets(join(tempRoot, 'runtime-ocr-core'));
+    const probe = join(tempRoot, 'runtime-ocr-core', 'tesseract-core-relaxedsimd-lstm.wasm');
+    const original = readFileSync(probe);
+    rmSync(probe);
+    await assert.rejects(verifyOcrCoreAssets(join(tempRoot, 'runtime-ocr-core')), /integrity/);
+    const corrupt = Buffer.from(original);
+    corrupt[0] ^= 0xff;
+    writeFileSync(probe, corrupt);
+    await assert.rejects(verifyOcrCoreAssets(join(tempRoot, 'runtime-ocr-core')), /integrity/);
+    writeFileSync(probe, original);
+    await verifyOcrCoreAssets(join(tempRoot, 'runtime-ocr-core'));
 
     worker = new Worker(pathToFileURL(join(tempRoot, 'runtime-workers/file-text-worker.js')), {
       workerData: { bytes: mathPng(), file: { type: 'IMAGE', mimeType: 'image/png' }, ocrRoot: join(tempRoot, 'runtime-ocr') },
